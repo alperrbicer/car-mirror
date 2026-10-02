@@ -181,3 +181,8 @@
 "Belge dili" = "Язык документа";
 "Ekran paylaşımı durduruldu." = "Трансляция экрана остановлена.";
 "Şu An Çalıyor" = "Сейчас играет";
+
+"Düzenle" = "Редактировать";
+"Kaynak düzenle" = "Редактировать источник";
+"Kaydet" = "Сохранить";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Не удалось обновить источник. Проверьте адрес и данные для входа.";

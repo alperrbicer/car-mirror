@@ -34,6 +34,11 @@ for lang in ['tr','en']:
   if public.read_bytes()!=bundled.read_bytes():errors.append(f'{kind}: offline and public content differ')
 for path in ['Config/App-Info.plist','Config/Broadcast-Info.plist','Config/App.entitlements','Config/CarPlayAudio.entitlements','Config/CarPlay.entitlements','Resources/PrivacyInfo.xcprivacy']:
  with (ROOT/path).open('rb') as f:plistlib.load(f)
+with (ROOT/'Config/App-Info.plist').open('rb') as f:app_info=plistlib.load(f)
+ats=app_info.get('NSAppTransportSecurity',{})
+if ats.get('NSAllowsArbitraryLoads') is not True:errors.append('User-provided HTTP playlists require URLSession ATS access')
+if any(key in ats for key in ['NSAllowsLocalNetworking','NSAllowsArbitraryLoadsForMedia','NSAllowsArbitraryLoadsInWebContent']):
+ errors.append('Fine-grained ATS keys override arbitrary HTTP playlist access on supported iOS versions')
 for name,video in [('CarPlayAudio',False),('CarPlay',True)]:
  with (ROOT/f'Config/{name}.entitlements').open('rb') as f:entitlements=plistlib.load(f)
  if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append(f'{name}: Audio entitlement missing')
@@ -42,8 +47,8 @@ base=(ROOT/'Config/Base.xcconfig').read_text()
 if not re.search(r'^MIRIVO_PRO_SALES_ENABLED = NO$',base,re.M):errors.append('First release must keep Pro sales disabled')
 if not re.search(r'^MARKETING_VERSION = 1.0$',base,re.M):errors.append('Version must match App Store Connect 1.0')
 languages=json.loads((ROOT/'Config/Localizations.json').read_text())
-if len(languages)!=16 or len(set(languages))!=16:errors.append('Expected 16 shipping languages')
-if set(languages)&{'ar','he','th','vi','id','hi'}:errors.append('A deferred language was shipped')
+if len(languages)!=22 or len(set(languages))!=22:errors.append('Expected 22 shipping languages')
+if not {'ar','he','th','vi','id','hi'}.issubset(languages):errors.append('A newly supported language is missing')
 folders={p.parent.name.removesuffix('.lproj') for p in (ROOT/'Resources').glob('*.lproj/Localizable.strings')}
 if folders!=set(languages):errors.append('Unexpected or missing locale resources')
 catalogs={}

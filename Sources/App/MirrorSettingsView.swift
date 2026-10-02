@@ -6,7 +6,6 @@ import AVKit
 
 struct MirrorSettingsView: View {
     @ObservedObject var model: MirrorModel
-    var isTab = false
     @Environment(\.dismiss) private var dismiss
     @State private var report: ReportFile?
     @State private var working = false
@@ -23,13 +22,13 @@ struct MirrorSettingsView: View {
             Form {
                 Section {
                     HStack(spacing: 14) {
-                        MirrorMark().frame(width: 36, height: 36)
+                        MirrorMark().frame(width: 48, height: 48)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(BrandIdentity.name).font(.system(.title3, design: .rounded, weight: .semibold))
+                            Text(BrandIdentity.name).font(.system(.title2, design: .default, weight: .semibold)).tracking(-0.6)
                             Text(BrandIdentity.tagline).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
                         }
                     }
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 16)
                 }
                 .listRowBackground(MirrorStyle.surface)
                 Section {
@@ -108,12 +107,21 @@ struct MirrorSettingsView: View {
                 .listRowBackground(MirrorStyle.surface)
                 #endif
             }
+            .environment(\.defaultMinListRowHeight, MirrorStyle.controlHeight)
             .scrollContentBackground(.hidden)
             .background(MirrorStyle.background)
             .tint(MirrorStyle.accent)
             .navigationTitle(L10n.tr("Ayarlar"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { if !isTab { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("Bitti")) { dismiss() } } } }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark").frame(width: 44, height: 44)
+                    }
+                        .accessibilityLabel(L10n.tr("Bitti"))
+                        .accessibilityIdentifier("close-settings")
+                }
+            }
             .confirmationDialog(L10n.tr("Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?"), isPresented: $clearingLibrary, titleVisibility: .visible) {
                 Button(L10n.tr("Tüm kaynakları sil"), role: .destructive) {
                     model.stopPlayback()

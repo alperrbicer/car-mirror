@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <title>Mirivo — iki ekran ve otomobil logosu</title>
-  <rect x="4" y="6" width="37" height="35" rx="8" stroke="#66e3c7" stroke-width="4.5"/>
-  <rect x="23" y="24" width="37" height="35" rx="8" fill="#090b0d" stroke="#66e3c7" stroke-width="4.5"/>
-  <path d="M32.8 39.4L35.1 34.4C35.6 33.3 36.6 32.7 37.8 32.7H45.2C46.4 32.7 47.4 33.3 47.9 34.4L50.2 39.4M32.8 39.4H50.2C51.7 39.4 52.5 40.5 52.5 42V47.4H30.5V42C30.5 40.5 31.3 39.4 32.8 39.4ZM33.5 47.4V50.3M49.5 47.4V50.3M34.6 43.5H36.3M46.7 43.5H48.4" stroke="#66e3c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <title>Mirivo — mirrored M in an open screen frame</title>
+  <path d="M23 7H17C10.9 7 6 11.9 6 18V46C6 52.1 10.9 57 17 57H23" stroke="#66e3c7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M41 7H47C53.1 7 58 11.9 58 18V46C58 52.1 53.1 57 47 57H41" stroke="#66e3c7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M17 42V23C17 20.3 19.3 19.3 21.2 21.2L32 32L42.8 21.2C44.7 19.3 47 20.3 47 23V42" stroke="#66e3c7" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

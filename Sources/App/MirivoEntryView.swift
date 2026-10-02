@@ -15,7 +15,7 @@ struct MirivoEntryView: View {
                         VStack(spacing: 20) {
                             MirrorMark().frame(width: 64, height: 64)
                             Text(BrandIdentity.name)
-                                .font(.system(size: 32, weight: .semibold, design: .rounded))
+                                .font(.system(size: 32, weight: .semibold, design: .default))
                                 .foregroundStyle(.white)
                         }
                     }

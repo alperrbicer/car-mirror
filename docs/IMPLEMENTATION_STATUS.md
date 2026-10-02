@@ -22,7 +22,7 @@ Kanıtlar: `build/carplay-audio-device.log`, `build/carplay-audio-signing.json`;
 - Oturum kimliği, eski bildirimler, duraklama, kesinti, yeniden deneme, zaman aşımı, durdurma ve temizleme işlenir. Ekran yakalamanın başlaması tek başına araçta görüntü var sayılmaz.
 - Son 10 oturum / toplam 5 MiB sınırında teknik kayıt, rapor paylaşımı ve kayıt silme. URL, parola, erişim anahtarı, ekran, ses, altyazı ve cihaz adı rapora yazılmaz; rapor otomatik gönderilmez.
 - Haftalık, yıllık ve tek ödemelik Pro için StoreKit 2 ürün yükleme, doğrulanmış erişim, satın alma, geri yükleme, işlem güncellemeleri, iade ve sona erme akışları hazırlandı. **Satış kapalıdır; mevcut özellikler ücretsizdir ve hiçbir sürümde reklam yoktur.** Gerçek fiyatlar daha sonra App Store Connect'ten gelecek.
-- 16 dilde uygulama ve yayın uzantısı metinleri; aranabilir dil seçimi, sistem/bölge eşleştirmesi; kalite, ses ve altyazı ayarları. Çevrimdışı gizlilik/EULA/yardım sayfaları Türkçe/İngilizce seçilebilir. Destek: `alperrbicer@gmail.com`. Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe kullanıcının kararıyla ertelendi; `docs/LOCALIZATION.md` içinde kayıtlıdır.
+- 22 dilde uygulama ve yayın uzantısı metinleri; aranabilir dil seçimi, sistem/bölge eşleştirmesi; kalite, ses ve altyazı ayarları. Çevrimdışı gizlilik/EULA/yardım sayfaları Türkçe/İngilizce seçilebilir. Destek: `alperrbicer@gmail.com`. Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe 3 Ekim talimatıyla eklendi; güncel kapsam ve doğrulama `docs/LOCALIZATION.md` içinde kayıtlıdır.
 
 ## Teslim dosyaları
 

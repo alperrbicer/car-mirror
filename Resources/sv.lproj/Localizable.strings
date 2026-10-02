@@ -181,3 +181,8 @@
 "Belge dili" = "Dokumentspråk";
 "Ekran paylaşımı durduruldu." = "Skärmdelningen har stoppats.";
 "Şu An Çalıyor" = "Spelas nu";
+
+"Düzenle" = "Redigera";
+"Kaynak düzenle" = "Redigera källa";
+"Kaydet" = "Spara";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Det gick inte att uppdatera källan. Kontrollera adressen och inloggningsuppgifterna.";

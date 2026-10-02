@@ -2,52 +2,22 @@ import SwiftUI
 
 struct MirrorHomeView: View {
     @ObservedObject var model: MirrorModel
-    @State private var showingSettings = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
-
-    private var inlineActions: Bool { dynamicTypeSize.isAccessibilitySize && verticalSizeClass == .compact }
+    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
+    @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack(spacing: 24) {
-                    header
-                    if inlineActions { actions }
-                    Spacer(minLength: 0)
-                    if !dynamicTypeSize.isAccessibilitySize {
-                        ScreenLinkIllustration(active: model.sessionState == .presenting)
-                    }
-                    status
-                    Spacer(minLength: 20)
-                }
-                .padding(.horizontal, 28)
-                .frame(maxWidth: 520)
-                .frame(maxWidth: .infinity, minHeight: geometry.size.height)
-            }
-            .scrollIndicators(.hidden)
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !inlineActions {
-                VStack(spacing: 14) {
-                    actions
-                    if !dynamicTypeSize.isAccessibilitySize {
-                        Text(BrandIdentity.tagline)
-                            .font(.footnote)
-                            .foregroundStyle(MirrorStyle.secondary)
-                    }
-                }
-                .padding(.horizontal, 28)
-                .padding(.top, 16)
-                .padding(.bottom, 18)
-                .frame(maxWidth: 520)
+        VStack(alignment: .leading, spacing: 24) {
+            if dynamicTypeSize.isAccessibilitySize { actions }
+            connectionCard
+            if !dynamicTypeSize.isAccessibilitySize { actions }
+            sessionDetails
+            Text(BrandIdentity.tagline)
+                .font(.footnote)
+                .foregroundStyle(MirrorStyle.secondary)
                 .frame(maxWidth: .infinity)
-                .background(MirrorStyle.background)
-            }
+                .padding(.top, 4)
         }
-        .background(MirrorStyle.background)
-        .tint(MirrorStyle.accent)
-        .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
         .alert(BrandIdentity.name, isPresented: Binding(
             get: { model.errorMessage != nil },
             set: { if !$0 { model.errorMessage = nil } }
@@ -56,45 +26,42 @@ struct MirrorHomeView: View {
         } message: { Text(model.errorMessage ?? "") }
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            MirrorMark().foregroundStyle(MirrorStyle.accent).frame(width: 28, height: 28)
-            Text(BrandIdentity.name).font(.system(.title3, design: .rounded, weight: .semibold))
-            Spacer()
-            Button { showingSettings = true } label: {
-                Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.7))
-                    .frame(width: 44, height: 44)
-                    .background(MirrorStyle.surface, in: Circle())
-            }
-            .accessibilityLabel(L10n.tr("Ayarlar"))
-        }
-        .padding(.top, 16)
-    }
-
-    private var status: some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 7) {
+    private var connectionCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
                 Circle().fill(model.carPlayConnected ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
                 Text(L10n.tr(model.carPlayConnected ? "CARPLAY BAĞLI" : "CARPLAY BEKLENİYOR"))
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .tracking(1.5)
+                    .font(.system(.caption2, design: .monospaced, weight: .medium))
+                    .tracking(1.2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(MirrorStyle.secondary)
+            .foregroundStyle(model.carPlayConnected ? MirrorStyle.accent : MirrorStyle.secondary)
+            .padding(.bottom, 18)
             Text(model.captureTitle)
-                .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                .font(.system(.largeTitle, design: .default, weight: .semibold))
+                .tracking(-1)
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
             Text(detail)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundStyle(MirrorStyle.secondary)
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: 320)
+                .padding(.top, 10)
+            if !dynamicTypeSize.isAccessibilitySize {
+                ScreenLinkIllustration(active: model.sessionState == .presenting)
+                    .padding(.top, 14)
+                    .padding(.bottom, -8)
+            }
         }
-        .multilineTextAlignment(.center)
-        .accessibilityElement(children: .combine)
+        .padding(24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            RoundedRectangle(cornerRadius: 28)
+                .fill(LinearGradient(colors: [MirrorStyle.raised.opacity(0.75), MirrorStyle.surface.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
+        .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
     }
 
     @ViewBuilder
@@ -104,42 +71,70 @@ struct MirrorHomeView: View {
                 if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && model.supportsVideo == true {
                     Button { model.playInCar() } label: {
                         Label(L10n.tr("Görüntüyü yeniden bağla"), systemImage: "arrow.clockwise")
-                            .font(.headline).frame(maxWidth: .infinity, minHeight: 44)
-                    }.buttonStyle(.borderedProminent)
+                    }.buttonStyle(MirivoButtonStyle(prominent: true))
                 }
                 Button { model.stopBroadcast() } label: {
                     HStack(spacing: 12) {
                         if model.sessionState == .stopping { ProgressView() }
-                        else { Image(systemName: "stop.fill").font(.system(size: 13)) }
+                        else { Image(systemName: "stop.fill").font(.system(size: 14)) }
                         Text(L10n.tr(model.sessionState == .stopping ? "Durduruluyor" : "Paylaşımı durdur"))
                     }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 62)
-                    .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 20))
-                    .overlay { RoundedRectangle(cornerRadius: 20).stroke(.white.opacity(0.08), lineWidth: 1) }
                 }
-                .foregroundStyle(.white)
+                .buttonStyle(MirivoButtonStyle())
                 .disabled(model.sessionState == .stopping)
             }
         } else {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.tr("Ekranını paylaş")).font(.headline).foregroundStyle(.white)
-                    if !dynamicTypeSize.isAccessibilitySize {
-                        Text(L10n.tr("Başlatmak için dokun")).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
-                    }
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
+                : AnyLayout(HStackLayout(spacing: 16))
+            layout {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L10n.tr("Ekranını paylaş"))
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(L10n.tr("Başlatmak için dokun"))
+                        .font(.footnote)
+                        .foregroundStyle(MirrorStyle.secondary)
                 }
-                Spacer(minLength: 8)
+                .fixedSize(horizontal: false, vertical: true)
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
                 BroadcastPicker()
-                    .frame(width: 60, height: 60)
-                    .background(MirrorStyle.accent, in: Circle())
+                    .frame(width: 72, height: 72)
+                    .background(MirrorStyle.accent, in: RoundedRectangle(cornerRadius: 24))
                     .allowsHitTesting(model.storageReady)
                     .opacity(model.storageReady ? 1 : 0.4)
             }
-            .padding(16)
-            .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 24))
-            .overlay { RoundedRectangle(cornerRadius: 24).stroke(MirrorStyle.accent.opacity(0.18), lineWidth: 1) }
+            .padding(.leading, 22)
+            .padding(.trailing, 12)
+            .padding(.vertical, 12)
+            .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
+            .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.accent.opacity(0.23)) }
         }
+    }
+
+    private var sessionDetails: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            MirivoSectionLabel(title: L10n.tr("Tercihler"))
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 20))
+                : AnyLayout(HStackLayout(alignment: .top, spacing: 20))
+            layout {
+                preference("Yayın kalitesi", value: quality == StreamQuality.high.rawValue ? "Yüksek" : "Dengeli", icon: "slider.horizontal.3")
+                preference("Ses", value: audioMode == StreamAudioMode.source.rawValue ? "Kaynak uygulamadan" : "Görüntüyle birlikte", icon: "waveform")
+            }
+        }.padding(.horizontal, 4)
+    }
+
+    private func preference(_ title: String, value: String, icon: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon).font(.system(size: 16)).foregroundStyle(MirrorStyle.accent.opacity(0.8)).padding(.top, 3)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L10n.tr(title)).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                Text(L10n.tr(value)).font(.subheadline.weight(.medium)).foregroundStyle(.white.opacity(0.9))
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var detail: String {

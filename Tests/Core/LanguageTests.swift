@@ -9,7 +9,8 @@ final class LanguageTests: XCTestCase {
             (["zh-TW"], .traditionalChinese), (["zh-HK"], .traditionalChinese),
             (["zh-MO"], .traditionalChinese), (["zh-Hans-HK"], .simplifiedChinese),
             (["zh-Hant-CN"], .traditionalChinese), (["zh-SG"], .simplifiedChinese),
-            (["ar-SA", "he-IL", "th-TH", "vi-VN", "id-ID", "hi-IN", "tr-TR"], .tr),
+            (["ar-SA"], .ar), (["he-IL"], .he), (["th-TH"], .th),
+            (["vi-VN"], .vi), (["id-ID"], .indonesian), (["hi-IN"], .hi),
             (["no-NO", "uk-UA"], .uk), (["unknown"], .en), ([], .en)
         ]
         for (preferences, expected) in cases {
@@ -17,7 +18,9 @@ final class LanguageTests: XCTestCase {
         }
         XCTAssertEqual(AppLanguage.resolve(selection: "ja", preferredLanguages: ["tr-TR"]), .ja)
         XCTAssertEqual(AppLanguage.resolve(selection: "deleted-language", preferredLanguages: ["de-DE"]), .de)
-        XCTAssertEqual(AppLanguage.resolve(selection: "ar", preferredLanguages: ["en-US"]), .en)
+        for language in [AppLanguage.ar, .he, .th, .vi, .indonesian, .hi] {
+            XCTAssertEqual(AppLanguage.resolve(selection: language.rawValue, preferredLanguages: ["en-US"]), language)
+        }
     }
 
     func testLanguageSearchUsesNativeLocalizedNamesAndCodes() {
@@ -28,13 +31,23 @@ final class LanguageTests: XCTestCase {
         XCTAssertTrue(AppLanguage.simplifiedChinese.matches("Simplified", displayLocale: Locale(identifier: "tr")))
         XCTAssertTrue(AppLanguage.uk.matches("  ", displayLocale: Locale(identifier: "tr")))
         XCTAssertFalse(AppLanguage.ko.matches("unknown-language", displayLocale: Locale(identifier: "en")))
+        XCTAssertTrue(AppLanguage.ar.matches("العربية", displayLocale: Locale(identifier: "en")))
+        XCTAssertTrue(AppLanguage.he.matches("עברית", displayLocale: Locale(identifier: "en")))
+        XCTAssertTrue(AppLanguage.th.matches("Thai", displayLocale: Locale(identifier: "en")))
+        XCTAssertTrue(AppLanguage.vi.matches("tieng viet", displayLocale: Locale(identifier: "en")))
+        XCTAssertTrue(AppLanguage.indonesian.matches("Endonezce", displayLocale: Locale(identifier: "tr")))
+        XCTAssertTrue(AppLanguage.hi.matches("Hindi", displayLocale: Locale(identifier: "en")))
     }
 
-    func testShippingCatalogExcludesTheSixDeferredLanguages() throws {
+    func testShippingCatalogIncludesAllTwentyTwoLanguages() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let configured = try JSONDecoder().decode([String].self, from: Data(contentsOf: root.appendingPathComponent("Config/Localizations.json")))
         XCTAssertEqual(Set(configured), Set(AppLanguage.allCases.map(\.rawValue)))
-        XCTAssertEqual(configured.count, 16)
-        XCTAssertTrue(Set(configured).isDisjoint(with: ["ar", "he", "th", "vi", "id", "hi"]))
+        XCTAssertEqual(configured.count, 22)
+        XCTAssertTrue(Set(["ar", "he", "th", "vi", "id", "hi"]).isSubset(of: Set(configured)))
+    }
+
+    func testOnlyArabicAndHebrewUseRightToLeftLayout() {
+        XCTAssertEqual(Set(AppLanguage.allCases.filter(\.isRightToLeft).map(\.rawValue)), ["ar", "he"])
     }
 }

@@ -181,3 +181,8 @@
 "Belge dili" = "Document language";
 "Ekran paylaşımı durduruldu." = "Screen sharing stopped.";
 "Şu An Çalıyor" = "Now Playing";
+
+"Düzenle" = "Edit";
+"Kaynak düzenle" = "Edit source";
+"Kaydet" = "Save";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Unable to update the source. Check the URL and credentials.";

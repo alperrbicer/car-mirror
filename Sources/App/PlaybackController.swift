@@ -4,7 +4,11 @@ import MediaPlayer
 
 @MainActor
 final class PlaybackController: ObservableObject {
+    enum State { case idle, loading, playing, paused, failed }
     let player = AVPlayer()
+    @Published private(set) var state: State = .idle
+    var hasActivePlayback: Bool { state == .loading || state == .playing || state == .paused }
+    var canUseVehicleMode: Bool { state == .playing || state == .paused }
     @Published private(set) var externalPlaybackActive = false
     @Published private(set) var isPlaying = false
     @Published private(set) var errorMessage: String?
@@ -15,6 +19,7 @@ final class PlaybackController: ObservableObject {
     private var waitingForExternalPlayback = false
     var onDiagnostic: ((DiagnosticKind, DiagnosticValues) -> Void)?
     var onFinished: (() -> Void)?
+    var onFailure: ((String) -> Void)?
     var onRemoteStop: (() -> Void)?
     private var notificationTokens: [NSObjectProtocol] = []
     private var startupTask: Task<Void, Never>?
@@ -44,6 +49,13 @@ final class PlaybackController: ObservableObject {
             Task { @MainActor in
                 guard let self else { return }
                 self.isPlaying = self.player.currentItem != nil && self.player.timeControlStatus == .playing
+                if self.player.currentItem != nil {
+                    switch self.player.timeControlStatus {
+                    case .playing: self.state = .playing
+                    case .waitingToPlayAtSpecifiedRate: self.state = .loading
+                    default: if self.state != .loading { self.state = .paused }
+                    }
+                }
                 if self.isPlaying && !self.waitingForExternalPlayback { self.startupTask?.cancel(); self.startupTask = nil }
                 if self.activatedAudioSession {
                     MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = self.isPlaying ? 1.0 : 0.0
@@ -98,6 +110,15 @@ final class PlaybackController: ObservableObject {
                     }
                 }
             })
+        notificationTokens.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.failedToPlayToEndTimeNotification,
+            object: nil, queue: .main) { [weak self] notification in
+                guard let item = notification.object as? AVPlayerItem else { return }
+                let failure = (notification.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error).map(DiagnosticFailure.init)
+                Task { @MainActor in
+                    guard let self, self.player.currentItem === item else { return }
+                    self.fail(L10n.tr("Yayın bağlantısı kesildi. Yeniden deneyebilirsin."), reason: .playback, failure: failure)
+                }
+            })
         notificationTokens.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
             object: nil, queue: .main) { [weak self] notification in
                 guard let item = notification.object as? AVPlayerItem else { return }
@@ -144,6 +165,7 @@ final class PlaybackController: ObservableObject {
                           reason: .playback, failure: item.error.map(DiagnosticFailure.init))
             }
         }
+        state = .loading
         player.replaceCurrentItem(with: item)
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
             MPMediaItemPropertyTitle: title ?? L10n.tr("iPhone ekranı"),
@@ -159,7 +181,7 @@ final class PlaybackController: ObservableObject {
             do { try await Task.sleep(for: .seconds(15)) } catch { return }
             guard let self, let item, self.player.currentItem === item,
                   (requiresExternalPlayback && presentation == .video ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
-            self.fail(L10n.tr(presentation == .audio ? "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene." : "Araç görüntüsü kurulamadı. Yeniden deneyebilirsin."), reason: .unavailable)
+            self.fail(L10n.tr(requiresExternalPlayback && presentation == .video ? "Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable)
         }
     }
 
@@ -175,6 +197,7 @@ final class PlaybackController: ObservableObject {
         player.replaceCurrentItem(with: nil)
         if activatedAudioSession { MPNowPlayingInfoCenter.default().nowPlayingInfo = nil }
         isPlaying = false
+        state = .idle
         errorMessage = nil
         externalPlaybackActive = false
         player.allowsExternalPlayback = false
@@ -193,6 +216,7 @@ final class PlaybackController: ObservableObject {
     private func pause() {
         startupTask?.cancel(); startupTask = nil
         player.pause()
+        state = .paused
     }
 
     private func installRemoteCommands() {
@@ -217,6 +241,8 @@ final class PlaybackController: ObservableObject {
     private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil) {
         stop()
         errorMessage = message
+        state = .failed
+        onFailure?(message)
         var values = DiagnosticValues()
         values.reason = reason
         values.failure = failure

@@ -181,3 +181,8 @@
 "Belge dili" = "文書の言語";
 "Ekran paylaşımı durduruldu." = "画面共有を停止しました。";
 "Şu An Çalıyor" = "再生中";
+
+"Düzenle" = "編集";
+"Kaynak düzenle" = "ソースを編集";
+"Kaydet" = "保存";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "ソースを更新できません。URLとログイン情報を確認してください。";

@@ -181,3 +181,8 @@
 "Belge dili" = "Documenttaal";
 "Ekran paylaşımı durduruldu." = "Scherm delen gestopt.";
 "Şu An Çalıyor" = "Huidig nummer";
+
+"Düzenle" = "Bewerken";
+"Kaynak düzenle" = "Bron bewerken";
+"Kaydet" = "Opslaan";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "De bron kon niet worden bijgewerkt. Controleer de URL en inloggegevens.";

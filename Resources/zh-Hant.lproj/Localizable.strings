@@ -181,3 +181,8 @@
 "Belge dili" = "文件語言";
 "Ekran paylaşımı durduruldu." = "螢幕共享已停止。";
 "Şu An Çalıyor" = "播放中";
+
+"Düzenle" = "編輯";
+"Kaynak düzenle" = "編輯來源";
+"Kaydet" = "儲存";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "無法更新來源，請檢查網址和登入資訊。";

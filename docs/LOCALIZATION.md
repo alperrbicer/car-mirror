@@ -1,32 +1,25 @@
 # Mirivo dil kapsamı
 
-2 Ekim 2026: Kullanıcı, çalışmanın **16 dille** tamamlanmasını istedi.
+3 Ekim 2026: Kullanıcının talimatıyla ertelenen altı dil eklendi. Uygulama ve yayın uzantısı **22 dil** içeriyor.
 
-Türkçe (`tr`), İngilizce (`en`), Basitleştirilmiş Çince (`zh-Hans`), Geleneksel Çince (`zh-Hant`), Japonca (`ja`), Korece (`ko`), Fransızca (`fr`), Almanca (`de`), İspanyolca (`es`), İtalyanca (`it`), Brezilya Portekizcesi (`pt-BR`), Rusça (`ru`), Felemenkçe (`nl`), Lehçe (`pl`), İsveççe (`sv`) ve Ukraynaca (`uk`).
-
-## Sonraki çalışma
-
-Kullanıcının açık kararıyla şu altı dil **ertelendi**. Bu sürümün dil seçimine, çeviri kaynaklarına veya mağaza dil listesine dahil edilmez:
-
-- Arapça (`ar`)
-- İbranice (`he`)
-- Tayca (`th`)
-- Vietnamca (`vi`)
-- Endonezce (`id`)
-- Hintçe (`hi`)
-
-Arapça ve İbranice eklenirken sağdan sola düzen; gezinme, formlar, oynatıcı ve karışık URL/metin alanları üzerinde ayrıca test edilecek. Bu çalışma için RTL doğrulaması yapılmış sayılmaz.
+Türkçe (`tr`), İngilizce (`en`), Basitleştirilmiş Çince (`zh-Hans`), Geleneksel Çince (`zh-Hant`), Japonca (`ja`), Korece (`ko`), Fransızca (`fr`), Almanca (`de`), İspanyolca (`es`), İtalyanca (`it`), Brezilya Portekizcesi (`pt-BR`), Rusça (`ru`), Felemenkçe (`nl`), Lehçe (`pl`), İsveççe (`sv`), Ukraynaca (`uk`), Arapça (`ar`), İbranice (`he`), Tayca (`th`), Vietnamca (`vi`), Endonezce (`id`) ve Hintçe (`hi`).
 
 ## Davranış
 
-Uygulama dili ayarlardan aranarak seçilir veya sistem tercihleri izlenir. Bölgesel dil kodları desteklenen uygulama diline eşlenir. Çince için açık yazı sistemi bölgeden önce gelir; Tayvan, Hong Kong ve Makao varsayılan olarak geleneksel Çince kullanır. Portekizce Brezilya çevirisine eşlenir. Desteklenmeyen tercihlerde listedeki sonraki desteklenen dil, hiçbiri yoksa İngilizce kullanılır.
+Uygulama dili ayarlardan aranarak seçilir veya sistem tercihleri izlenir. Dilin kendi adı, seçili dildeki adı, İngilizce adı veya kodu aranabilir. Bölgesel dil kodları desteklenen uygulama diline eşlenir. Çince için açık yazı sistemi bölgeden önce gelir; Tayvan, Hong Kong ve Makao varsayılan olarak geleneksel Çince kullanır. Portekizce Brezilya çevirisine eşlenir. Desteklenmeyen tercihlerde listedeki sonraki desteklenen dil, hiçbiri yoksa İngilizce kullanılır.
 
-Arayüz ve yayın uzantısı aynı çevirileri kullanır. Sistem satın alma, ReplayKit ve yerel oynatıcı denetimlerinin dili iOS tarafından yönetilir. Hukuki belgeler ve yardım içeriği Türkçe/İngilizce sunulur; belge görünümünde dil seçimi vardır. Arayüz dili, cihazın SpeechAnalyzer konuşma dili desteği anlamına gelmez.
+Arayüz ve yayın uzantısı aynı çevirileri kullanır. Sistem satın alma, ReplayKit ve yerel oynatıcı denetimlerinin dili iOS tarafından yönetilir. Hukuki belgeler ve yardım içeriği Türkçe/İngilizce sunulur; belge görünümünde dil seçimi vardır. Yeni altı arayüz dili, cihazın altı yeni SpeechAnalyzer konuşma modeli desteklediği anlamına gelmez.
 
-Metinler Humanizer yönergeleriyle kısa ve doğal tutuldu. Marka ve teknik biçim adları çevrilmez. Bağımsız ana dil editörü incelemesi yapılmadı.
+Arapça ve İbranice, ana arayüz ve gerçek harici ekranın SwiftUI görünümünde sağdan sola düzen kullanır. Kaynak adı doğal metin yönünü korur; URL, kullanıcı adı ve parola alanları soldan sağa düzenlenir. İngilizce/Türkçe HTML belgeleri kendi metin yönlerini korur. CarPlay şablonlarının ve sistem oynatıcısının düzenini iOS yönetir.
+
+Marka ve teknik biçim adları çevrilmez. Bağımsız ana dil editörü incelemesi yapılmadı.
 
 ## Doğrulama
 
-16 dilin her birinde 183 uygulama metni ve yerel ağ izin açıklaması bulunur. CarPlay Audio çalışmasıyla Şu An Çalıyor etiketi mevcut 16 dile eklendi; yeni dil eklenmedi. Eksik anahtar ve biçim parametresi kontrolleri geçti. Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe uygulama paketinde bulunmaz. Derleme ve testlerin güncel sonuçları `docs/IMPLEMENTATION_STATUS.md` içindedir.
+Her dilde 183 uygulama metni ve yerel ağ izin açıklaması bulunur: toplam 4.026 arayüz çevirisi. `Config/Localizations.json`, ana uygulama/uzantı plist’leri, dil seçimi ve Xcode kaynak grupları aynı 22 dili içerir.
 
-16 dilde açılış, dil arama/değiştirme, seçimi yeniden açılışta koruma ve sistem diline dönüş testleri geçti. Sonradan yapılan belge bağlantısı/yerel dil seçimi eşleştirmesinin ekran kontrolü açık kaldı: son simülatör denemelerinde dokunmalar belge ekranına ulaşmadan sonuç vermedi. Bu son değişiklik yalnızca derleme düzeyinde doğrulandı. Ayrıntılı kanıtlar `docs/IMPLEMENTATION_STATUS.md` içindedir.
+- `python3 scripts/verify_release.py`: 22 dilin anahtar, boş değer, Apple strings biçimi ve biçim parametresi kontrolleri geçti. Rapor: `build/release-static-checks.json`.
+- `swift test`: bölgesel eşleme, yeni altı dilin açık seçimi, yerel ad/arama ve yalnız Arapça/İbranice için RTL davranışı dahil 35 çekirdek ve medya testi geçti. Kayıt: `build/localization22-core.log`.
+- 22 dilde açılış, RTL kaynak girişi ve dil seçiminin korunması için simülatör testleri eklendi. Bu koşunun sonuçları tamamlandığında burada kaydedilecek; fiziksel cihaz ve araç kabulü ayrı iş olarak kalıyor.
+
+2 Ekim’deki önceki 16 dil koşuları ve son belge gezinme kontrolünün açık durumu `docs/IMPLEMENTATION_STATUS.md` içinde tarihsel kayıt olarak korunur. Bu sonuçlar yeni altı dilin doğrulaması olarak kullanılmaz.

@@ -10,15 +10,14 @@ let output = URL(fileURLWithPath: CommandLine.arguments.dropFirst().first ??
 let svg = try XMLDocument(contentsOf: root.appendingPathComponent("Design/mirror-mark.svg"))
 let elements = try svg.nodes(forXPath: "/*[local-name()='svg']/*[local-name()='rect' or local-name()='path']")
     .compactMap { $0 as? XMLElement }
-guard elements.filter({ $0.name == "rect" }).count == 2,
-      elements.filter({ $0.name == "path" }).count == 1 else {
-    fatalError("Expected the selected two-screen and car Mirivo mark")
+guard !elements.isEmpty else {
+    fatalError("The Mirivo vector mark is empty")
 }
 let space = CGColorSpace(name: CGColorSpace.sRGB)!
 
 // The selected SVG uses explicit, absolute M/L/H/V/C/Z commands.
-// Read the car from the source so the icon and in-app mark cannot drift.
-func carPath(_ data: String) -> CGPath {
+// Read each outline from the source so the icon and in-app mark cannot drift.
+func markPath(_ data: String) -> CGPath {
     let scanner = Scanner(string: data)
     scanner.locale = Locale(identifier: "en_US_POSIX")
     scanner.charactersToBeSkipped = .whitespacesAndNewlines.union(CharacterSet(charactersIn: ","))
@@ -75,7 +74,7 @@ func generate(name: String, foreground: UInt32, background: UInt32, highlight: U
             path = CGPath(roundedRect: CGRect(x: value("x"), y: value("y"), width: value("width"), height: value("height")),
                 cornerWidth: value("rx"), cornerHeight: value("rx"), transform: nil)
         } else {
-            path = carPath(element.attribute(forName: "d")!.stringValue!)
+            path = markPath(element.attribute(forName: "d")!.stringValue!)
         }
         context.setLineWidth(value("stroke-width"))
         context.setLineCap(element.attribute(forName: "stroke-linecap")?.stringValue == "round" ? .round : .butt)

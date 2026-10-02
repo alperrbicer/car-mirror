@@ -1,6 +1,6 @@
 # Mirivo
 
-Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimlik: **Mirivo + A**, grafit/mint ve otomobilli iki ekran logosu. Kaynak sürüm **1.0 (6)**; Xcode projesi ve scheme adı `CarMirror` olarak korunur.
+Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimlik: grafit/mint, açık ekran çerçevesi içinde Mirivo M monogramı ve üstten iki bölümlü gezinme. Kaynak sürüm **1.0 (6)**; Xcode projesi ve scheme adı `CarMirror` olarak korunur.
 
 İlk fiziksel hedef iPhone 16 Pro ve 2024 Kia EV6'dır. **Araçta görüntü ve ses henüz doğrulanmadı.** Apple'ın kullanıcıyla paylaştığı e-posta CarPlay Audio yetkisinin hesaba tanımlandığını doğruluyor; Video onayı henüz doğrulanmadı. İmza/profil, fiziksel kabul, TestFlight ve App Review sonuçları [uygulama durumunda](docs/IMPLEMENTATION_STATUS.md) ayrı tutulur.
 
@@ -10,7 +10,7 @@ Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimli
 - M3U, doğrudan yayın ve Xtream Codes kaynakları, kanal/grup arama, yerel oynatıcı ve büyük kontrollü araç modu. Kaynak altyazıları sistem oynatıcısından seçilir.
 - iOS 26 ve desteklenen cihaz/dillerde SpeechAnalyzer ile cihaz içi canlı altyazı. Dil modeli önceden hazırlanır; altyazı yayın görüntüsüne eklenir.
 - CarPlay Audio ile kaynak listesi, ses oynatma ve Şu An Çalıyor kontrolleri. Video yapılandırmasında yetki ve araç desteğine bağlı ekran paylaşımı; iOS gerçekten harici ekran sahnesi sağladığında ortak oynatıcı.
-- 16 dilde arayüz ve aranabilir dil seçimi; Türkçe/İngilizce yasal sayfalar ve yardım; teknik rapor paylaşımı/temizleme; bütün kaynakları ve giriş bilgilerini silme.
+- 22 dilde arayüz ve aranabilir dil seçimi; Arapça/İbranice için sağdan sola düzen; Türkçe/İngilizce yasal sayfalar ve yardım; teknik rapor paylaşımı/temizleme; bütün kaynakları ve giriş bilgilerini silme.
 - StoreKit 2 ile haftalık, yıllık ve tek ödemelik Pro hazırlığı. **Satış kapalı; mevcut özellikler ücretsiz. Hiçbir sürümde reklam yok.** Fiyatlar kodda sabitlenmez. [Pro hazırlığı](docs/PRO_RELEASE.md).
 
 CarTV'nin kurulu sürümünde Audio/Video yetkileri ve harici ekran bildirimleri görüldü. Bu bulgu, uygulamanın iç aktarım yöntemini açıklamaz; Mirivo'nun aynı teknikle çalıştığı veya EV6 uyumluluğunun kanıtlandığı iddia edilmez.
@@ -55,4 +55,4 @@ Kaynak adresleri ve giriş bilgileri Keychain'de; kaynak adları ve ayarlar ciha
 
 `Release/mirivo-netlify.zip` Netlify'a manuel yükleme içindir; `index.html` ZIP kökündedir. Gizlilik, EULA ve yardım Türkçe/İngilizce hazırlanmıştır. Aynı belgeler `Resources/Legal` altında çevrimdışı açılır. Destek: **alperrbicer@gmail.com**. [Yükleme adımları](Release/README.txt).
 
-[Dil kapsamı ve ertelenen altı dil](docs/LOCALIZATION.md), [Ürün planı](docs/PRODUCT_PLAN.md), [fiziksel kabul ölçütleri](docs/RELEASE_ACCEPTANCE.md), [seçilen tasarım](Design/mirivo.html).
+[22 dilin kapsamı ve doğrulaması](docs/LOCALIZATION.md), [Ürün planı](docs/PRODUCT_PLAN.md), [fiziksel kabul ölçütleri](docs/RELEASE_ACCEPTANCE.md), [seçilen tasarım](Design/mirivo.html).

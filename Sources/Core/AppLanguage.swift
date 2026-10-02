@@ -6,6 +6,7 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
     case simplifiedChinese = "zh-Hans", traditionalChinese = "zh-Hant"
     case ja, ko, fr, de, es, it, brazilianPortuguese = "pt-BR"
     case ru, nl, pl, sv, uk
+    case ar, he, th, vi, indonesian = "id", hi
 
     public var id: String { rawValue }
     public var isRightToLeft: Bool { ["ar", "he"].contains(rawValue) }
@@ -27,6 +28,12 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
         case .pl: "Polski"
         case .sv: "Svenska"
         case .uk: "Українська"
+        case .ar: "العربية"
+        case .he: "עברית"
+        case .th: "ไทย"
+        case .vi: "Tiếng Việt"
+        case .indonesian: "Bahasa Indonesia"
+        case .hi: "हिन्दी"
         }
     }
 

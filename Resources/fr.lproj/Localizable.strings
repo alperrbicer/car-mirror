@@ -181,3 +181,8 @@
 "Belge dili" = "Langue du document";
 "Ekran paylaşımı durduruldu." = "Partage d’écran arrêté.";
 "Şu An Çalıyor" = "À l’écoute";
+
+"Düzenle" = "Modifier";
+"Kaynak düzenle" = "Modifier la source";
+"Kaydet" = "Enregistrer";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Impossible de mettre à jour la source. Vérifie l’URL et les identifiants.";

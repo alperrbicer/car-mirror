@@ -23,7 +23,7 @@ struct ProView: View {
                         .background(MirrorStyle.accent.opacity(0.12), in: Capsule()).foregroundStyle(MirrorStyle.accent)
                 }
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(L10n.tr("Mirivo Pro")).font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    Text(L10n.tr("Mirivo Pro")).font(.system(.largeTitle, design: .default, weight: .bold))
                     Text(L10n.tr(store.verifiedPro ? "Tüm özellikler seninle." : "Telefonunda ve aracında daha fazlası."))
                         .font(.title3).foregroundStyle(MirrorStyle.secondary)
                 }
@@ -70,20 +70,24 @@ struct ProView: View {
                             .font(.footnote).foregroundStyle(MirrorStyle.secondary)
                         Button { Task { await store.purchase(selected) } } label: {
                             HStack { if store.busy { ProgressView() }; Text("\(selected.displayPrice) · \(L10n.tr("Satın al"))") }
-                                .font(.headline).frame(maxWidth: .infinity, minHeight: 52)
-                        }.buttonStyle(.borderedProminent).disabled(store.busy)
+                        }.buttonStyle(MirivoButtonStyle(prominent: true)).disabled(store.busy)
                     } else if !store.busy {
                         Button(L10n.tr("Planları yeniden yükle")) { Task { await store.loadProducts() } }
+                            .buttonStyle(MirivoButtonStyle())
                     }
                 }
                 VStack(spacing: 16) {
                     if store.salesEnabled || store.verifiedPro {
-                        Button(L10n.tr("Satın alımları geri yükle")) { Task { await store.restore() } }.disabled(store.busy)
+                        Button(L10n.tr("Satın alımları geri yükle")) { Task { await store.restore() } }
+                            .buttonStyle(MirivoButtonStyle()).disabled(store.busy)
                         Link(L10n.tr("Aboneliği yönet"), destination: URL(string: "https://apps.apple.com/account/subscriptions")!)
+                            .frame(minHeight: 44)
                     }
                     HStack(spacing: 20) {
                         NavigationLink(L10n.tr("Gizlilik")) { LegalDocumentView(page: .privacy) }
+                            .frame(minHeight: 44)
                         NavigationLink(L10n.tr("Kullanım koşulları")) { LegalDocumentView(page: .terms) }
+                            .frame(minHeight: 44)
                     }
                 }.font(.footnote).frame(maxWidth: .infinity)
             }.padding(24).frame(maxWidth: 580).frame(maxWidth: .infinity)

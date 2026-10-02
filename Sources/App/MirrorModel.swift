@@ -14,12 +14,13 @@ final class MirrorModel: ObservableObject {
     @Published private(set) var externalScreenCount = 0
     @Published private(set) var probeStartedAt: Date?
     @Published private(set) var mediaTitle: String?
+    @Published private(set) var selectedMediaChannel: MediaChannel?
+    private var mediaPresentation: MediaPlaybackPresentation?
     let playback = PlaybackController()
     let diagnostics = SessionDiagnostics(process: .app)
     private var store: BroadcastSessionStore?
     private var timer: Timer?
     private var playbackSessionID: UUID?
-    private var playbackFailureObservation: AnyCancellable?
     private var playbackAttemptFailed = false
     private var connectionSessionID = UUID()
     private var stopRequestedID: UUID?
@@ -38,15 +39,16 @@ final class MirrorModel: ObservableObject {
         playback.onFinished = { [weak self] in
             self?.stopProbe()
             self?.mediaTitle = nil
+            self?.selectedMediaChannel = nil
         }
         record(.appOpened)
-        playbackFailureObservation = playback.$errorMessage
-            .compactMap { $0 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] message in
-                self?.errorMessage = message
-                self?.updateSessionState()
-            }
+        playback.onFailure = { [weak self] message in
+            guard let self else { return }
+            self.mediaTitle = nil
+            self.playbackAttemptFailed = self.playbackSessionID != nil
+            self.errorMessage = message
+            self.updateSessionState()
+        }
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.refresh() }
@@ -177,6 +179,8 @@ final class MirrorModel: ObservableObject {
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil) -> Bool {
         stopBroadcast()
         errorMessage = nil
+        selectedMediaChannel = channel
+        mediaPresentation = presentation
         let resolvedPresentation: MediaPlaybackPresentation = carPlayConnected && supportsVideo != true ? .audio : (presentation ?? .video)
         do {
             try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
@@ -190,9 +194,16 @@ final class MirrorModel: ObservableObject {
         }
     }
 
+    func retryMedia() {
+        guard let channel = selectedMediaChannel else { return }
+        playMedia(channel, presentation: mediaPresentation)
+    }
+
     func stopPlayback() {
         playback.stop()
         mediaTitle = nil
+        selectedMediaChannel = nil
+        mediaPresentation = nil
         playbackSessionID = nil
         playbackAttemptFailed = false
     }

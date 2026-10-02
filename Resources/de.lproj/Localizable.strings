@@ -181,3 +181,8 @@
 "Belge dili" = "Dokumentsprache";
 "Ekran paylaşımı durduruldu." = "Bildschirmübertragung gestoppt.";
 "Şu An Çalıyor" = "Aktueller Titel";
+
+"Düzenle" = "Bearbeiten";
+"Kaynak düzenle" = "Quelle bearbeiten";
+"Kaydet" = "Speichern";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Die Quelle konnte nicht aktualisiert werden. Prüfe die URL und die Zugangsdaten.";

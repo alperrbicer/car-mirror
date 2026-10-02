@@ -189,6 +189,15 @@ uygulamayı herkese açık yayımlamaz. Bkz.
 
 ## Bir adım başarısız olursa
 
+Kullanıcının eklediği HTTP M3U/Xtream adresleri `URLSession` ile indirilir.
+`Config/App-Info.plist` içindeki `NSAllowsArbitraryLoads` bu adresleri ve HTTP
+yayınlarını destekler. `NSAllowsArbitraryLoadsForMedia`, `NSAllowsLocalNetworking`
+ve `NSAllowsArbitraryLoadsInWebContent` aynı sözlüğe eklenmemelidir; desteklenen
+iOS sürümlerinde genel izni geçersiz kılarlar. HTTPS adresleri HTTPS üzerinden
+yüklenmeye devam eder; HTTP bağlantılar şifrelenmez. App Review ATS gerekçesi:
+kullanıcıların sağladığı, alan adı önceden bilinmeyen HTTP medya listeleri ve
+yayınlarıyla uyumluluk. `release:check` bu ayarın korunmasını denetler.
+
 - **CarPlay yetkisi/profili eksik:** Apple onayı ve ilgili App ID yetkilerini
   kontrol et; ardından profilleri yenile. Yalnızca iPhone ekranlarını görmek için
   `mobile:ios:preview` kullan. Normal kurulum otomatik olarak önizlemeye geçmez.

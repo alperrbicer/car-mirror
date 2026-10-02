@@ -46,7 +46,7 @@ struct LanguageSettingsView: View {
                 }
                 Spacer(minLength: 0)
                 if selection == id { Image(systemName: "checkmark").foregroundStyle(MirrorStyle.accent) }
-            }.padding(.vertical, 5).contentShape(Rectangle())
+            }.frame(minHeight: MirrorStyle.controlHeight).padding(.vertical, 5).contentShape(Rectangle())
         }
         .accessibilityIdentifier("language-\(id)")
         .accessibilityAddTraits(selection == id ? [.isSelected] : [])

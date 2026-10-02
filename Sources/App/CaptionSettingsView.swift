@@ -24,7 +24,10 @@ struct CaptionSettingsView: View {
             } footer: {
                 Text(L10n.tr("Ekran paylaşımındaki konuşmaları cihazında yazıya çevirir ve görüntüye ekler. iOS 26 ve desteklenen bir dil gerekir. İlk hazırlıkta dil dosyası indirilir; ses ve altyazılar kaydedilmez."))
             }
+            .listRowBackground(MirrorStyle.surface)
         }
+        .environment(\.defaultMinListRowHeight, MirrorStyle.controlHeight)
+        .scrollContentBackground(.hidden).background(MirrorStyle.background)
         .navigationTitle(L10n.tr("Canlı altyazılar"))
         .navigationBarTitleDisplayMode(.inline)
     }

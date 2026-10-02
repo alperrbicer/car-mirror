@@ -1,6 +1,6 @@
 # Mirivo — kaldığımız yer
 
-Son kayıt: 2 Ekim 2026. Proje: `/Users/alperbicer/Documents/projects/private/car-mirror`.
+Son kayıt: 3 Ekim 2026. Proje: `/Users/alperbicer/Documents/projects/private/car-mirror`.
 
 Asıl hedef iPhone 16 Pro'daki YouTube ve Smarters Player gibi uygulamaların görüntüsünü 2024 Kia EV6'nın orijinal ekranına aktarmaktır. Audio onayı ve çalışan yerel ses testleri bu görüntü hedefinin tamamlandığı anlamına gelmez. Kablo ve markasız kablosuz CarPlay adaptörü ayrı doğrulanacak.
 
@@ -11,7 +11,7 @@ Asıl hedef iPhone 16 Pro'daki YouTube ve Smarters Player gibi uygulamaların g�
 - Varsayılan `CarMirror` yapılandırması Audio; `CarMirror CarPlay` veya `--carplay-video` Audio + Video ister. Video onayı/profili henüz doğrulanmadı.
 - CarPlay kaynak seçimi, ses oynatma, Şu An Çalıyor ve oynat/duraklat/durdur bağlantıları uygulandı.
 - 34 Swift, 17 kurulum ve 2 uygulama içi ses testi geçti. Son paket kontrolü: `build/carplay-audio-validation.json`.
-- 16 dil, Pro hazırlığı ve Türkçe/İngilizce çevrimdışı/public belgeler hazır. Güncel Netlify paketi: `Release/mirivo-netlify.zip`.
+- 3 Ekim’de ertelenen altı dil eklendi; uygulama ve yayın uzantısı artık 22 dil içeriyor. Arapça/İbranice sağdan sola düzen kullanıyor. Doğrulama kaydı `docs/LOCALIZATION.md` içinde. Pro hazırlığı ve Türkçe/İngilizce çevrimdışı/public belgeler hazır. Güncel Netlify paketi: `Release/mirivo-netlify.zip`.
 
 ## Sıradaki işler
 
@@ -30,7 +30,7 @@ Asıl hedef iPhone 16 Pro'daki YouTube ve Smarters Player gibi uygulamaların g�
 
 - Pro satışları kapalı: `MIRIVO_PRO_SALES_ENABLED = NO`. Mevcut özellikler ücretsiz; hiçbir sürümde reklam olmayacak.
 - Destek `alperrbicer@gmail.com`, yayıncı Alper Biçer.
-- Yeni dil eklenmeyecek. Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe kullanıcı kararıyla sonraya bırakıldı. Arapça/İbranice eklenirken sağdan sola düzen ayrıca sınanacak. Mevcut çevirilerin bağımsız ana dil editörü incelemesi yapılmadı.
+- Kullanıcının 3 Ekim talimatıyla Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe eklendi; kapsam 22 dil. Bu çalışma dil kapsamıyla sınırlı; diğer açık işler sonraki aşamada ele alınacak. Çevirilerin bağımsız ana dil editörü incelemesi yapılmadı.
 - Netlify'a yayımlama kullanıcıya ait. Son Audio çalışmasında Chrome kullanılmadı; profil işlemleri Xcode üzerinden yapıldı.
 - Başarılı yerel test, geliştirme imzası, fiziksel araç sonucu, dağıtım imzası ve Apple inceleme onayı ayrı kanıtlardır.
 
@@ -40,7 +40,7 @@ Asıl hedef iPhone 16 Pro'daki YouTube ve Smarters Player gibi uygulamaların g�
 - `docs/DEPLOYMENT.md`: Audio/Video/önizleme komutları ve profil doğrulaması.
 - `docs/RELEASE_ACCEPTANCE.md`: fiziksel araç ve dağıtım kabul ölçütleri.
 - `docs/PRO_RELEASE.md`: satış açılışı ve StoreKit işleri.
-- `docs/LOCALIZATION.md`: mevcut 16 dil ve ertelenen altı dil.
+- `docs/LOCALIZATION.md`: mevcut 22 dil ve sağdan sola düzen doğrulaması.
 - `Release/AppStore/review-notes.txt`: inceleme akışı ve sürümün doğru tanıtılması.
 
 Yeni oturumun ilk adımı `git status` ile commit/staging durumunu ve mevcut kaynakları kontrol etmektir. Bu not, değişikliklerin commit/push edildiğine dair kanıt değildir. `build/` altındaki kanıtlar yereldir ve dizin temizlenirse silinebilir; geçmiş bir testin geçtiğini yeni kaynak için yeniden kullanma.

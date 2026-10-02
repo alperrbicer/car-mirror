@@ -62,6 +62,22 @@ final class SourceLibrary: ObservableObject {
         let next = sources.filter { $0.id != source.id }
         try persist(next); sources = next
     }
+    func update(_ source: MediaSource, name: String, kind: MediaSourceKind, secret: SourceSecret) throws {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, let index = sources.firstIndex(where: { $0.id == source.id }) else { throw LibraryError.storage }
+        _ = try MediaURL.validate(secret.url.absoluteString)
+        if kind == .xtream { _ = try XtreamEndpoint.playlist(secret: secret) }
+        let previousSecret = try SourceKeychain.read(source.id)
+        var next = sources
+        next[index] = MediaSource(id: source.id, name: name, kind: kind)
+        try SourceKeychain.save(secret, id: source.id)
+        do { try persist(next) }
+        catch {
+            try SourceKeychain.save(previousSecret, id: source.id)
+            throw error
+        }
+        sources = next
+    }
     func clear() throws {
         for source in sources { try SourceKeychain.delete(source.id) }
         try persist([]); sources = []
