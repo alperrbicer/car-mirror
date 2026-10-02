@@ -10,8 +10,7 @@ struct CarMirrorApp: App {
             MirrorHomeView(model: model)
                 .preferredColorScheme(.dark)
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { model.refresh() }
-                    if phase == .background && model.playback.destination == .preview { model.stopPlayback() }
+                    if phase == .active { model.foregrounded() }
                 }
         }
     }

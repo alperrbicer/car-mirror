@@ -5,6 +5,19 @@ import MirrorCore
 @testable import MirrorMedia
 
 final class MediaPipelineTests: XCTestCase {
+    func testVehicleProbeContainsChangingDecodableFrames() async throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let asset = AVURLAsset(url: root.appendingPathComponent("Resources/ConnectionProbe.mp4"))
+        let duration = try await asset.load(.duration)
+        XCTAssertGreaterThan(duration.seconds, 14)
+        let generator = AVAssetImageGenerator(asset: asset)
+        let first = try await generator.image(at: .zero).image
+        let second = try await generator.image(at: CMTime(seconds: 2, preferredTimescale: 30)).image
+        XCTAssertEqual(first.width, 960)
+        XCTAssertEqual(first.height, 540)
+        XCTAssertNotEqual(first.dataProvider?.data as Data?, second.dataProvider?.data as Data?, "Vehicle probe must visibly advance")
+    }
+
     func testStaticScreenProducesDecodableLiveHLSAndStopsCleanly() async throws {
         let buffer = HLSBuffer()
         let encoder = ScreenStreamEncoder(buffer: buffer)

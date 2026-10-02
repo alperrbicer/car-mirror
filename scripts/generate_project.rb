@@ -36,10 +36,7 @@ app.build_configurations.each do |config|
   config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = '$(MIRROR_BUNDLE_ID)'
   config.build_settings['INFOPLIST_FILE'] = 'Config/App-Info.plist'
   config.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
-  if config.name.end_with?('CarPlay')
-    config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Config/CarPlay.entitlements'
-    config.build_settings['CM_CARPLAY_ENABLED'] = 'YES'
-  end
+  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Config/CarPlay.entitlements'
 end
 broadcast.build_configurations.each do |config|
   config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = '$(MIRROR_BUNDLE_ID).broadcast'
@@ -63,6 +60,8 @@ app.resources_build_phase.add_file_reference(privacy)
 broadcast.resources_build_phase.add_file_reference(privacy)
 assets = project.main_group.new_file('Resources/Assets.xcassets')
 app.resources_build_phase.add_file_reference(assets)
+probe = project.main_group.new_file('Resources/ConnectionProbe.mp4')
+app.resources_build_phase.add_file_reference(probe)
 app.add_dependency(broadcast)
 embed = app.new_copy_files_build_phase('Embed Broadcast Extension')
 embed.dst_subfolder_spec = '13'

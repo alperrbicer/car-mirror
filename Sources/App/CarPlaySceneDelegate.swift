@@ -39,7 +39,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func render() {
         let model = MirrorModel.shared
-        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)"
+        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)"
         guard signature != lastSignature else { return }
         lastSignature = signature
 
@@ -54,12 +54,20 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             model.playInCar()
             completion()
         }
-        let instruction = CPListItem(text: "Ekran paylaşımını iPhone’dan başlat",
-            detailText: "Ardından YouTube veya IPTV uygulamanı aç.")
-        instruction.isEnabled = false
         let stop = CPListItem(text: "Paylaşımı durdur", detailText: nil, image: UIImage(systemName: "stop.circle"))
-        stop.isEnabled = model.broadcasting
-        stop.handler = { _, completion in model.stopBroadcast(); completion() }
-        list?.updateSections([CPListSection(items: [mirror, instruction, stop])])
+        stop.isEnabled = model.broadcasting || model.probeStartedAt != nil
+        stop.handler = { _, completion in model.stopBroadcast(); model.stopProbe(); completion() }
+        var items = [mirror, stop]
+        #if DEBUG
+        let probe = CPListItem(text: "Ekran bağlantı testi", detailText: nil, image: UIImage(systemName: "display"))
+        probe.isEnabled = model.supportsVideo == true && !model.broadcasting
+        if #available(iOS 26.4, *) {
+            probe.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
+                playbackAction: .play, elapsedTime: .zero, duration: .zero)
+        }
+        probe.handler = { _, completion in model.startVideoProbe(); completion() }
+        items.append(probe)
+        #endif
+        list?.updateSections([CPListSection(items: items)])
     }
 }

@@ -11,13 +11,12 @@
     <key>LSRequiresIPhoneOS</key><true/>
     <key>CMAppGroupIdentifier</key><string>$(APP_GROUP_IDENTIFIER)</string>
     <key>CMBroadcastExtensionIdentifier</key><string>$(MIRROR_BUNDLE_ID).broadcast</string>
-    <key>CMCarPlayEnabled</key><string>$(CM_CARPLAY_ENABLED)</string>
     <key>NSLocalNetworkUsageDescription</key><string>Ekran yayınını aynı yerel ağ üzerinden araç ekranına iletmek için kullanılır. Yayın internete yüklenmez.</string>
     <key>NSAppTransportSecurity</key><dict>
         <key>NSAllowsLocalNetworking</key><true/>
     </dict>
     <key>UIBackgroundModes</key><array><string>audio</string></array>
-    <key>UILaunchScreen</key><dict/>
+    <key>UILaunchScreen</key><dict><key>UIColorName</key><string>AppBackground</string></dict>
     <key>UISupportedInterfaceOrientations</key><array>
         <string>UIInterfaceOrientationPortrait</string>
         <string>UIInterfaceOrientationLandscapeLeft</string>
@@ -26,6 +25,16 @@
     <key>UIApplicationSceneManifest</key><dict>
         <key>UIApplicationSupportsMultipleScenes</key><true/>
         <key>UISceneConfigurations</key><dict>
+            <key>UIWindowSceneSessionRoleExternalDisplay</key><array><dict>
+                <key>UISceneConfigurationName</key><string>External display</string>
+                <key>UISceneClassName</key><string>UIWindowScene</string>
+                <key>UISceneDelegateClassName</key><string>$(PRODUCT_MODULE_NAME).ExternalDisplaySceneDelegate</string>
+            </dict></array>
+            <key>UIWindowSceneSessionRoleExternalDisplayNonInteractive</key><array><dict>
+                <key>UISceneConfigurationName</key><string>External display</string>
+                <key>UISceneClassName</key><string>UIWindowScene</string>
+                <key>UISceneDelegateClassName</key><string>$(PRODUCT_MODULE_NAME).ExternalDisplaySceneDelegate</string>
+            </dict></array>
             <key>CPTemplateApplicationSceneSessionRoleApplication</key><array><dict>
                 <key>UISceneConfigurationName</key><string>CarPlay</string>
                 <key>UISceneClassName</key><string>CPTemplateApplicationScene</string>

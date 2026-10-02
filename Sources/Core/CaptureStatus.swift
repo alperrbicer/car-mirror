@@ -16,6 +16,7 @@ public struct CaptureStatus: Codable, Equatable, Sendable {
     public var loopbackURL: URL?
     public var networkURL: URL?
     public var message: String?
+    public var failure: DiagnosticFailure?
 
     public init(sessionID: UUID = UUID(), phase: CapturePhase = .preparing, updatedAt: Date = Date()) {
         self.sessionID = sessionID

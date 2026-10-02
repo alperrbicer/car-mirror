@@ -1,6 +1,5 @@
 import SwiftUI
 import ReplayKit
-import AVKit
 
 struct BroadcastPicker: UIViewRepresentable {
     func makeUIView(context: Context) -> RPSystemBroadcastPickerView {
@@ -12,27 +11,4 @@ struct BroadcastPicker: UIViewRepresentable {
         return view
     }
     func updateUIView(_ view: RPSystemBroadcastPickerView, context: Context) {}
-}
-
-struct RoutePicker: UIViewRepresentable {
-    func makeUIView(context: Context) -> AVRoutePickerView {
-        let view = AVRoutePickerView()
-        view.prioritizesVideoDevices = true
-        view.tintColor = .white
-        view.activeTintColor = .systemMint
-        return view
-    }
-    func updateUIView(_ view: AVRoutePickerView, context: Context) {}
-}
-
-struct StreamPlayerView: UIViewControllerRepresentable {
-    let player: AVPlayer
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        controller.player = player
-        controller.videoGravity = .resizeAspect
-        controller.updatesNowPlayingInfoCenter = false
-        return controller
-    }
-    func updateUIViewController(_ controller: AVPlayerViewController, context: Context) {}
 }

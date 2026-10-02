@@ -11,3 +11,6 @@ DerivedData/
 *.dSYM/
 *.mobileprovision
 *.p12
+.env.deploy
+*.p8
+node_modules/
