@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 require 'xcodeproj'
+require 'json'
 
 root = File.expand_path('..', __dir__)
+languages = JSON.parse(File.read(File.join(root, 'Config/Localizations.json')))
 project_path = File.join(root, 'CarMirror.xcodeproj')
 abort 'Project exists. Pass --replace to regenerate only CarMirror.xcodeproj.' if File.exist?(project_path) && !ARGV.include?('--replace')
 project = Xcodeproj::Project.new(project_path)
@@ -36,7 +38,9 @@ app.build_configurations.each do |config|
   config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = '$(MIRROR_BUNDLE_ID)'
   config.build_settings['INFOPLIST_FILE'] = 'Config/App-Info.plist'
   config.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
-  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Config/CarPlay.entitlements'
+  video = config.name.end_with?('-CarPlay')
+  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = video ? 'Config/CarPlay.entitlements' : 'Config/CarPlayAudio.entitlements'
+  config.build_settings['MIRIVO_CARPLAY_VIDEO_ENABLED'] = video ? 'YES' : 'NO'
 end
 broadcast.build_configurations.each do |config|
   config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = '$(MIRROR_BUNDLE_ID).broadcast'
@@ -72,7 +76,8 @@ legal.last_known_file_type = 'folder'
 app.resources_build_phase.add_file_reference(legal)
 %w[Localizable.strings InfoPlist.strings].each do |filename|
   variant = project.main_group.new_variant_group(filename)
-  %w[tr en].each do |language|
+  languages.each do |language|
+    abort "Missing #{language}/#{filename}" unless File.file?(File.join(root, "Resources/#{language}.lproj/#{filename}"))
     ref = variant.new_file("Resources/#{language}.lproj/#{filename}")
     ref.name = language
   end
@@ -80,7 +85,7 @@ app.resources_build_phase.add_file_reference(legal)
   broadcast.resources_build_phase.add_file_reference(variant)
 end
 project.root_object.development_region = 'tr'
-project.root_object.known_regions = %w[tr en Base]
+project.root_object.known_regions = languages + ['Base']
 project.root_object.attributes['LastUpgradeCheck'] = '2700'
 # Local StoreKit and UI suites run in the simulator; no live purchase is made.
 tests = project.new_target(:unit_test_bundle, 'MirivoTests', :ios, '18.0')

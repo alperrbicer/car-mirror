@@ -34,6 +34,7 @@ final class MirrorModel: ObservableObject {
         do { store = try BroadcastSessionStore(); storageReady = true }
         catch { errorMessage = L10n.tr("Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene.") }
         playback.onDiagnostic = { [weak self] kind, values in self?.record(kind, values: values) }
+        playback.onRemoteStop = { [weak self] in self?.stopBroadcast() }
         playback.onFinished = { [weak self] in
             self?.stopProbe()
             self?.mediaTitle = nil
@@ -109,10 +110,10 @@ final class MirrorModel: ObservableObject {
 
     func connected(supportsVideo: Bool?) {
         carPlayConnected = true
-        self.supportsVideo = supportsVideo
+        self.supportsVideo = CarPlayCapabilities.current.canPresentVideo(vehicleSupportsVideo: supportsVideo)
         var values = DiagnosticValues()
         values.screen = .carPlay
-        values.supportsVideo = supportsVideo
+        values.supportsVideo = self.supportsVideo
         record(.carConnected, values: values)
         refresh()
     }
@@ -172,12 +173,21 @@ final class MirrorModel: ObservableObject {
         updateSessionState()
     }
 
-    func playMedia(_ channel: MediaChannel) {
+    @discardableResult
+    func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil) -> Bool {
         stopBroadcast()
+        errorMessage = nil
+        let resolvedPresentation: MediaPlaybackPresentation = carPlayConnected && supportsVideo != true ? .audio : (presentation ?? .video)
         do {
-            try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false, title: channel.title)
+            try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                              title: channel.title, presentation: resolvedPresentation)
             mediaTitle = channel.title
-        } catch { errorMessage = L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.") }
+            return true
+        } catch {
+            playback.stop()
+            errorMessage = L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
+            return false
+        }
     }
 
     func stopPlayback() {

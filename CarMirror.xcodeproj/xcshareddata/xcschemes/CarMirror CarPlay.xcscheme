@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
+               BlueprintIdentifier = "974E72D98839617F6CC459DB"
                BuildableName = "CarMirror.app"
                BlueprintName = "CarMirror"
                ReferencedContainer = "container:CarMirror.xcodeproj">
@@ -30,7 +30,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
+            BlueprintIdentifier = "974E72D98839617F6CC459DB"
             BuildableName = "CarMirror.app"
             BlueprintName = "CarMirror"
             ReferencedContainer = "container:CarMirror.xcodeproj">
@@ -53,7 +53,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
+            BlueprintIdentifier = "974E72D98839617F6CC459DB"
             BuildableName = "CarMirror.app"
             BlueprintName = "CarMirror"
             ReferencedContainer = "container:CarMirror.xcodeproj">
@@ -70,7 +70,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
+            BlueprintIdentifier = "974E72D98839617F6CC459DB"
             BuildableName = "CarMirror.app"
             BlueprintName = "CarMirror"
             ReferencedContainer = "container:CarMirror.xcodeproj">

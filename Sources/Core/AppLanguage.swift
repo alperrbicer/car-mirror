@@ -5,10 +5,10 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
     case tr, en
     case simplifiedChinese = "zh-Hans", traditionalChinese = "zh-Hant"
     case ja, ko, fr, de, es, it, brazilianPortuguese = "pt-BR"
-    case ru, ar, he, nl, pl, sv, th, vi, id, hi, uk
+    case ru, nl, pl, sv, uk
 
     public var id: String { rawValue }
-    public var isRightToLeft: Bool { self == .ar || self == .he }
+    public var isRightToLeft: Bool { ["ar", "he"].contains(rawValue) }
     public var nativeName: String {
         switch self {
         case .tr: "Türkçe"
@@ -23,15 +23,9 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
         case .it: "Italiano"
         case .brazilianPortuguese: "Português (Brasil)"
         case .ru: "Русский"
-        case .ar: "العربية"
-        case .he: "עברית"
         case .nl: "Nederlands"
         case .pl: "Polski"
         case .sv: "Svenska"
-        case .th: "ไทย"
-        case .vi: "Tiếng Việt"
-        case .id: "Bahasa Indonesia"
-        case .hi: "हिन्दी"
         case .uk: "Українська"
         }
     }
@@ -57,8 +51,6 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
                 return .simplifiedChinese
             }
             if code == "pt" { return .brazilianPortuguese }
-            if code == "iw" { return .he }
-            if code == "in" { return .id }
             if let language = Self(rawValue: code) { return language }
         }
         return .en

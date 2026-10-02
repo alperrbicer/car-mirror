@@ -25,7 +25,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
                 store = try BroadcastSessionStore()
                 broadcastBeganAt = Date()
                 prepareBroadcast()
-            } catch { fail(error.localizedDescription, error: error) }
+            } catch { fail(L10n.tr("Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene."), error: error) }
         }
     }
 
@@ -96,7 +96,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
                 let access = ProductAccess(salesEnabled: SharedPreferences.salesEnabled, verifiedPro: hasPro)
                 self.options.durationLimit = access.broadcastLimit
                 if !access.fullAccess { self.options.captionsEnabled = false }
-                do { try self.begin() } catch { self.fail(error.localizedDescription, error: error) }
+                do { try self.begin() } catch { self.fail(L10n.tr("Yayın tamamlanamadı"), error: error) }
             }
         }
     }
@@ -167,7 +167,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         if status.phase == .paused { publish(); return }
         guard let encoder, let buffer else { return }
         let stats = encoder.snapshot()
-        if let failure = stats.failure { fail(failure); return }
+        if stats.failure != nil { fail(L10n.tr("Yayın tamamlanamadı")); return }
         let contents = buffer.snapshot()
         status.receivedFrames = stats.received
         status.encodedFrames = stats.encoded
@@ -214,7 +214,8 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
             diagnostics.record(.failure, sessionID: status.sessionID, values: values)
             diagnostics.flush()
             tearDown()
-            finishBroadcastWithError(error)
+            finishBroadcastWithError(NSError(domain: "CarMirror", code: 3,
+                userInfo: [NSLocalizedDescriptionKey: L10n.tr("Yayın tamamlanamadı")]))
         }
     }
 

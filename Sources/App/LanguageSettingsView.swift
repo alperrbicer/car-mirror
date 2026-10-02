@@ -27,7 +27,7 @@ struct LanguageSettingsView: View {
                     description: Text(L10n.tr("Başka bir ad veya dil kodu dene.")))
             }
         }
-        .searchable(text: $query, prompt: L10n.tr("Dil bul"))
+        .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: L10n.tr("Dil bul"))
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
         .navigationTitle(L10n.tr("Dil")).navigationBarTitleDisplayMode(.inline)
     }

@@ -31,16 +31,32 @@ Varsayılan kimlikler:
 | Yayın uzantısı | `com.alperbicer.carmirror.broadcast` |
 | Ortak App Group | `group.com.alperbicer.carmirror` |
 
-Tam CarPlay derlemesinde Apple Developer'da ana uygulama için **CarPlay Audio + CarPlay Video** yetkileri,
-iki uygulama kimliği için de aynı App Group gerekir. Apple başvurusunun alınmış
-olması yetkilerin provisioning profile'a verildiği anlamına gelmez. Projede
-önceden kaydedilen imzalama denemesi bu iki CarPlay yetkisi eksik olduğu için
-başarısızdır. Yerel güncel durumu `mobile:doctor` ile kontrol et; komut Apple
-portalını sorgulamaz.
+Kullanıcının paylaştığı Apple e-postası **CarPlay Audio App (CarPlay framework)**
+yetkisinin hesaba tanımlandığını doğruluyor. Video yetkisi için yeni bir onay
+kanıtı yok. Varsayılan derleme Audio ve App Group ister; `--carplay-video`
+seçilirse Audio + Video istenir. İki uygulama kimliği de aynı App Group'u kullanır.
+
+Audio sürümünde CarPlay kaynakları ve Şu An Çalıyor ekranı kullanılır. Ekran
+yansıtma için Video yetkisi ve aracın video desteği ayrıca gerekir. Yetkinin
+hesaba tanımlanması, uygulamanın App ID/profilinin yenilendiğini tek başına
+göstermez. `mobile:doctor` yerel profilleri kontrol eder; Apple portalını sorgulamaz.
 
 Komutlar `CarMirror` scheme'ini ve mevcut `.xcodeproj` dosyasını kullanır.
 Proje üreticisini çalıştırmaz, kaynak sürüm/build numarasını veya entitlement
-dosyalarını değiştirmez. CarPlay yetkileri eksik bir sürüme otomatik geçiş yoktur.
+dosyalarını değiştirmez. Audio varsayılan ve açık bir ürün yapılandırmasıdır;
+başarısız Video derlemesinden Audio veya önizleme sürümüne otomatik geçiş yapılmaz.
+
+| Yapılandırma | Scheme / config | Ana uygulama yetkileri |
+| --- | --- | --- |
+| Audio (varsayılan) | `CarMirror` / `Debug`, `Release` | `Config/CarPlayAudio.entitlements`: Audio + App Group |
+| Audio + Video | `CarMirror CarPlay` / `Debug-CarPlay`, `Release-CarPlay` | `Config/CarPlay.entitlements`: Audio + Video + App Group |
+| iPhone önizlemesi | yalnız `install --preview` | `Config/App.entitlements`: App Group |
+
+Yeni yetkiyi kullanmak için Xcode otomatik imzalama ve
+`--allow-provisioning-updates` ile profil yenilemesi denenebilir. Gerekirse Apple
+Developer → Identifiers → `com.alperbicer.carmirror` → Capabilities bölümünde
+onaylı CarPlay Audio yetkisi etkinleştirilip profil yeniden oluşturulur.
+[Apple'ın yönetilen yetki kılavuzu](https://developer.apple.com/help/account/reference/provisioning-with-managed-capabilities/).
 
 ## Komutlar
 
@@ -78,6 +94,9 @@ bun run mobile:devices
 bun run mobile:ios:preview
 bun run mobile:ios:install --device 'IPHONE_UDID' --allow-provisioning-updates
 bun run mobile:ios:simulator --device 'SIMULATOR_UDID'
+# Video onayı/profili tamamlandıktan sonra:
+bun run mobile:doctor --carplay-video
+bun run mobile:ios:install --carplay-video --device 'IPHONE_UDID' --allow-provisioning-updates
 ```
 
 `mobile:ios:preview`, `mobile:ios:install --preview --allow-provisioning-updates`
@@ -90,7 +109,7 @@ App Group, uygulama/uzantı imzaları, profil tarihi ve cihaz kaydı yine doğru
 Aynı bundle ID kullanıldığı için mevcut CarMirror uygulaması güncellenir; ayrı
 bir simge oluşmaz. Bu sürüm CarPlay'de görünmez ve araç yansıtmasını test etmez.
 `--preview` yalnızca iPhone kurulumu içindir; arşiv, dışa aktarma ve yükleme
-komutları bu seçeneği reddeder. `mobile:doctor` tam CarPlay imzalamasını denetler;
+komutları bu seçeneği reddeder. `mobile:doctor` seçilen CarPlay modunun imzalamasını denetler;
 önizleme kurulumu mümkünken CarPlay profili eksikliğini bildirmesi normaldir.
 
 Simülatör kurulumu App Group erişimi için ad hoc imzalanır; Apple profili istemez.
@@ -112,7 +131,9 @@ yoksa Xcode'daki Apple hesabını kullanır.
 
 Her derleme ayrı DerivedData dizini kullanır. Kurulumdan önce ana uygulama ve
 uzantının bundle ID, sürüm/build, App Group, imza, profil tarihi ve cihaz kaydı
-kontrol edilir; önizleme dışındaki ana uygulamada iki CarPlay yetkisi de aranır. Derleme/kurulum
+kontrol edilir. Varsayılanda Audio; `--carplay-video` ile Audio + Video aranır.
+Paketin çalışma zamanı bayrakları da imzayla eşleşmelidir. Audio imzasında Video
+bulunması veya Video paketinde Video yetkisinin eksik olması reddedilir. Derleme/kurulum
 başarısız olursa sonraki adım çalışmaz. Kurulum mevcut uygulamayı silmez.
 Açılış komutunun başarısı, görünür ekran veya araçta çalışan görüntü kanıtı değildir.
 
@@ -152,7 +173,9 @@ numara ver. Ana uygulama ve uzantı aynı sürüm/build ile üretilir; Xcode'un
 yükleme sırasında numarayı değiştirmesi kapalıdır.
 
 `export` en son **başarıyla doğrulanmış** arşivi seçer. `--archive` ile açık bir
-yol da verebilirsin. Mevcut arşiv kullanılırken `--version`/`--build` verilmez.
+yol da verebilirsin. Mevcut arşiv kullanılırken `--version`/`--build`/`--carplay-video`
+verilmez; Audio/Video modu arşivdeki uygulamanın Info.plist dosyasından okunur ve
+gerçek imza/profille doğrulanır. Mod bayrakları olmayan eski arşiv yeniden üretilmelidir.
 IPA dışarı aktarıldıktan sonra dağıtım profilleri ve yetkiler yeniden kontrol
 edilir. Yükleme, doğrulanan aynı arşivden Xcode'un `destination=upload` yolu ile
 yapılır. Çıktılar ve başarılı işlem kayıtları `build/deploy/` altında saklanır:

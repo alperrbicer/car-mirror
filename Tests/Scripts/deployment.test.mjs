@@ -5,16 +5,17 @@ import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSy
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  argumentsFor, configurationFromSettings, exportPlist, parsePlist, parseProfile,
+  argumentsFor, carPlayModeFromInfo, configurationFromSettings, exportPlist, parsePlist, parseProfile,
   physicalPhones, reserveBuild, root, selectDevice, validateProfile,
 } from '../../scripts/deployment-lib.mjs'
 
 const team = 'TEAM123456'
 const bundleId = 'com.example.carmirror'
 const appGroup = `group.${bundleId}`
-const config = { bundleId, appGroup, team, mainApp: true, now: Date.UTC(2026, 0, 1) }
+const config = { bundleId, appGroup, team, mainApp: true, carPlayMode: 'video', now: Date.UTC(2026, 0, 1) }
 const settings = { PRODUCT_BUNDLE_IDENTIFIER: bundleId, APP_GROUP_IDENTIFIER: appGroup,
-  DEVELOPMENT_TEAM: team, MARKETING_VERSION: '0.1.0', CURRENT_PROJECT_VERSION: '3', CODE_SIGN_ENTITLEMENTS: 'Config/CarPlay.entitlements' }
+  DEVELOPMENT_TEAM: team, MARKETING_VERSION: '0.1.0', CURRENT_PROJECT_VERSION: '3', CODE_SIGN_ENTITLEMENTS: 'Config/CarPlayAudio.entitlements',
+  MIRIVO_CARPLAY_AUDIO_ENABLED: 'YES', MIRIVO_CARPLAY_VIDEO_ENABLED: 'NO' }
 
 function signing() {
   const entitlements = { 'application-identifier': `${team}.${bundleId}`, 'com.apple.developer.team-identifier': team,
@@ -53,6 +54,35 @@ test('CLI rejects ambiguous or incompatible arguments before doing work', () => 
     ['install', 'one', '--device', 'two'], ['archive', '--build', '0'], ['archive', '--version', '1.x'],
     ['upload', '--archive', '/a', '--build', '5'], ['export', '--version', '1.0'], ['check', '--device', 'one'], ['archive', '--skip-tests']]) {
     assert.throws(() => argumentsFor(args), undefined, args.join(' '))
+  }
+})
+
+test('audio-only profiles work without Video and cannot silently satisfy a video build', () => {
+  const fixture = signing()
+  delete fixture.entitlements['com.apple.developer.carplay-video']
+  delete fixture.profile.Entitlements['com.apple.developer.carplay-video']
+  const audio = { ...config, carPlayMode: 'audio' }
+  validateProfile(fixture.entitlements, fixture.profile, audio)
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /carplay-video/)
+  // A broader profile is allowed, but the audio app signature must not ask for Video.
+  fixture.profile.Entitlements['com.apple.developer.carplay-video'] = true
+  validateProfile(fixture.entitlements, fixture.profile, audio)
+  fixture.entitlements['com.apple.developer.carplay-video'] = true
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, audio), /unexpected/)
+  delete fixture.entitlements['com.apple.developer.carplay-video']
+  delete fixture.profile.Entitlements['com.apple.developer.carplay-audio']
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, audio), /carplay-audio/)
+})
+
+test('archived mode and runtime flags determine the exact entitlement requirement', () => {
+  assert.equal(carPlayModeFromInfo({ CMCarPlayAudioEnabled: 'YES', CMCarPlayVideoEnabled: 'NO' }), 'audio')
+  assert.equal(carPlayModeFromInfo({ CMCarPlayAudioEnabled: true, CMCarPlayVideoEnabled: true }), 'video')
+  assert.throws(() => carPlayModeFromInfo({ CMCarPlayAudioEnabled: 'NO', CMCarPlayVideoEnabled: 'NO' }), /preview/)
+  assert.equal(configurationFromSettings([{ target: 'CarMirror', buildSettings: settings }]).carPlayMode, 'audio')
+  const videoSettings = { ...settings, CODE_SIGN_ENTITLEMENTS: 'Config/CarPlay.entitlements', MIRIVO_CARPLAY_VIDEO_ENABLED: 'YES' }
+  assert.equal(configurationFromSettings([{ target: 'CarMirror', buildSettings: videoSettings }]).carPlayMode, 'video')
+  for (const invalid of [{ ...settings, MIRIVO_CARPLAY_VIDEO_ENABLED: 'YES' }, { ...videoSettings, MIRIVO_CARPLAY_VIDEO_ENABLED: 'NO' }]) {
+    assert.throws(() => configurationFromSettings([{ target: 'CarMirror', buildSettings: invalid }]), /runtime flags/)
   }
 })
 
@@ -225,7 +255,24 @@ test('preview overrides only the install entitlements and preserves device signi
   const standard = spawnSync(process.execPath, [fixture.script, 'install', '--dry-run'], { env, encoding: 'utf8' })
   assert.equal(standard.status, 0, standard.stderr)
   assert.ok(!standard.stdout.includes('CODE_SIGN_ENTITLEMENTS='))
-  assert.match(standard.stdout, /App Groups and CarPlay profiles/)
+  assert.match(standard.stdout, /App Groups and CarPlay audio profiles/)
+  assert.match(result.stdout, /MIRIVO_CARPLAY_AUDIO_ENABLED=NO/)
+  assert.match(result.stdout, /MIRIVO_CARPLAY_VIDEO_ENABLED=NO/)
+})
+
+test('video mode is explicit, preserves product paths and is incompatible with preview or an existing archive', t => {
+  assert.throws(() => argumentsFor(['install', '--preview', '--carplay-video']), /cannot be combined/)
+  assert.throws(() => argumentsFor(['upload', '--archive', '/a', '--carplay-video']), /cannot be combined/)
+  const fixture = isolatedCLI(t)
+  for (const command of ['install', 'simulator', 'archive', 'check']) {
+    const result = spawnSync(process.execPath, [fixture.script, command, '--carplay-video', '--dry-run'], {
+      env: { ...fixture.env, PATH: '/nonexistent' }, encoding: 'utf8',
+    })
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(result.stdout, /(?:Debug|Release)-CarPlay/)
+    if (command === 'simulator') assert.match(result.stdout, /Debug-CarPlay-iphonesimulator\/CarMirror.app/)
+    if (command === 'install') assert.match(result.stdout, /CarPlay video profiles/)
+  }
 })
 
 test('a failed native build or ambiguous device never reaches installation or launch', { skip: process.platform !== 'darwin' }, t => {

@@ -9,12 +9,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private var timer: Timer?
     private var lastSignature = ""
     private var loading: Task<Void, Never>?
+    private let capabilities = CarPlayCapabilities.current
 
     func templateApplicationScene(_ scene: CPTemplateApplicationScene, didConnect interfaceController: CPInterfaceController) {
         controller = interfaceController
         configuration = CPSessionConfiguration(delegate: self)
         let supported: Bool?
-        if #available(iOS 26.4, *) { supported = configuration?.supportsVideoPlayback }
+        if capabilities.video, #available(iOS 26.4, *) { supported = configuration?.supportsVideoPlayback }
         else { supported = nil }
         MirrorModel.shared.connected(supportsVideo: supported)
         let list = CPListTemplate(title: BrandIdentity.name, sections: [])
@@ -45,35 +46,47 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         guard signature != lastSignature else { return }
         lastSignature = signature
 
-        let mirror = CPListItem(text: L10n.tr("iPhone ekranı"), detailText: model.captureTitle,
-                                image: UIImage(systemName: "iphone.radiowaves.left.and.right"))
-        mirror.isEnabled = model.readyToPlay && model.supportsVideo == true
-        if #available(iOS 26.4, *) {
-            mirror.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
-                playbackAction: .play, elapsedTime: .zero, duration: .zero)
+        var items: [CPListItem] = []
+        if capabilities.video {
+            let mirror = CPListItem(text: L10n.tr("iPhone ekranı"), detailText: model.captureTitle,
+                                    image: UIImage(systemName: "iphone.radiowaves.left.and.right"))
+            mirror.isEnabled = model.readyToPlay && model.supportsVideo == true
+            if #available(iOS 26.4, *) {
+                mirror.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
+                    playbackAction: .play, elapsedTime: .zero, duration: .zero)
+            }
+            mirror.handler = { _, completion in
+                model.playInCar()
+                completion()
+            }
+            items.append(mirror)
         }
-        mirror.handler = { _, completion in
-            model.playInCar()
-            completion()
+        let sources = CPListItem(text: L10n.tr("Kaynaklar"), detailText: nil, image: UIImage(systemName: "play.rectangle.on.rectangle"))
+        sources.isEnabled = capabilities.audio && !SourceLibrary.shared.sources.isEmpty
+        sources.handler = { [weak self] _, completion in self?.showSources(); completion() }
+        items.append(sources)
+        if model.mediaTitle != nil {
+            let playing = CPListItem(text: L10n.tr("Şu An Çalıyor"), detailText: model.mediaTitle,
+                                     image: UIImage(systemName: "waveform"))
+            playing.handler = { [weak self] _, completion in self?.showNowPlaying(); completion() }
+            items.append(playing)
         }
         let stop = CPListItem(text: L10n.tr(model.mediaTitle == nil ? "Paylaşımı durdur" : "Oynatmayı durdur"), detailText: nil, image: UIImage(systemName: "stop.circle"))
         stop.isEnabled = model.broadcasting || model.probeStartedAt != nil || model.mediaTitle != nil
         stop.handler = { _, completion in model.stopBroadcast(); model.stopProbe(); completion() }
-        var items = [mirror, stop]
+        if stop.isEnabled || capabilities.video { items.append(stop) }
         #if DEBUG
-        let probe = CPListItem(text: L10n.tr("Ekran bağlantı testi"), detailText: nil, image: UIImage(systemName: "display"))
-        probe.isEnabled = model.supportsVideo == true && !model.broadcasting
-        if #available(iOS 26.4, *) {
-            probe.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
-                playbackAction: .play, elapsedTime: .zero, duration: .zero)
+        if capabilities.video {
+            let probe = CPListItem(text: L10n.tr("Ekran bağlantı testi"), detailText: nil, image: UIImage(systemName: "display"))
+            probe.isEnabled = model.supportsVideo == true && !model.broadcasting
+            if #available(iOS 26.4, *) {
+                probe.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
+                    playbackAction: .play, elapsedTime: .zero, duration: .zero)
+            }
+            probe.handler = { _, completion in model.startVideoProbe(); completion() }
+            items.append(probe)
         }
-        probe.handler = { _, completion in model.startVideoProbe(); completion() }
-        items.append(probe)
         #endif
-        let sources = CPListItem(text: L10n.tr("Kaynaklar"), detailText: nil, image: UIImage(systemName: "play.rectangle.on.rectangle"))
-        sources.isEnabled = !SourceLibrary.shared.sources.isEmpty && model.supportsVideo == true
-        sources.handler = { [weak self] _, completion in self?.showSources(); completion() }
-        items.append(sources)
         list?.updateSections([CPListSection(items: items)])
     }
 
@@ -127,11 +140,19 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         let pageSize = max(1, min(90, CPListTemplate.maximumItemCount - 2))
         var items = channels.dropFirst(offset).prefix(pageSize).map { channel in
             let item = CPListItem(text: channel.title, detailText: channel.group.isEmpty ? nil : channel.group)
+            let video = capabilities.canPresentVideo(vehicleSupportsVideo: MirrorModel.shared.supportsVideo)
             if #available(iOS 26.4, *) {
-                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
+                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: video ? .video : .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
             }
-            item.handler = { _, completion in MirrorModel.shared.playMedia(channel); completion() }
+            item.handler = { [weak self] _, completion in
+                let started = MirrorModel.shared.playMedia(channel, presentation: video ? .video : .audio)
+                completion()
+                if started {
+                    // iOS 26.4+ presents the preferred playback UI through CPPlaybackConfiguration.
+                    if #unavailable(iOS 26.4) { self?.showNowPlaying() }
+                } else { self?.showPlaybackError() }
+            }
             return item
         }
         if offset > 0 {
@@ -152,4 +173,18 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         if replacing == nil { controller?.pushTemplate(template, animated: true, completion: nil) }
     }
 
+    private func showNowPlaying() {
+        guard capabilities.audio, let controller, MirrorModel.shared.mediaTitle != nil else { return }
+        let template = CPNowPlayingTemplate.shared
+        guard controller.topTemplate !== template else { return }
+        controller.pushTemplate(template, animated: true, completion: nil)
+    }
+
+    private func showPlaybackError() {
+        let alert = CPAlertTemplate(titleVariants: [L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")],
+            actions: [CPAlertAction(title: L10n.tr("Tamam"), style: .default) { [weak self] _ in
+                self?.controller?.dismissTemplate(animated: true, completion: nil)
+            }])
+        controller?.presentTemplate(alert, animated: true, completion: nil)
+    }
 }

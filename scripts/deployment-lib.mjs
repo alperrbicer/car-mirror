@@ -9,15 +9,27 @@ import { parseArgs } from 'node:util'
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const outputRoot = join(root, 'build/deploy')
 export const carPlayKeys = ['com.apple.developer.carplay-audio', 'com.apple.developer.carplay-video']
+export const carPlayEntitlementFiles = { audio: 'Config/CarPlayAudio.entitlements', video: 'Config/CarPlay.entitlements' }
+
+export function requiredCarPlayKeys(mode = 'audio') {
+  if (!Object.hasOwn(carPlayEntitlementFiles, mode)) throw new Error(`Unknown CarPlay mode: ${mode}`)
+  return mode === 'video' ? carPlayKeys : [carPlayKeys[0]]
+}
+
+export function carPlayModeFromInfo(info) {
+  const enabled = key => info[key] === true || info[key] === 'YES'
+  if (!enabled('CMCarPlayAudioEnabled')) throw new Error('CarPlay Audio is not enabled in this app bundle; preview archives cannot be distributed.')
+  return enabled('CMCarPlayVideoEnabled') ? 'video' : 'audio'
+}
 
 const commandOptions = {
-  doctor: [], devices: [], check: [], prepare: [],
-  install: ['device', 'build', 'version', 'preview', 'allow-provisioning-updates'],
-  simulator: ['device', 'build', 'version'],
-  archive: ['build', 'version', 'allow-provisioning-updates'],
+  doctor: ['carplay-video'], devices: [], check: ['carplay-video'], prepare: ['carplay-video'],
+  install: ['device', 'build', 'version', 'preview', 'carplay-video', 'allow-provisioning-updates'],
+  simulator: ['device', 'build', 'version', 'carplay-video'],
+  archive: ['build', 'version', 'carplay-video', 'allow-provisioning-updates'],
   export: ['archive', 'allow-provisioning-updates'],
-  upload: ['archive', 'build', 'version', 'allow-provisioning-updates'],
-  testflight: ['archive', 'build', 'version', 'allow-provisioning-updates'],
+  upload: ['archive', 'build', 'version', 'carplay-video', 'allow-provisioning-updates'],
+  testflight: ['archive', 'build', 'version', 'carplay-video', 'allow-provisioning-updates'],
 }
 
 export function argumentsFor(argv) {
@@ -27,7 +39,7 @@ export function argumentsFor(argv) {
   const { values, positionals } = parseArgs({ args, strict: true, allowPositionals: true, options: {
     help: { type: 'boolean', short: 'h' }, 'dry-run': { type: 'boolean' },
     device: { type: 'string' }, archive: { type: 'string' }, version: { type: 'string' }, build: { type: 'string' },
-    preview: { type: 'boolean' }, 'allow-provisioning-updates': { type: 'boolean' },
+    preview: { type: 'boolean' }, 'carplay-video': { type: 'boolean' }, 'allow-provisioning-updates': { type: 'boolean' },
   } })
   if (positionals.length) {
     if (!['install', 'simulator'].includes(command) || positionals.length !== 1 || values.device) throw new Error('Pass a single device name/ID with install or simulator, or use --device.')
@@ -40,6 +52,7 @@ export function argumentsFor(argv) {
   if (values.version && !/^\d+(?:\.\d+){0,2}$/.test(values.version)) throw new Error('--version must look like 1.0 or 1.2.3.')
   if (values.build && !/^[1-9]\d{0,8}$/.test(values.build)) throw new Error('--build must be a positive integer with at most 9 digits.')
   if (values.archive && (values.version || values.build)) throw new Error('An existing --archive cannot change --version or --build.')
+  if (values['carplay-video'] && (values.preview || values.archive)) throw new Error('--carplay-video cannot be combined with --preview or --archive. Existing archives retain their own CarPlay mode.')
   return { command, ...values }
 }
 
@@ -95,9 +108,13 @@ export function configurationFromSettings(rows) {
   for (const key of ['PRODUCT_BUNDLE_IDENTIFIER', 'APP_GROUP_IDENTIFIER', 'MARKETING_VERSION', 'CURRENT_PROJECT_VERSION', 'CODE_SIGN_ENTITLEMENTS']) {
     if (!settings[key] || settings[key].includes('$(')) throw new Error(`Xcode did not resolve ${key}. Check Config/Base.xcconfig and Config/Local.xcconfig.`)
   }
-  if (settings.CODE_SIGN_ENTITLEMENTS !== 'Config/CarPlay.entitlements') throw new Error('CarMirror must retain Config/CarPlay.entitlements; no entitlement-free fallback is supported.')
+  const carPlayMode = Object.keys(carPlayEntitlementFiles).find(mode => carPlayEntitlementFiles[mode] === settings.CODE_SIGN_ENTITLEMENTS)
+  if (!carPlayMode) throw new Error('CarMirror must use an explicit CarPlay Audio or Video entitlement file; no entitlement-free fallback is supported.')
+  if (settings.MIRIVO_CARPLAY_AUDIO_ENABLED !== 'YES' || settings.MIRIVO_CARPLAY_VIDEO_ENABLED !== (carPlayMode === 'video' ? 'YES' : 'NO')) {
+    throw new Error('CarPlay runtime flags do not match the selected signing entitlements.')
+  }
   return { bundleId: settings.PRODUCT_BUNDLE_IDENTIFIER, appGroup: settings.APP_GROUP_IDENTIFIER,
-    team: settings.DEVELOPMENT_TEAM || '', version: settings.MARKETING_VERSION, build: settings.CURRENT_PROJECT_VERSION }
+    team: settings.DEVELOPMENT_TEAM || '', version: settings.MARKETING_VERSION, build: settings.CURRENT_PROJECT_VERSION, carPlayMode }
 }
 
 export function physicalPhones(inventory) {
@@ -117,13 +134,17 @@ export function selectDevice(devices, requested) {
   return matches[0]
 }
 
-export function validateProfile(entitlements, profile, { bundleId, appGroup, team, mainApp, device, preview = false, distribution = false, now = Date.now() }) {
+export function validateProfile(entitlements, profile, { bundleId, appGroup, team, mainApp, device, carPlayMode = 'audio', preview = false, distribution = false, now = Date.now() }) {
   if (preview && distribution) throw new Error('iPhone preview builds cannot be used for App Store distribution.')
+  const required = mainApp && !preview ? requiredCarPlayKeys(carPlayMode) : []
+  for (const key of carPlayKeys) {
+    if (!required.includes(key) && entitlements[key] === true) throw new Error(`${bundleId}: unexpected ${key} in the signature for the selected CarPlay mode.`)
+  }
   const granted = profile.Entitlements || {}
   const prefixes = profile.ApplicationIdentifierPrefix || profile.TeamIdentifier || []
   const expectedIds = prefixes.map(prefix => `${prefix}.${bundleId}`)
   for (const [label, values] of [['signature', entitlements], ['provisioning profile', granted]]) {
-    if (mainApp && !preview) for (const key of carPlayKeys) {
+    for (const key of required) {
       if (values[key] !== true) throw new Error(`${bundleId}: ${key} is missing from the ${label}. Configure Apple's CarPlay capabilities/profiles; installation/upload stopped.`)
     }
     if (!values['com.apple.security.application-groups']?.includes(appGroup)) throw new Error(`${bundleId}: App Group ${appGroup} is missing from the ${label}.`)

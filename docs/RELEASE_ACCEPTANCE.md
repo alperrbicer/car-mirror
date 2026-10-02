@@ -6,6 +6,8 @@ Bu dosya testlerin yerine geçmez. Tamamlanmış yerel doğrulamaların çıktı
 
 Aynı dağıtım adayı ile iPhone 16 Pro + 2024 Kia EV6: doğrudan kablo ve markasız kablosuz adaptör ayrı oturumlar. iOS, araç yazılımı, bağlantı biçimi ve build kaydedilir.
 
+Audio onayı sonrası ilk kabul: Audio imzalı Mirivo simgesini açma, iPhone'dan eklenen kaynağı CarPlay'de seçme, sesin araç hoparlörüne ulaşması, Şu An Çalıyor başlığı ve oynat/duraklat/durdur kontrolleri. Telefon görüşmesi, bağlantı kopması ve yeniden bağlanma da sınanır. Audio sürümünün araç menüsünde ekran paylaşımı veya video bağlantı testi bulunmamalıdır. Bu akış aşağıdaki Video kabulünün tamamlandığı anlamına gelmez.
+
 1. Yetkili gerçek imza, CarPlay simgesi ve sahne açılışı.
 2. Araç ekranında sürekli değişen test görüntüsü; yalnız capture veya AVPlayer bayrağı yeterli değildir.
 3. YouTube ve Smarters Player ile görüntü/uygulama sesi; uygulamalar arası geçiş, dikey/yatay yön ve park durumundaki sistem davranışı.
