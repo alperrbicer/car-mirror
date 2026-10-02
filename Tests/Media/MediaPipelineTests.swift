@@ -5,6 +5,71 @@ import MirrorCore
 @testable import MirrorMedia
 
 final class MediaPipelineTests: XCTestCase {
+    func testCapturedAudioAndVideoDecodeOnOneTimeline() async throws {
+        let buffer = HLSBuffer()
+        let encoder = ScreenStreamEncoder(buffer: buffer)
+        defer { encoder.stop() }
+        var pixel: CVPixelBuffer?
+        XCTAssertEqual(CVPixelBufferCreate(nil, 160, 90, kCVPixelFormatType_32BGRA,
+            [kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary, &pixel), kCVReturnSuccess)
+        encoder.submit(try XCTUnwrap(pixel), presentationTime: .zero)
+        encoder.start()
+        let began = ProcessInfo.processInfo.systemUptime
+        var frames: Int64 = 0
+        while ProcessInfo.processInfo.systemUptime - began < 4.5 {
+            // Stay slightly ahead of the real-time writer, like ReplayKit's PCM batches.
+            let desired = Int64((ProcessInfo.processInfo.systemUptime - began + 0.1) * 48_000)
+            while frames < desired {
+                let samples = (0..<1024).flatMap { index -> [Float] in
+                    let value = Float(sin(Double(frames + Int64(index)) * 2 * .pi * 440 / 48_000) * 0.4)
+                    return [value, value]
+                }
+                encoder.submitAudio(try XCTUnwrap(PCMUtilities.sample(samples: samples, at: frames)))
+                frames += 1024
+            }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertNil(encoder.snapshot().failure)
+        XCTAssertGreaterThan(encoder.snapshot().receivedAudioFrames, 48_000)
+        XCTAssertGreaterThan(encoder.snapshot().encodedAudioFrames, 48_000)
+        let snapshot = buffer.snapshot()
+        var data = try XCTUnwrap(snapshot.initialization)
+        snapshot.segments.forEach { data.append($0.data) }
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".mp4")
+        try data.write(to: url); defer { try? FileManager.default.removeItem(at: url) }
+        let asset = AVURLAsset(url: url)
+        let audioTracks = try await asset.loadTracks(withMediaType: .audio)
+        let videoTracks = try await asset.loadTracks(withMediaType: .video)
+        let audio = try XCTUnwrap(audioTracks.first), video = try XCTUnwrap(videoTracks.first)
+        let audioRange = try await audio.load(.timeRange), videoRange = try await video.load(.timeRange)
+        print("AV_TIMELINE", audioRange.start.seconds, audioRange.duration.seconds, videoRange.start.seconds, videoRange.duration.seconds)
+        XCTAssertLessThan(abs(audioRange.start.seconds - videoRange.start.seconds), 0.15)
+        XCTAssertLessThan(abs(audioRange.duration.seconds - videoRange.duration.seconds), 0.2)
+        let reader = try AVAssetReader(asset: asset)
+        let output = AVAssetReaderTrackOutput(track: audio, outputSettings: [
+            AVFormatIDKey: kAudioFormatLinearPCM, AVLinearPCMIsFloatKey: true,
+            AVLinearPCMBitDepthKey: 32, AVLinearPCMIsNonInterleaved: false
+        ])
+        reader.add(output); XCTAssertTrue(reader.startReading())
+        var peak: Float = 0
+        while let sample = output.copyNextSampleBuffer(), let pcm = PCMUtilities.copyPCM(sample), let channel = pcm.floatChannelData?[0] {
+            for index in 0..<Int(pcm.frameLength) { peak = max(peak, abs(channel[index])) }
+        }
+        XCTAssertGreaterThan(peak, 0.1, "AAC must contain the source tone, not only a silent audio track")
+        XCTAssertEqual(reader.status, .completed)
+    }
+
+    func testRepeatedStopsRevokeAllMedia() async throws {
+        for _ in 0..<10 {
+            let buffer = HLSBuffer()
+            let encoder = ScreenStreamEncoder(buffer: buffer)
+            encoder.start(); encoder.stop(); encoder.stop()
+            try await Task.sleep(for: .milliseconds(20))
+            XCTAssertEqual(buffer.snapshot().byteCount, 0)
+            XCTAssertFalse(buffer.setInitialization(Data([1, 2])))
+        }
+    }
+
     func testVehicleProbeContainsChangingDecodableFrames() async throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let asset = AVURLAsset(url: root.appendingPathComponent("Resources/ConnectionProbe.mp4"))

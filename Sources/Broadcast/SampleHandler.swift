@@ -1,7 +1,8 @@
 import ReplayKit
 import ImageIO
 
-final class SampleHandler: RPBroadcastSampleHandler {
+// Mutable state is confined to stateQueue; callbacks enter that queue before access.
+final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
     private let stateQueue = DispatchQueue(label: "CarMirror.BroadcastState")
     private var store: BroadcastSessionStore?
     private var status = CaptureStatus()
@@ -10,6 +11,11 @@ final class SampleHandler: RPBroadcastSampleHandler {
     private var server: LocalStreamServer?
     private var heartbeat: DispatchSourceTimer?
     private let diagnostics = SessionDiagnostics(process: .broadcast)
+    private var captionService: AnyObject?
+    private var options = BroadcastOptions()
+    private var broadcastBeganAt = Date()
+    private var startTask: Task<Void, Never>?
+    private var generation = UUID()
     private var recordedFirstFrame = false
     private var lastStatisticsAt = Date.distantPast
 
@@ -17,13 +23,15 @@ final class SampleHandler: RPBroadcastSampleHandler {
         stateQueue.async { [self] in
             do {
                 store = try BroadcastSessionStore()
-                try begin()
+                broadcastBeganAt = Date()
+                prepareBroadcast()
             } catch { fail(error.localizedDescription, error: error) }
         }
     }
 
     override func broadcastPaused() {
         stateQueue.async { [self] in
+            generation = UUID(); startTask?.cancel(); startTask = nil
             tearDown(stopHeartbeat: false)
             status.phase = .paused
             diagnostics.record(.capturePaused, sessionID: status.sessionID)
@@ -35,12 +43,13 @@ final class SampleHandler: RPBroadcastSampleHandler {
         stateQueue.async { [self] in
             if store?.shouldStop(sessionID: status.sessionID) == true { tick(); return }
             diagnostics.record(.captureResumed, sessionID: status.sessionID)
-            do { try begin() } catch { fail(error.localizedDescription, error: error) }
+            prepareBroadcast()
         }
     }
 
     override func broadcastFinished() {
         stateQueue.sync {
+            generation = UUID(); startTask?.cancel(); startTask = nil
             tearDown()
             if status.phase != .failed { status.phase = .stopped }
             diagnostics.record(.captureStopped, sessionID: status.sessionID)
@@ -50,20 +59,45 @@ final class SampleHandler: RPBroadcastSampleHandler {
     }
 
     override func processSampleBuffer(_ sampleBuffer: CMSampleBuffer, with sampleBufferType: RPSampleBufferType) {
-        // Audio remains with the source app on the vehicle's existing audio route.
-        guard sampleBufferType == .video, let image = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        let value = CMGetAttachment(sampleBuffer, key: RPVideoSampleOrientationKey as CFString, attachmentModeOut: nil) as? NSNumber
-        let orientation = CGImagePropertyOrientation(rawValue: value?.uint32Value ?? 1) ?? .up
         stateQueue.sync {
             guard let encoder else { return }
-            if !recordedFirstFrame {
-                recordedFirstFrame = true
-                var values = DiagnosticValues()
-                values.width = CVPixelBufferGetWidth(image)
-                values.height = CVPixelBufferGetHeight(image)
-                diagnostics.record(.firstFrame, sessionID: status.sessionID, values: values)
+            switch sampleBufferType {
+            case .video:
+                guard let image = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+                let value = CMGetAttachment(sampleBuffer, key: RPVideoSampleOrientationKey as CFString, attachmentModeOut: nil) as? NSNumber
+                let orientation = CGImagePropertyOrientation(rawValue: value?.uint32Value ?? 1) ?? .up
+                if !recordedFirstFrame {
+                    recordedFirstFrame = true
+                    var values = DiagnosticValues()
+                    values.width = CVPixelBufferGetWidth(image)
+                    values.height = CVPixelBufferGetHeight(image)
+                    diagnostics.record(.firstFrame, sessionID: status.sessionID, values: values)
+                }
+                encoder.submit(image, orientation: orientation, presentationTime: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+            case .audioApp:
+                encoder.submitAudio(sampleBuffer)
+                if #available(iOS 26, *) { (captionService as? LiveCaptionTranscriber)?.append(sampleBuffer) }
+            case .audioMic: break // Mirivo never requests or captures microphone audio.
+            @unknown default: break
             }
-            encoder.submit(image, orientation: orientation)
+        }
+    }
+
+    private func prepareBroadcast() {
+        startTask?.cancel()
+        let token = UUID()
+        generation = token
+        startTask = Task { [weak self] in
+            let hasPro = SharedPreferences.salesEnabled ? await ProEntitlements.hasAccess() : false
+            guard !Task.isCancelled else { return }
+            self?.stateQueue.async { [weak self] in
+                guard let self, self.generation == token else { return }
+                self.options = SharedPreferences.options()
+                let access = ProductAccess(salesEnabled: SharedPreferences.salesEnabled, verifiedPro: hasPro)
+                self.options.durationLimit = access.broadcastLimit
+                if !access.fullAccess { self.options.captionsEnabled = false }
+                do { try self.begin() } catch { self.fail(error.localizedDescription, error: error) }
+            }
         }
     }
 
@@ -76,7 +110,17 @@ final class SampleHandler: RPBroadcastSampleHandler {
         try store?.write(status)
         let sessionID = status.sessionID
         let buffer = HLSBuffer()
-        let encoder = ScreenStreamEncoder(buffer: buffer)
+        status.audioMode = options.audioMode
+        let encoder = ScreenStreamEncoder(buffer: buffer, quality: options.quality, includesAudio: options.audioMode == .synchronized)
+        if options.captionsEnabled, #available(iOS 26, *) {
+            captionService = LiveCaptionTranscriber(locale: options.captionLocale,
+                onText: { [weak encoder] text in encoder?.setCaption(text) }, onUnavailable: { [weak self] in
+                    self?.stateQueue.async { [weak self] in
+                        guard let self, self.status.sessionID == sessionID else { return }
+                        self.status.captionsUnavailable = true
+                    }
+                })
+        }
         let server = LocalStreamServer(buffer: buffer)
         self.buffer = buffer
         self.encoder = encoder
@@ -94,7 +138,7 @@ final class SampleHandler: RPBroadcastSampleHandler {
         }, onFailure: { [weak self] error in
             self?.stateQueue.async { [weak self] in
                 guard self?.status.sessionID == sessionID else { return }
-                self?.fail("Yerel yayın açılamadı.", error: error)
+                self?.fail(L10n.tr("Araç için yayın bağlantısı kurulamadı."), error: error)
             }
         })
         encoder.start()
@@ -106,6 +150,9 @@ final class SampleHandler: RPBroadcastSampleHandler {
     }
 
     private func tick() {
+        if let limit = options.durationLimit, Date().timeIntervalSince(broadcastBeganAt) >= limit {
+            fail(L10n.tr("Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin.")); return
+        }
         if store?.shouldStop(sessionID: status.sessionID) == true {
             tearDown()
             status.phase = .stopped
@@ -114,7 +161,7 @@ final class SampleHandler: RPBroadcastSampleHandler {
             diagnostics.record(.captureStopped, sessionID: status.sessionID, values: values)
             publish()
             finishBroadcastWithError(NSError(domain: "CarMirror", code: 0,
-                userInfo: [NSLocalizedDescriptionKey: "Ekran paylaşımı senin isteğinle durduruldu."]))
+                userInfo: [NSLocalizedDescriptionKey: L10n.tr("Ekran paylaşımı durduruldu.")]))
             return
         }
         if status.phase == .paused { publish(); return }
@@ -125,6 +172,8 @@ final class SampleHandler: RPBroadcastSampleHandler {
         status.receivedFrames = stats.received
         status.encodedFrames = stats.encoded
         status.droppedFrames = stats.dropped
+        status.receivedAudioFrames = stats.receivedAudioFrames
+        status.encodedAudioFrames = stats.encodedAudioFrames
         status.segmentCount = contents.totalSegments
         status.bufferedBytes = contents.byteCount
         if contents.isReady && status.loopbackURL != nil && status.phase != .live {
@@ -139,6 +188,9 @@ final class SampleHandler: RPBroadcastSampleHandler {
             values.receivedFrames = stats.received
             values.encodedFrames = stats.encoded
             values.droppedFrames = stats.dropped
+            values.receivedAudioFrames = stats.receivedAudioFrames
+            values.encodedAudioFrames = stats.encodedAudioFrames
+            values.droppedAudioFrames = stats.droppedAudioFrames
             values.segments = contents.totalSegments
             values.bufferedBytes = contents.byteCount
             values.thermalState = ProcessInfo.processInfo.thermalState.rawValue
@@ -186,6 +238,8 @@ final class SampleHandler: RPBroadcastSampleHandler {
             heartbeat?.cancel()
             heartbeat = nil
         }
+        if #available(iOS 26, *) { (captionService as? LiveCaptionTranscriber)?.stop() }
+        captionService = nil
         encoder?.stop()
         server?.stop()
         buffer?.invalidate()

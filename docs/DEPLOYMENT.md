@@ -31,7 +31,7 @@ Varsayılan kimlikler:
 | Yayın uzantısı | `com.alperbicer.carmirror.broadcast` |
 | Ortak App Group | `group.com.alperbicer.carmirror` |
 
-Apple Developer'da ana uygulama için **CarPlay Audio + CarPlay Video** yetkileri,
+Tam CarPlay derlemesinde Apple Developer'da ana uygulama için **CarPlay Audio + CarPlay Video** yetkileri,
 iki uygulama kimliği için de aynı App Group gerekir. Apple başvurusunun alınmış
 olması yetkilerin provisioning profile'a verildiği anlamına gelmez. Projede
 önceden kaydedilen imzalama denemesi bu iki CarPlay yetkisi eksik olduğu için
@@ -51,6 +51,7 @@ dosyalarını değiştirmez. CarPlay yetkileri eksik bir sürüme otomatik geçi
 | `bun run check` | Script testleri + Swift testleri + imzasız simülatör derlemesi |
 | `bun run mobile:ios:prepare` | `check` ile aynı; kurulum yapmaz |
 | `bun run mobile:ios:install` | Debug derlemesi, imza/profil kontrolü, iPhone'a kurulum ve açılış |
+| `bun run mobile:ios:preview` | CarPlay yetkilerini istemeden iPhone ekranlarını önizlemek için imzalı Debug kurulumu |
 | `bun run mobile:ios:simulator` | Simülatörde derleme, kurulum ve açılış |
 | `bun run mobile:ios:archive` | Testler, yeni build numarası ve imzalı Release arşivi |
 | `bun run mobile:ios:export` | Son başarılı arşivi App Store IPA olarak dışarı aktarır |
@@ -74,9 +75,23 @@ anlamına gelmez. Dosya yazmaz, build numarası tüketmez, Apple'a bağlanmaz.
 
 ```sh
 bun run mobile:devices
+bun run mobile:ios:preview
 bun run mobile:ios:install --device 'IPHONE_UDID' --allow-provisioning-updates
 bun run mobile:ios:simulator --device 'SIMULATOR_UDID'
 ```
+
+`mobile:ios:preview`, `mobile:ios:install --preview --allow-provisioning-updates`
+kısayoludur; profil yenileme izni komuta dahildir. Tek eşleşen iPhone otomatik
+seçilir, birden fazla cihaz varsa `--device` ile seçim yapılır. Apple CarPlay
+onayı beklenirken iPhone'da tasarım ve ekranlar bu sürümle incelenebilir. Yalnızca
+bu Debug derlemesine `CODE_SIGN_ENTITLEMENTS=Config/App.entitlements` verilir;
+kaynak entitlement dosyaları ve normal derlemenin CarPlay gereksinimi korunur.
+App Group, uygulama/uzantı imzaları, profil tarihi ve cihaz kaydı yine doğrulanır.
+Aynı bundle ID kullanıldığı için mevcut CarMirror uygulaması güncellenir; ayrı
+bir simge oluşmaz. Bu sürüm CarPlay'de görünmez ve araç yansıtmasını test etmez.
+`--preview` yalnızca iPhone kurulumu içindir; arşiv, dışa aktarma ve yükleme
+komutları bu seçeneği reddeder. `mobile:doctor` tam CarPlay imzalamasını denetler;
+önizleme kurulumu mümkünken CarPlay profili eksikliğini bildirmesi normaldir.
 
 Simülatör kurulumu App Group erişimi için ad hoc imzalanır; Apple profili istemez.
 `check` komutunun imzasız derlemesi yalnızca derlenebilirliği doğrular.
@@ -91,12 +106,13 @@ Developer'a otomatik kaydetmez.
 
 `--allow-provisioning-updates`, Xcode'un Apple'daki profilleri oluşturmasına veya
 güncellemesine izin verir. Bu seçenek olmadan yerel imzalama kaynakları
-kullanılır. CarPlay başvuru/onay adımını tamamlamaz. API anahtarı ayarlıysa onu,
+kullanılır. `mobile:ios:preview` bu seçeneği varsayılan olarak ekler.
+CarPlay başvuru/onay adımını tamamlamaz. API anahtarı ayarlıysa onu,
 yoksa Xcode'daki Apple hesabını kullanır.
 
 Her derleme ayrı DerivedData dizini kullanır. Kurulumdan önce ana uygulama ve
 uzantının bundle ID, sürüm/build, App Group, imza, profil tarihi ve cihaz kaydı
-kontrol edilir; ana uygulamada iki CarPlay yetkisi de aranır. Derleme/kurulum
+kontrol edilir; önizleme dışındaki ana uygulamada iki CarPlay yetkisi de aranır. Derleme/kurulum
 başarısız olursa sonraki adım çalışmaz. Kurulum mevcut uygulamayı silmez.
 Açılış komutunun başarısı, görünür ekran veya araçta çalışan görüntü kanıtı değildir.
 
@@ -151,7 +167,8 @@ uygulamayı herkese açık yayımlamaz. Bkz.
 ## Bir adım başarısız olursa
 
 - **CarPlay yetkisi/profili eksik:** Apple onayı ve ilgili App ID yetkilerini
-  kontrol et; ardından profilleri yenile. Script yetkiyi kaldırarak devam etmez.
+  kontrol et; ardından profilleri yenile. Yalnızca iPhone ekranlarını görmek için
+  `mobile:ios:preview` kullan. Normal kurulum otomatik olarak önizlemeye geçmez.
 - **Sertifika yok:** Xcode → Settings → Accounts üzerinden doğru takımı ve
   Apple Development/Distribution sertifikalarını ayarla.
 - **CoreDevice/cihaz bulunamadı:** Xcode'da Devices and Simulators ekranını aç,

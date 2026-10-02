@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A13DBCFEE2AF07C3158E946"
+               BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
                BuildableName = "CarMirror.app"
                BlueprintName = "CarMirror"
                ReferencedContainer = "container:CarMirror.xcodeproj">
@@ -30,13 +30,33 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A13DBCFEE2AF07C3158E946"
+            BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
             BuildableName = "CarMirror.app"
             BlueprintName = "CarMirror"
             ReferencedContainer = "container:CarMirror.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FFBED8BC71E7F8A28A16847B"
+               BuildableName = "MirivoTests.xctest"
+               BlueprintName = "MirivoTests"
+               ReferencedContainer = "container:CarMirror.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "883E9C6F8E9E211519CF6518"
+               BuildableName = "MirivoUITests.xctest"
+               BlueprintName = "MirivoUITests"
+               ReferencedContainer = "container:CarMirror.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -53,12 +73,15 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A13DBCFEE2AF07C3158E946"
+            BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
             BuildableName = "CarMirror.app"
             BlueprintName = "CarMirror"
             ReferencedContainer = "container:CarMirror.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <StoreKitConfigurationFileReference
+         identifier = "../../Tests/App/Mirivo.storekit">
+      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -70,7 +93,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A13DBCFEE2AF07C3158E946"
+            BlueprintIdentifier = "74C9233906D7EB0FE97C3D10"
             BuildableName = "CarMirror.app"
             BlueprintName = "CarMirror"
             ReferencedContainer = "container:CarMirror.xcodeproj">

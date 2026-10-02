@@ -66,13 +66,62 @@ app.add_dependency(broadcast)
 embed = app.new_copy_files_build_phase('Embed Broadcast Extension')
 embed.dst_subfolder_spec = '13'
 embed.add_file_reference(broadcast.product_reference).settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
+# Offline legal pages are generated from the public Netlify bundle.
+legal = project.main_group.new_file('Resources/Legal')
+legal.last_known_file_type = 'folder'
+app.resources_build_phase.add_file_reference(legal)
+%w[Localizable.strings InfoPlist.strings].each do |filename|
+  variant = project.main_group.new_variant_group(filename)
+  %w[tr en].each do |language|
+    ref = variant.new_file("Resources/#{language}.lproj/#{filename}")
+    ref.name = language
+  end
+  app.resources_build_phase.add_file_reference(variant)
+  broadcast.resources_build_phase.add_file_reference(variant)
+end
+project.root_object.development_region = 'tr'
+project.root_object.known_regions = %w[tr en Base]
 project.root_object.attributes['LastUpgradeCheck'] = '2700'
+# Local StoreKit and UI suites run in the simulator; no live purchase is made.
+tests = project.new_target(:unit_test_bundle, 'MirivoTests', :ios, '18.0')
+ui_tests = project.new_target(:ui_test_bundle, 'MirivoUITests', :ios, '18.0')
+[tests, ui_tests].each do |target|
+  target.add_dependency(app)
+  target.build_configurations.each do |config|
+    config.base_configuration_reference = base
+    config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
+    config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "$(MIRROR_BUNDLE_ID).#{target.name}"
+    config.build_settings['SWIFT_VERSION'] = '5.0'
+    config.build_settings['TARGETED_DEVICE_FAMILY'] = '1'
+    config.build_settings['SDKROOT'] = 'iphoneos'
+    config.build_settings['SUPPORTED_PLATFORMS'] = 'iphoneos iphonesimulator'
+    config.build_settings['CODE_SIGN_ENTITLEMENTS'] = ''
+    if target == tests
+      config.build_settings['TEST_HOST'] = '$(BUILT_PRODUCTS_DIR)/CarMirror.app/CarMirror'
+      config.build_settings['BUNDLE_LOADER'] = '$(TEST_HOST)'
+    else
+      config.build_settings['TEST_TARGET_NAME'] = 'CarMirror'
+    end
+  end
+end
+{tests => 'App', ui_tests => 'UI'}.each do |target, folder|
+  Dir.glob(File.join(root, "Tests/#{folder}/*.swift")).sort.each do |path|
+    target.source_build_phase.add_file_reference(project.main_group.new_file("Tests/#{folder}/#{File.basename(path)}"))
+  end
+end
+fixture = project.main_group.new_file('Tests/App/Mirivo.storekit')
+tests.resources_build_phase.add_file_reference(fixture)
 project.save
 
 { 'CarMirror' => ['Debug', 'Release'], 'CarMirror CarPlay' => ['Debug-CarPlay', 'Release-CarPlay'] }.each do |name, configurations|
   scheme = Xcodeproj::XCScheme.new
   scheme.add_build_target(app)
   scheme.set_launch_target(app)
+  if name == 'CarMirror'
+    scheme.add_test_target(tests)
+    scheme.add_test_target(ui_tests)
+    scheme.launch_action.xml_element.add_element('StoreKitConfigurationFileReference', { 'identifier' => '../../Tests/App/Mirivo.storekit' })
+  end
   scheme.launch_action.build_configuration = configurations[0]
   scheme.profile_action.build_configuration = configurations[1]
   scheme.archive_action.build_configuration = configurations[1]

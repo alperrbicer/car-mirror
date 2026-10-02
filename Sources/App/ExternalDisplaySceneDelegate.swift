@@ -1,5 +1,6 @@
 import UIKit
 import SwiftUI
+import AVKit
 
 /// Only handles screens that iOS actually supplies. A CarPlay template is not a UIWindowScene.
 @MainActor
@@ -27,13 +28,26 @@ final class ExternalDisplaySceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 private struct ExternalDisplayProbeView: View {
     @ObservedObject var model: MirrorModel
+    @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
 
     var body: some View {
         ZStack {
             Color.black
             if let started = model.probeStartedAt { ConnectionPatternView(startedAt: started) }
+            else if model.readyToPlay || model.mediaTitle != nil {
+                NativeVideoView(player: model.playback.player, showsControls: false)
+            } else {
+                VStack(spacing: 16) {
+                    MirrorMark().frame(width: 72, height: 72)
+                    Text(BrandIdentity.name).font(.largeTitle)
+                    Text(L10n.tr("iPhone’da ekran paylaşımını başlat.")).foregroundStyle(.secondary)
+                }
+            }
         }
         .ignoresSafeArea()
+        .environment(\.locale, Locale(identifier: L10n.language))
+        .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
+        .id(language)
     }
 }
 
@@ -47,9 +61,9 @@ struct ConnectionPatternView: View {
             let progress = CGFloat(elapsed.truncatingRemainder(dividingBy: 3) / 3)
             GeometryReader { geometry in
                 ZStack {
-                    Color(red: 0.035, green: 0.05, blue: 0.07)
+                    MirrorStyle.background
                     VStack(spacing: 18) {
-                        Text("CarMirror").font(.system(size: 22, weight: .medium))
+                        Text(BrandIdentity.name).font(.system(size: 22, weight: .medium))
                         Text(String(format: "%06.2f", elapsed))
                             .font(.system(size: min(geometry.size.width / 6, geometry.size.height / 4), weight: .medium, design: .monospaced))
                         HStack(spacing: 0) {
@@ -58,7 +72,7 @@ struct ConnectionPatternView: View {
                         .frame(width: geometry.size.width * 0.6, height: 20)
                     }
                     Circle()
-                        .fill(Color.mint)
+                        .fill(MirrorStyle.accent)
                         .frame(width: 18, height: 18)
                         .position(x: 30 + (geometry.size.width - 60) * progress,
                                   y: geometry.size.height * 0.85)
@@ -66,6 +80,6 @@ struct ConnectionPatternView: View {
             }
         }
         .foregroundStyle(.white)
-        .accessibilityLabel("Hareketli ekran bağlantı testi")
+        .accessibilityLabel(L10n.tr("Hareketli ekran bağlantı testi"))
     }
 }

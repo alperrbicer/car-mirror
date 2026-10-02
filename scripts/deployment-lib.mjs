@@ -12,7 +12,7 @@ export const carPlayKeys = ['com.apple.developer.carplay-audio', 'com.apple.deve
 
 const commandOptions = {
   doctor: [], devices: [], check: [], prepare: [],
-  install: ['device', 'build', 'version', 'allow-provisioning-updates'],
+  install: ['device', 'build', 'version', 'preview', 'allow-provisioning-updates'],
   simulator: ['device', 'build', 'version'],
   archive: ['build', 'version', 'allow-provisioning-updates'],
   export: ['archive', 'allow-provisioning-updates'],
@@ -27,7 +27,7 @@ export function argumentsFor(argv) {
   const { values, positionals } = parseArgs({ args, strict: true, allowPositionals: true, options: {
     help: { type: 'boolean', short: 'h' }, 'dry-run': { type: 'boolean' },
     device: { type: 'string' }, archive: { type: 'string' }, version: { type: 'string' }, build: { type: 'string' },
-    'allow-provisioning-updates': { type: 'boolean' },
+    preview: { type: 'boolean' }, 'allow-provisioning-updates': { type: 'boolean' },
   } })
   if (positionals.length) {
     if (!['install', 'simulator'].includes(command) || positionals.length !== 1 || values.device) throw new Error('Pass a single device name/ID with install or simulator, or use --device.')
@@ -117,12 +117,13 @@ export function selectDevice(devices, requested) {
   return matches[0]
 }
 
-export function validateProfile(entitlements, profile, { bundleId, appGroup, team, mainApp, device, distribution = false, now = Date.now() }) {
+export function validateProfile(entitlements, profile, { bundleId, appGroup, team, mainApp, device, preview = false, distribution = false, now = Date.now() }) {
+  if (preview && distribution) throw new Error('iPhone preview builds cannot be used for App Store distribution.')
   const granted = profile.Entitlements || {}
   const prefixes = profile.ApplicationIdentifierPrefix || profile.TeamIdentifier || []
   const expectedIds = prefixes.map(prefix => `${prefix}.${bundleId}`)
   for (const [label, values] of [['signature', entitlements], ['provisioning profile', granted]]) {
-    if (mainApp) for (const key of carPlayKeys) {
+    if (mainApp && !preview) for (const key of carPlayKeys) {
       if (values[key] !== true) throw new Error(`${bundleId}: ${key} is missing from the ${label}. Configure Apple's CarPlay capabilities/profiles; installation/upload stopped.`)
     }
     if (!values['com.apple.security.application-groups']?.includes(appGroup)) throw new Error(`${bundleId}: App Group ${appGroup} is missing from the ${label}.`)

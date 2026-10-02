@@ -36,11 +36,13 @@ testflight  mobile:ios:testflight     Alias for upload
 --version 0.1.0            install/simulator/archive/upload/testflight
 --build 4                  same commands; archive otherwise increments a local counter
 --archive PATH             export/upload/testflight; reuse an existing archive
+--preview                  install only; preview iPhone screens without CarPlay
 --allow-provisioning-updates  Allow Xcode to update signing profiles using Apple
 --dry-run                  Print the plan without running commands or writing files
 
 Setup and examples: ${join(root, 'docs/DEPLOYMENT.md')}
-CarPlay Audio + Video and matching App Groups are required for signed deployment.
+CarPlay Audio + Video are required except for explicit install --preview.
+Matching App Groups and valid signing are required in both modes.
 Upload does not submit App Review or publish the app.`)
 }
 
@@ -124,6 +126,7 @@ function buildArguments(configuration, directory, destination, config, signing =
   return ['-quiet', ...project, '-configuration', configuration, '-destination', destination,
     '-derivedDataPath', join(directory, 'DerivedData'), ...teamArguments(),
     ...(config ? [`CURRENT_PROJECT_VERSION=${config.build}`, `MARKETING_VERSION=${config.version}`] : []),
+    ...(config?.preview ? ['CODE_SIGN_ENTITLEMENTS=Config/App.entitlements'] : []),
     ...(signing === 'device' ? provisioning() : signing === 'simulator'
       ? ['CODE_SIGNING_ALLOWED=YES', 'CODE_SIGN_IDENTITY=-'] : ['CODE_SIGNING_ALLOWED=NO'])]
 }
@@ -136,7 +139,7 @@ function check() {
 }
 
 function verifyBundle(app, config, { device, distribution = false } = {}) {
-  if (dryRun) { console.log(`Verify signature, both bundle IDs/versions, App Groups and CarPlay profiles: ${app}`); return }
+  if (dryRun) { console.log(`Verify signature, both bundle IDs/versions, App Groups and ${config.preview ? 'iPhone preview profiles (without CarPlay)' : 'CarPlay profiles'}: ${app}`); return }
   run('codesign', ['--verify', '--deep', '--strict', requireFile(app)], { capture: true, quiet: true })
   for (const [path, bundleId, mainApp] of [[app, config.bundleId, true], [join(app, 'PlugIns/CarMirrorBroadcast.appex'), `${config.bundleId}.broadcast`, false]]) {
     const info = readPlist(join(path, 'Info.plist'))
@@ -155,8 +158,10 @@ function verifyBundle(app, config, { device, distribution = false } = {}) {
 
 function install(simulator = false) {
   const config = settings('Debug')
+  config.preview = Boolean(options.preview)
   config.version = options.version || config.version
   config.build = options.build || config.build
+  if (config.preview) console.log('iPhone preview: CarPlay is disabled. This updates the existing CarMirror app for viewing its screens.')
   if (!simulator) requireTeam(config)
   let device = { id: '<device identifier>', udid: options.device || '<device UDID>', name: '<iPhone>', state: 'Shutdown' }
   if (!dryRun) {
@@ -164,7 +169,7 @@ function install(simulator = false) {
     const booted = devices.filter(item => item.state === 'Booted')
     device = selectDevice(simulator && !options.device && booted.length === 1 ? booted : devices, options.device)
   }
-  const directory = runDirectory(simulator ? 'simulator' : 'install', dryRun)
+  const directory = runDirectory(simulator ? 'simulator' : config.preview ? 'preview' : 'install', dryRun)
   execute('xcodebuild', [...buildArguments('Debug', directory, `platform=${simulator ? 'iOS Simulator' : 'iOS'},id=${device.udid}`, config, simulator ? 'simulator' : 'device'), 'build'])
   const app = join(directory, `DerivedData/Build/Products/Debug-${simulator ? 'iphonesimulator' : 'iphoneos'}/CarMirror.app`)
   if (simulator) {
@@ -187,7 +192,7 @@ function install(simulator = false) {
     execute('xcrun', ['devicectl', '--timeout', '60', 'device', 'process', 'launch', '--device', device.id, config.bundleId,
       '--json-output', join(directory, 'launch.json')], { timeout: 70_000 })
   }
-  console.log(dryRun ? 'Installation plan complete; no device was changed.' : `Install and launch commands succeeded: ${device.name}. Verify the visible screen and CarPlay separately.`)
+  console.log(dryRun ? 'Installation plan complete; no device was changed.' : `Install and launch commands succeeded: ${device.name}. ${config.preview ? 'iPhone preview only; CarPlay is disabled.' : 'Verify the visible screen and CarPlay separately.'}`)
 }
 
 function archive() {

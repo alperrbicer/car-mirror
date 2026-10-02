@@ -4,12 +4,16 @@ struct MirrorHomeView: View {
     @ObservedObject var model: MirrorModel
     @State private var showingSettings = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private var inlineActions: Bool { dynamicTypeSize.isAccessibilitySize && verticalSizeClass == .compact }
 
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 24) {
                     header
+                    if inlineActions { actions }
                     Spacer(minLength: 0)
                     if !dynamicTypeSize.isAccessibilitySize {
                         ScreenLinkIllustration(active: model.sessionState == .presenting)
@@ -24,36 +28,38 @@ struct MirrorHomeView: View {
             .scrollIndicators(.hidden)
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 14) {
-                actions
-                if !dynamicTypeSize.isAccessibilitySize {
-                    Text("Telefonundan, aracına.")
-                        .font(.footnote)
-                        .foregroundStyle(MirrorStyle.secondary)
+            if !inlineActions {
+                VStack(spacing: 14) {
+                    actions
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Text(BrandIdentity.tagline)
+                            .font(.footnote)
+                            .foregroundStyle(MirrorStyle.secondary)
+                    }
                 }
+                .padding(.horizontal, 28)
+                .padding(.top, 16)
+                .padding(.bottom, 18)
+                .frame(maxWidth: 520)
+                .frame(maxWidth: .infinity)
+                .background(MirrorStyle.background)
             }
-            .padding(.horizontal, 28)
-            .padding(.top, 16)
-            .padding(.bottom, 18)
-            .frame(maxWidth: 520)
-            .frame(maxWidth: .infinity)
-            .background(MirrorStyle.background)
         }
         .background(MirrorStyle.background)
         .tint(MirrorStyle.accent)
         .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
-        .alert("CarMirror", isPresented: Binding(
+        .alert(BrandIdentity.name, isPresented: Binding(
             get: { model.errorMessage != nil },
             set: { if !$0 { model.errorMessage = nil } }
         )) {
-            Button("Tamam") { model.errorMessage = nil }
+            Button(L10n.tr("Tamam")) { model.errorMessage = nil }
         } message: { Text(model.errorMessage ?? "") }
     }
 
     private var header: some View {
         HStack(spacing: 12) {
             MirrorMark().foregroundStyle(MirrorStyle.accent).frame(width: 28, height: 28)
-            Text("CarMirror").font(.system(.title3, design: .rounded, weight: .semibold))
+            Text(BrandIdentity.name).font(.system(.title3, design: .rounded, weight: .semibold))
             Spacer()
             Button { showingSettings = true } label: {
                 Image(systemName: "slider.horizontal.3")
@@ -62,7 +68,7 @@ struct MirrorHomeView: View {
                     .frame(width: 44, height: 44)
                     .background(MirrorStyle.surface, in: Circle())
             }
-            .accessibilityLabel("Ayarlar")
+            .accessibilityLabel(L10n.tr("Ayarlar"))
         }
         .padding(.top, 16)
     }
@@ -71,7 +77,7 @@ struct MirrorHomeView: View {
         VStack(spacing: 16) {
             HStack(spacing: 7) {
                 Circle().fill(model.carPlayConnected ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
-                Text(model.carPlayConnected ? "CARPLAY BAĞLI" : "CARPLAY BEKLENİYOR")
+                Text(L10n.tr(model.carPlayConnected ? "CARPLAY BAĞLI" : "CARPLAY BEKLENİYOR"))
                     .font(.system(size: 11, weight: .semibold, design: .monospaced))
                     .tracking(1.5)
             }
@@ -97,7 +103,7 @@ struct MirrorHomeView: View {
             VStack(spacing: 12) {
                 if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && model.supportsVideo == true {
                     Button { model.playInCar() } label: {
-                        Label("Görüntüyü yeniden bağla", systemImage: "arrow.clockwise")
+                        Label(L10n.tr("Görüntüyü yeniden bağla"), systemImage: "arrow.clockwise")
                             .font(.headline).frame(maxWidth: .infinity, minHeight: 44)
                     }.buttonStyle(.borderedProminent)
                 }
@@ -105,7 +111,7 @@ struct MirrorHomeView: View {
                     HStack(spacing: 12) {
                         if model.sessionState == .stopping { ProgressView() }
                         else { Image(systemName: "stop.fill").font(.system(size: 13)) }
-                        Text(model.sessionState == .stopping ? "Durduruluyor" : "Paylaşımı durdur")
+                        Text(L10n.tr(model.sessionState == .stopping ? "Durduruluyor" : "Paylaşımı durdur"))
                     }
                     .font(.headline)
                     .frame(maxWidth: .infinity, minHeight: 62)
@@ -118,9 +124,9 @@ struct MirrorHomeView: View {
         } else {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Ekranını paylaş").font(.headline).foregroundStyle(.white)
+                    Text(L10n.tr("Ekranını paylaş")).font(.headline).foregroundStyle(.white)
                     if !dynamicTypeSize.isAccessibilitySize {
-                        Text("Başlatmak için dokun").font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                        Text(L10n.tr("Başlatmak için dokun")).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
                     }
                 }
                 Spacer(minLength: 8)
@@ -138,14 +144,14 @@ struct MirrorHomeView: View {
 
     private var detail: String {
         switch model.sessionState {
-        case .waitingForCar: return "CarPlay’e bağlanıp araç ekranında uygulamayı aç."
-        case .ready: return "Hazır olduğunda ekranını paylaş."
-        case .preparing: return "Ekran paylaşımı başlatılıyor."
-        case .captureReady, .connecting: return "Araç görüntüsü için bağlantı bekleniyor."
-        case .presenting: return "İzlemek istediğin uygulamaya geçebilirsin."
-        case .paused: return "Hazır olduğunda paylaşıma devam edebilirsin."
-        case .stopping: return "Yayın sonlandırılıyor."
-        case .interrupted, .failed: return "Ekran paylaşımını yeniden başlatabilirsin."
+        case .waitingForCar: return L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç.")
+        case .ready: return L10n.tr("Hazır olduğunda ekranını paylaş.")
+        case .preparing: return L10n.tr("Ekran paylaşımı başlatılıyor.")
+        case .captureReady, .connecting: return L10n.tr("Araç görüntüsü için bağlantı bekleniyor.")
+        case .presenting: return L10n.tr("İzlemek istediğin uygulamaya geçebilirsin.")
+        case .paused: return L10n.tr("Hazır olduğunda paylaşıma devam edebilirsin.")
+        case .stopping: return L10n.tr("Yayın sonlandırılıyor.")
+        case .interrupted, .failed: return L10n.tr("Ekran paylaşımını yeniden başlatabilirsin.")
         }
     }
 }

@@ -16,6 +16,10 @@ final class PlaybackController: ObservableObject {
     var onFinished: (() -> Void)?
     private var notificationTokens: [NSObjectProtocol] = []
     private var startupTask: Task<Void, Never>?
+    private var stallTask: Task<Void, Never>?
+    private var interruptionItem: AVPlayerItem?
+    private var wasPlayingBeforeInterruption = false
+    private var remoteTargets: [(MPRemoteCommand, Any)] = []
 
     init() {
         player.allowsExternalPlayback = false
@@ -58,7 +62,33 @@ final class PlaybackController: ObservableObject {
                     var values = DiagnosticValues()
                     values.reason = .interrupted
                     self.onDiagnostic?(.audioInterrupted, values)
-                    if began { self.player.pause() }
+                    if began {
+                        self.wasPlayingBeforeInterruption = self.player.rate > 0
+                        self.interruptionItem = self.player.currentItem
+                        self.player.pause()
+                    } else {
+                        let flags = (notification.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0
+                        if flags & AVAudioSession.InterruptionOptions.shouldResume.rawValue != 0,
+                           self.wasPlayingBeforeInterruption, self.player.currentItem === self.interruptionItem {
+                            try? AVAudioSession.sharedInstance().setActive(true)
+                            self.player.play()
+                        }
+                        self.interruptionItem = nil
+                    }
+                }
+            })
+        notificationTokens.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.playbackStalledNotification,
+            object: nil, queue: .main) { [weak self] note in
+                guard let item = note.object as? AVPlayerItem else { return }
+                Task { @MainActor [weak self, weak item] in
+                    guard let self, let item, self.player.currentItem === item else { return }
+                    self.stallTask?.cancel()
+                    self.stallTask = Task { [weak self, weak item] in
+                        try? await Task.sleep(for: .seconds(12))
+                        guard !Task.isCancelled, let self, let item, self.player.currentItem === item,
+                              self.player.timeControlStatus == .waitingToPlayAtSpecifiedRate else { return }
+                        self.fail(L10n.tr("Yayın bağlantısı kesildi. Yeniden deneyebilirsin."), reason: .interrupted)
+                    }
                 }
             })
         notificationTokens.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.didPlayToEndTimeNotification,
@@ -78,7 +108,8 @@ final class PlaybackController: ObservableObject {
 
     deinit { notificationTokens.forEach(NotificationCenter.default.removeObserver) }
 
-    func play(url: URL, preserveSourceAudio: Bool = true) throws {
+    func play(url: URL, preserveSourceAudio: Bool = true, muted: Bool = false,
+              requiresExternalPlayback: Bool = true, title: String? = nil, live: Bool = true) throws {
         stop()
         errorMessage = nil
         // Mixing avoids deliberately taking over the source application's audio.
@@ -90,6 +121,7 @@ final class PlaybackController: ObservableObject {
         }
         try session.setActive(true)
         activatedAudioSession = true
+        player.isMuted = muted
         player.allowsExternalPlayback = true
         let item = AVPlayerItem(url: url)
         item.preferredForwardBufferDuration = 2
@@ -97,31 +129,35 @@ final class PlaybackController: ObservableObject {
             guard let item, item.status == .failed else { return }
             Task { @MainActor in
                 guard let self, self.player.currentItem === item else { return }
-                self.fail("Görüntü oynatılamadı. Yeniden deneyebilirsin.",
+                self.fail(L10n.tr("Görüntü oynatılamadı. Yeniden deneyebilirsin."),
                           reason: .playback, failure: item.error.map(DiagnosticFailure.init))
             }
         }
         player.replaceCurrentItem(with: item)
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-            MPMediaItemPropertyTitle: "iPhone ekranı",
-            MPMediaItemPropertyArtist: "CarMirror",
-            MPNowPlayingInfoPropertyIsLiveStream: true,
+            MPMediaItemPropertyTitle: title ?? L10n.tr("iPhone ekranı"),
+            MPMediaItemPropertyArtist: BrandIdentity.name,
+            MPNowPlayingInfoPropertyIsLiveStream: live,
             MPNowPlayingInfoPropertyMediaType: MPNowPlayingInfoMediaType.video.rawValue,
             MPNowPlayingInfoPropertyPlaybackRate: 1.0
         ]
         player.play()
+        installRemoteCommands()
         recordAudioRoute()
         startupTask = Task { [weak self, weak item] in
             do { try await Task.sleep(for: .seconds(15)) } catch { return }
             guard let self, let item, self.player.currentItem === item,
-                  !self.player.isExternalPlaybackActive else { return }
-            self.fail("Araç görüntüsü kurulamadı. Yeniden deneyebilirsin.", reason: .unavailable)
+                  (requiresExternalPlayback ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
+            self.fail(L10n.tr("Araç görüntüsü kurulamadı. Yeniden deneyebilirsin."), reason: .unavailable)
         }
     }
 
     func stop() {
         startupTask?.cancel()
         startupTask = nil
+        stallTask?.cancel(); stallTask = nil
+        interruptionItem = nil
+        remoteTargets.forEach { $0.0.removeTarget($0.1) }; remoteTargets.removeAll()
         itemObservation = nil
         player.pause()
         player.replaceCurrentItem(with: nil)
@@ -133,6 +169,28 @@ final class PlaybackController: ObservableObject {
         if activatedAudioSession {
             try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
             activatedAudioSession = false
+        }
+    }
+
+    func togglePlayPause() {
+        if player.rate > 0 { player.pause() } else { player.play() }
+        MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = player.rate
+    }
+
+    private func installRemoteCommands() {
+        let center = MPRemoteCommandCenter.shared()
+        for (command, action) in [(center.playCommand, 0), (center.pauseCommand, 1), (center.togglePlayPauseCommand, 2)] {
+            command.isEnabled = true
+            let target = command.addTarget { [weak self] _ in
+                Task { @MainActor in
+                    guard let self, self.player.currentItem != nil else { return }
+                    if action == 0 { self.player.play() }
+                    else if action == 1 { self.player.pause() }
+                    else { self.togglePlayPause() }
+                }
+                return .success
+            }
+            remoteTargets.append((command, target))
         }
     }
 

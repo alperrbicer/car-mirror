@@ -44,6 +44,10 @@ function isolatedCLI(t) {
 
 test('CLI rejects ambiguous or incompatible arguments before doing work', () => {
   assert.equal(argumentsFor(['install', '--', 'My iPhone']).device, 'My iPhone')
+  assert.equal(argumentsFor(['install', '--preview']).preview, true)
+  for (const command of ['doctor', 'devices', 'check', 'prepare', 'simulator', 'archive', 'export', 'upload', 'testflight']) {
+    assert.throws(() => argumentsFor([command, '--preview']), /--preview does not apply/)
+  }
   assert.equal(argumentsFor(['archive', '--build', '15', '--version', '1.2.3']).build, '15')
   for (const args of [['android'], ['install', '--device'], ['install', '--device', ''], ['install', 'one', 'two'],
     ['install', 'one', '--device', 'two'], ['archive', '--build', '0'], ['archive', '--version', '1.x'],
@@ -94,6 +98,29 @@ test('profile checks reject expired, foreign-team, unregistered-device and non-A
   delete fixture.profile.Entitlements['get-task-allow']
   fixture.profile.ProvisionsAllDevices = true
   assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, { ...config, distribution: true }), /App Store/)
+})
+
+test('explicit iPhone preview accepts profiles without CarPlay while retaining signing checks', () => {
+  const fixture = signing()
+  for (const values of [fixture.entitlements, fixture.profile.Entitlements]) {
+    delete values['com.apple.developer.carplay-audio']; delete values['com.apple.developer.carplay-video']
+  }
+  fixture.profile.ProvisionedDevices = ['my-udid']
+  const preview = { ...config, preview: true, device: 'my-udid' }
+  validateProfile(fixture.entitlements, fixture.profile, preview)
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /carplay/)
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, { ...preview, distribution: true }), /App Store/)
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, { ...preview, device: 'another-device' }), /selected iPhone/)
+  for (const change of [
+    item => { delete item.entitlements['com.apple.security.application-groups'] },
+    item => { delete item.profile.Entitlements['com.apple.security.application-groups'] },
+    item => { item.profile.ExpirationDate = '2020-01-01' },
+    item => { item.profile.TeamIdentifier = ['OTHERTEAM0'] },
+    item => { item.entitlements['application-identifier'] = `${team}.another-app` },
+  ]) {
+    const invalid = structuredClone(fixture); change(invalid)
+    assert.throws(() => validateProfile(invalid.entitlements, invalid.profile, preview))
+  }
 })
 
 test('broadcast extension needs its own identity/group, and legacy App ID prefixes are supported', () => {
@@ -182,6 +209,25 @@ test('simulator installation retains App Group entitlements through ad hoc signi
   assert.ok(result.stdout.indexOf('"install"') < result.stdout.indexOf('"launch"'))
 })
 
+test('preview overrides only the install entitlements and preserves device signing and verification', t => {
+  const fixture = isolatedCLI(t)
+  const env = { ...fixture.env, PATH: '/nonexistent' }
+  const result = spawnSync(process.execPath, [fixture.script, 'install', '--preview', '--allow-provisioning-updates', '--dry-run'], { env, encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /CODE_SIGN_ENTITLEMENTS=Config\/App.entitlements/)
+  assert.match(result.stdout, /CarPlay is disabled/)
+  assert.match(result.stdout, /App Groups and iPhone preview profiles/)
+  assert.match(result.stdout, /-allowProvisioningUpdates/)
+  assert.ok(!result.stdout.includes('CODE_SIGNING_ALLOWED=NO'))
+  assert.ok(result.stdout.indexOf('Verify signature') < result.stdout.indexOf('"install" "app"'))
+  assert.ok(result.stdout.indexOf('"install" "app"') < result.stdout.indexOf('"process" "launch"'))
+  assert.equal(existsSync(join(fixture.directory, 'build')), false)
+  const standard = spawnSync(process.execPath, [fixture.script, 'install', '--dry-run'], { env, encoding: 'utf8' })
+  assert.equal(standard.status, 0, standard.stderr)
+  assert.ok(!standard.stdout.includes('CODE_SIGN_ENTITLEMENTS='))
+  assert.match(standard.stdout, /App Groups and CarPlay profiles/)
+})
+
 test('a failed native build or ambiguous device never reaches installation or launch', { skip: process.platform !== 'darwin' }, t => {
   const fixture = isolatedCLI(t)
   const binaries = join(fixture.directory, 'bin'); mkdirSync(binaries)
@@ -203,12 +249,18 @@ else if (command === 'xcrun' && args.includes('list') && args.includes('devices'
   chmodSync(fake, 0o755)
   for (const command of ['xcodebuild', 'xcrun']) symlinkSync(fake, join(binaries, command))
   const env = { ...fixture.env, PATH: binaries, TEST_COMMAND_LOG: log }
-  const failed = spawnSync(process.execPath, [fixture.script, 'install'], { env, encoding: 'utf8' })
-  assert.equal(failed.status, 1)
-  assert.match(failed.stderr, /17/)
-  let calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
-  assert.ok(calls.some(call => call.command === 'xcodebuild' && call.args.includes('build')))
-  assert.ok(!calls.some(call => call.args.includes('install') || call.args.includes('launch')))
+  let calls
+  for (const flags of [[], ['--preview']]) {
+    writeFileSync(log, '')
+    const failed = spawnSync(process.execPath, [fixture.script, 'install', ...flags], { env, encoding: 'utf8' })
+    assert.equal(failed.status, 1)
+    assert.match(failed.stderr, /17/)
+    calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
+    const build = calls.find(call => call.command === 'xcodebuild' && call.args.includes('build'))
+    assert.ok(build)
+    assert.equal(build.args.includes('CODE_SIGN_ENTITLEMENTS=Config/App.entitlements'), flags.includes('--preview'))
+    assert.ok(!calls.some(call => call.args.includes('install') || call.args.includes('launch')))
+  }
   writeFileSync(log, '')
   const ambiguous = spawnSync(process.execPath, [fixture.script, 'install'], { env: { ...env, TEST_AMBIGUOUS: '1' }, encoding: 'utf8' })
   assert.equal(ambiguous.status, 1)

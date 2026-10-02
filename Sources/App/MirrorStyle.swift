@@ -2,28 +2,18 @@ import SwiftUI
 
 enum MirrorStyle {
     static let background = Color("AppBackground")
-    static let accent = Color(red: 0.40, green: 0.89, blue: 0.78)
+    static let accent = Color("AccentColor")
     static let secondary = Color(red: 0.59, green: 0.63, blue: 0.66)
     static let surface = Color(red: 0.075, green: 0.09, blue: 0.10)
 }
 
-/// Two offset screens; remains legible without color or animation.
+/// Two offset screens with a car in front, shared with the app icon.
 struct MirrorMark: View {
     var body: some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            let height = geometry.size.height
-            RoundedRectangle(cornerRadius: width * 0.13)
-                .stroke(lineWidth: width * 0.075)
-                .frame(width: width * 0.62, height: height * 0.60)
-                .position(x: width * 0.34, y: height * 0.37)
-            RoundedRectangle(cornerRadius: width * 0.13)
-                .fill(MirrorStyle.background)
-                .overlay { RoundedRectangle(cornerRadius: width * 0.13).stroke(lineWidth: width * 0.075) }
-                .frame(width: width * 0.62, height: height * 0.60)
-                .position(x: width * 0.66, y: height * 0.65)
-        }
-        .accessibilityHidden(true)
+        Image("MirivoMark")
+            .resizable()
+            .scaledToFit()
+            .accessibilityHidden(true)
     }
 }
 

@@ -15,6 +15,10 @@ public struct CaptureStatus: Codable, Equatable, Sendable {
     public var bufferedBytes: Int = 0
     public var loopbackURL: URL?
     public var networkURL: URL?
+    public var audioMode: StreamAudioMode?
+    public var receivedAudioFrames: Int?
+    public var encodedAudioFrames: Int?
+    public var captionsUnavailable: Bool?
     public var message: String?
     public var failure: DiagnosticFailure?
 

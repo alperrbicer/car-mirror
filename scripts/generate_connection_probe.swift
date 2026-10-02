@@ -51,7 +51,7 @@ for frameIndex in 0..<(rate * seconds) {
             bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue)!
         context.setFillColor(CGColor(red: 0.035, green: 0.05, blue: 0.07, alpha: 1))
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        text("CarMirror", size: 24, y: 432, context: context)
+        text("Mirivo", size: 24, y: 432, context: context)
         text(String(format: "%02d:%02d.%02d", frameIndex / rate / 60, frameIndex / rate % 60, frameIndex % rate),
              size: 94, y: 260, context: context)
         text("DISPLAY TEST", size: 18, y: 196, context: context)

@@ -1,0 +1,43 @@
+{
+  "tracking": false,
+  "thirdPartyAdvertising": false,
+  "thirdPartyAnalyticsSDKs": false,
+  "developerBackend": false,
+  "automaticDiagnosticsUpload": false,
+  "onDevice": [
+    "source names and types",
+    "Keychain source URLs and credentials",
+    "language and playback preferences",
+    "bounded technical logs",
+    "verified StoreKit entitlements"
+  ],
+  "transient": [
+    "screen frames",
+    "app audio",
+    "speech captions",
+    "HLS fragments",
+    "loaded channel lists"
+  ],
+  "userDirectedTransfers": [
+    "stream requests to user-provided content servers",
+    "broadcast to compatible local display",
+    "optional diagnostic export",
+    "optional support email"
+  ],
+  "privacyLabelPreparation": "No automatic off-device collection by the developer. Optional support must continue to satisfy Apple optional-disclosure criteria; confirm the real support workflow before portal declaration.",
+  "requiredReasonAPIs": {
+    "SystemBootTime": [
+      "35F9.1"
+    ],
+    "UserDefaults": [
+      "1C8F.1",
+      "CA92.1"
+    ],
+    "FileTimestamp": [
+      "C617.1"
+    ]
+  },
+  "publicPrivacyPath": "/privacy.html",
+  "publicSupportPath": "/support.html",
+  "publicTermsPath": "/terms.html"
+}

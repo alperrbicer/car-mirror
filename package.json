@@ -2,7 +2,9 @@
   "name": "carmirror-tools",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "check": "node scripts/ios.mjs check",
     "test:scripts": "node --test Tests/Scripts/deployment.test.mjs",
@@ -10,10 +12,15 @@
     "mobile:devices": "node scripts/ios.mjs devices",
     "mobile:ios:prepare": "node scripts/ios.mjs prepare",
     "mobile:ios:install": "node scripts/ios.mjs install",
+    "mobile:ios:preview": "node scripts/ios.mjs install --preview --allow-provisioning-updates",
     "mobile:ios:simulator": "node scripts/ios.mjs simulator",
     "mobile:ios:archive": "node scripts/ios.mjs archive",
     "mobile:ios:export": "node scripts/ios.mjs export",
     "mobile:ios:upload": "node scripts/ios.mjs upload",
-    "mobile:ios:testflight": "node scripts/ios.mjs testflight"
+    "mobile:ios:testflight": "node scripts/ios.mjs testflight",
+    "site:build": "python3 scripts/build_site.py",
+    "release:check": "python3 scripts/verify_release.py",
+    "test:core": "swift test",
+    "test:app": "node scripts/test_app.mjs"
   }
 }

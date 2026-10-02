@@ -1,0 +1,84 @@
+{
+  "identifier": "9f9c6709-5883-4d24-9c3f-790090dd677a",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "39.99",
+      "familyShareable": false,
+      "internalID": "4c6b89ed-b4a2-4579-904c-ea5aedfa3bdc",
+      "localizations": [
+        {
+          "description": "Local test fixture only",
+          "displayName": "Mirivo Pro Lifetime",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.alperbicer.carmirror.pro.lifetime",
+      "referenceName": "Mirivo Pro Lifetime",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_applicationInternalID": "6818560405",
+    "_developerTeamID": "3T2VY64864",
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "20336421-6912-4c7d-830c-70bdfac8b50e",
+      "localizations": [],
+      "name": "Mirivo Pro",
+      "subscriptions": [
+        {
+          "displayPrice": "1.99",
+          "familyShareable": false,
+          "internalID": "36ca9350-2725-4d0e-a22b-3bc991d7cb23",
+          "localizations": [
+            {
+              "description": "Local test fixture only",
+              "displayName": "Mirivo Pro Weekly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.alperbicer.carmirror.pro.weekly",
+          "referenceName": "Mirivo Pro Weekly",
+          "type": "RecurringSubscription",
+          "adHocOffers": [],
+          "codeOffers": [],
+          "groupNumber": 1,
+          "introductoryOffer": null,
+          "recurringSubscriptionPeriod": "P1W",
+          "subscriptionGroupID": "20336421-6912-4c7d-830c-70bdfac8b50e"
+        },
+        {
+          "displayPrice": "19.99",
+          "familyShareable": false,
+          "internalID": "a7e8c78c-e2e4-4ec6-8d71-cadc090be82c",
+          "localizations": [
+            {
+              "description": "Local test fixture only",
+              "displayName": "Mirivo Pro Yearly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.alperbicer.carmirror.pro.yearly",
+          "referenceName": "Mirivo Pro Yearly",
+          "type": "RecurringSubscription",
+          "adHocOffers": [],
+          "codeOffers": [],
+          "groupNumber": 1,
+          "introductoryOffer": null,
+          "recurringSubscriptionPeriod": "P1Y",
+          "subscriptionGroupID": "20336421-6912-4c7d-830c-70bdfac8b50e"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

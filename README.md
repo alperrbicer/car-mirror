@@ -1,145 +1,58 @@
-# CarMirror
+# Mirivo
 
-Hedef, iPhone 16 Pro ekranını 2024 Kia EV6'nın orijinal ekranına CarPlay üzerinden
-yansıtmaktır. Uygulama araç ekranındaki kendi simgesinden açılmalıdır.
+Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimlik: **Mirivo + A**, grafit/mint ve otomobilli iki ekran logosu. Kaynak sürüm **1.0 (6)**; Xcode projesi ve scheme adı `CarMirror` olarak korunur.
 
-**Bu hedef henüz tamamlanmadı.** Telefonda başlayan ReplayKit yayını, araç ekranına
-görüntü ulaştığı anlamına gelmez. Kurulu `0.1.0 (2)` sürümü CarPlay yetkileri
-olmayan eski derlemedir; araçta simgesinin görünmemesi bu kurulumun eksikliğidir.
+İlk fiziksel hedef iPhone 16 Pro ve 2024 Kia EV6'dır. **Araçta görüntü ve ses henüz doğrulanmadı.** Apple CarPlay yetkili profili, fiziksel kabul, TestFlight ve App Review açık. Güncel yerel sonuçlar ve önceki portal kanıtları [uygulama durumunda](docs/IMPLEMENTATION_STATUS.md) ayrı tutulur.
 
-## Doğrulanan CarTV farkı
+## Uygulama
 
-2 Ekim 2026'da eşlenmiş iPhone'un InstallationProxy hizmetinden yalnızca uygulama
-kurulum bilgileri okundu. CarTV'nin uygulama dosyaları veya kullanıcı verileri
-okunmadı.
+- ReplayKit ekranı ve uygulama sesi → H.264/AAC → bellekte sınırlı HLS yayını. Dengeli 540p/20 fps ve yüksek 720p/30 fps; görüntüyle ses veya kaynak uygulamanın sesini koruma seçeneği.
+- M3U, doğrudan yayın ve Xtream Codes kaynakları, kanal/grup arama, yerel oynatıcı ve büyük kontrollü araç modu. Kaynak altyazıları sistem oynatıcısından seçilir.
+- iOS 26 ve desteklenen cihaz/dillerde SpeechAnalyzer ile cihaz içi canlı altyazı. Dil modeli önceden hazırlanır; altyazı yayın görüntüsüne eklenir.
+- CarPlay video desteğine bağlı ekran paylaşımı ve kaynak listesi; iOS gerçekten harici ekran sahnesi sağladığında ortak oynatıcı.
+- Türkçe/İngilizce arayüz, yasal sayfalar ve yardım; teknik rapor paylaşımı/temizleme; bütün kaynakları ve giriş bilgilerini silme.
+- StoreKit 2 ile haftalık, yıllık ve tek ödemelik Pro hazırlığı. **Satış kapalı; mevcut özellikler ücretsiz. Hiçbir sürümde reklam yok.** Fiyatlar kodda sabitlenmez. [Pro hazırlığı](docs/PRO_RELEASE.md).
 
-| Kurulu uygulama | Bundle ID | CarPlay Audio | CarPlay Video |
-| --- | --- | --- | --- |
-| CarTV 1.1.1 (35) | `com.lyntra.player` | Var | Var |
-| CarMirror 0.1.0 (2) | `com.alperbicer.carmirror` | Yok | Yok |
+CarTV'nin kurulu sürümünde Audio/Video yetkileri ve harici ekran bildirimleri görüldü. Bu bulgu, uygulamanın iç aktarım yöntemini açıklamaz; Mirivo'nun aynı teknikle çalıştığı veya EV6 uyumluluğunun kanıtlandığı iddia edilmez.
 
-CarTV'nin sahne bildirimi bir `CPTemplateApplicationScene` ve iki harici ekran
-rolü içeriyor: `UIWindowSceneSessionRoleExternalDisplay` ve
-`UIWindowSceneSessionRoleExternalDisplayNonInteractive`. Bu bildirimler, CarTV'nin
-CarPlay üzerinde görüntüyü hangi kodla çizdiğini açıklamıyor. CarTV ile aynı
-aktarım yöntemi uygulandığı iddia edilmiyor.
+## Geliştirme ve kontroller
 
-Yerel kanıt: `build/app-signing-metadata.json`. Bu geçici dosya Git'e dahil değil.
-
-## İmzalama
-
-Ana uygulamanın **bütün** Debug/Release yapılandırmaları artık
-`Config/CarPlay.entitlements` kullanır ve şu yetkileri ister:
-
-- `com.apple.developer.carplay-audio`
-- `com.apple.developer.carplay-video`
-- `group.com.alperbicer.carmirror` App Group erişimi
-
-Yayın uzantısı yalnızca App Group yetkisini ister. `CarMirror` ve önceki
-`CarMirror CarPlay` scheme'i aynı CarPlay yetkilerini gerektirir. CarPlay
-imzalaması başarısız olduğunda telefona sessizce yetkisiz bir sürüm kuran ayrı
-bir yapılandırma yoktur.
-
-Ses ve video yetkileriyle otomatik provisioning denendi. Xcode iki yetkinin de
-profile eklenemediğini bildirdi; bu derleme imzalanamadı ve telefona kurulmadı.
-Bir entitlement'ı kaynak dosyaya yazmak, imzalı profile eklemez. Chrome üzerinden
-Apple Developer portalındaki `com.alperbicer.carmirror` kaydı kontrol edildi:
-CarPlay yetkileri etkin değil. CarPlay Audio App, Capability Requests altında
-başvuru bağlantısıyla görünüyor. Video seçeneği CarPlay başvuru formunda var;
-ilerlemek için CarPlay Entitlement Addendum sözleşmesinin kabulü isteniyor.
-Kullanıcı sözleşme adımını tamamladı. Chrome'da “Thank you for your submission”
-ve Apple'ın başvuruyu inceleyip durum güncellemesi ileteceği mesajı doğrulandı.
-Bu, başvurunun alındığına dair kanıttır; yetkinin verildiği anlamına gelmez.
-Başvurudan sonra uygulama kimliği sayfası yenilenerek kontrol edildi; CarPlay
-yetkileri henüz kullanılabilir yetkiler listesine eklenmemişti.
-Yerel ekran kaydı: `build/carplay-request-submitted.jpg`.
-
-Apple'ın CarPlay açıklamasına göre video yetkisi tek başına uygulamanın yalnızca
-video destekli araçlarda görünmesini sağlar; uygun ses ve video uygulamaları iki
-yetkiyle bütün CarPlay araçlarında görünebilir. **Simgenin görünmesi, video
-aktarımının çalıştığını kanıtlamaz.**
-
-## Mevcut kod
-
-- SwiftUI ana ekranında paylaşımı başlatma/durdurma, araçta oynatma ve bağlantı
-  durumu bulunur. AirPlay hedef seçimi, telefon önizlemesi, prototip rozeti ve uzun
-  kullanıcı bilgilendirme bölümleri kaldırıldı.
-- ReplayKit Broadcast Upload Extension ekran karelerini alır.
-- AVAssetWriter, 960 × 540 çözünürlükte en fazla 20 fps H.264/fMP4 üretir.
-- Network.framework sunucusu bellekteki kayan HLS listesini sağlar.
-- CarPlay sahnesi `CPSessionConfiguration.supportsVideoPlayback` ve
-  `CPPlaybackConfiguration` ile Apple'ın video oynatma yolunu kullanır.
-- `AVPlayer` harici video oynatımı için yerel ağ adresini kullanır.
-
-Son iki adım, EV6 üzerinde çalışan CarTV yönteminin doğrulanmış karşılığı
-**değildir**. CarTV'nin ilan ettiği Wi-Fi gerektirmeyen doğrudan CarPlay aktarımı
-henüz bu projede uygulanmış ve araçta doğrulanmış değildir.
-
-Video hattı yalnızca görüntüyü kodlar. Kaynak uygulamanın sesi yeniden kodlanmaz.
-Kaynak uygulamaya geçildiğinde sesin ve araç görüntüsünün devam etmesi fiziksel
-cihaz ve araç testi gerektirir.
-
-## Geliştirme
-
-`CarMirror.xcodeproj` dosyasını Xcode 27 ile aç. Minimum iOS sürümü 18'dir;
-CarPlay Video API'leri iOS 26.4 kullanılabilirlik kontrolüyle çağrılır.
-`Config/Local.xcconfig.example` üzerinden yerel takım kimliğini ayarla.
+Xcode 27, Swift ve `xcodeproj` Ruby gem'i kullanılır. Minimum hedef iOS 18; resmî CarPlay video API'leri iOS 26.4 kullanılabilirlik kontrolündedir. `Config/Local.xcconfig.example` yerel takım ayarları içindir.
 
 ```sh
+ruby scripts/generate_project.rb --replace
 swift test --jobs 2
-
-xcodebuild -project CarMirror.xcodeproj -scheme CarMirror \
-  -destination 'generic/platform=iOS Simulator' \
-  -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
-
-xcodebuild -project CarMirror.xcodeproj -scheme CarMirror \
-  -destination 'generic/platform=iOS' \
-  -derivedDataPath build/iPhone -allowProvisioningUpdates build
+node --test Tests/Scripts/deployment.test.mjs
+python3 scripts/build_site.py
+python3 scripts/verify_release.py
+node scripts/test_app.mjs SIMULATOR_UDID
+# Yalnız arayüz testleri:
+node scripts/test_app.mjs SIMULATOR_UDID --ui-only
 ```
 
-İmzasız derleme, telefon kurulumu veya araç testi yerine geçmez. Proje üreticisi:
-`ruby scripts/generate_project.rb --replace` (`xcodeproj` Ruby gem'i gerekir).
+Son Swift çalışmasında 23 çekirdek ve 5 gerçek medya testi; kurulum araçlarında 14 test geçti. Ses/video testleri araç testi yerine geçmez. Satın alma ve arayüz testlerinin ayrı durumları [doğrulama kaydında](docs/IMPLEMENTATION_STATUS.md) bulunur. `.storekit` fiyatları yalnızca yerel test verisidir; dosya uygulamaya paketlenmez.
 
-## Yayın verisi
+Projeyi testler veya derleme çalışırken yeniden üretme. Testler için tek simülatör kullan; bellek kısıtlı bilgisayarda başka bir native derlemeyle eşzamanlı çalıştırma.
 
-Kareler ve video bölümleri diske veya buluta kaydedilmez. Tampon en fazla 8 MiB
-ve 10 bölüm tutar; oynatma listesi son 6 bölümü sunar. Oturum adresi rastgele
-üretilir ve yayın durunca geçersiz olur. HTTP sunucusu hücresel arayüzleri
-kullanmaz. App Group'ta durum ve durdurma komutu tutulur; 6 saniyelik heartbeat
-süresi geçen oturum canlı kabul edilmez.
+## Kurulum ve imzalama
 
-## Doğrulama kaydı
-
-- Önceki kaynak sürümünde 8 çekirdek + 2 medya testi geçti. Medya testi gerçek
-  H.264 üretimini/çözümünü ve HTTP erişimini denetledi; araç testi yapmadı.
-- Kurulu build 2'nin CarPlay yetkileri olmadığı cihazdan doğrulandı.
-- İki CarPlay yetkisiyle imzalama başarısız: `build/build-carplay-audio-video-signing.log`.
-- Güncellenen ana yapılandırmanın simülatör ve imzasız iPhone derlemeleri geçti.
-  iPhone kaynak derlemesinin günlüğü: `build/build-carplay-required-device.log`.
-- Kaynak build numarası 3; bu değişiklikler henüz telefona kurulmadı.
-- Kullanıcı CarTV ile araçta görüntü aldığını; CarMirror ile yayının başladığını,
-  ancak araçta simge ve görüntü olmadığını bildirdi.
-
-## Kaynaklar
-
-- [Apple: CarPlay uygulamaları, ses/video yetkileri ve araç desteği](https://developer.apple.com/videos/play/wwdc2026/212/)
-- [Apple: CarPlay yetkisi isteme](https://developer.apple.com/documentation/carplay/requesting-carplay-entitlements)
-- [CarTV: ekran yansıtma açıklaması](https://cartv.app/)
-
-## Hazır kurulum ve yayın komutları
-
-Cihaz seçimi, iPhone/simülatör kurulumu, Release arşivi, IPA ve TestFlight
-komutları bu repodaki `package.json` ve `scripts/ios.mjs` içindedir.
-Kurulum ayarları ve tüm seçenekler: [Kurulum ve yayın kılavuzu](docs/DEPLOYMENT.md).
+Ana uygulama `Config/CarPlay.entitlements` ile CarPlay Audio, Video ve App Group ister. Uzantı yalnız App Group ister. Kimlikler `com.alperbicer.carmirror`, `.broadcast` ve `group.com.alperbicer.carmirror` olarak korunur.
 
 ```sh
 bun run mobile:doctor
 bun run mobile:devices
 bun run check
+bun run mobile:ios:preview
 bun run mobile:ios:install --device 'IPHONE_UDID' --allow-provisioning-updates
 bun run mobile:ios:testflight --allow-provisioning-updates
 ```
 
-Önce yapılacak işlemleri görmek için komuta `--dry-run` ekle. İmzalı cihaz
-kurulumu ve mağaza yüklemesi, ana uygulamanın CarPlay Audio/Video yetkilerini ve
-uygulama/uzantı profillerindeki App Group erişimini gerektirir.
+`preview` yalnız iPhone arayüzü için CarPlay yetkilerini kaldırır; App Group ve imza/profil kontrollerini korur. Önizlemede CarPlay simgesi veya araç yansıtması beklenmez; arşiv/IPA/TestFlight komutları bu seçeneği reddeder. Son doğrulanan telefon kurulumu 0.1.0 (4) önizlemesidir; build 6 fiziksel telefona yüklenmedi. [Kurulum kılavuzu](docs/DEPLOYMENT.md).
+
+## Veri ve web teslimi
+
+Kaynak adresleri ve giriş bilgileri Keychain'de; kaynak adları ve ayarlar cihazda saklanır. Yayın, ses ve altyazı geçici bellekte işlenir. Durdurunca oturum adresi geçersizleşir. Kayıtlar en fazla 10 oturum / 5 MiB tutar; içerik, adres ve parola içermez. Raporu kullanıcı paylaşır.
+
+`Release/mirivo-netlify.zip` Netlify'a manuel yükleme içindir; `index.html` ZIP kökündedir. Gizlilik, EULA ve yardım Türkçe/İngilizce hazırlanmıştır. Aynı belgeler `Resources/Legal` altında çevrimdışı açılır. Destek: **alperrbicer@gmail.com**. [Yükleme adımları](Release/README.txt).
+
+[Ürün planı](docs/PRODUCT_PLAN.md), [fiziksel kabul ölçütleri](docs/RELEASE_ACCEPTANCE.md), [seçilen tasarım](Design/mirivo.html).

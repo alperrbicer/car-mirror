@@ -42,7 +42,7 @@ final class SessionDiagnostics: @unchecked Sendable {
                     for old in try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) {
                         try? FileManager.default.removeItem(at: old)
                     }
-                    let url = directory.appendingPathComponent("CarMirror-\(UUID().uuidString).json")
+                    let url = directory.appendingPathComponent("\(BrandIdentity.name)-\(UUID().uuidString).json")
                     try report.data().write(to: url, options: .atomic)
                     continuation.resume(returning: url)
                 } catch { continuation.resume(throwing: error) }

@@ -51,6 +51,9 @@ public struct DiagnosticValues: Codable, Equatable, Sendable {
     public var audioRoutes: [AudioRoute]?
     public var receivedFrames: Int?
     public var encodedFrames: Int?
+    public var receivedAudioFrames: Int?
+    public var encodedAudioFrames: Int?
+    public var droppedAudioFrames: Int?
     public var droppedFrames: Int?
     public var segments: Int?
     public var bufferedBytes: Int?

@@ -1,0 +1,15 @@
+Mirivo 1.0 — review preparation (not submitted)
+Publisher: Alper Biçer
+Support: alperrbicer@gmail.com
+Apple ID: 6818560405
+Bundle: com.alperbicer.carmirror
+
+Mirivo uses ReplayKit broadcast upload, AVFoundation, public CarPlay APIs and optional real external-display scenes. It does not bypass DRM, modify CarPlay, or supply content. App Group is required for ephemeral session state and local diagnostics. Media stays in bounded memory; the local HTTP endpoint uses a per-session secret path. ATS media exceptions support user-provided streams. Source credentials remain in Keychain.
+
+The first release is free and ad-free. MIRIVO_PRO_SALES_ENABLED=NO. No purchase button is shown and no purchase can start while this is disabled. Mirivo Pro preparation is visible, with features open. No ad or analytics SDK is integrated.
+
+No Mirivo account is required. A reviewer can exercise the library using a stream or M3U URL they have permission to access. No bundled channel lists, service credentials or copyrighted test feeds are supplied. Offline Privacy, Terms and Help are in Settings.
+
+Screen sharing: connect a compatible parked car, open Mirivo on CarPlay, start the system broadcast from the phone, then switch to a permitted source app. Live captions: Settings > Live captions; prepare an available language on a supported iOS 26+ device. Models run on device.
+
+Before submitting: attach the actual granted CarPlay entitlements, signed device build, supported-vehicle test results and a recorded reviewer walkthrough for that build. These are not yet available. Do not state that the EV6 route has passed until the physical acceptance test is completed. Enter the deployed Netlify privacy and support URLs after the owner uploads the supplied ZIP.
