@@ -8,6 +8,8 @@ Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimli
 
 - ReplayKit ekranı ve uygulama sesi → H.264/AAC → bellekte sınırlı HLS yayını. Dengeli 540p/20 fps ve yüksek 720p/30 fps; görüntüyle ses veya kaynak uygulamanın sesini koruma seçeneği.
 - M3U, doğrudan yayın ve Xtream Codes kaynakları, kanal/grup arama, yerel oynatıcı ve büyük kontrollü araç modu. Kaynak altyazıları sistem oynatıcısından seçilir.
+- Fotoğraf seçimiyle 1080p slayt gösterisi (3/5/8 saniye), galeriden video, iPhone/iCloud Drive’dan ses ve video dosyaları, otomatik oynatma sırası ve kaydetmeden bağlantı açma. Kişisel dosyalar geçici kopyalarla işlenir; Google Cast için yalnız oynatılan dosyayı sunan, durdurunca kapanan yerel aktarım kullanılır.
+- Ana ekranda kişisel medya kartları, Google Cast/AirPlay/CarPlay bağlantı rehberi ve bağlantı sorunlarında ayarlara geçiş. Fiziksel TV uyumluluğu ayrıca doğrulanmalıdır.
 - iOS 26 ve desteklenen cihaz/dillerde SpeechAnalyzer ile cihaz içi canlı altyazı. Dil modeli önceden hazırlanır; altyazı yayın görüntüsüne eklenir.
 - CarPlay Audio ile kaynak listesi, ses oynatma ve Şu An Çalıyor kontrolleri. Video yapılandırmasında yetki ve araç desteğine bağlı ekran paylaşımı; iOS gerçekten harici ekran sahnesi sağladığında ortak oynatıcı.
 - 22 dilde arayüz ve aranabilir dil seçimi; Arapça/İbranice için sağdan sola düzen; Türkçe/İngilizce yasal sayfalar ve yardım; teknik rapor paylaşımı/temizleme; bütün kaynakları ve giriş bilgilerini silme.

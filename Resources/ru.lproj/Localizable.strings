@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "Заблокировать управление";
 
 "Kilidi aç" = "Разблокировать";
+
+// TV connection
+"TV’ye bağlan" = "Подключить к ТВ";
+"TV bağlantısı" = "Подключение к ТВ";
+"iPhone’da oynat" = "Смотреть на iPhone";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone и ТВ должны быть в одной сети Wi-Fi.";
+"TV aranıyor…" = "Поиск телевизоров…";
+"TV bulunamadı" = "Телевизоры не найдены";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "Включите ТВ и Google Cast. Если ТВ не отображается, проверьте разрешение «Локальная сеть» для Mirivo в настройках iPhone.";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "Для трансляции всего экрана или MKV выберите AirPlay ТВ: Пункт управления → Повтор экрана.";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "Поддерживаются ТВ с Google Cast или AirPlay. ТВ только с Miracast или DLNA здесь не отображаются.";
+"TV’de oynatılıyor" = "Воспроизведение на ТВ";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "Не удалось подключиться к ТВ. Проверьте ТВ и Wi-Fi и повторите попытку.";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "Чем хотите поделиться?";
+"Fotoğraflar" = "Фото";
+"Slayt gösterisi" = "Слайд-шоу";
+"Videolar" = "Видео";
+"Fotoğraf arşivinden" = "Из медиатеки";
+"Müzik ve dosyalar" = "Музыка и файлы";
+"iPhone veya iCloud Drive" = "iPhone или iCloud Drive";
+"Bağlantı aç" = "Открыть ссылку";
+"Kaydetmeden oynat" = "Воспроизвести без сохранения";
+"Medya hazırlanıyor…" = "Подготовка медиа…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Не удалось открыть медиа. Проверьте, загружен ли файл и есть ли свободное место.";
+"En fazla 20 dosya seçebilirsin." = "Можно выбрать до 20 файлов.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Введите прямую ссылку на видео или аудио. Веб-страницы здесь не воспроизводятся.";
+"Geçerli bir http veya https bağlantısı gir." = "Введите корректную ссылку http или https.";
+"%d fotoğraf" = "Фото: %d";
+"Fotoğraf başına" = "Время на фото";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "На устройстве будет создано слайд-шоу 1080p. Оригиналы фото останутся без изменений.";
+"Nasıl bağlanırım?" = "Как подключиться?";
+"Büyük ekranda daha fazlası." = "Больше на большом экране.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Ваши воспоминания, видео и музыка. Выберите экран и начните делиться.";
+"Google Cast araması kullanılamıyor." = "Поиск Google Cast недоступен.";
+"Ayarları aç" = "Открыть настройки";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay поддерживает звук. Видео зависит от автомобиля и разрешения на видеовывод.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Выберите контент. Пауза и смена подключения к ТВ доступны в плеере.";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN или гостевая сеть могут мешать устройствам находить друг друга.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Трансляция с этого iPhone на ТВ. Не закрывайте Mirivo.";
+"Oynatma sırası" = "Очередь воспроизведения";
+"Önceki" = "Назад";
+"Sonraki" = "Далее";

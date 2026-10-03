@@ -197,3 +197,22 @@ Yükleme, TestFlight dağıtımı, incelemeye gönderme ve mağazada yayımlanma
 6. Mağaza paketini tamamlayıp App Review ve yayın adımlarını sonuçlandırmak.
 
 Kesin teslim tarihi, Apple'ın sonucu ve araç görüntü yolunun fizibilitesi belli olduktan sonra tahmin edilir. Her aşamanın sonunda yalnızca neyin değiştiği, hangi kanıtın elde edildiği ve hangi ölçütün açık kaldığı raporlanır.
+
+## 3 Ekim 2026 — kişisel medya ve TV kullanım deneyimi
+
+Kullanıcının verdiği [TV Cast 4K mağaza sayfası](https://apps.apple.com/tr/app/id6447613526?l=tr), açıklaması ve dört tanıtım ekranı incelendi. Uygulama yüklenip donanımda denenmedi. Mağazada genel puan gösterecek kadar değerlendirme yok; başarı veya bütün TV’lerle uyumluluk iddiası bu incelemeden çıkarılmadı.
+
+Mirivo’ya alınan fikirler:
+
+| İhtiyaç | Uygulanan akış |
+| --- | --- |
+| Kaynak URL’si olmadan kişisel içerik paylaşmak | Ana ekranda fotoğraf, video, müzik/dosya ve hızlı bağlantı kartları. Sistem fotoğraf seçicisi yalnız kullanıcının seçtiği içeriği verir. |
+| Fotoğrafları birlikte izlemek | En fazla 20 fotoğrafı seçim sırasıyla, fotoğraf başına 3/5/8 saniye gösteren yerel 1080p H.264 slayt. Orijinaller değiştirilmez; fotoğraflar kırpılmadan sığdırılır. |
+| Telefonda veya iCloud Drive’da bulunan medyayı açmak | Dosya seçimi, geçici yerel kopya, ortak oynatıcı, otomatik sıradaki dosya ve ses dosyası görünümü. TV’nin codec desteği ayrıca gerekir. |
+| Tek seferlik bir yayını hızlı açmak | Kullanıcının yapıştırdığı doğrudan HTTP(S) medya adresini kaynak kaydetmeden oynatma. Web sayfasından video çıkarma veya DRM aşma içermez. |
+| İlk bağlantıyı anlayabilmek | Google Cast, AirPlay ve CarPlay için ayrı rehber; cihaz bulunamadığında ağ/izin önerileri ve uygulama ayarlarına geçiş. |
+| Aktarım sırasında ne olduğunu bilmek | Yerel dosya TV’ye aktarılırken iPhone’un açık kalması gerektiği belirtilir; aktarım ve tam ekran çakışınca ekran kilidi erken bırakılmaz. |
+
+Google Cast’in yerel dosyaya erişimi, yalnız mevcut dosyayı rastgele oturum yolu üzerinden sunan geçici HTTP sunucusuyla sağlanır. HTTP Range ve HEAD desteklenir; dosyalar 64 KiB parçalarla okunur. Durdurma sunucuyu ve adresi kapatır. Kişisel medya adresleri kaynak Keychain’ine veya kalıcı oynatma geçmişine eklenmez. İptal edilen seçimler temizlenir; önceki oynatma sırasının kullanılmayan kopyaları yeni sırada, kalan geçici kopyalar sonraki uygulama açılışında kaldırılır.
+
+Grafit/mint kimlik ve üst gezinme korundu. Yeni metinlerin 22 dilde karşılığı var. TV sesini kumandayla çift yönlü eşleme, DLNA, web tarayıcısından medya tespiti, kamera ve çizim tahtası bu değişiklikte uygulanmadı. Özellikle TV markası üzerinden doğrulanmamış uyumluluk veya 4K aktarım sözü eklenmedi. Fiziksel iPhone/TV/CarPlay kabulü ayrı kalır.

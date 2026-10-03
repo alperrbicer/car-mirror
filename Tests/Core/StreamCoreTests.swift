@@ -83,6 +83,21 @@ final class StreamCoreTests: XCTestCase {
         XCTAssertEqual(beyond.headers["Content-Range"], "bytes */100")
     }
 
+    func testCastCrossOriginRequestsStillRequireSessionToken() {
+        let router = StreamHTTPRouter(token: "secret", buffer: readyBuffer())
+        let preflight = router.respond(to: request("/secret/stream.m3u8", method: "OPTIONS"))
+        XCTAssertEqual(preflight.status, 204)
+        XCTAssertTrue(preflight.body.isEmpty)
+        let headers = String(decoding: preflight.wireData, as: UTF8.self)
+        XCTAssertTrue(headers.contains("Access-Control-Allow-Origin: *\r\n"))
+        XCTAssertTrue(headers.contains("Access-Control-Allow-Headers: Range\r\n"))
+        XCTAssertEqual(router.respond(to: request("/wrong/stream.m3u8", method: "OPTIONS")).status, 404)
+        let partial = router.respond(to: request("/secret/init.mp4", headers: "Origin: https://receiver.example\r\nRange: bytes=10-19\r\n"))
+        XCTAssertEqual(partial.status, 206)
+        XCTAssertEqual(partial.body.count, 10)
+        XCTAssertTrue(String(decoding: partial.wireData, as: UTF8.self).contains("Access-Control-Expose-Headers: Content-Length, Content-Range, Accept-Ranges"))
+    }
+
     func testMalformedRequestsDoNotCrashOrReadData() {
         let router = StreamHTTPRouter(token: "secret", buffer: readyBuffer())
         XCTAssertEqual(router.respond(to: Data(repeating: 65, count: 9_000)).status, 400)

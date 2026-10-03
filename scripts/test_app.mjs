@@ -16,5 +16,5 @@ const run = spawnSync('xcodebuild', ['-project', join(root, 'CarMirror.xcodeproj
   '-configuration', 'Debug', '-parallel-testing-enabled', 'NO', '-jobs', '1', '-destination', `platform=iOS Simulator,id=${device}`,
   '-derivedDataPath', join(root, 'build/app-tests'), '-resultBundlePath', results,
   ...(uiOnly ? ['-only-testing:MirivoUITests'] : []),
-  'CODE_SIGN_ENTITLEMENTS=Config/App.entitlements', 'CODE_SIGN_IDENTITY=-', 'test'], { stdio: 'inherit' })
+  `CODE_SIGN_ENTITLEMENTS=${join(root, 'Config/App.entitlements')}`, 'CODE_SIGN_IDENTITY=-', 'test'], { stdio: 'inherit' })
 process.exit(run.status ?? 1)

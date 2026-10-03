@@ -28,6 +28,7 @@ final class ExternalDisplaySceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 private struct ExternalDisplayProbeView: View {
     @ObservedObject var model: MirrorModel
+    @ObservedObject private var playback = MirrorModel.shared.playback
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
 
     var body: some View {
@@ -35,7 +36,7 @@ private struct ExternalDisplayProbeView: View {
             Color.black
             if let started = model.probeStartedAt { ConnectionPatternView(startedAt: started) }
             else if model.readyToPlay || model.mediaTitle != nil {
-                NativeVideoView(player: model.playback.player, showsControls: false)
+                MediaVideoView(playback: playback, role: .external, showsControls: false)
             } else {
                 VStack(spacing: 16) {
                     MirrorMark().frame(width: 72, height: 72)

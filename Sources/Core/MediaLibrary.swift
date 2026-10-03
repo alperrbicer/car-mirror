@@ -36,10 +36,13 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
     public let group: String
     public let url: URL
     public var requiresCompatibilityPlayback: Bool {
-        ["mkv", "webm", "avi", "ts"].contains(url.pathExtension.lowercased())
+        ["mkv", "webm", "avi", "ts", "flac", "ogg", "opus"].contains(url.pathExtension.lowercased())
+    }
+    public var isAudio: Bool {
+        ["mp3", "m4a", "aac", "wav", "aif", "aiff", "flac", "ogg", "opus"].contains(url.pathExtension.lowercased())
     }
     public var isLive: Bool {
-        !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(url.pathExtension.lowercased())
+        !url.isFileURL && !isAudio && !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(url.pathExtension.lowercased())
     }
     public init(title: String, group: String = "", url: URL) {
         self.id = url.absoluteString

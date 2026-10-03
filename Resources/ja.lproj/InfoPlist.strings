@@ -1,1 +1,1 @@
-"NSLocalNetworkUsageDescription" = "画面を車載ディスプレイに配信し、選択したローカルメディアソースに接続するために使用します。";
+"NSLocalNetworkUsageDescription" = "同じWi-Fi上のテレビの検出、テレビや車載画面への映像・画面配信、および選択したローカルメディアへの接続に使用します。";

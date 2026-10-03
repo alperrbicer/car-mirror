@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'xcodeproj'
 require 'json'
+require_relative 'cast_project'
 
 root = File.expand_path('..', __dir__)
 languages = JSON.parse(File.read(File.join(root, 'Config/Localizations.json')))
@@ -131,6 +132,7 @@ fixture = project.main_group.new_file('Tests/App/Mirivo.storekit')
 tests.resources_build_phase.add_file_reference(fixture)
 video_fixture = project.main_group.new_file('Tests/Fixtures/InlineVideo.mkv')
 tests.resources_build_phase.add_file_reference(video_fixture)
+add_google_cast(project, app)
 project.save
 
 { 'CarMirror' => ['Debug', 'Release'], 'CarMirror CarPlay' => ['Debug-CarPlay', 'Release-CarPlay'] }.each do |name, configurations|

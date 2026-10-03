@@ -2,15 +2,30 @@ import SwiftUI
 
 struct MirrorHomeView: View {
     @ObservedObject var model: MirrorModel
+    @ObservedObject private var playback = MirrorModel.shared.playback
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
+    @State private var showingGuide = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            if dynamicTypeSize.isAccessibilitySize { actions }
             connectionCard
-            if !dynamicTypeSize.isAccessibilitySize { actions }
+            TVConnectionButton(model: model)
+            actions
+            MediaSharingView(model: model)
+            Button { showingGuide = true } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: "sparkles.tv").font(.title2).foregroundStyle(MirrorStyle.accent)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(L10n.tr("Nasıl bağlanırım?")).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                        Text("Google Cast · AirPlay · CarPlay").font(.caption).foregroundStyle(MirrorStyle.secondary)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").font(.caption).foregroundStyle(MirrorStyle.secondary)
+                }.padding(18).frame(maxWidth: .infinity, minHeight: 78)
+                    .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 22))
+            }.buttonStyle(.plain).accessibilityIdentifier("connection-guide")
             sessionDetails
             Text(BrandIdentity.tagline)
                 .font(.footnote)
@@ -18,6 +33,7 @@ struct MirrorHomeView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 4)
         }
+        .sheet(isPresented: $showingGuide) { ConnectionGuideView(model: model) }
         .alert(BrandIdentity.name, isPresented: Binding(
             get: { model.errorMessage != nil },
             set: { if !$0 { model.errorMessage = nil } }
@@ -29,27 +45,27 @@ struct MirrorHomeView: View {
     private var connectionCard: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Circle().fill(model.carPlayConnected ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
-                Text(L10n.tr(model.carPlayConnected ? "CARPLAY BAĞLI" : "CARPLAY BEKLENİYOR"))
+                Circle().fill(model.carPlayConnected || playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
+                Text(playback.tvName ?? (model.carPlayConnected ? L10n.tr("CARPLAY BAĞLI") : "TV · AIRPLAY · CARPLAY"))
                     .font(.system(.caption2, design: .monospaced, weight: .medium))
                     .tracking(L10n.appLanguage.allowsLetterSpacing ? 1.2 : 0)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(model.carPlayConnected ? MirrorStyle.accent : MirrorStyle.secondary)
+            .foregroundStyle(model.carPlayConnected || playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary)
             .padding(.bottom, 18)
-            Text(model.captureTitle)
+            Text(model.broadcasting ? model.captureTitle : L10n.tr("Büyük ekranda daha fazlası."))
                 .font(.system(.largeTitle, design: .default, weight: .semibold))
                 .tracking(L10n.appLanguage.allowsLetterSpacing ? -1 : 0)
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
-            Text(detail)
+            Text(model.broadcasting ? detail : L10n.tr("Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla."))
                 .font(.subheadline)
                 .foregroundStyle(MirrorStyle.secondary)
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 10)
-            if !dynamicTypeSize.isAccessibilitySize {
+            if model.broadcasting && !dynamicTypeSize.isAccessibilitySize {
                 ScreenLinkIllustration(active: model.sessionState == .presenting)
                     .padding(.top, 14)
                     .padding(.bottom, -8)
@@ -68,7 +84,7 @@ struct MirrorHomeView: View {
     private var actions: some View {
         if model.broadcasting {
             VStack(spacing: 12) {
-                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && model.supportsVideo == true {
+                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (model.supportsVideo == true || playback.tvDevice != nil || model.externalScreenCount > 0) {
                     Button { model.playInCar() } label: {
                         Label(L10n.tr("Görüntüyü yeniden bağla"), systemImage: "arrow.clockwise")
                     }.buttonStyle(MirivoButtonStyle(prominent: true))
@@ -138,6 +154,12 @@ struct MirrorHomeView: View {
     }
 
     private var detail: String {
+        if playback.tvDevice != nil || model.externalScreenCount > 0 {
+            switch model.sessionState {
+            case .captureReady, .connecting: return L10n.tr("Görüntü bağlanıyor")
+            default: break
+            }
+        }
         switch model.sessionState {
         case .waitingForCar: return L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç.")
         case .ready: return L10n.tr("Hazır olduğunda ekranını paylaş.")

@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "कंट्रोल लॉक करें";
 
 "Kilidi aç" = "अनलॉक करें";
+
+// TV connection
+"TV’ye bağlan" = "टीवी से कनेक्ट करें";
+"TV bağlantısı" = "टीवी कनेक्शन";
+"iPhone’da oynat" = "iPhone पर चलाएँ";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone और टीवी एक ही Wi-Fi नेटवर्क पर होने चाहिए।";
+"TV aranıyor…" = "टीवी खोजे जा रहे हैं…";
+"TV bulunamadı" = "कोई टीवी नहीं मिला";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "टीवी चालू करें और Google Cast सक्षम करें। टीवी न दिखे तो iPhone सेटिंग में Mirivo की स्थानीय नेटवर्क अनुमति जाँचें।";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "पूरी स्क्रीन या MKV वीडियो साझा करने के लिए कंट्रोल सेंटर → स्क्रीन मिररिंग में अपना AirPlay टीवी चुनें।";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "Google Cast या AirPlay वाले टीवी समर्थित हैं। केवल Miracast या DLNA वाले टीवी यहाँ नहीं दिखेंगे।";
+"TV’de oynatılıyor" = "टीवी पर चल रहा है";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "टीवी से कनेक्ट नहीं हो सका। टीवी और Wi-Fi कनेक्शन जाँचें और फिर कोशिश करें।";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "आप क्या शेयर करना चाहते हैं?";
+"Fotoğraflar" = "फ़ोटो";
+"Slayt gösterisi" = "स्लाइडशो";
+"Videolar" = "वीडियो";
+"Fotoğraf arşivinden" = "फ़ोटो लाइब्रेरी से";
+"Müzik ve dosyalar" = "संगीत और फ़ाइलें";
+"iPhone veya iCloud Drive" = "iPhone या iCloud Drive";
+"Bağlantı aç" = "लिंक खोलें";
+"Kaydetmeden oynat" = "बिना सहेजे चलाएँ";
+"Medya hazırlanıyor…" = "मीडिया तैयार हो रहा है…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "मीडिया नहीं खुल सका। जाँचें कि फ़ाइल डाउनलोड है और खाली जगह उपलब्ध है।";
+"En fazla 20 dosya seçebilirsin." = "आप अधिकतम 20 फ़ाइलें चुन सकते हैं।";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "वीडियो या ऑडियो का सीधा लिंक डालें। यहाँ वेब पेज नहीं चलाए जा सकते।";
+"Geçerli bir http veya https bağlantısı gir." = "सही http या https लिंक डालें।";
+"%d fotoğraf" = "%d फ़ोटो";
+"Fotoğraf başına" = "हर फ़ोटो का समय";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "डिवाइस पर फ़ोटो से 1080p स्लाइडशो बनता है। मूल फ़ोटो नहीं बदलतीं।";
+"Nasıl bağlanırım?" = "कैसे कनेक्ट करें?";
+"Büyük ekranda daha fazlası." = "बड़ी स्क्रीन पर और भी बहुत कुछ।";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "आपकी यादें, वीडियो और संगीत। स्क्रीन चुनें और शेयर करना शुरू करें।";
+"Google Cast araması kullanılamıyor." = "Google Cast खोज उपलब्ध नहीं है।";
+"Ayarları aç" = "सेटिंग्स खोलें";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay ऑडियो का समर्थन करता है। वीडियो कार के समर्थन और वीडियो अनुमति पर निर्भर है।";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "कंटेंट चुनें। प्लेयर से रोकें या TV कनेक्शन बदलें।";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN या गेस्ट नेटवर्क डिवाइसों को एक-दूसरे को खोजने से रोक सकता है।";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "इस iPhone से TV पर स्ट्रीम हो रहा है। Mirivo खुला रखें।";
+"Oynatma sırası" = "प्लेबैक कतार";
+"Önceki" = "पिछला";
+"Sonraki" = "अगला";

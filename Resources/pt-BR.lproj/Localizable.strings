@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "Bloquear controles";
 
 "Kilidi aç" = "Desbloquear";
+
+// TV connection
+"TV’ye bağlan" = "Conectar à TV";
+"TV bağlantısı" = "Conexão com a TV";
+"iPhone’da oynat" = "Reproduzir no iPhone";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "O iPhone e a TV devem estar na mesma rede Wi-Fi.";
+"TV aranıyor…" = "Buscando TVs…";
+"TV bulunamadı" = "Nenhuma TV encontrada";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "Ligue a TV e ative o Google Cast. Se ela não aparecer, verifique a permissão Rede Local do Mirivo nos Ajustes do iPhone.";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "Para compartilhar a tela inteira ou vídeos MKV, escolha sua TV AirPlay em Central de Controle → Espelhar a Tela.";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "TVs com Google Cast ou AirPlay são compatíveis. TVs apenas com Miracast ou DLNA não aparecem aqui.";
+"TV’de oynatılıyor" = "Reproduzindo na TV";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "Não foi possível conectar à TV. Verifique a TV e o Wi-Fi e tente novamente.";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "O que você quer compartilhar?";
+"Fotoğraflar" = "Fotos";
+"Slayt gösterisi" = "Apresentação de slides";
+"Videolar" = "Vídeos";
+"Fotoğraf arşivinden" = "Da sua fototeca";
+"Müzik ve dosyalar" = "Músicas e arquivos";
+"iPhone veya iCloud Drive" = "iPhone ou iCloud Drive";
+"Bağlantı aç" = "Abrir link";
+"Kaydetmeden oynat" = "Reproduzir sem salvar";
+"Medya hazırlanıyor…" = "Preparando mídia…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Não foi possível abrir a mídia. Confira se o arquivo foi baixado e se há espaço livre.";
+"En fazla 20 dosya seçebilirsin." = "Você pode selecionar até 20 arquivos.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Insira um link direto de vídeo ou áudio. Páginas da web não podem ser reproduzidas aqui.";
+"Geçerli bir http veya https bağlantısı gir." = "Insira um link http ou https válido.";
+"%d fotoğraf" = "%d fotos";
+"Fotoğraf başına" = "Tempo por foto";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "As fotos viram uma apresentação em 1080p no seu dispositivo. Os originais não são alterados.";
+"Nasıl bağlanırım?" = "Como conectar?";
+"Büyük ekranda daha fazlası." = "Mais na tela grande.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Suas lembranças, vídeos e músicas. Escolha uma tela e comece a compartilhar.";
+"Google Cast araması kullanılamıyor." = "A busca do Google Cast não está disponível.";
+"Ayarları aç" = "Abrir Ajustes";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "O CarPlay oferece áudio. O vídeo depende do veículo e da autorização de vídeo.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Escolha um conteúdo. Pause ou mude a conexão da TV pelo reprodutor.";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "Uma VPN ou rede de convidados pode impedir que os dispositivos se encontrem.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Transmitindo deste iPhone para a TV. Mantenha o Mirivo aberto.";
+"Oynatma sırası" = "Fila de reprodução";
+"Önceki" = "Anterior";
+"Sonraki" = "Próximo";

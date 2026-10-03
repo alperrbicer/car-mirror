@@ -2,6 +2,17 @@
 
 Devam noktası ve bütün açık işler: [NEXT_STEPS.md](NEXT_STEPS.md).
 
+## 3 Ekim 2026 — TV bağlantısı
+
+- Ana ekran, oynatıcı ve tam ekrana TV seçimi eklendi. Google Cast alıcısı etkin Android/Google TV ve Cast cihazları için resmi Google Cast iOS SDK 4.8.6 kullanılır. AirPlay için sistem aygıt seçicisi ve Ekran Yansıtma yönergesi bulunur. Android TV sürümü tek başına alıcının varlığını doğrulamaz; kullanıcının Nextstar Android TV 14 cihazı henüz fiziksel olarak sınanmadı. Yalnız Miracast/DLNA destekleyen cihazlar bu uygulamayla keşfedilmez.
+- SDK, checksum doğrulanan resmi statik XCFramework ve sabit GTMSessionFetcher 3.5.0 bağımlılığıyla SwiftPM üzerinden eklenir. Lisans bildirimleri Ayarlar'da, SDK kaynakları ve gizlilik manifestleri uygulama paketindedir. Cast tanılama analitiği kapalı; keşif TV seçimi açıldığında başlar. SDK kendi yapılandırmasını Google'dan indirebilir.
+- İnternet yayınını TV doğrudan sağlayıcıdan alır. Oynat/duraklat, süre, sarma ve hata durumu alıcıdan izlenir; TV'den telefona dönüşte mevcut konum ve duraklatma tercihi korunur. Başlatma hatası aktif oynatma/Şimdi oynatılıyor bilgisi bırakmaz. Başka bir gönderenin başlattığı içerik otomatik durdurulmaz.
+- HLS/MP4 ve diğer içeriklerin açılması TV'nin codec desteği ve sağlayıcının erişim/CORS koşullarına bağlıdır. MKV için otomatik dönüştürme uygulanmaz; iPhone'da VLCKit ve uygun AirPlay ekranda sistem Ekran Yansıtma yolu korunur. Korumalı içeriğin engelleri aşılmaz.
+- ReplayKit HLS yayını ve seçilmiş yerel medya için oturuma özel yerel HTTP adresleri kullanılır. Cast web alıcısının GET/HEAD/OPTIONS ve byte-range isteklerine CORS yanıtları eklendi; yanlış oturum adresi dosya/veri döndürmez. Yerel dosya aktarımında Mirivo'nun açık kalması gerekir.
+- VLCKit Chromecast yolu kullanılmıyor: ulaşılamayan alıcı denemesinde libVLC'nin yakalanmayan C++ hatası uygulamayı kapattı. Bağlantı resmi Google SDK'sına taşındı. Bonjour ilanı tek başına resmi SDK'da geçerli alıcı oluşturmadığından simülatör testleri keşif/gerçek TV kabulü olarak sunulmaz.
+- Son doğrulama: **5 TV durumu/konum/harici yüzey testi + 1 gerçek yerel HTTP sunucusu testi + 9 HLS/HTTP çekirdek testi + 20 mevcut oynatıcı testi = 35 geçti, 0 hata**. Üç opt-in sağlayıcı testi bu koşuya alınmadı. Kanıtlar: `build/tv-connection-tests.log`, `build/tv-http-tests.log`, `build/tv-playback-regression.log`. 22 dil/247 anahtar statik denetimi, paket içindeki SDK kaynakları/gizlilik manifestleri/lisans ve proje kurulumunun tekrarda çoğalmaması da doğrulandı.
+- Fiziksel Nextstar keşfi, canlı yayın/film görüntüsü ve sesi, AirPlay, arka plandan geri dönüş, aynı TV'de başka gönderenle devir ve uzun izleme henüz doğrulanmadı. Bu kaynak değişiklikleri önceki TestFlight build 7'ye dahil değildir; bu çalışmada yükleme yapılmadı.
+
 Kaynak sürüm **1.0 (6)**; TestFlight dağıtım adayı **1.0 (7)**. Mirivo + A grafit/mint kimliği ve otomobilli iki ekran logosu korunuyor. TestFlight beta inceleme gönderimi tamamlandı; Apple durumu **Waiting for Review**. EV6'da görüntü ve ses, fiziksel CarPlay kabulü ve App Store yayın incelemesi henüz doğrulanmadı.
 
 ## 3 Ekim 2026 — TestFlight dağıtım adayı
@@ -110,3 +121,17 @@ Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe eklendi; uygulama ve 
 - Uzak `.mkv` dosyaları VideoLAN'ın `mkv_trusted` demux seçeneğiyle mevcut Cues indeksinden açılır. Aynı dosyada 120., 30., 900. ve 240. saniyelere sarma, yeni görüntü ve süre ilerlemesi dahil **1,98–2,89 saniye** sürdü. İndeksi eksik/bozuk başka dosyalarda aynı süre garanti edilmez.
 - VLCKit tek bir sarma tamamlanma callback'i tuttuğu için hızlı istekler birleştirilir, devam eden sarma bitince son hedef uygulanır. Aynı konum ve reddedilen istekler kuyruğu kilitlemez; 30 saniye tamamlanmayan işlem sonsuz bekleme yerine hata durumuna geçer. Kullanıcının duraklatma tercihi korunur.
 - Gerçek videoda ileri/geri, aynı anda ve devam eden isteğin üstüne sarma, duraklatılmış videoda aynı konuma/başka konuma geçme ile mevcut oynatıcı testlerinde **20 geçti, 0 hata**. İki eski opt-in başlangıç testi bu koşuya alınmadı; yeni opt-in sağlayıcı sarma testi çalıştı. Kanıt: `build/seek-before-provider-tests.log`, `build/seek-provider-trace.log`, `build/seek-final-tests.log`, `build/seek-provider-diagnostics.json`. Fiziksel iPhone'da bu düzeltme henüz doğrulanmadı.
+
+## 3 Ekim 2026 — kişisel medya paylaşımı
+
+Mağaza incelemesinden seçilen kişisel medya ve bağlantı rehberi özellikleri uygulandı; kapsam ve ertelenen fikirler [ürün planına](PRODUCT_PLAN.md#3-ekim-2026--kişisel-medya-ve-tv-kullanım-deneyimi) eklendi. Fotoğraflar 1080p slayta dönüştürülür, galeri videoları ve ses/video dosyaları ortak oynatıcıya açılır, dosya sırası otomatik ilerler, doğrudan HTTP(S) bağlantısı kaydetmeden oynatılır. Yerel Cast aktarımı yalnız seçilen dosyayı oturum boyunca sunar.
+
+- `build/media-sharing-core.log`: 41 çekirdek + 5 medya testi, sıfır hata. Medya türü ve HTTP Range sınırları dahil.
+- `build/media-sharing-scripts.log`: 17 dağıtım aracı testi geçti.
+- `build/media-sharing-localization.json`: 22 dil, 247 anahtar, 5.434 değer; sıfır hata.
+- `build/media-sharing-regression-5.xcresult`: oynatıcı, TV ve kişisel medya entegrasyon testleri. Slaytın gerçek 1080p video çıktısı, fotoğraf sırası, oynatma, iptal, dosya temizliği, iki ses dosyasının sıralı çalınması, HTTP GET/HEAD/Range, yanlış yolun reddi ve durdurulan adresin kapanması doğrulandı. Sağlayıcı adresi gerektiren üç opt-in test çalıştırılmadı.
+- Son kabul koşusu `build/media-sharing-acceptance-2.xcresult`: **6 entegrasyon + 4 UI testi geçti, sıfır hata/atlama**. Sistem seçicisinden iki fotoğraf seçme → düzenleyiciyi kapatma → aynı fotoğrafları yeniden seçme → slaytı oynatma ve duraklatma; fotoğraf seçimini iptal etme; hızlı bağlantıda dosya URL’sini reddetme; bağlantı rehberi ve erişilebilirlikte en büyük yazı boyutu doğrulandı. Yerel HTTP aktarımının CORS/OPTIONS yanıtı da kontrol edildi.
+- Son tekrarlarda yakalanan erken dosya temizliği düzeltildi: fotoğraf kopyaları geçici `onDisappear` çağrılarına değil düzenleme oturumunun ömrüne bağlandı. `build/media-sharing-photo-lifetime.xcresult` içinde fotoğraf seçme/oynatma akışı art arda iki kez geçti; ardından yukarıdaki toplu kabul koşusu tamamlandı. İlk PhotosUI hit point ve Türkçe iptal etiketi sorunları test seçicilerinde giderildi. Önceki başarısız raporlar topluca başarılı sayılmaz.
+- Cast SDK kaynakları Xcode’un yerel Copy Files adımlarıyla paketlenir; build-script sandbox kapatılmadı. Test komutunun entitlement yolu SwiftPM kaynak hedefleri için mutlak yola çevrildi.
+
+Bunlar simülatör ve yerel doğrulamalardır. Fiziksel iPhone, Google Cast TV, AirPlay TV, araç görüntüsü ve App Store yüklemesi bu çalışmada yapılmadı. 4K/slayt-orijinal-kalite veya yeni TV marka uyumluluğu iddiası yoktur.

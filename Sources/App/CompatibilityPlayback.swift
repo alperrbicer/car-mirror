@@ -1,5 +1,6 @@
 import UIKit
 import Combine
+import AVFoundation
 @preconcurrency import VLCKit
 
 /// MKV/WebM playback uses VideoLAN; HLS and Apple-native media stay on AVPlayer.
@@ -166,7 +167,10 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             Task { @MainActor in
                 guard let self else { return }
                 self.pipActive = started
-                if !started && self.active { self.onRestore?() }
+                if !started {
+                    self.videoView.restoreAfterPictureInPicture()
+                    if self.active { self.onRestore?() }
+                }
             }
         }
     }
@@ -209,7 +213,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
 /// The engine arbitrates ownership across previews, inline and full-screen video.
 @MainActor
 final class CompatibilityVideoHost: UIView {
-    enum Role: Int { case preview, inline, fullscreen }
+    enum Role: Int { case preview, inline, fullscreen, external }
     private var engine: CompatibilityPlayback?
     fileprivate private(set) var role: Role = .inline
     fileprivate private(set) var fillsFrame = false
@@ -255,6 +259,29 @@ final class CompatibilityVideoSurface: UIView, @preconcurrency VLCPictureInPictu
     override func layoutSubviews() {
         super.layoutSubviews()
         for subview in subviews where subview.frame != bounds { subview.frame = bounds }
+    }
+    func restoreAfterPictureInPicture() {
+        // PiP can leave its temporary clipping on VLC's sample-buffer layer.
+        // Clear it only after didStop, so the system's return animation finishes.
+        // The surrounding player card owns the four matching rounded corners.
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        restoreVideoClipping(in: layer)
+        setNeedsLayout()
+        layoutIfNeeded()
+        CATransaction.commit()
+    }
+    private func restoreVideoClipping(in layer: CALayer) {
+        if layer is AVSampleBufferDisplayLayer {
+            layer.removeAnimation(forKey: "cornerRadius")
+            layer.removeAnimation(forKey: "maskedCorners")
+            layer.removeAnimation(forKey: "mask")
+            layer.mask = nil
+            layer.cornerRadius = 0
+            layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner,
+                                   .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        }
+        for sublayer in layer.sublayers ?? [] { restoreVideoClipping(in: sublayer) }
     }
     func mediaController() -> any VLCPictureInPictureMediaControlling { owner! }
     func pictureInPictureReady() -> (((any VLCPictureInPictureWindowControlling)?) -> Void)? {

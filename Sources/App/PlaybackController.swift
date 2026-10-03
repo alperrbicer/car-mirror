@@ -2,12 +2,33 @@ import AVFoundation
 import AVKit
 import Combine
 import MediaPlayer
+@preconcurrency import GoogleCast
 
 @MainActor
 final class PlaybackController: ObservableObject {
     enum State { case idle, loading, playing, paused, failed }
     let player = AVPlayer()
     @Published private(set) var compatibility: CompatibilityPlayback?
+    @Published private(set) var tvDevice: GCKDevice?
+    var tvName: String? { tvDevice.map { $0.friendlyName ?? $0.modelName ?? "Google Cast" } }
+    private var casting: CastPlayback?
+    private var personalMediaServer: PersonalMediaServer?
+    private var localCastAwakeLease: UUID?
+    private struct Request {
+        let url: URL
+        let preserveSourceAudio: Bool
+        let muted: Bool
+        let requiresExternalPlayback: Bool
+        let title: String?
+        let live: Bool
+        let presentation: MediaPlaybackPresentation
+        let useCompatibility: Bool
+    }
+    private var request: Request?
+    private var nativeResumePosition: Double?
+    private var restoringCompatibilityPosition = false
+    @Published var externalDisplayConnected = false
+    private var pauseOnStart = false
     @Published private(set) var currentTime: Double = 0
     @Published private(set) var duration: Double = 0
     @Published private(set) var isLive = false
@@ -62,7 +83,7 @@ final class PlaybackController: ObservableObject {
         }
         playingObservation = player.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] player, _ in
             Task { @MainActor in
-                guard let self, self.compatibility == nil else { return }
+                guard let self, self.compatibility == nil, self.casting == nil else { return }
                 self.isPlaying = self.player.currentItem != nil && self.player.timeControlStatus == .playing
                 if self.player.currentItem != nil {
                     switch self.player.timeControlStatus {
@@ -92,7 +113,7 @@ final class PlaybackController: ObservableObject {
             object: nil, queue: .main) { [weak self] notification in
                 let began = (notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) == AVAudioSession.InterruptionType.began.rawValue
                 Task { @MainActor in
-                    guard let self else { return }
+                    guard let self, self.casting == nil else { return }
                     var values = DiagnosticValues()
                     values.reason = .interrupted
                     self.onDiagnostic?(.audioInterrupted, values)
@@ -156,8 +177,15 @@ final class PlaybackController: ObservableObject {
 
     func play(url: URL, preserveSourceAudio: Bool = true, muted: Bool = false,
               requiresExternalPlayback: Bool = true, title: String? = nil, live: Bool = true,
-              presentation: MediaPlaybackPresentation = .video, useCompatibility: Bool = false) throws {
+              presentation: MediaPlaybackPresentation = .video, useCompatibility: Bool = false,
+              startAt: Double = 0, startPaused: Bool = false) throws {
         stop()
+        request = Request(url: url, preserveSourceAudio: preserveSourceAudio, muted: muted,
+                          requiresExternalPlayback: requiresExternalPlayback, title: title, live: live,
+                          presentation: presentation, useCompatibility: useCompatibility)
+        let position = startAt.isFinite ? max(0, startAt) : 0
+        currentTime = position
+        pauseOnStart = startPaused
         requestedLive = live
         isLive = live
         errorMessage = nil
@@ -172,7 +200,7 @@ final class PlaybackController: ObservableObject {
         }
         try session.setActive(true)
         activatedAudioSession = true
-        waitingForExternalPlayback = requiresExternalPlayback && presentation == .video
+        waitingForExternalPlayback = requiresExternalPlayback && presentation == .video && tvDevice == nil
         player.isMuted = muted
         player.allowsExternalPlayback = presentation == .video
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
@@ -182,14 +210,83 @@ final class PlaybackController: ObservableObject {
             MPNowPlayingInfoPropertyMediaType: presentation == .audio ? MPNowPlayingInfoMediaType.audio.rawValue : MPNowPlayingInfoMediaType.video.rawValue,
             MPNowPlayingInfoPropertyPlaybackRate: 0.0
         ]
+        if let device = tvDevice {
+            let cast = CastPlayback()
+            casting = cast
+            state = .loading
+            cast.onState = { [weak self, weak cast] state in
+                guard let self, let cast, self.casting === cast else { return }
+                if state == .failed {
+                    self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .playback)
+                    return
+                }
+                self.state = state
+                self.isPlaying = state == .playing
+                if state == .playing || state == .paused {
+                    self.pauseOnStart = state == .paused
+                    self.startupTask?.cancel(); self.startupTask = nil
+                }
+                MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = self.isPlaying ? 1.0 : 0.0
+            }
+            cast.onTime = { [weak self, weak cast] time, length, seekable, live in
+                guard let self, let cast, self.casting === cast, self.pendingSeek == nil else { return }
+                self.updateTimeline(time: time, length: length, seekable: seekable, live: live)
+                self.isLive = live
+            }
+            cast.onFinished = { [weak self, weak cast] in
+                guard let self, let cast, self.casting === cast else { return }
+                self.stop(); self.onFinished?()
+            }
+            if url.isFileURL {
+                let server = try PersonalMediaServer(file: url)
+                personalMediaServer = server
+                localCastAwakeLease = MediaScreenAwake.acquire()
+                server.start(onReady: { [weak self, weak cast] address in
+                    Task { @MainActor in
+                        guard let self, let cast, self.casting === cast else { return }
+                        cast.open(url: address, device: device, title: title, live: false, startAt: position, paused: startPaused)
+                    }
+                }, onFailure: { [weak self, weak cast] in
+                    Task { @MainActor in
+                        guard let self, let cast, self.casting === cast else { return }
+                        self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .unavailable)
+                    }
+                })
+            } else {
+                cast.open(url: url, device: device, title: title, live: live, startAt: position, paused: startPaused)
+            }
+            guard casting === cast else { return }
+            installRemoteCommands()
+            startupTask = Task { [weak self, weak cast] in
+                do { try await Task.sleep(for: .seconds(30)) } catch { return }
+                guard let self, let cast, self.casting === cast, self.state == .loading else { return }
+                self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .unavailable)
+            }
+            return
+        }
         if useCompatibility {
             let engine = CompatibilityPlayback()
             compatibility = engine
             state = .loading
+            var resumePosition: Double? = position > 0 ? position : nil
             engine.onState = { [weak self, weak engine] state in
                 guard let self, let engine, self.compatibility === engine else { return }
                 if state == .failed {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .playback)
+                    return
+                }
+                if state == .playing, let position = resumePosition {
+                    resumePosition = nil
+                    self.restoreCompatibilityPosition(position, engine: engine)
+                    return
+                }
+                if self.restoringCompatibilityPosition { return }
+                if state == .playing, self.pauseOnStart {
+                    self.pauseOnStart = false
+                    self.startupTask?.cancel(); self.startupTask = nil
+                    engine.pause()
+                    self.state = .paused
+                    self.isPlaying = false
                     return
                 }
                 self.state = state
@@ -198,10 +295,13 @@ final class PlaybackController: ObservableObject {
                 MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = self.isPlaying ? 1.0 : 0.0
             }
             engine.onTime = { [weak self, weak engine] time, length in
-                guard let self, let engine, self.compatibility === engine, self.pendingSeek == nil else { return }
+                guard let self, let engine, self.compatibility === engine, self.pendingSeek == nil, resumePosition == nil else { return }
                 self.updateTimeline(time: time, length: length, seekable: engine.isMediaSeekable(), live: self.requestedLive)
             }
-            engine.onFinished = { [weak self] in self?.stop(); self?.onFinished?() }
+            engine.onFinished = { [weak self, weak engine] in
+                guard let self, let engine, self.compatibility === engine else { return }
+                self.stop(); self.onFinished?()
+            }
             engine.onRestore = { [weak self] in self?.onRestorePlayer?({ _ in }) }
             engine.open(url)
             installRemoteCommands(); recordAudioRoute()
@@ -213,14 +313,23 @@ final class PlaybackController: ObservableObject {
             return
         }
         let item = AVPlayerItem(url: url)
+        nativeResumePosition = position > 0 || startPaused ? position : nil
         item.preferredForwardBufferDuration = 2
         itemObservation = item.observe(\.status, options: [.new]) { [weak self, weak item] _, _ in
-            guard let item else { return }
-            Task { @MainActor in
-                guard let self, self.player.currentItem === item else { return }
+            Task { @MainActor [weak self, weak item] in
+                guard let self, let item, self.player.currentItem === item else { return }
                 if item.status == .failed {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."),
                               reason: .playback, failure: item.error.map(DiagnosticFailure.init))
+                } else if item.status == .readyToPlay, let position = self.nativeResumePosition {
+                    self.nativeResumePosition = nil
+                    self.player.seek(to: CMTime(seconds: position, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self, weak item] _ in
+                        Task { @MainActor in
+                            guard let self, let item, self.player.currentItem === item else { return }
+                            if self.pauseOnStart { self.pauseOnStart = false; self.pause() }
+                            else { self.player.play() }
+                        }
+                    }
                 } else { self.refreshNativeTimeline(item) }
             }
         }
@@ -238,7 +347,7 @@ final class PlaybackController: ObservableObject {
                 self.refreshNativeTimeline(item)
             }
         }
-        player.play()
+        if nativeResumePosition == nil { player.play() }
         installRemoteCommands()
         recordAudioRoute()
         startupTask = Task { [weak self, weak item] in
@@ -250,9 +359,16 @@ final class PlaybackController: ObservableObject {
     }
 
     func stop() {
+        personalMediaServer?.stop(); personalMediaServer = nil
+        MediaScreenAwake.release(localCastAwakeLease); localCastAwakeLease = nil
+        request = nil
+        nativeResumePosition = nil
+        restoringCompatibilityPosition = false
+        pauseOnStart = false
         if let timeObserver { player.removeTimeObserver(timeObserver); self.timeObserver = nil }
         durationObservation = nil
         pendingSeek = nil
+        casting?.stop(); casting = nil
         compatibility?.stop()
         compatibility = nil
         currentTime = 0; duration = 0
@@ -279,13 +395,57 @@ final class PlaybackController: ObservableObject {
         }
     }
 
+    private func restoreCompatibilityPosition(_ position: Double, engine: CompatibilityPlayback) {
+        // VLC's start-time input option may jump to a later keyframe. Restore
+        // with the same accurate seek path used by the timeline, after opening.
+        restoringCompatibilityPosition = true
+        let stayPaused = pauseOnStart
+        pauseOnStart = false
+        let seekID = UUID()
+        pendingSeek = seekID
+        currentTime = position
+        engine.pause()
+        engine.seek(to: position) { [weak self, weak engine] in
+            guard let self, let engine, self.compatibility === engine, self.pendingSeek == seekID else { return }
+            self.pendingSeek = nil
+            self.restoringCompatibilityPosition = false
+            self.updateTimeline(time: Double(engine.mediaTime()) / 1000, length: Double(engine.mediaLength()) / 1000,
+                                seekable: engine.isMediaSeekable(), live: self.requestedLive)
+            if stayPaused {
+                self.startupTask?.cancel(); self.startupTask = nil
+                self.state = .paused
+                self.isPlaying = false
+            } else { engine.play() }
+        }
+    }
+
+    /// Keep the selected destination across channel changes. Stop clears media;
+    /// disconnect clears the destination and restores the phone's usual engine.
+    func setTVDevice(_ device: GCKDevice?) throws {
+        if let device, tvDevice?.isSameDevice(as: device) == true { return }
+        guard tvDevice != nil || device != nil else { return }
+        let previous = request
+        let position = isLive ? 0 : currentTime
+        let live = isLive
+        let paused = state == .paused || pauseOnStart
+        tvDevice = device
+        if device == nil { casting?.stop(); CastPlayback.disconnect() }
+        guard let previous, hasActivePlayback || state == .failed else { return }
+        try play(url: previous.url, preserveSourceAudio: previous.preserveSourceAudio, muted: previous.muted,
+                 requiresExternalPlayback: device == nil && previous.requiresExternalPlayback,
+                 title: previous.title, live: live, presentation: previous.presentation,
+                 useCompatibility: previous.useCompatibility, startAt: position, startPaused: paused)
+    }
+
     func togglePlayPause() {
         guard hasActivePlayback else { return }
         if isPlaying { pause() } else { resume() }
     }
 
     func resume() {
-        if let compatibility { compatibility.play() } else if player.currentItem != nil { player.play() }
+        pauseOnStart = false
+        if let casting { casting.play() }
+        else if let compatibility { compatibility.play() } else if player.currentItem != nil { player.play() }
     }
 
     func seek(to seconds: Double) {
@@ -294,7 +454,12 @@ final class PlaybackController: ObservableObject {
         let request = UUID()
         pendingSeek = request
         currentTime = target
-        if let engine = compatibility {
+        if let casting {
+            casting.seek(to: target) { [weak self, weak casting] in
+                guard let self, let casting, self.casting === casting, self.pendingSeek == request else { return }
+                self.pendingSeek = nil
+            }
+        } else if let engine = compatibility {
             engine.seek(to: target) { [weak self, weak engine] in
                 Task { @MainActor in
                     guard let self, let engine, self.compatibility === engine, self.pendingSeek == request else { return }
@@ -315,7 +480,7 @@ final class PlaybackController: ObservableObject {
     }
 
     private func refreshNativeTimeline(_ item: AVPlayerItem) {
-        guard player.currentItem === item, compatibility == nil, pendingSeek == nil else { return }
+        guard player.currentItem === item, compatibility == nil, casting == nil, pendingSeek == nil, nativeResumePosition == nil else { return }
         let seekable = item.status == .readyToPlay && item.seekableTimeRanges.contains {
             let length = $0.timeRangeValue.duration.seconds
             return length.isFinite && length > 0
@@ -341,7 +506,8 @@ final class PlaybackController: ObservableObject {
     private func pause() {
         wasPlayingBeforeInterruption = false
         startupTask?.cancel(); startupTask = nil
-        if let compatibility { compatibility.pause() } else { player.pause() }
+        if let casting { casting.pause() }
+        else if let compatibility { compatibility.pause() } else { player.pause() }
         state = .paused
     }
 
@@ -365,7 +531,15 @@ final class PlaybackController: ObservableObject {
     }
 
     private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil) {
+        let retry = request
+        let position = currentTime
+        let live = isLive
+        let paused = state == .paused || pauseOnStart
         stop()
+        request = retry
+        currentTime = position
+        isLive = live
+        pauseOnStart = paused
         errorMessage = message
         state = .failed
         onFailure?(message)

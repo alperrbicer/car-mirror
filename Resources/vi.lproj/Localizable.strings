@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "Khóa điều khiển";
 
 "Kilidi aç" = "Mở khóa";
+
+// TV connection
+"TV’ye bağlan" = "Kết nối TV";
+"TV bağlantısı" = "Kết nối TV";
+"iPhone’da oynat" = "Phát trên iPhone";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone và TV phải kết nối cùng một mạng Wi-Fi.";
+"TV aranıyor…" = "Đang tìm TV…";
+"TV bulunamadı" = "Không tìm thấy TV";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "Bật TV và Google Cast. Nếu TV không xuất hiện, kiểm tra quyền Mạng cục bộ của Mirivo trong Cài đặt iPhone.";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "Để chia sẻ toàn màn hình hoặc video MKV, chọn TV AirPlay trong Trung tâm điều khiển → Phản chiếu màn hình.";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "Hỗ trợ TV có Google Cast hoặc AirPlay. TV chỉ hỗ trợ Miracast hoặc DLNA sẽ không xuất hiện ở đây.";
+"TV’de oynatılıyor" = "Đang phát trên TV";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "Không thể kết nối TV. Kiểm tra TV và Wi-Fi rồi thử lại.";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "Bạn muốn chia sẻ gì?";
+"Fotoğraflar" = "Ảnh";
+"Slayt gösterisi" = "Trình chiếu";
+"Videolar" = "Video";
+"Fotoğraf arşivinden" = "Từ thư viện ảnh";
+"Müzik ve dosyalar" = "Nhạc và tệp";
+"iPhone veya iCloud Drive" = "iPhone hoặc iCloud Drive";
+"Bağlantı aç" = "Mở liên kết";
+"Kaydetmeden oynat" = "Phát mà không lưu";
+"Medya hazırlanıyor…" = "Đang chuẩn bị nội dung…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Không thể mở nội dung. Kiểm tra xem tệp đã được tải về và còn dung lượng trống hay chưa.";
+"En fazla 20 dosya seçebilirsin." = "Bạn có thể chọn tối đa 20 tệp.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Nhập liên kết trực tiếp đến video hoặc âm thanh. Không thể phát trang web tại đây.";
+"Geçerli bir http veya https bağlantısı gir." = "Nhập liên kết http hoặc https hợp lệ.";
+"%d fotoğraf" = "%d ảnh";
+"Fotoğraf başına" = "Thời gian mỗi ảnh";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "Ảnh được tạo thành trình chiếu 1080p trên thiết bị. Ảnh gốc không thay đổi.";
+"Nasıl bağlanırım?" = "Kết nối như thế nào?";
+"Büyük ekranda daha fazlası." = "Thêm trải nghiệm trên màn hình lớn.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Kỷ niệm, video và âm nhạc của bạn. Chọn màn hình và bắt đầu chia sẻ.";
+"Google Cast araması kullanılamıyor." = "Không thể tìm thiết bị Google Cast.";
+"Ayarları aç" = "Mở Cài đặt";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay hỗ trợ âm thanh. Video tùy thuộc vào xe và quyền phát video.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Chọn nội dung. Bạn có thể tạm dừng hoặc đổi kết nối TV từ trình phát.";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN hoặc mạng khách có thể khiến các thiết bị không tìm thấy nhau.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Đang truyền từ iPhone này đến TV. Hãy giữ Mirivo mở.";
+"Oynatma sırası" = "Hàng đợi phát";
+"Önceki" = "Trước";
+"Sonraki" = "Tiếp";

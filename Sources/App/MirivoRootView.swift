@@ -28,6 +28,13 @@ struct MirivoRootView: View {
             }
             .scrollIndicators(.hidden)
             .background(MirrorStyle.background)
+            .overlay(alignment: .top) {
+                GeometryReader { geometry in
+                    MirrorStyle.background
+                        .frame(height: geometry.safeAreaInsets.top)
+                        .offset(y: -geometry.safeAreaInsets.top)
+                }.allowsHitTesting(false).accessibilityHidden(true)
+            }
             .toolbar(.hidden, for: .navigationBar)
             .id(language)
             .safeAreaInset(edge: .bottom) { NowPlayingBar { showingPlayer = true } }

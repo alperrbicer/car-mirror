@@ -3,6 +3,7 @@ import AVFoundation
 import AVKit
 import MediaPlayer
 import SwiftUI
+@preconcurrency import VLCKit
 @testable import CarMirror
 
 @MainActor
@@ -259,6 +260,77 @@ final class CarPlayAudioTests: XCTestCase {
         attachment.name = "inline-video-first-open"
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    func testCompatibilityPiPReturnClearsStaleRendererMask() async throws {
+        let model = MirrorModel.shared
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.screen.bounds
+        defer {
+            model.stopPlayback()
+            window.isHidden = true
+            window.rootViewController = nil
+            previousWindow?.makeKeyAndVisible()
+        }
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "PiP video", url: url)))
+        let engine = try XCTUnwrap(model.playback.compatibility)
+        let host = UIHostingController(rootView: NavigationStack { MediaPlayerScreen(model: model) })
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        for _ in 0..<150 {
+            if model.playback.currentTime > 0.3 && engine.mediaPlayer.hasVideoOut { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
+        model.playback.togglePlayPause()
+        try await Task.sleep(for: .milliseconds(300))
+        func videoLayer(in layer: CALayer) -> AVSampleBufferDisplayLayer? {
+            if let video = layer as? AVSampleBufferDisplayLayer { return video }
+            return layer.sublayers?.lazy.compactMap { videoLayer(in: $0) }.first
+        }
+        let video = try XCTUnwrap(videoLayer(in: engine.videoView.layer))
+        // The simulator's VLC build has no system PiP controller. Exercise its
+        // didStart/didStop callback contract against the actual decoding layer.
+        let pip = PictureInPictureStub()
+        engine.configurePiP(pip)
+        pip.startPictureInPicture()
+        await Task.yield()
+        XCTAssertTrue(engine.pipActive)
+        let transitionMask = CAShapeLayer()
+        transitionMask.path = UIBezierPath(roundedRect: video.bounds, byRoundingCorners: .topLeft,
+                                          cornerRadii: CGSize(width: 64, height: 64)).cgPath
+        video.mask = transitionMask
+        video.cornerRadius = 64
+        video.maskedCorners = [.layerMinXMinYCorner]
+        let rounding = CABasicAnimation(keyPath: "cornerRadius")
+        rounding.fromValue = 64; rounding.toValue = 64; rounding.duration = 10
+        video.add(rounding, forKey: "cornerRadius")
+        host.view.setNeedsLayout()
+        host.view.layoutIfNeeded()
+        XCTAssertTrue(video.mask === transitionMask, "Active PiP must retain its transition clipping")
+        XCTAssertNotNil(video.animation(forKey: "cornerRadius"))
+        pip.stopPictureInPicture()
+        await Task.yield()
+        XCTAssertFalse(engine.pipActive)
+        XCTAssertNil(video.mask, "A completed PiP return must remove the temporary one-corner mask")
+        XCTAssertEqual(video.cornerRadius, 0)
+        XCTAssertEqual(video.maskedCorners, [.layerMinXMinYCorner, .layerMaxXMinYCorner,
+                                           .layerMinXMaxYCorner, .layerMaxXMaxYCorner])
+        XCTAssertNil(video.animation(forKey: "cornerRadius"))
+        XCTAssertTrue(engine.videoView.window === window)
+        XCTAssertTrue(model.playback.compatibility === engine)
+        XCTAssertFalse(model.playback.isPlaying, "Restoration must preserve an explicit pause")
+        capturePlayer(host.view, name: "inline-player-restored-clipping")
+    }
+
+    private final class PictureInPictureStub: NSObject, VLCPictureInPictureWindowControlling {
+        var stateChangeEventHandler: ((Bool) -> Void)?
+        func startPictureInPicture() { stateChangeEventHandler?(true) }
+        func stopPictureInPicture() { stateChangeEventHandler?(false) }
+        func invalidatePlaybackState() {}
     }
 
     func testCompatibilityVideoOwnershipSurvivesPreviewUpdatesAndFullscreenReturn() throws {

@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "컨트롤 잠금";
 
 "Kilidi aç" = "잠금 해제";
+
+// TV connection
+"TV’ye bağlan" = "TV에 연결";
+"TV bağlantısı" = "TV 연결";
+"iPhone’da oynat" = "iPhone에서 재생";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone과 TV를 같은 Wi-Fi 네트워크에 연결해야 합니다.";
+"TV aranıyor…" = "TV 검색 중…";
+"TV bulunamadı" = "TV를 찾을 수 없음";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "TV를 켜고 Google Cast를 활성화하세요. TV가 보이지 않으면 iPhone 설정에서 Mirivo의 로컬 네트워크 권한을 확인하세요.";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "전체 화면이나 MKV 동영상을 공유하려면 제어 센터 → 화면 미러링에서 AirPlay TV를 선택하세요.";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "Google Cast 또는 AirPlay 지원 TV를 사용할 수 있습니다. Miracast 또는 DLNA만 지원하는 TV는 여기에 표시되지 않습니다.";
+"TV’de oynatılıyor" = "TV에서 재생 중";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "TV에 연결할 수 없습니다. TV와 Wi-Fi 연결을 확인한 후 다시 시도하세요.";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "무엇을 공유할까요?";
+"Fotoğraflar" = "사진";
+"Slayt gösterisi" = "슬라이드쇼";
+"Videolar" = "동영상";
+"Fotoğraf arşivinden" = "사진 보관함에서";
+"Müzik ve dosyalar" = "음악 및 파일";
+"iPhone veya iCloud Drive" = "iPhone 또는 iCloud Drive";
+"Bağlantı aç" = "링크 열기";
+"Kaydetmeden oynat" = "저장하지 않고 재생";
+"Medya hazırlanıyor…" = "미디어 준비 중…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "미디어를 열 수 없습니다. 파일이 다운로드되었는지, 여유 공간이 있는지 확인하세요.";
+"En fazla 20 dosya seçebilirsin." = "최대 20개의 파일을 선택할 수 있습니다.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "동영상이나 오디오의 직접 링크를 입력하세요. 웹 페이지는 여기서 재생할 수 없습니다.";
+"Geçerli bir http veya https bağlantısı gir." = "올바른 http 또는 https 링크를 입력하세요.";
+"%d fotoğraf" = "사진 %d장";
+"Fotoğraf başına" = "사진당 표시 시간";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "기기에서 사진을 1080p 슬라이드쇼로 만듭니다. 원본은 변경되지 않습니다.";
+"Nasıl bağlanırım?" = "어떻게 연결하나요?";
+"Büyük ekranda daha fazlası." = "큰 화면에서 더 풍성하게.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "추억, 동영상, 음악을 함께. 화면을 선택하고 공유를 시작하세요.";
+"Google Cast araması kullanılamıyor." = "Google Cast 검색을 사용할 수 없습니다.";
+"Ayarları aç" = "설정 열기";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay는 오디오를 지원합니다. 영상은 차량 지원과 영상 권한에 따라 달라집니다.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "콘텐츠를 선택하세요. 플레이어에서 일시 정지하거나 TV 연결을 변경할 수 있습니다.";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN이나 게스트 네트워크로 인해 기기가 서로 검색되지 않을 수 있습니다.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "이 iPhone에서 TV로 전송 중입니다. Mirivo를 열어 두세요.";
+"Oynatma sırası" = "재생 대기열";
+"Önceki" = "이전";
+"Sonraki" = "다음";

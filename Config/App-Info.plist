@@ -17,7 +17,8 @@
     <key>LSRequiresIPhoneOS</key><true/>
     <key>CMAppGroupIdentifier</key><string>$(APP_GROUP_IDENTIFIER)</string>
     <key>CMBroadcastExtensionIdentifier</key><string>$(MIRROR_BUNDLE_ID).broadcast</string>
-    <key>NSLocalNetworkUsageDescription</key><string>Ekran yayınını aynı yerel ağ üzerinden araç ekranına iletmek için kullanılır. Yayın internete yüklenmez.</string>
+    <key>NSLocalNetworkUsageDescription</key><string>Aynı Wi-Fi ağındaki TV’leri bulmak, video ve ekran yayınını TV veya araç ekranına iletmek ve seçtiğin yerel medya kaynaklarına bağlanmak için kullanılır.</string>
+    <key>NSBonjourServices</key><array><string>_googlecast._tcp</string><string>_CC1AD845._googlecast._tcp</string></array>
     <key>NSAppTransportSecurity</key><dict>
         <!-- Users supply arbitrary HTTP playlist and stream URLs. Media-only
              exceptions do not cover URLSession playlist downloads. Do not add

@@ -6,12 +6,17 @@ public struct StreamHTTPResponse: Sendable {
     public var body: Data
 
     public var wireData: Data {
-        let reason = [200: "OK", 206: "Partial Content", 400: "Bad Request", 404: "Not Found",
+        let reason = [200: "OK", 204: "No Content", 206: "Partial Content", 400: "Bad Request", 404: "Not Found",
                       405: "Method Not Allowed", 416: "Range Not Satisfiable", 503: "Service Unavailable"][status] ?? "Error"
         var fields = headers
         fields["Connection"] = "close"
         fields["Cache-Control"] = "no-store"
         fields["X-Content-Type-Options"] = "nosniff"
+        // Cast's web receiver fetches HLS and byte ranges across origins.
+        fields["Access-Control-Allow-Origin"] = "*"
+        fields["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+        fields["Access-Control-Allow-Headers"] = "Range"
+        fields["Access-Control-Expose-Headers"] = "Content-Length, Content-Range, Accept-Ranges"
         let head = "HTTP/1.1 \(status) \(reason)\r\n" + fields.sorted { $0.key < $1.key }
             .map { "\($0.key): \($0.value)\r\n" }.joined() + "\r\n"
         return Data(head.utf8) + body
@@ -35,12 +40,13 @@ public struct StreamHTTPRouter: Sendable {
         let first = lines[0].split(separator: " ")
         guard first.count == 3, ["HTTP/1.0", "HTTP/1.1"].contains(String(first[2])) else { return error(400) }
         let method = String(first[0])
-        guard method == "GET" || method == "HEAD" else { return error(405) }
+        guard ["GET", "HEAD", "OPTIONS"].contains(method) else { return error(405) }
         let path = String(first[1])
         let prefix = "/\(token)/"
         guard path.hasPrefix(prefix) else { return error(404) }
         let name = String(path.dropFirst(prefix.count))
         guard !name.contains("/"), !name.contains("%"), !name.contains(".."), !name.contains("?") else { return error(404) }
+        if method == "OPTIONS" { return StreamHTTPResponse(status: 204, headers: ["Content-Length": "0"], body: Data()) }
 
         let content: Data
         let type: String

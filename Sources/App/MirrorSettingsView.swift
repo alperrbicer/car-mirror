@@ -99,6 +99,7 @@ struct MirrorSettingsView: View {
                 .listRowBackground(MirrorStyle.surface)
                 Section {
                     NavigationLink("VLCKit · VideoLAN") { ThirdPartyNoticesView() }
+                    NavigationLink("Google Cast") { CastNoticesView() }
                 }.listRowBackground(MirrorStyle.surface)
                 Section {
                     Button(L10n.tr("Tüm kaynakları sil"), role: .destructive) { clearingLibrary = true }

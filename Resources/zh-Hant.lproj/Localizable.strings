@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "鎖定控制項";
 
 "Kilidi aç" = "解鎖";
+
+// TV connection
+"TV’ye bağlan" = "連接電視";
+"TV bağlantısı" = "電視連線";
+"iPhone’da oynat" = "在 iPhone 上播放";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone 和電視必須連接相同 Wi-Fi 網路。";
+"TV aranıyor…" = "正在搜尋電視…";
+"TV bulunamadı" = "找不到電視";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "開啟電視並啟用 Google Cast。若未顯示電視，請在 iPhone 設定中檢查 Mirivo 的「區域網路」權限。";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "如要分享整個螢幕或 MKV 影片，請在「控制中心 → 螢幕鏡像輸出」中選擇 AirPlay 電視。";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "支援具有 Google Cast 或 AirPlay 功能的電視。僅支援 Miracast 或 DLNA 的電視不會顯示在此處。";
+"TV’de oynatılıyor" = "正在電視上播放";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "無法連接電視。請檢查電視和 Wi-Fi 連線後重試。";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "想分享什麼？";
+"Fotoğraflar" = "照片";
+"Slayt gösterisi" = "幻燈片";
+"Videolar" = "影片";
+"Fotoğraf arşivinden" = "從照片圖庫選擇";
+"Müzik ve dosyalar" = "音樂與檔案";
+"iPhone veya iCloud Drive" = "iPhone 或 iCloud Drive";
+"Bağlantı aç" = "開啟連結";
+"Kaydetmeden oynat" = "無需儲存即可播放";
+"Medya hazırlanıyor…" = "正在準備媒體…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "無法開啟媒體。請確認檔案已下載且有足夠的可用空間。";
+"En fazla 20 dosya seçebilirsin." = "最多可以選取 20 個檔案。";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "輸入影片或音訊的直接連結。此處無法播放網頁。";
+"Geçerli bir http veya https bağlantısı gir." = "請輸入有效的 http 或 https 連結。";
+"%d fotoğraf" = "%d 張照片";
+"Fotoğraf başına" = "每張照片的時間";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "照片將在裝置上製作成 1080p 幻燈片，原始照片維持不變。";
+"Nasıl bağlanırım?" = "如何連線？";
+"Büyük ekranda daha fazlası." = "大螢幕，更多精彩。";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "你的回憶、影片與音樂。選擇螢幕，開始分享。";
+"Google Cast araması kullanılamıyor." = "Google Cast 搜尋無法使用。";
+"Ayarları aç" = "開啟設定";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay 支援音訊。影片取決於車輛支援和影片權限。";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "選擇內容，即可在播放器中暫停或變更電視連線。";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN 或訪客網路可能導致裝置無法互相探索。";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "正在從此 iPhone 傳輸到電視。請保持 Mirivo 開啟。";
+"Oynatma sırası" = "播放佇列";
+"Önceki" = "上一項";
+"Sonraki" = "下一項";

@@ -225,3 +225,47 @@
 "Kontrolleri kilitle" = "נעילת פקדים";
 
 "Kilidi aç" = "ביטול נעילה";
+
+// TV connection
+"TV’ye bağlan" = "חיבור לטלוויזיה";
+"TV bağlantısı" = "חיבור טלוויזיה";
+"iPhone’da oynat" = "ניגון ב-iPhone";
+"iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "ה-iPhone והטלוויזיה חייבים להיות באותה רשת Wi-Fi.";
+"TV aranıyor…" = "חיפוש טלוויזיות…";
+"TV bulunamadı" = "לא נמצאו טלוויזיות";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "יש להפעיל את הטלוויזיה ואת Google Cast. אם הטלוויזיה לא מופיעה, יש לבדוק את הרשאת הרשת המקומית של Mirivo בהגדרות iPhone.";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "לשיתוף המסך כולו או סרטוני MKV, יש לבחור בטלוויזיית AirPlay דרך מרכז הבקרה ← שיקוף מסך.";
+"Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "נתמכות טלוויזיות עם Google Cast או AirPlay. טלוויזיות שתומכות רק ב-Miracast או DLNA לא יופיעו כאן.";
+"TV’de oynatılıyor" = "מתנגן בטלוויזיה";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "לא ניתן להתחבר לטלוויזיה. יש לבדוק את הטלוויזיה ואת חיבור ה-Wi-Fi ולנסות שוב.";
+
+/* Personal media and connection guide */
+"Ne paylaşmak istersin?" = "מה תרצה לשתף?";
+"Fotoğraflar" = "תמונות";
+"Slayt gösterisi" = "מצגת";
+"Videolar" = "סרטונים";
+"Fotoğraf arşivinden" = "מספריית התמונות";
+"Müzik ve dosyalar" = "מוזיקה וקבצים";
+"iPhone veya iCloud Drive" = "iPhone או iCloud Drive";
+"Bağlantı aç" = "פתיחת קישור";
+"Kaydetmeden oynat" = "ניגון ללא שמירה";
+"Medya hazırlanıyor…" = "מכין מדיה…";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "לא ניתן לפתוח מדיה. ודא שהקובץ הורד ושיש שטח פנוי.";
+"En fazla 20 dosya seçebilirsin." = "ניתן לבחור עד 20 קבצים.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "הזן קישור ישיר לווידאו או לאודיו. לא ניתן לנגן כאן דפי אינטרנט.";
+"Geçerli bir http veya https bağlantısı gir." = "הזן קישור http או https תקין.";
+"%d fotoğraf" = "%d תמונות";
+"Fotoğraf başına" = "משך לכל תמונה";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "התמונות הופכות במכשיר למצגת 1080p. המקור נשאר ללא שינוי.";
+"Nasıl bağlanırım?" = "איך מתחברים?";
+"Büyük ekranda daha fazlası." = "יותר על המסך הגדול.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "הזיכרונות, הסרטונים והמוזיקה שלך. בחר מסך והתחל לשתף.";
+"Google Cast araması kullanılamıyor." = "חיפוש Google Cast אינו זמין.";
+"Ayarları aç" = "פתיחת הגדרות";
+"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay תומך באודיו. וידאו תלוי בתמיכת הרכב ובהרשאת וידאו.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "בחר תוכן. אפשר להשהות או לשנות את חיבור הטלוויזיה דרך הנגן.";
+"VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN או רשת אורחים עלולים למנוע מהמכשירים למצוא זה את זה.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "משדר מ-iPhone זה לטלוויזיה. השאר את Mirivo פתוח.";
+"Oynatma sırası" = "תור ניגון";
+"Önceki" = "הקודם";
+"Sonraki" = "הבא";

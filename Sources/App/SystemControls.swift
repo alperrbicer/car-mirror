@@ -13,6 +13,7 @@ struct BroadcastPicker: UIViewRepresentable {
     }
     func updateUIView(_ view: CenteredBroadcastPickerView, context: Context) {
         view.picker.accessibilityLabel = L10n.tr("Ekran yayınını başlat veya durdur")
+        view.setNeedsLayout()
     }
 }
 
@@ -40,6 +41,8 @@ final class CenteredBroadcastPickerView: UIView {
             button.frame = bounds
             button.contentHorizontalAlignment = .center
             button.contentVerticalAlignment = .center
+            button.accessibilityIdentifier = picker.accessibilityIdentifier
+            button.accessibilityLabel = picker.accessibilityLabel
         }
     }
 }
