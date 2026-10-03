@@ -1,0 +1,19 @@
+Mirivo 1.0 — CarPlay Audio beta
+
+No Mirivo account or sign-in is required. This beta is free and ad-free. Pro purchases are disabled. Mirivo does not provide IPTV subscriptions, channel packages or service credentials.
+
+iPhone review steps:
+1. Open Sources (Kaynaklar) and choose Add source (Kaynak ekle).
+2. Select Stream URL (Yayın bağlantısı), enter a name and an HLS test stream URL, then add it. Apple's public developer test streams are available at https://developer.apple.com/streaming/examples/ ; use the Bip Bop example's stream URL. Alternatively use a stream you are authorized to access.
+3. Open the source and select its item. Test playback, pause, resume, stop, and returning to the current player from Sources. Playback on iPhone does not require a vehicle connection.
+4. For playlist testing, add an authorized M3U URL as Playlist. Xtream sources require the tester's own authorized server credentials; these are optional and are not needed for the direct-stream test above.
+5. Settings contains language selection and offline Privacy, Terms, Help and VideoLAN license notices. The app ships 22 interface languages.
+
+CarPlay review steps:
+Connect to a compatible CarPlay system, open Mirivo, choose Sources and select the source added on iPhone. Test audio and system Now Playing controls. This binary requests CarPlay Audio and App Groups, without CarPlay Video. Vehicle screen mirroring is not part of this beta's CarPlay feature set. Physical vehicle acceptance remains to be tested; no EV6 validation is claimed.
+
+User-provided media may use HTTP endpoints whose domains are not known in advance. NSAllowsArbitraryLoads supports URLSession playlist retrieval and these streams. Source credentials stay in device-only Keychain; source lists and diagnostics stay local. There is no advertising or analytics SDK and no developer media backend.
+
+HLS/MP4 playback uses AVPlayer. MKV/WebM/AVI/TS compatibility uses VideoLAN VLCKit; LGPL notices and source links are available in Settings. Background audio and supported picture-in-picture behavior are beta test targets, with physical-device verification still pending.
+
+This submission is for TestFlight beta review, not App Store publication.

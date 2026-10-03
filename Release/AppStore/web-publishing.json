@@ -1,0 +1,28 @@
+{
+  "verifiedDate": "2026-10-03",
+  "appleID": "6818560405",
+  "site": "https://mirivo-support.netlify.app",
+  "netlifyProject": "mirivo-support",
+  "deployID": "6ac0c3dd6f727b8b0b80c55a",
+  "productionPublic": true,
+  "netlifyBadgeEnabled": false,
+  "appStoreConnect": {
+    "tr": {
+      "privacyPolicyURL": "https://mirivo-support.netlify.app/tr/privacy.html",
+      "supportURL": "https://mirivo-support.netlify.app/tr/support.html",
+      "marketingURL": "https://mirivo-support.netlify.app/tr/index.html",
+      "savedAndVerifiedInUI": true,
+      "productTermsURL": "https://mirivo-support.netlify.app/tr/terms.html"
+    },
+    "en-US": {
+      "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+      "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+      "marketingURL": "https://mirivo-support.netlify.app/en/index.html",
+      "savedAndVerifiedInUI": true,
+      "productTermsURL": "https://mirivo-support.netlify.app/en/terms.html"
+    }
+  },
+  "licenseAgreement": "Apple Standard EULA (unchanged)",
+  "binaryUploaded": false,
+  "submittedForReview": false
+}

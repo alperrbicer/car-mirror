@@ -15,6 +15,16 @@ final class MirrorModel: ObservableObject {
     @Published private(set) var probeStartedAt: Date?
     @Published private(set) var mediaTitle: String?
     @Published private(set) var selectedMediaChannel: MediaChannel?
+    @Published private(set) var mediaErrorMessage: String?
+    @Published var presentingPlayer = false
+    @Published private(set) var playerScreenVisible = false
+    @Published private(set) var playbackQueue: [MediaChannel] = []
+    @Published private(set) var dailyRemaining: TimeInterval = DailyViewingBudget.limit
+    private var viewingBudget = (UserDefaults.standard.data(forKey: "dailyViewingBudget").flatMap { try? JSONDecoder().decode(DailyViewingBudget.self, from: $0) }) ?? DailyViewingBudget(now: Date())
+    private var viewingCheckpoint = Date()
+    private var wasViewing = false
+    private var viewingObserver: AnyCancellable?
+    private var pendingPlayerRestore: ((Bool) -> Void)?
     private var mediaPresentation: MediaPlaybackPresentation?
     let playback = PlaybackController()
     let diagnostics = SessionDiagnostics(process: .app)
@@ -35,6 +45,11 @@ final class MirrorModel: ObservableObject {
         do { store = try BroadcastSessionStore(); storageReady = true }
         catch { errorMessage = L10n.tr("Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene.") }
         playback.onDiagnostic = { [weak self] kind, values in self?.record(kind, values: values) }
+        playback.onRestorePlayer = { [weak self] completion in
+            guard let self, self.selectedMediaChannel != nil else { completion(false); return }
+            if self.playerScreenVisible { completion(true) }
+            else { self.pendingPlayerRestore = completion; self.presentingPlayer = true }
+        }
         playback.onRemoteStop = { [weak self] in self?.stopBroadcast() }
         playback.onFinished = { [weak self] in
             self?.stopProbe()
@@ -45,9 +60,14 @@ final class MirrorModel: ObservableObject {
         playback.onFailure = { [weak self] message in
             guard let self else { return }
             self.mediaTitle = nil
+            if self.selectedMediaChannel != nil { self.mediaErrorMessage = message }
             self.playbackAttemptFailed = self.playbackSessionID != nil
             self.errorMessage = message
             self.updateSessionState()
+        }
+        viewingObserver = playback.$isPlaying.sink { [weak self] playing in
+            self?.accountViewingTime()
+            self?.wasViewing = playing && self?.selectedMediaChannel != nil && self?.playback.hasActivePlayback == true
         }
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -77,6 +97,7 @@ final class MirrorModel: ObservableObject {
     }
 
     func refresh() {
+        accountViewingTime()
         capture = store?.readStatus()
         if capture?.sessionID != lastCaptureID { playbackAttemptFailed = false }
         if broadcasting, probeStartedAt != nil { stopProbe() }
@@ -176,22 +197,65 @@ final class MirrorModel: ObservableObject {
     }
 
     @discardableResult
-    func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil) -> Bool {
+    func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil) -> Bool {
+        accountViewingTime()
+        guard PurchaseStore.shared.verifiedPro || dailyRemaining > 0 else {
+            errorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
+            return false
+        }
+        if selectedMediaChannel == channel, playback.hasActivePlayback { return true }
+        let nextQueue = queue ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? playbackQueue : [channel])
+        let keepPlayerPresented = presentingPlayer
         stopBroadcast()
+        presentingPlayer = keepPlayerPresented
+        playbackQueue = nextQueue
         errorMessage = nil
         selectedMediaChannel = channel
         mediaPresentation = presentation
         let resolvedPresentation: MediaPlaybackPresentation = carPlayConnected && supportsVideo != true ? .audio : (presentation ?? .video)
         do {
             try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
-                              title: channel.title, presentation: resolvedPresentation)
+                              title: channel.title, live: channel.isLive, presentation: resolvedPresentation,
+                              useCompatibility: channel.requiresCompatibilityPlayback)
             mediaTitle = channel.title
             return true
         } catch {
             playback.stop()
             errorMessage = L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
+            mediaErrorMessage = errorMessage
             return false
         }
+    }
+
+    func adjacentChannel(_ offset: Int) -> MediaChannel? {
+        guard let current = selectedMediaChannel,
+              let index = playbackQueue.firstIndex(where: { $0.id == current.id }),
+              playbackQueue.indices.contains(index + offset) else { return nil }
+        return playbackQueue[index + offset]
+    }
+    func switchChannel(_ offset: Int) {
+        guard let channel = adjacentChannel(offset) else { return }
+        playMedia(channel)
+    }
+    private func accountViewingTime() {
+        let now = Date()
+        viewingBudget.record(from: viewingCheckpoint, to: now,
+                             playing: wasViewing && !PurchaseStore.shared.verifiedPro)
+        viewingCheckpoint = now
+        dailyRemaining = viewingBudget.remaining
+        if let data = try? JSONEncoder().encode(viewingBudget) { UserDefaults.standard.set(data, forKey: "dailyViewingBudget") }
+        if dailyRemaining == 0, !PurchaseStore.shared.verifiedPro, wasViewing {
+            wasViewing = false
+            playback.stop()
+            mediaTitle = nil
+            mediaErrorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
+            errorMessage = mediaErrorMessage
+        }
+    }
+
+    func playerVisibilityChanged(_ visible: Bool) {
+        playerScreenVisible = visible
+        if visible { pendingPlayerRestore?(true); pendingPlayerRestore = nil }
     }
 
     func retryMedia() {
@@ -200,10 +264,13 @@ final class MirrorModel: ObservableObject {
     }
 
     func stopPlayback() {
+        pendingPlayerRestore?(false); pendingPlayerRestore = nil
+        presentingPlayer = false
         playback.stop()
         mediaTitle = nil
         selectedMediaChannel = nil
         mediaPresentation = nil
+        mediaErrorMessage = nil
         playbackSessionID = nil
         playbackAttemptFailed = false
     }

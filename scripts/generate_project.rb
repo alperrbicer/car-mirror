@@ -12,6 +12,19 @@ base = project.main_group.new_file('Config/Base.xcconfig')
 app = project.new_target(:application, 'CarMirror', :ios, '18.0')
 broadcast = project.new_target(:app_extension, 'CarMirrorBroadcast', :ios, '18.0')
 
+# Official VideoLAN binary, pinned for reproducible MKV/PiP support.
+vlc = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+vlc.repositoryURL = 'https://github.com/videolan/vlckit.git'
+vlc.requirement = {'kind' => 'revision', 'revision' => '2e0868f5ed40fe59cd92f377645fdcc260c6e759'}
+project.root_object.package_references << vlc
+vlc_product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+vlc_product.package = vlc
+vlc_product.product_name = 'VLCKit'
+app.package_product_dependencies << vlc_product
+vlc_build = project.new(Xcodeproj::Project::Object::PBXBuildFile)
+vlc_build.product_ref = vlc_product
+app.frameworks_build_phase.files << vlc_build
+
 [app, broadcast].each do |target|
   %w[Debug-CarPlay Release-CarPlay].each { |name| target.add_build_configuration(name, name.start_with?('Debug') ? :debug : :release) }
   target.build_configurations.each do |config|
@@ -116,6 +129,8 @@ end
 end
 fixture = project.main_group.new_file('Tests/App/Mirivo.storekit')
 tests.resources_build_phase.add_file_reference(fixture)
+video_fixture = project.main_group.new_file('Tests/Fixtures/InlineVideo.mkv')
+tests.resources_build_phase.add_file_reference(video_fixture)
 project.save
 
 { 'CarMirror' => ['Debug', 'Release'], 'CarMirror CarPlay' => ['Debug-CarPlay', 'Release-CarPlay'] }.each do |name, configurations|

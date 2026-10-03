@@ -10,7 +10,7 @@ enum MirrorStyle {
     static let controlHeight: CGFloat = 58
 }
 
-/// Mirivo's open screen frame and mirrored M share one vector source with the app icon.
+/// Mirivo's overlapping screens and car share one vector source with the app icon.
 struct MirrorMark: View {
     var body: some View {
         Image("MirivoMark")
@@ -44,7 +44,7 @@ struct MirivoSectionLabel: View {
     var body: some View {
         Text(title)
             .font(.caption.weight(.semibold))
-            .tracking(1.6)
+            .tracking(L10n.appLanguage.allowsLetterSpacing ? 1.6 : 0)
             .foregroundStyle(MirrorStyle.secondary)
             .textCase(.uppercase)
     }

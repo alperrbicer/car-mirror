@@ -185,4 +185,43 @@
 "Düzenle" = "संपादित करें";
 "Kaynak düzenle" = "स्रोत संपादित करें";
 "Kaydet" = "सहेजें";
-"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "स्रोत अपडेट नहीं हो सका। URL और लॉगिन जानकारी जाँचें।";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "स्रोत अपडेट नहीं हो पाया। URL और लॉगिन जानकारी जाँचें।";
+"Tüm kanallar" = "सभी चैनल";
+
+"Tam ekran" = "पूरी स्क्रीन";
+
+"Kanallar" = "चैनल";
+
+"Önceki kanal" = "पिछला चैनल";
+
+"Sonraki kanal" = "अगला चैनल";
+
+"Bugün kalan: %d dk" = "आज शेष: %d मिनट";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "आज की 2 घंटे की देखने की सीमा पूरी हो गई है। आप कल फिर देख सकते हैं।";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "हर दिन 2 घंटे मुफ़्त देखें। Mirivo के किसी भी संस्करण में विज्ञापन नहीं हैं।";
+
+"Sınırsız izleme" = "असीमित देखना";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "Pro के साथ रोज़ की समय सीमा के बिना देखते रहें।";
+
+"Canlı" = "लाइव";
+
+"Geçen süre" = "बीता समय";
+
+"Toplam süre" = "कुल अवधि";
+
+"Oynatma konumu" = "प्लेबैक की स्थिति";
+
+"10 saniye geri" = "10 सेकंड पीछे";
+
+"10 saniye ileri" = "10 सेकंड आगे";
+
+"Görüntüyü sığdır" = "वीडियो फ़िट करें";
+
+"Ekranı doldur" = "स्क्रीन भरें";
+
+"Kontrolleri kilitle" = "कंट्रोल लॉक करें";
+
+"Kilidi aç" = "अनलॉक करें";

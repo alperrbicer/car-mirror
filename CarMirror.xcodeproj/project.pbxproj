@@ -19,6 +19,7 @@
 		1BDA75F9635B78B9A1A6B357 /* LegalDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D9A2A2EAD3072C8E87DA27 /* LegalDocumentView.swift */; };
 		1D8C06D847AC28832DB58AB9 /* ProductUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AB9EAA347674C3885997B0 /* ProductUITests.swift */; };
 		21C3786F6C6FA99E9235472A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F06E63BA8E4A93452DBF0D0F /* Foundation.framework */; };
+		24565B065BEC2CFED2625868 /* CompatibilityPlayback.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF0BD9F1C174AA247D8E1B0 /* CompatibilityPlayback.swift */; };
 		2CFFF0808B4FEA6880784C5B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C77496D014831C4456CE3010 /* PrivacyInfo.xcprivacy */; };
 		37D27B2F2FB6220F226C81A8 /* SourceLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96875ADF3E3168C4E5E40D3 /* SourceLibrary.swift */; };
 		3838C8DA3EC478F523A6B729 /* ProductPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF860170C467ED6270326293 /* ProductPolicy.swift */; };
@@ -41,6 +42,7 @@
 		7945BFEED87454A303408F17 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1F43CE099B6AA1B9575C2568 /* Localizable.strings */; };
 		7F6969F9E2F5F3FA4174CF6F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6CB6B2FC0B0924DFE2E6203C /* InfoPlist.strings */; };
 		824E9D7B02E1FF74F6F1758D /* MirivoRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76D15E7ADE74D8DD5C561F9 /* MirivoRootView.swift */; };
+		85E1AA5AC75F51332176EEF9 /* InlineVideo.mkv in Resources */ = {isa = PBXBuildFile; fileRef = D729D4A0B6B5797C1D08D56D /* InlineVideo.mkv */; };
 		88E8D5CC684C7F41671166F4 /* MirrorSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8381D2C138B8C343E1F81006 /* MirrorSettingsView.swift */; };
 		8A1A468EB38790A21724942D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F06E63BA8E4A93452DBF0D0F /* Foundation.framework */; };
 		8AA3253530940DB712E7B4AC /* BrandIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C184DA95ED13A79C53E666A /* BrandIdentity.swift */; };
@@ -49,6 +51,7 @@
 		99153280A70B2A12F0D2736D /* ProEntitlements.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6CDFABADC306B2CFBA2ADE /* ProEntitlements.swift */; };
 		9AD49CC0A41AB85034079ED1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C77496D014831C4456CE3010 /* PrivacyInfo.xcprivacy */; };
 		9EEE526DB4B25C24FD618291 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35CEB56C16A29969E3B059 /* CarPlaySceneDelegate.swift */; };
+		9F0ABCE9AEF7873BE5269DDD /* VLCKit in Frameworks */ = {isa = PBXBuildFile; productRef = AF3BAF61D08911B40537D51D /* VLCKit */; };
 		A48864FA01DA908E087A6B48 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0085FEC85B90187B8CD34088 /* AppLanguage.swift */; };
 		A4DCF0AB825B5BDA5CF953AE /* AudioTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EB734BA25A2ADFF522C5C9 /* AudioTimeline.swift */; };
 		A6E6ACE0D5452B14DC250A67 /* ScreenStreamEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BDA51922E578A1AC03C900 /* ScreenStreamEncoder.swift */; };
@@ -189,6 +192,7 @@
 		AAA6A08B3DBAAE14F5697C35 /* PurchaseStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PurchaseStore.swift; sourceTree = "<group>"; };
 		AB3B0C9E62AAC44713526F5F /* MirrorSessionState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MirrorSessionState.swift; sourceTree = "<group>"; };
 		AB87D94E177B51D1F9E1649B /* SampleHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SampleHandler.swift; sourceTree = "<group>"; };
+		AEF0BD9F1C174AA247D8E1B0 /* CompatibilityPlayback.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CompatibilityPlayback.swift; sourceTree = "<group>"; };
 		B9674CABABB89615358EF314 /* uk */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = uk; path = Resources/uk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BB53F66D34B168934EF66DFD /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = Resources/de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C4886BA95665417219116CE7 /* LanguageSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguageSettingsView.swift; sourceTree = "<group>"; };
@@ -201,6 +205,7 @@
 		D02587EE13CF8865D384BEEF /* ProView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProView.swift; sourceTree = "<group>"; };
 		D06E3BC7A424C02F5376EE8A /* StreamHTTPRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreamHTTPRouter.swift; sourceTree = "<group>"; };
 		D2A2291722AEC9E995B3B3F9 /* PlaybackController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PlaybackController.swift; sourceTree = "<group>"; };
+		D729D4A0B6B5797C1D08D56D /* InlineVideo.mkv */ = {isa = PBXFileReference; includeInIndex = 1; name = InlineVideo.mkv; path = Tests/Fixtures/InlineVideo.mkv; sourceTree = "<group>"; };
 		D94E314225BDBE1952424009 /* CarPlayCapabilities.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CarPlayCapabilities.swift; sourceTree = "<group>"; };
 		DB1E7F901732A50728B261DE /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Resources/zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DC00B837BB0FE5B5A06C5D54 /* MirivoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MirivoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -249,6 +254,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				21C3786F6C6FA99E9235472A /* Foundation.framework in Frameworks */,
+				9F0ABCE9AEF7873BE5269DDD /* VLCKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,6 +282,7 @@
 				AAA6A08B3DBAAE14F5697C35 /* PurchaseStore.swift */,
 				E96875ADF3E3168C4E5E40D3 /* SourceLibrary.swift */,
 				6386848C5E1845B283B4FF91 /* SystemControls.swift */,
+				AEF0BD9F1C174AA247D8E1B0 /* CompatibilityPlayback.swift */,
 			);
 			name = App;
 			path = Sources/App;
@@ -313,6 +320,7 @@
 				A2E1D5086C4CF78C5361A79D /* StoreKitIntegrationTests.swift */,
 				A0AB9EAA347674C3885997B0 /* ProductUITests.swift */,
 				A2B7C3B7722D29A7CA1A1501 /* Mirivo.storekit */,
+				D729D4A0B6B5797C1D08D56D /* InlineVideo.mkv */,
 			);
 			sourceTree = "<group>";
 		};
@@ -438,6 +446,9 @@
 				129C5F5A0F1405747A41309A /* PBXTargetDependency */,
 			);
 			name = CarMirror;
+			packageProductDependencies = (
+				AF3BAF61D08911B40537D51D /* VLCKit */,
+			);
 			productName = CarMirror;
 			productReference = 9777FF28174C1779DC4532F7 /* CarMirror.app */;
 			productType = "com.apple.product-type.application";
@@ -500,6 +511,9 @@
 			);
 			mainGroup = 1FF03F8076801E811A3984DC;
 			minimizedProjectReferenceProxies = 0;
+			packageReferences = (
+				C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1C7BCF4B78485E347375FAC5 /* Products */;
 			projectDirPath = "";
@@ -536,6 +550,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5CB7CAA0639D35A9EF209D57 /* Mirivo.storekit in Resources */,
+				85E1AA5AC75F51332176EEF9 /* InlineVideo.mkv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,6 +607,7 @@
 				6B09FF2459F46FC45D28DFC5 /* PurchaseStore.swift in Sources */,
 				37D27B2F2FB6220F226C81A8 /* SourceLibrary.swift in Sources */,
 				E59A66D6190985BFB1840922 /* SystemControls.swift in Sources */,
+				24565B065BEC2CFED2625868 /* CompatibilityPlayback.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1366,6 +1382,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/videolan/vlckit.git";
+			requirement = {
+				kind = revision;
+				revision = 2e0868f5ed40fe59cd92f377645fdcc260c6e759;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AF3BAF61D08911B40537D51D /* VLCKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */;
+			productName = VLCKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 797D9B829C3C761568934538 /* Project object */;
 }

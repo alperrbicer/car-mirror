@@ -2,6 +2,38 @@ import XCTest
 @testable import MirrorCore
 
 final class ProductTests: XCTestCase {
+    func testPlaybackTimeDisplayHandlesHoursAndUnavailableTimes() {
+        XCTAssertEqual(PlaybackTimeDisplay.timestamp(0), "00:00")
+        XCTAssertEqual(PlaybackTimeDisplay.timestamp(65.9), "01:05")
+        XCTAssertEqual(PlaybackTimeDisplay.timestamp(3_599), "59:59")
+        XCTAssertEqual(PlaybackTimeDisplay.timestamp(3_661), "1:01:01")
+        XCTAssertEqual(PlaybackTimeDisplay.timestamp(37_230), "10:20:30")
+        for unavailable in [Double.nan, Double.infinity, -1, Double(Int.max)] {
+            XCTAssertEqual(PlaybackTimeDisplay.timestamp(unavailable), "--:--")
+        }
+    }
+    func testDailyViewingBudgetCountsPlaybackAndPersists() throws {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        var budget = DailyViewingBudget(now: start)
+        budget.record(from: start, to: start.addingTimeInterval(600), playing: false)
+        XCTAssertEqual(budget.remaining, 7200)
+        budget.record(from: start, to: start.addingTimeInterval(3600), playing: true)
+        let restored = try JSONDecoder().decode(DailyViewingBudget.self, from: JSONEncoder().encode(budget))
+        XCTAssertEqual(restored.remaining, 3600)
+        budget.record(from: start.addingTimeInterval(3600), to: start.addingTimeInterval(7300), playing: true)
+        XCTAssertEqual(budget.remaining, 0)
+    }
+    func testDailyViewingBudgetSplitsMidnight() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let midnight = calendar.startOfDay(for: Date(timeIntervalSince1970: 1_800_000_000))
+        var budget = DailyViewingBudget(now: midnight.addingTimeInterval(-60), calendar: calendar, used: 7100)
+        budget.record(from: midnight.addingTimeInterval(-30), to: midnight.addingTimeInterval(20), playing: true, calendar: calendar)
+        XCTAssertEqual(budget.used, 20)
+        budget.record(from: midnight.addingTimeInterval(20), to: midnight, playing: true, calendar: calendar)
+        XCTAssertEqual(budget.used, 20)
+    }
+
     func testSalesDisabledNeverLimitsFeatures() {
         let access = ProductAccess(salesEnabled: false, verifiedPro: false)
         XCTAssertTrue(access.fullAccess)
@@ -63,6 +95,72 @@ final class ProductTests: XCTestCase {
         XCTAssertThrowsError(try M3UParser.parse(Data("<html>login</html>".utf8), baseURL: url, fallbackTitle: "Invalid"))
         XCTAssertThrowsError(try M3UParser.parse(Data(repeating: 65, count: M3UParser.maximumBytes + 1), baseURL: url, fallbackTitle: "Large"))
     }
+    func testXtreamM3URequestsHLSWithoutChangingEncodedCredentials() throws {
+        for output in ["&output=ts", "&output=mpegts", ""] {
+            let url = try XCTUnwrap(URL(string: "https://server.example:8080/prefix/get.php?username=a%2Bb&password=s%26e%3Dc%2Fret&type=m3u_plus&custom=x%2By" + output))
+            let result = XtreamEndpoint.nativePlaylistURL(url)
+            XCTAssertEqual(result.absoluteString, "https://server.example:8080/prefix/get.php?username=a%2Bb&password=s%26e%3Dc%2Fret&type=m3u_plus&custom=x%2By&output=m3u8")
+        }
+    }
+
+    func testStandardM3UTransportStreamSourceRequestsProviderHLS() throws {
+        let url = try XCTUnwrap(URL(string: "http://provider.example/get.php?username=user&password=secret&type=std_m3u&output=ts"))
+        XCTAssertEqual(XtreamEndpoint.nativePlaylistURL(url).absoluteString,
+                       "http://provider.example/get.php?username=user&password=secret&type=m3u_plus&output=m3u8")
+    }
+
+    func testNativePlaylistSelectionLeavesOtherProvidersAndChannelURLsUntouched() throws {
+        for raw in [
+            "https://server.example/list.m3u?output=ts",
+            "https://server.example/live/user/pass/123.ts",
+            "https://server.example/get.php?token=abc&output=ts",
+            "https://server.example/get.php?username=u&password=p&type=m3u_plus&output=m3u8",
+            "https://server.example/get.php?username=u&password=p&type=m3u_plus&output=custom",
+            "https://server.example/get.php?username=u&password=p&type=m3u_plus&output=ts&output=m3u8"
+        ] {
+            let url = try XCTUnwrap(URL(string: raw))
+            XCTAssertEqual(XtreamEndpoint.nativePlaylistURL(url), url)
+        }
+    }
+
+    func testCategoryMetadataRequestAlsoUpgradesExistingHLSPlaylists() throws {
+        let url = try XCTUnwrap(URL(string: "https://provider.example/get.php?username=u&password=p&type=std_m3u&output=m3u8"))
+        XCTAssertEqual(XtreamEndpoint.nativePlaylistURL(url).absoluteString,
+                       "https://provider.example/get.php?username=u&password=p&type=m3u_plus&output=m3u8")
+    }
+
+    func testPlaylistCategoriesKeepProviderOrderAndUncategorizedChannels() throws {
+        let playlist = """
+        #EXTM3U
+        #EXTINF:-1 group-title=" Sports ",Sports One
+        https://example.com/1.m3u8
+        #EXTINF:-1 group-title="News",News One
+        https://example.com/2.m3u8
+        #EXTINF:-1,Sports Two
+        #EXTGRP:Sports
+        https://example.com/3.m3u8
+        #EXTINF:-1,Other
+        https://example.com/4.m3u8
+        """
+        let channels = try M3UParser.parse(Data(playlist.utf8), baseURL: URL(string: "https://example.com/list")!, fallbackTitle: "List")
+        let groups = MediaChannelCategory.group(channels)
+        XCTAssertEqual(groups.map(\.name), ["Sports", "News", ""])
+        XCTAssertEqual(groups.map { $0.channels.map(\.title) }, [["Sports One", "Sports Two"], ["News One"], ["Other"]])
+        XCTAssertTrue(MediaChannelCategory.group([]).isEmpty)
+    }
+
+    func testMediaEngineSelectionKeepsNativeHLSAndRoutesMatroskaToCompatibility() {
+        let native = MediaChannel(title: "Live", url: URL(string: "https://example.com/live.m3u8")!)
+        XCTAssertFalse(native.requiresCompatibilityPlayback)
+        XCTAssertTrue(native.isLive)
+        let episode = MediaChannel(title: "Episode", url: URL(string: "https://example.com/episode.MKV?token=example")!)
+        XCTAssertTrue(episode.requiresCompatibilityPlayback)
+        XCTAssertFalse(episode.isLive)
+        let movie = MediaChannel(title: "Movie", url: URL(string: "https://example.com/movie.mp4")!)
+        XCTAssertFalse(movie.requiresCompatibilityPlayback)
+        XCTAssertFalse(movie.isLive)
+    }
+
     func testXtreamCredentialsCannotInjectQueryParameters() throws {
         let secret = SourceSecret(url: URL(string: "https://server.example:8080")!, username: "a&password=other", password: "s+e?c/ret")
         let url = try XtreamEndpoint.playlist(secret: secret)

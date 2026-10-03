@@ -182,7 +182,46 @@
 "Ekran paylaşımı durduruldu." = "Đã dừng chia sẻ màn hình.";
 "Şu An Çalıyor" = "Đang phát";
 
-"Düzenle" = "Chỉnh sửa";
-"Kaynak düzenle" = "Chỉnh sửa nguồn";
+"Düzenle" = "Sửa";
+"Kaynak düzenle" = "Sửa nguồn";
 "Kaydet" = "Lưu";
-"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Không thể cập nhật nguồn. Hãy kiểm tra URL và thông tin đăng nhập.";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Không thể cập nhật nguồn. Kiểm tra URL và thông tin đăng nhập.";
+"Tüm kanallar" = "Tất cả kênh";
+
+"Tam ekran" = "Toàn màn hình";
+
+"Kanallar" = "Kênh";
+
+"Önceki kanal" = "Kênh trước";
+
+"Sonraki kanal" = "Kênh tiếp theo";
+
+"Bugün kalan: %d dk" = "Còn lại hôm nay: %d phút";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Bạn đã đạt giới hạn xem 2 giờ mỗi ngày. Bạn có thể xem tiếp vào ngày mai.";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Xem miễn phí 2 giờ mỗi ngày. Tất cả phiên bản Mirivo đều không có quảng cáo.";
+
+"Sınırsız izleme" = "Xem không giới hạn";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "Tiếp tục xem không giới hạn thời gian mỗi ngày với Pro.";
+
+"Canlı" = "Trực tiếp";
+
+"Geçen süre" = "Thời gian đã phát";
+
+"Toplam süre" = "Tổng thời lượng";
+
+"Oynatma konumu" = "Vị trí phát";
+
+"10 saniye geri" = "Lùi 10 giây";
+
+"10 saniye ileri" = "Tiến 10 giây";
+
+"Görüntüyü sığdır" = "Vừa khung hình";
+
+"Ekranı doldur" = "Lấp đầy màn hình";
+
+"Kontrolleri kilitle" = "Khóa điều khiển";
+
+"Kilidi aç" = "Mở khóa";

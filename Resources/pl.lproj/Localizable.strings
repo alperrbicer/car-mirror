@@ -186,3 +186,42 @@
 "Kaynak düzenle" = "Edytuj źródło";
 "Kaydet" = "Zapisz";
 "Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Nie można zaktualizować źródła. Sprawdź adres i dane logowania.";
+"Tüm kanallar" = "Wszystkie kanały";
+
+"Tam ekran" = "Full screen";
+
+"Kanallar" = "Channels";
+
+"Önceki kanal" = "Previous channel";
+
+"Sonraki kanal" = "Next channel";
+
+"Bugün kalan: %d dk" = "Remaining today: %d min";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Free viewing includes 2 hours per day. Every version of Mirivo is ad-free.";
+
+"Sınırsız izleme" = "Unlimited viewing";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "Keep watching without a daily viewing limit with Pro.";
+
+"Canlı" = "Na żywo";
+
+"Geçen süre" = "Upłynęło";
+
+"Toplam süre" = "Całkowity czas";
+
+"Oynatma konumu" = "Pozycja odtwarzania";
+
+"10 saniye geri" = "Cofnij o 10 sekund";
+
+"10 saniye ileri" = "Przewiń o 10 sekund";
+
+"Görüntüyü sığdır" = "Dopasuj obraz";
+
+"Ekranı doldur" = "Wypełnij ekran";
+
+"Kontrolleri kilitle" = "Zablokuj sterowanie";
+
+"Kilidi aç" = "Odblokuj";

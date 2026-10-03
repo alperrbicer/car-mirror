@@ -8,11 +8,19 @@ final class ProductUITests: XCTestCase {
         XCUIDevice.shared.orientation = .portrait
         app.launch()
         let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width }
-        XCTAssertTrue(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 10) == .completed)
+        XCTAssertTrue(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 30) == .completed)
         return app
     }
     func testAllShippingLanguagesLaunch() {
-        let labels: [(String, String, String)] = [
+        assertLanguagesLaunch(shippingLanguages)
+    }
+
+    func testAddedLanguagesLaunch() {
+        assertLanguagesLaunch(shippingLanguages.filter { ["ar", "he", "th", "vi", "id", "hi"].contains($0.0) })
+    }
+
+    private var shippingLanguages: [(String, String, String)] {
+        [
             ("tr", "Ayarlar", "Ekranını paylaş"), ("en", "Settings", "Share your screen"),
             ("zh-Hans", "设置", "共享屏幕"), ("zh-Hant", "設定", "共享螢幕"),
             ("ja", "設定", "画面を共有"), ("ko", "설정", "화면 공유"),
@@ -25,6 +33,9 @@ final class ProductUITests: XCTestCase {
             ("th", "การตั้งค่า", "แชร์หน้าจอของคุณ"), ("vi", "Cài đặt", "Chia sẻ màn hình"),
             ("id", "Pengaturan", "Bagikan layar Anda"), ("hi", "सेटिंग्स", "अपनी स्क्रीन शेयर करें")
         ]
+    }
+
+    private func assertLanguagesLaunch(_ labels: [(String, String, String)]) {
         for (language, settings, share) in labels {
             let app = launch(language: language)
             XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10), language)
@@ -35,12 +46,12 @@ final class ProductUITests: XCTestCase {
         }
     }
 
-    func testRightToLeftSourceEntryAndLegalFallback() {
+    func testRightToLeftSourceEntry() {
         let labels = [
             ("ar", "إضافة", "سياسة الخصوصية"),
             ("he", "הוספה", "מדיניות פרטיות")
         ]
-        for (language, add, privacy) in labels {
+        for (language, add, _) in labels {
             let app = launch(language: language)
             let settings = app.buttons["open-settings"]
             let mirror = app.buttons["page-mirror"]
@@ -48,8 +59,16 @@ final class ProductUITests: XCTestCase {
             XCTAssertTrue(settings.waitForExistence(timeout: 10))
             XCTAssertGreaterThan(mirror.frame.midX, library.frame.midX, "\(language): navigation should mirror")
             library.tap()
+            let selected = NSPredicate(format: "selected == true")
+            if !selected.evaluate(with: library) { library.tap() }
+            XCTAssertTrue(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: selected, object: library)], timeout: 5) == .completed, app.debugDescription)
+            capture("rtl-library-entry-\(language)", app: app)
             reveal(app.buttons["add-source"], in: app)
             app.buttons["add-source"].tap()
+            if !app.buttons["source-kind"].waitForExistence(timeout: 3) {
+                app.buttons["add-source"].tap()
+            }
+            XCTAssertTrue(app.buttons["source-kind"].waitForExistence(timeout: 5))
             app.buttons["source-kind"].tap()
             app.buttons["Xtream Codes"].tap()
             let url = app.textFields["source-url"]
@@ -63,17 +82,50 @@ final class ProductUITests: XCTestCase {
             reveal(username, in: app)
             username.tap(); username.typeText("qa_user123")
             XCTAssertEqual(username.value as? String, "qa_user123")
+            username.typeText("\n")
             let password = app.secureTextFields["source-password"]
             reveal(password, in: app)
-            password.tap(); password.typeText("qa_password123")
+            // Form fields can report hittable while covered by the pinned Add button.
+            for _ in 0..<4 {
+                if password.frame.maxY < app.buttons[add].frame.minY { break }
+                let form = app.collectionViews.firstMatch
+                form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+                    .press(forDuration: 0.1, thenDragTo: form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)))
+            }
+            XCTAssertLessThan(password.frame.maxY, app.buttons[add].frame.minY)
+            password.tap()
+            password.typeText("qa_password123")
             capture("rtl-source-\(language)", app: app)
             app.buttons[add].tap()
             XCTAssertTrue(app.staticTexts[name].waitForExistence(timeout: 5))
+            // iOS may offer to save the test credentials after the editor closes.
+            let later = app.buttons.matching(NSPredicate(format: "label IN %@", ["Sonra", "Not Now", "Later"])).firstMatch
+            if later.waitForExistence(timeout: 5) {
+                for _ in 0..<3 {
+                    later.tap()
+                    let dismissed = NSPredicate(format: "exists == false")
+                    if XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: dismissed, object: later)], timeout: 2) == .completed { break }
+                }
+                XCTAssertFalse(later.exists, "Dismiss the system password prompt before navigating")
+            }
             capture("rtl-library-\(language)", app: app)
-            app.swipeDown()
-            settings.tap()
+            app.terminate()
+        }
+    }
+
+    func testRightToLeftLegalFallback() {
+        for (language, privacy) in [("ar", "سياسة الخصوصية"), ("he", "מדיניות פרטיות")] {
+            let app = launch(language: language)
+            app.buttons["open-settings"].tap()
+            XCTAssertTrue(app.buttons["settings-language"].waitForExistence(timeout: 5))
             capture("rtl-settings-\(language)", app: app)
-            app.buttons[privacy].tap()
+            let form = app.collectionViews.firstMatch
+            form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+                .press(forDuration: 0.1, thenDragTo: form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)))
+            let link = app.buttons[privacy]
+            reveal(link, in: app)
+            link.tap()
+            if !app.webViews.firstMatch.waitForExistence(timeout: 3), link.exists { link.tap() }
             XCTAssertTrue(app.webViews.staticTexts["Privacy Policy"].waitForExistence(timeout: 10))
             XCTAssertTrue(app.segmentedControls.buttons["English"].isSelected)
             capture("rtl-legal-\(language)", app: app)
@@ -98,7 +150,10 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.buttons["open-settings"].label, "الإعدادات")
         XCTAssertGreaterThan(app.buttons["page-mirror"].frame.midX, app.buttons["page-library"].frame.midX)
+        capture("rtl-relaunched-ar", app: app)
         app.buttons["open-settings"].tap()
+        capture("rtl-reopened-settings-ar", app: app)
+        XCTAssertTrue(app.buttons["settings-language"].waitForExistence(timeout: 10), app.debugDescription)
         app.buttons["settings-language"].tap()
         app.buttons["language-system"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()

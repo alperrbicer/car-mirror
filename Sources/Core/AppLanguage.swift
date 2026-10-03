@@ -10,6 +10,8 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
 
     public var id: String { rawValue }
     public var isRightToLeft: Bool { ["ar", "he"].contains(rawValue) }
+    /// Extra tracking can break joined letters and separate vowel marks.
+    public var allowsLetterSpacing: Bool { ![.ar, .he, .th, .hi].contains(self) }
     public var nativeName: String {
         switch self {
         case .tr: "Türkçe"

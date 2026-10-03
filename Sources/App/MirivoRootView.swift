@@ -5,6 +5,7 @@ struct MirivoRootView: View {
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
     @State private var selectedPage = 0
     @State private var showingSettings = false
+    @State private var showingPlayer = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
@@ -29,6 +30,11 @@ struct MirivoRootView: View {
             .background(MirrorStyle.background)
             .toolbar(.hidden, for: .navigationBar)
             .id(language)
+            .safeAreaInset(edge: .bottom) { NowPlayingBar { showingPlayer = true } }
+            .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
+        }
+        .sheet(isPresented: $model.presentingPlayer) {
+            NavigationStack { MediaPlayerScreen(model: model) }
         }
         .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
         .environment(\.locale, Locale(identifier: L10n.language))

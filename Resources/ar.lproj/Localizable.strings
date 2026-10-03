@@ -185,4 +185,43 @@
 "Düzenle" = "تعديل";
 "Kaynak düzenle" = "تعديل المصدر";
 "Kaydet" = "حفظ";
-"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "تعذر تحديث المصدر. تحقق من الرابط وبيانات تسجيل الدخول.";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "تعذّر تحديث المصدر. تحقق من الرابط وبيانات الدخول.";
+"Tüm kanallar" = "جميع القنوات";
+
+"Tam ekran" = "ملء الشاشة";
+
+"Kanallar" = "القنوات";
+
+"Önceki kanal" = "القناة السابقة";
+
+"Sonraki kanal" = "القناة التالية";
+
+"Bugün kalan: %d dk" = "المتبقي اليوم: %d دقيقة";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "بلغت حد المشاهدة اليومي البالغ ساعتين. يمكنك المشاهدة مجددًا غدًا.";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "المشاهدة المجانية متاحة لساعتين يوميًا. جميع إصدارات Mirivo خالية من الإعلانات.";
+
+"Sınırsız izleme" = "مشاهدة غير محدودة";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "تابع المشاهدة دون حد يومي مع Pro.";
+
+"Canlı" = "مباشر";
+
+"Geçen süre" = "الوقت المنقضي";
+
+"Toplam süre" = "المدة الإجمالية";
+
+"Oynatma konumu" = "موضع التشغيل";
+
+"10 saniye geri" = "رجوع 10 ثوانٍ";
+
+"10 saniye ileri" = "تقديم 10 ثوانٍ";
+
+"Görüntüyü sığdır" = "ملاءمة الفيديو";
+
+"Ekranı doldur" = "ملء الشاشة";
+
+"Kontrolleri kilitle" = "قفل عناصر التحكم";
+
+"Kilidi aç" = "إلغاء القفل";

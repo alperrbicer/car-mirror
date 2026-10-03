@@ -4,5 +4,9 @@
   "keywords": "carplay,screen,mirror,iptv,m3u,player,stream,captions,car",
   "promotionalText": "Your sources, together. Screen sharing on compatible displays, vehicle mode with large controls and on-device live captions. Always ad-free.",
   "description": "Mirivo brings your media sources together and helps you share your iPhone screen with supported car displays.\n\n• M3U playlists, direct streams and Xtream Codes servers\n• Search channels and groups\n• Vehicle mode with large controls\n• Screen and app-audio sharing through the iOS system broadcast control\n• On-device live captions on supported devices and languages\n• Interface in 16 languages with in-app language selection\n• Local connection logs and optional diagnostic reports\n\nMirivo contains no ads. Pro sales are disabled in the first release and available features are free.\n\nMirivo does not provide channels, IPTV accounts or content subscriptions. Use sources you have permission to access. CarPlay video requires a supporting vehicle/connection and iOS 26.4 or later. In-car video is available while parked and when permitted by the system. Live captions require iOS 26 and a supported device and language. Some apps and protected content may not permit screen capture.\n\nSource URLs and credentials stay in your device’s Keychain. Screen content, audio and captions are not uploaded to a developer server.\n\nSupport: alperrbicer@gmail.com\nApplication license: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
-  "whatsNew": "The first Mirivo release: source library, vehicle mode, screen and app-audio sharing, live-caption setup and offline help pages."
+  "whatsNew": "The first Mirivo release: source library, vehicle mode, screen and app-audio sharing, live-caption setup and offline help pages.",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/en/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/en/index.html"
 }

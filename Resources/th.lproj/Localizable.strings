@@ -183,6 +183,45 @@
 "Şu An Çalıyor" = "กำลังเล่น";
 
 "Düzenle" = "แก้ไข";
-"Kaynak düzenle" = "แก้ไขแหล่งที่มา";
+"Kaynak düzenle" = "แก้ไขแหล่งสัญญาณ";
 "Kaydet" = "บันทึก";
-"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "อัปเดตแหล่งที่มาไม่ได้ โปรดตรวจสอบ URL และข้อมูลเข้าสู่ระบบ";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "อัปเดตแหล่งสัญญาณไม่ได้ ตรวจสอบ URL และข้อมูลเข้าสู่ระบบ";
+"Tüm kanallar" = "ทุกช่อง";
+
+"Tam ekran" = "เต็มหน้าจอ";
+
+"Kanallar" = "ช่อง";
+
+"Önceki kanal" = "ช่องก่อนหน้า";
+
+"Sonraki kanal" = "ช่องถัดไป";
+
+"Bugün kalan: %d dk" = "วันนี้เหลือ: %d นาที";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "คุณใช้เวลารับชมครบ 2 ชั่วโมงสำหรับวันนี้แล้ว กลับมารับชมได้อีกครั้งพรุ่งนี้";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "รับชมฟรีวันละ 2 ชั่วโมง Mirivo ทุกเวอร์ชันไม่มีโฆษณา";
+
+"Sınırsız izleme" = "รับชมไม่จำกัด";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "รับชมต่อโดยไม่จำกัดเวลาต่อวันด้วย Pro";
+
+"Canlı" = "ถ่ายทอดสด";
+
+"Geçen süre" = "เวลาที่ผ่านไป";
+
+"Toplam süre" = "ระยะเวลาทั้งหมด";
+
+"Oynatma konumu" = "ตำแหน่งการเล่น";
+
+"10 saniye geri" = "ย้อนกลับ 10 วินาที";
+
+"10 saniye ileri" = "ข้ามไปข้างหน้า 10 วินาที";
+
+"Görüntüyü sığdır" = "ปรับวิดีโอให้พอดี";
+
+"Ekranı doldur" = "เติมเต็มหน้าจอ";
+
+"Kontrolleri kilitle" = "ล็อกการควบคุม";
+
+"Kilidi aç" = "ปลดล็อก";

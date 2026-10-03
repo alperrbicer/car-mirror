@@ -1,5 +1,14 @@
 import Foundation
 
+public enum PlaybackTimeDisplay {
+    public static func timestamp(_ seconds: TimeInterval) -> String {
+        guard seconds.isFinite, seconds >= 0, seconds < Double(Int.max) else { return "--:--" }
+        let whole = Int(seconds)
+        let clock = String(format: "%02d:%02d", (whole / 60) % 60, whole % 60)
+        return whole >= 3600 ? "\(whole / 3600):\(clock)" : clock
+    }
+}
+
 public enum MediaSourceKind: String, Codable, CaseIterable, Sendable { case playlist, stream, xtream }
 
 public struct MediaSource: Codable, Identifiable, Equatable, Sendable {
@@ -26,11 +35,38 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
     public let title: String
     public let group: String
     public let url: URL
+    public var requiresCompatibilityPlayback: Bool {
+        ["mkv", "webm", "avi", "ts"].contains(url.pathExtension.lowercased())
+    }
+    public var isLive: Bool {
+        !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(url.pathExtension.lowercased())
+    }
     public init(title: String, group: String = "", url: URL) {
         self.id = url.absoluteString
         self.title = String(title.prefix(200))
         self.group = String(group.prefix(100))
         self.url = url
+    }
+}
+
+public struct MediaChannelCategory: Identifiable, Equatable, Sendable {
+    public var id: String { name }
+    public let name: String
+    public var channels: [MediaChannel]
+
+    /// Preserve provider order, including channels with no category metadata.
+    public static func group(_ channels: [MediaChannel]) -> [MediaChannelCategory] {
+        var result: [MediaChannelCategory] = []
+        var indices: [String: Int] = [:]
+        for channel in channels {
+            let name = channel.group.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let index = indices[name] { result[index].channels.append(channel) }
+            else {
+                indices[name] = result.count
+                result.append(MediaChannelCategory(name: name, channels: [channel]))
+            }
+        }
+        return result
     }
 }
 
@@ -93,6 +129,33 @@ public enum M3UParser {
 }
 
 public enum XtreamEndpoint {
+    /// The same Xtream account can be added as a playlist URL or as server credentials.
+    /// Ask for HLS and category metadata in both cases; never rename channel URLs.
+    public static func nativePlaylistURL(_ url: URL) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.path.hasSuffix("/get.php"),
+              let items = components.queryItems,
+              items.contains(where: { $0.name == "username" && !($0.value ?? "").isEmpty }),
+              items.contains(where: { $0.name == "password" && !($0.value ?? "").isEmpty }),
+              items.contains(where: { $0.name == "type" && ["m3u", "m3u_plus", "std_m3u"].contains($0.value ?? "") }) else { return url }
+        let types = items.filter { $0.name == "type" }
+        let outputs = items.filter { $0.name == "output" }
+        guard types.count == 1, outputs.count <= 1,
+              outputs.isEmpty || ["ts", "mpegts", "m3u8"].contains(outputs[0].value?.lowercased() ?? "") else { return url }
+        // Keep exact encoded credentials, field order and unrelated query fields intact.
+        var fields = (components.percentEncodedQuery ?? "").components(separatedBy: "&")
+        fields = fields.map { field in
+            switch field.components(separatedBy: "=").first?.removingPercentEncoding {
+            case "type": return "type=m3u_plus"
+            case "output": return "output=m3u8"
+            default: return field
+            }
+        }
+        if outputs.isEmpty { fields.append("output=m3u8") }
+        components.percentEncodedQuery = fields.joined(separator: "&")
+        return components.url ?? url
+    }
+
     public static func playlist(secret: SourceSecret) throws -> URL {
         guard let user = secret.username, !user.isEmpty, let password = secret.password, !password.isEmpty,
               var components = URLComponents(url: secret.url, resolvingAgainstBaseURL: true) else { throw LibraryError.credentials }

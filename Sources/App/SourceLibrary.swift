@@ -36,6 +36,7 @@ final class SourceLibrary: ObservableObject {
     @Published private(set) var sources: [MediaSource] = []
     @Published var message: String?
     private let file: URL
+    private let channelCache = SourceChannelCache()
     init() {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Library", isDirectory: true)
         file = directory.appendingPathComponent("sources.json")
@@ -61,6 +62,7 @@ final class SourceLibrary: ObservableObject {
         try SourceKeychain.delete(source.id)
         let next = sources.filter { $0.id != source.id }
         try persist(next); sources = next
+        channelCache.invalidate(source.id)
     }
     func update(_ source: MediaSource, name: String, kind: MediaSourceKind, secret: SourceSecret) throws {
         let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -77,24 +79,30 @@ final class SourceLibrary: ObservableObject {
             throw error
         }
         sources = next
+        channelCache.invalidate(source.id)
     }
     func clear() throws {
         for source in sources { try SourceKeychain.delete(source.id) }
         try persist([]); sources = []
+        channelCache.removeAll()
     }
     private func persist(_ sources: [MediaSource]) throws {
         try JSONEncoder().encode(sources).write(to: file, options: [.atomic, .completeFileProtection])
     }
-    func channels(for source: MediaSource) async throws -> [MediaChannel] {
-        let secret = try SourceKeychain.read(source.id)
-        return try await SourceLoader.load(source: source, secret: secret)
+    func cachedChannels(for source: MediaSource) -> [MediaChannel]? { channelCache.cached(for: source) }
+    func channels(for source: MediaSource, reload: Bool = false) async throws -> [MediaChannel] {
+        if reload { channelCache.invalidate(source.id) }
+        return try await channelCache.channels(for: source) {
+            let secret = try SourceKeychain.read(source.id)
+            return try await SourceLoader.load(source: source, secret: secret)
+        }
     }
 }
 
 private enum SourceLoader {
     static func load(source: MediaSource, secret: SourceSecret) async throws -> [MediaChannel] {
         if source.kind == .stream { return [MediaChannel(title: source.name, url: secret.url)] }
-        let url = try source.kind == .xtream ? XtreamEndpoint.playlist(secret: secret) : secret.url
+        let url = try source.kind == .xtream ? XtreamEndpoint.playlist(secret: secret) : XtreamEndpoint.nativePlaylistURL(secret.url)
         let configuration = URLSessionConfiguration.ephemeral
         configuration.timeoutIntervalForRequest = 20
         configuration.timeoutIntervalForResource = 30
@@ -114,5 +122,45 @@ private enum SourceLoader {
             data.append(byte)
         }
         return try M3UParser.parse(data, baseURL: response.url ?? url, fallbackTitle: source.name)
+    }
+}
+
+/// Session-only cache: signed media URLs are never written to disk.
+@MainActor
+final class SourceChannelCache {
+    private var values: [UUID: (MediaSource, [MediaChannel])] = [:]
+    private var pending: [UUID: (UUID, Task<[MediaChannel], Error>)] = [:]
+    func cached(for source: MediaSource) -> [MediaChannel]? {
+        guard let entry = values[source.id], entry.0 == source else { return nil }
+        return entry.1
+    }
+    func channels(for source: MediaSource, load: @escaping @MainActor () async throws -> [MediaChannel]) async throws -> [MediaChannel] {
+        if let channels = cached(for: source) { return channels }
+        if let entry = pending[source.id] {
+            let channels = try await entry.1.value
+            guard !entry.1.isCancelled else { throw CancellationError() }
+            return channels
+        }
+        let generation = UUID()
+        let task = Task { try await load() }
+        pending[source.id] = (generation, task)
+        do {
+            let channels = try await task.value
+            guard pending[source.id]?.0 == generation else { throw CancellationError() }
+            values[source.id] = (source, channels)
+            pending[source.id] = nil
+            return channels
+        } catch {
+            if pending[source.id]?.0 == generation { pending[source.id] = nil }
+            throw error
+        }
+    }
+    func invalidate(_ id: UUID) {
+        pending.removeValue(forKey: id)?.1.cancel()
+        values[id] = nil
+    }
+    func removeAll() {
+        pending.values.forEach { $0.1.cancel() }
+        pending.removeAll(); values.removeAll()
     }
 }

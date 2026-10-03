@@ -4,5 +4,9 @@
   "keywords": "carplay,ekran,yansıtma,iptv,m3u,oynatıcı,yayın,altyazı,araç",
   "promotionalText": "Kaynaklarını bir arada tut. Uyumlu ekranlarda paylaşım, büyük kontrollerle araç modu ve cihaz içi canlı altyazılar. Her sürümde reklamsız.",
   "description": "Mirivo, kendi medya kaynaklarını tek yerde toplar ve iPhone ekranını desteklenen araç ekranlarıyla paylaşmana yardımcı olur.\n\n• M3U oynatma listeleri, doğrudan yayın bağlantıları ve Xtream Codes sunucuları\n• Kaynaklarda kanal ve grup araması\n• Büyük kontrollerle araç modu\n• Sistem onayıyla ekran ve uygulama sesi paylaşımı\n• Desteklenen cihaz ve dillerde cihaz içi canlı altyazılar\n• 16 dilde arayüz ve uygulama içi dil seçimi\n• Cihazda tutulan bağlantı kayıtları ve isteğe bağlı destek raporu\n\nMirivo reklam içermez. İlk sürümde Pro satışları kapalıdır ve mevcut özellikler ücretsizdir.\n\nMirivo kanal, IPTV hesabı veya içerik aboneliği sağlamaz. Erişim hakkına sahip olduğun kaynakları kullanmalısın. CarPlay video için destekleyen araç/bağlantı ve iOS 26.4 veya sonrası gerekir. Araçta video park hâlinde ve sistemin izin verdiği koşullarda kullanılabilir. Canlı altyazılar iOS 26 ve desteklenen bir cihaz/dil gerektirir. Bazı uygulamalar ve korumalı içerikler ekran yakalamaya izin vermeyebilir.\n\nKaynak adreslerin ve giriş bilgilerin cihazındaki Keychain’de saklanır. Ekran, ses ve altyazılar geliştiricinin sunucusuna yüklenmez.\n\nDestek: alperrbicer@gmail.com\nUygulama lisansı: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
-  "whatsNew": "Mirivo’nun ilk sürümü: kaynak kitaplığı, araç modu, ekran ve ses paylaşımı, canlı altyazı hazırlığı ve çevrimdışı destek sayfaları."
+  "whatsNew": "Mirivo’nun ilk sürümü: kaynak kitaplığı, araç modu, ekran ve ses paylaşımı, canlı altyazı hazırlığı ve çevrimdışı destek sayfaları.",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/tr/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/tr/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/tr/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/tr/index.html"
 }

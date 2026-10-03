@@ -1,6 +1,6 @@
 # Mirivo
 
-Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimlik: grafit/mint, açık ekran çerçevesi içinde Mirivo M monogramı ve üstten iki bölümlü gezinme. Kaynak sürüm **1.0 (6)**; Xcode projesi ve scheme adı `CarMirror` olarak korunur.
+Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimlik: grafit/mint, kesişen iki ekran ve otomobil simgesi ve üstten iki bölümlü gezinme. Kaynak sürüm **1.0 (6)**; Xcode projesi ve scheme adı `CarMirror` olarak korunur.
 
 İlk fiziksel hedef iPhone 16 Pro ve 2024 Kia EV6'dır. **Araçta görüntü ve ses henüz doğrulanmadı.** Apple'ın kullanıcıyla paylaştığı e-posta CarPlay Audio yetkisinin hesaba tanımlandığını doğruluyor; Video onayı henüz doğrulanmadı. İmza/profil, fiziksel kabul, TestFlight ve App Review sonuçları [uygulama durumunda](docs/IMPLEMENTATION_STATUS.md) ayrı tutulur.
 
@@ -53,6 +53,6 @@ bun run mobile:ios:testflight --allow-provisioning-updates
 
 Kaynak adresleri ve giriş bilgileri Keychain'de; kaynak adları ve ayarlar cihazda saklanır. Yayın, ses ve altyazı geçici bellekte işlenir. Durdurunca oturum adresi geçersizleşir. Kayıtlar en fazla 10 oturum / 5 MiB tutar; içerik, adres ve parola içermez. Raporu kullanıcı paylaşır.
 
-`Release/mirivo-netlify.zip` Netlify'a manuel yükleme içindir; `index.html` ZIP kökündedir. Gizlilik, EULA ve yardım Türkçe/İngilizce hazırlanmıştır. Aynı belgeler `Resources/Legal` altında çevrimdışı açılır. Destek: **alperrbicer@gmail.com**. [Yükleme adımları](Release/README.txt).
+[Mirivo destek sitesi](https://mirivo-support.netlify.app) 3 Ekim 2026’da Netlify’da yayımlandı. `Release/mirivo-netlify.zip` yeniden manuel yükleme içindir; `index.html` ZIP kökündedir. Gizlilik, EULA ve yardım Türkçe/İngilizce hazırlanmıştır. Aynı belgeler `Resources/Legal` altında çevrimdışı açılır. Destek: **alperrbicer@gmail.com**. [Yükleme adımları](Release/README.txt).
 
 [22 dilin kapsamı ve doğrulaması](docs/LOCALIZATION.md), [Ürün planı](docs/PRODUCT_PLAN.md), [fiziksel kabul ölçütleri](docs/RELEASE_ACCEPTANCE.md), [seçilen tasarım](Design/mirivo.html).

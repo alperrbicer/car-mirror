@@ -4,6 +4,10 @@ import WebKit
 enum LegalPage: String, Identifiable {
     case privacy, terms, support, index
     var id: String { rawValue }
+    func publicURL(language: String) -> URL {
+        BrandIdentity.websiteURL.appendingPathComponent(language == "tr" ? "tr" : "en")
+            .appendingPathComponent("\(rawValue).html")
+    }
     var title: String {
         if self == .index { return BrandIdentity.name }
         return L10n.tr(self == .privacy ? "Gizlilik Politikası" : self == .terms ? "Kullanım Koşulları (EULA)" : "Yardım ve SSS")
@@ -25,6 +29,13 @@ struct LegalDocumentView: View {
             .background(MirrorStyle.background)
             .navigationTitle(page.title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Link(destination: page.publicURL(language: documentLanguage)) {
+                        Image(systemName: "safari")
+                    }.accessibilityLabel(page.title)
+                }
+            }
     }
 }
 
@@ -81,5 +92,23 @@ private struct LocalLegalWebView: UIViewRepresentable {
                 UIApplication.shared.open(url)
             }
         }
+    }
+}
+
+struct ThirdPartyNoticesView: View {
+    private var license: String {
+        guard let root = Bundle.main.url(forResource: "Legal", withExtension: nil) else { return "" }
+        return (try? String(contentsOf: root.appendingPathComponent("VLCKit-COPYING.txt"), encoding: .utf8)) ?? ""
+    }
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text("VLCKit · VideoLAN").font(.title2.bold())
+                Text("Copyright © VLC authors and VideoLAN. Distributed under GNU LGPL 2.1 or later. Used without modification as a dynamically linked framework.")
+                Link("VLCKit source code", destination: URL(string: "https://github.com/videolan/vlckit/tree/2e0868f5ed40fe59cd92f377645fdcc260c6e759")!)
+                Link("VideoLAN source and build tools", destination: URL(string: "https://code.videolan.org/videolan/VLCKit")!)
+                Text(license).font(.footnote).textSelection(.enabled)
+            }.padding(24)
+        }.background(MirrorStyle.background).navigationTitle("VLCKit · VideoLAN")
     }
 }

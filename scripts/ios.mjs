@@ -231,7 +231,9 @@ function existingArchive() {
   if (!dryRun) {
     if (!options.archive) path = JSON.parse(readFileSync(requireFile(join(outputRoot, 'latest-archive.json')), 'utf8')).archive
     path = resolve(path)
-    const archiveInfo = readPlist(join(path, 'Info.plist')).ApplicationProperties
+    // Archive metadata includes CreationDate, which plutil cannot encode as JSON.
+    const archiveInfo = JSON.parse(run('plutil', ['-extract', 'ApplicationProperties', 'json', '-o', '-',
+      requireFile(join(path, 'Info.plist'))], { capture: true, quiet: true }))
     if (archiveInfo?.CFBundleIdentifier !== config.bundleId || archiveInfo?.Team !== config.team) throw new Error('This archive belongs to another app/team. Check the path and current Xcode settings.')
     const app = resolve(path, 'Products', archiveInfo.ApplicationPath)
     if (!app.startsWith(`${path}${sep}Products${sep}`)) throw new Error('Invalid application path inside archive metadata.')

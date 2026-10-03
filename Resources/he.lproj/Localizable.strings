@@ -185,4 +185,43 @@
 "Düzenle" = "עריכה";
 "Kaynak düzenle" = "עריכת מקור";
 "Kaydet" = "שמירה";
-"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "לא ניתן לעדכן את המקור. בדקו את הכתובת ופרטי ההתחברות.";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "לא ניתן לעדכן את המקור. יש לבדוק את הכתובת ופרטי הכניסה.";
+"Tüm kanallar" = "כל הערוצים";
+
+"Tam ekran" = "מסך מלא";
+
+"Kanallar" = "ערוצים";
+
+"Önceki kanal" = "הערוץ הקודם";
+
+"Sonraki kanal" = "הערוץ הבא";
+
+"Bugün kalan: %d dk" = "נותרו היום: %d דקות";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "הגעת למגבלת הצפייה היומית של שעתיים. אפשר לצפות שוב מחר.";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "הצפייה החינמית כוללת שעתיים ביום. כל הגרסאות של Mirivo ללא פרסומות.";
+
+"Sınırsız izleme" = "צפייה ללא הגבלה";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "אפשר להמשיך לצפות ללא מגבלה יומית עם Pro.";
+
+"Canlı" = "בשידור חי";
+
+"Geçen süre" = "זמן שחלף";
+
+"Toplam süre" = "משך כולל";
+
+"Oynatma konumu" = "מיקום ההפעלה";
+
+"10 saniye geri" = "10 שניות אחורה";
+
+"10 saniye ileri" = "10 שניות קדימה";
+
+"Görüntüyü sığdır" = "התאמת הסרטון";
+
+"Ekranı doldur" = "מילוי המסך";
+
+"Kontrolleri kilitle" = "נעילת פקדים";
+
+"Kilidi aç" = "ביטול נעילה";

@@ -6,6 +6,7 @@ struct ProView: View {
     @State private var selectedID = ProProduct.lifetime.rawValue
     @Environment(\.dismiss) private var dismiss
     private let benefits: [(String, String, String)] = [
+        ("play.rectangle", "Sınırsız izleme", "Pro ile günlük izleme sınırı olmadan devam et."),
         ("infinity", "Sınırsız kaynak", "Oynatma listelerini, yayın bağlantılarını ve IPTV sunucularını bir arada tut."),
         ("car.side", "Araç modu", "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı."),
         ("captions.bubble", "Canlı altyazılar", "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle."),
@@ -44,7 +45,7 @@ struct ProView: View {
                 } else if !store.salesEnabled {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(L10n.tr("Pro yakında")).font(.headline)
-                        Text(L10n.tr("Bu sürümde tüm özellikler açık. Mirivo’nun hiçbir sürümünde reklam yok.")).foregroundStyle(MirrorStyle.secondary)
+                        Text(L10n.tr("Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok.")).foregroundStyle(MirrorStyle.secondary)
                     }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
                         .background(MirrorStyle.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 22))
                 } else {

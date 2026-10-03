@@ -2,7 +2,22 @@
 
 Devam noktası ve bütün açık işler: [NEXT_STEPS.md](NEXT_STEPS.md).
 
-Kaynak sürüm **1.0 (6)**. Mirivo + A grafit/mint kimliği ve otomobilli iki ekran logosu korunuyor. Bu sürümün yerel uygulaması ve yayın hazırlığı aşağıda kayıtlıdır. EV6'da görüntü ve ses, CarPlay yetkili kurulum, TestFlight ve App Review henüz doğrulanmadı.
+Kaynak sürüm **1.0 (6)**; TestFlight dağıtım adayı **1.0 (7)**. Mirivo + A grafit/mint kimliği ve otomobilli iki ekran logosu korunuyor. TestFlight beta inceleme gönderimi tamamlandı; Apple durumu **Waiting for Review**. EV6'da görüntü ve ses, fiziksel CarPlay kabulü ve App Store yayın incelemesi henüz doğrulanmadı.
+
+## 3 Ekim 2026 — TestFlight dağıtım adayı
+
+- Kullanıcının TestFlight hazırlığı ve beta inceleme gönderimi talebiyle **1.0 (7), CarPlay Audio** arşivi oluşturuldu. Kaynak build değeri 6 olarak korunur; arşiv ana uygulama ve uzantı için 7 kullanır. Pro satışları kapalıdır.
+- `bun run release:check` başarılı: 22 dil, 207 anahtar, 4.554 çeviri değeri ve 12 HTML sayfası. `bun run check` başarılı: 17 script testi, 39 Swift testi ve imzasız simülatör derlemesi.
+- İmzalı Release arşivi ve App Store dağıtım IPA'sı başarılı. Ana uygulama ve uzantının dağıtım profilleri, bundle/sürüm/build, App Group ve CarPlay Audio yetkisi script tarafından doğrulandı.
+- API anahtarı yapılandırılmamış olduğundan yükleme mevcut Xcode Apple hesabıyla yapıldı. `xcodebuild -exportArchive` **Upload succeeded / EXPORT SUCCEEDED** döndürdü; Apple paketi işlemeye başladı. Bu sonuç beta incelemesine gönderim veya Apple onayı değildir.
+- App Store Connect TestFlight → iOS → Build Uploads ekranında **Version 1.0, Build (7), Processing** ve 3 Ekim 2026 16:29 yükleme zamanı canlı olarak görüldü.
+- Kanıtlar: `build/testflight-check.log`, `build/testflight-archive.log`, `build/testflight-export.log`, `build/testflight-upload.log`, `build/deploy/testflight-upload.json`. Arşiv/IPA tam yolları JSON kaydındadır.
+- Türkçe/İngilizce beta açıklaması ve test hedefleri `Release/AppStore/testflight-localizations.json`; ayrı beta inceleme adımları `Release/AppStore/testflight-review-notes.txt` içindedir. Mağaza inceleme hazırlığı dosyası ayrı korunur.
+- Kullanıcının açık paylaşım onayı ve verdiği iletişim telefonu ile inceleme iletişim bilgileri Apple'a kaydedildi. Türkçe/İngilizce beta açıklamaları, belge bağlantıları, test hedefleri ve İngilizce inceleme notları kaydedildi. Giriş gerekmiyor.
+- Apple'ın dış beta inceleme akışı için `Mirivo Internal` (otomatik dağıtım kapalı) ve `Mirivo Beta` grupları oluşturuldu. Build 7, dış `Mirivo Beta` grubuna eklendi ve **Submit for Review** tamamlandı. Grup ekranında **Build 1.0 (7) — Waiting for Review** canlı doğrulandı. Gruplarda test kullanıcısı yok; otomatik bildirim kapalı, public link açılmadı. TestFlight onayı henüz alınmadı; App Store yayınına gönderim yapılmadı.
+- Ek `MirivoTests/CarPlayAudioTests` simülatör koşusu test sonucu üretmeden tanılama toplamasında takıldı ve durduruldu (`TEST INTERRUPTED`, çıkış 75). Bu koşu başarılı test sayılmaz. Kanıt: `build/testflight-playback-tests.log`. İlk denemede yanlış test hedef adı kullanılmış, ardından doğru `MirivoTests` hedefiyle tekrar denenmiştir.
+- Arşiv `CreationDate` alanı `plutil` JSON dönüşümünü engellediğinden dağıtım scripti yalnız `ApplicationProperties` alanını çıkaracak şekilde düzeltildi; 17 script testi tekrar geçti ve aynı arşivin export'u başarılı oldu.
+- Fiziksel iPhone/araç ve CarPlay Video doğrulaması bu işlemde yapılmadı.
 
 ## Audio onayı sonrası
 
@@ -26,10 +41,12 @@ Kanıtlar: `build/carplay-audio-device.log`, `build/carplay-audio-signing.json`;
 
 ## Teslim dosyaları
 
-- `Release/mirivo-netlify.zip`: Türkçe/İngilizce 12 HTML sayfası, stil, logo ve Netlify başlık/yönlendirme dosyaları. ZIP kökünde `index.html` bulunur. Kullanıcı yayımlayacak; bu çalışma Netlify'a yükleme yapmadı.
+- `Release/mirivo-netlify.zip`: Türkçe/İngilizce 12 HTML sayfası, stil, logo ve Netlify başlık/yönlendirme dosyaları. ZIP kökünde `index.html` bulunur. 3 Ekim 2026’da Chrome üzerinden Netlify’a yüklendi ve https://mirivo-support.netlify.app adresinde herkese açık yayımlandı.
 - `Release/README.txt`: yükleme ve mağazaya girilecek URL yolları.
 - `Release/AppStore/{tr,en}/metadata.json`: mağaza metinleri; `review-notes.txt` ve `privacy-inventory.json`: inceleme/veri hazırlığı. Portalda yüklenmiş oldukları iddia edilmiyor.
-- `Resources/Legal`: uygulamada internet olmadan açılan aynı belgeler. Hayali alan adı veya destek formu kullanılmaz.
+- `Resources/Legal`: uygulamada internet olmadan açılan aynı belgeler. Belge ekranındaki Safari düğmesi seçili sayfanın Türkçe/İngilizce web sürümünü açar. Destek formu kullanılmaz.
+- Netlify tanıtım rozeti kapatıldı. Yayındaki 12 HTML sayfası HTTP üzerinden doğrulandı; belge metinleri yerel dosyalarla aynı ve sayfalarda script yok. Kanıt: `build/netlify-url-checks.json`.
+- App Store Connect: Türkçe ve İngilizce (ABD) gizlilik politikası, destek ve pazarlama URL’leri kaydedildi. İngilizce yerelleştirme eklendi. Apple Standart EULA korunuyor; ürün koşulları `/tr/terms.html` ve `/en/terms.html` adreslerinde. Binary/inceleme gönderimi yapılmadı.
 - `docs/PRO_RELEASE.md`: satışın daha sonra açılması için ürün kimlikleri ve kontroller.
 - `docs/RELEASE_ACCEPTANCE.md`: fiziksel cihaz, araç ve dağıtım kabul listesi.
 
@@ -60,3 +77,36 @@ Son tarayıcı portal kontrolü 2 Ekim 2026'daki önceki Chrome çalışmasına 
 - CarTV 1.1.1 (35) kurulum bildiriminde Audio/Video yetkileri ve harici ekran rolleri görüldü. Bu bilgi CarTV'nin iç aktarım tekniğinin çözüldüğü anlamına gelmez.
 
 Audio imzalı sürümle iPhone 16 Pro + 2024 Kia EV6'da simge/sahne, kaynak sesi ve oynatma kontrolleri henüz sınanmadı. Kablo ve markasız adaptör ayrı sınanacak. Video yetkisi ve gerçek imzadan sonra YouTube ve Smarters Player ile görüntü/ses, 30 dakikalık kullanım, 10 başlat/durdur, kesinti, yön değişimi ve altyazı belleği ölçülecek. Bunlar tamamlanmadan ürünün production kabulü kapatılmaz.
+
+
+### 2026-10-03 — Kaynak ve oynatma sürekliliği
+
+- Kanal listeleri oturum belleğinde kaynak kimliğine göre tutulur; eşzamanlı yüklemeler birleştirilir. Düzenle/sil/temizle ve elle yenile önbelleği geçersiz kılar. Medya adresleri diske önbelleklenmez.
+- Kategori/kanal listelerinde ve ana ekranda aktif oynatıcı çubuğu aynı oynatma oturumunu açar.
+- HLS/MP4 için AVPlayer korunur. MKV/WebM/AVI/TS için resmi VideoLAN VLCKit 4 geliştirme paketi, `2e0868f5ed40fe59cd92f377645fdcc260c6e759` revizyonuna sabitlenmiştir. SwiftPM dosyası binary checksum doğrulaması içerir; uygulama LGPL lisans metnini ve kaynak bağlantılarını gösterir. Yayın öncesi bağımlılığın geliştirme sürümü olduğu dikkate alınmalıdır.
+- AVPlayer arka plan politikası `continuesIfPossible`; mevcut audio background mode ve playback audio session korunur. Otomatik inline PiP açıldı ve native PiP arayüz geri dönüş delegate'i eklendi. MKV video yüzeyi VLCKit'in örnek tamponlu PiP protokolünü kullanır.
+- Opt-in sağlayıcı testleri simülatör uygulamasının `tmp/mirivo-vod-probe.json` (`original`) ve `tmp/mirivo-live-playback-fixture.json` (`ts`, `m3u8`) dosyalarını okur. Dosyalar hesap bilgisi içerebilir; depoya konulmaz ve testten sonra silinir.
+- Gerçek sağlayıcıda örnek MKV bölümünün görüntü boyutu ve oynatma zamanı ilerlemesi ile HLS canlı yayını simülatörde doğrulandı. Fiziksel iPhone PiP, kilit ekranı ve arka plan/ön plan geçişi bu kayıtla doğrulanmış sayılmaz.
+
+### 2026-10-03 — Film/dizide ilk açılışta siyah görüntü
+
+- VLC'nin ortak video yüzeyi, liste önizlemesinin güncellemeleriyle ana oynatıcıdan geri alınabiliyordu. Görünür ve boyutu hazır alanlar arasında tam ekran → ana oynatıcı → önizleme önceliği eklendi; kapanan alanın temizliği yeni görüntü sahibini bozmuyor.
+- VLC'nin iç çizim görünümü de ana alana göre yeniden boyutlandırılıyor. Önizlemenin 88×50 boyutunda veya sıfır boyutta kalması giderildi; oynatma oturumu yeniden başlatılmıyor.
+- Uygulamanın bağlantı test videosundan üretilen yerel MKV ile hata önce tekrarlandı, ardından ilk açılışta tam ekrana geçmeden görüntü alındı. İlk açılış, önizleme güncellemesi, tam ekrandan dönüş ve mevcut oynatma testlerinde **15 geçti, 2 opt-in sağlayıcı testi atlandı, 0 hata**. Kanıt: `build/inline-playback-tests.log`, `build/inline-playback-first-open.png`. Fiziksel iPhone kontrolü henüz yapılmadı.
+
+### 2026-10-03 — Tam ekranda döndürme
+
+- Başlık ve oynatma kontrolleri videodan yükseklik alan satırlardan, video üzerine çizilen kontrollere taşındı. Tam ekran ve araç modunda video tüm pencereyi kullanır; görüntü oranı korunur. MKV'nin ikinci duraklat/PiP satırı tam ekranda kaldırıldı, PiP düğmesi başlığa taşındı.
+- Yatayda eylemler ve oynatma düğmeleri tek satıra sığar. Kontroller dokunarak açılıp kapanır ve oynatma sırasında 4 saniye sonra gizlenir. Duraklatma, zaman çizgisini sürükleme, kanal seçimi, kontrol kilidi ve VoiceOver otomatik gizlemeyi engeller.
+- MKV ve MP4 ile iki modda dikey → yatay sol → yatay sağ → dikey döngüsü, video ve renderer boyutlarının pencereyle eşleşmesi ve oynatma oturumunun korunması doğrulandı. Oynatma grubunda **17 geçti, 2 sağlayıcı testi atlandı** (`build/fullscreen-rotation-tests.log`); kontrollerin gizlenmesini içeren iki genişletilmiş dönüş testi ayrıca geçti (`build/fullscreen-visibility-tests.log`). Kontroller açık/gizli yatay görüntüler `build/rotation-screenshots/` altında incelendi. Fiziksel iPhone doğrulaması yapılmadı.
+
+## 3 Ekim — ertelenen altı dil
+
+Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe eklendi; uygulama ve yayın uzantısı 22 dil içeriyor. Güncel katalog dil başına 207 anahtar. Statik denetim, dört dil çekirdek testi, altı dil açılışı, RTL dil tercihi kalıcılığı, Arapça/İbranice kaynak girişi ve İngilizce hukuki belgeye geçiş testleri geçti. Bunlar ayrı test koşularının sonuçlarıdır; ayrıntılı kayıt ve paket yolları `docs/LOCALIZATION.md` içinde. Fiziksel cihaz/araç doğrulaması yapılmadı. Yukarıdaki 2 Ekim sonuçları kendi tarihsel kapsamını korur.
+
+### 2026-10-03 — Film/dizide ileri sarınca görüntünün beklemesi
+
+- Gerçek sağlayıcıdaki örnek MKV'de sorun tekrarlandı. HTTP Range istekleri doğru `206` yanıtı verdi ve dosyanın Cues indeksi bulundu; buna rağmen varsayılan MKV sarma yolu 120. saniyeye giderken yaklaşık 3.000 kareyi çözüyor, 900. saniye isteğinde 20 saniye sonra hâlâ yeni görüntü göstermiyordu. Bu makinedeki kısa aktarım ölçümü yaklaşık 20 Mbit/sn idi; bu değer telefonun bağlantı hızını ölçmez.
+- Uzak `.mkv` dosyaları VideoLAN'ın `mkv_trusted` demux seçeneğiyle mevcut Cues indeksinden açılır. Aynı dosyada 120., 30., 900. ve 240. saniyelere sarma, yeni görüntü ve süre ilerlemesi dahil **1,98–2,89 saniye** sürdü. İndeksi eksik/bozuk başka dosyalarda aynı süre garanti edilmez.
+- VLCKit tek bir sarma tamamlanma callback'i tuttuğu için hızlı istekler birleştirilir, devam eden sarma bitince son hedef uygulanır. Aynı konum ve reddedilen istekler kuyruğu kilitlemez; 30 saniye tamamlanmayan işlem sonsuz bekleme yerine hata durumuna geçer. Kullanıcının duraklatma tercihi korunur.
+- Gerçek videoda ileri/geri, aynı anda ve devam eden isteğin üstüne sarma, duraklatılmış videoda aynı konuma/başka konuma geçme ile mevcut oynatıcı testlerinde **20 geçti, 0 hata**. İki eski opt-in başlangıç testi bu koşuya alınmadı; yeni opt-in sağlayıcı sarma testi çalıştı. Kanıt: `build/seek-before-provider-tests.log`, `build/seek-provider-trace.log`, `build/seek-final-tests.log`, `build/seek-provider-diagnostics.json`. Fiziksel iPhone'da bu düzeltme henüz doğrulanmadı.

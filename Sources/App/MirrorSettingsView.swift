@@ -98,6 +98,9 @@ struct MirrorSettingsView: View {
                 }
                 .listRowBackground(MirrorStyle.surface)
                 Section {
+                    NavigationLink("VLCKit · VideoLAN") { ThirdPartyNoticesView() }
+                }.listRowBackground(MirrorStyle.surface)
+                Section {
                     Button(L10n.tr("Tüm kaynakları sil"), role: .destructive) { clearingLibrary = true }
                 }.listRowBackground(MirrorStyle.surface)
                 #if DEBUG
@@ -136,6 +139,8 @@ struct MirrorSettingsView: View {
                 Button(L10n.tr("Tamam")) { errorMessage = nil }
             } message: { Text(errorMessage ?? "") }
         }
+        .environment(\.locale, Locale(identifier: L10n.language))
+        .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
         .preferredColorScheme(.dark)
     }
 

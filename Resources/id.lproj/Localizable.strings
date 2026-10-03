@@ -186,3 +186,42 @@
 "Kaynak düzenle" = "Edit sumber";
 "Kaydet" = "Simpan";
 "Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Tidak dapat memperbarui sumber. Periksa URL dan informasi login.";
+"Tüm kanallar" = "Semua saluran";
+
+"Tam ekran" = "Layar penuh";
+
+"Kanallar" = "Saluran";
+
+"Önceki kanal" = "Saluran sebelumnya";
+
+"Sonraki kanal" = "Saluran berikutnya";
+
+"Bugün kalan: %d dk" = "Sisa hari ini: %d menit";
+
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Anda telah mencapai batas menonton harian selama 2 jam. Anda dapat menonton lagi besok.";
+
+"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Menonton gratis tersedia selama 2 jam per hari. Semua versi Mirivo bebas iklan.";
+
+"Sınırsız izleme" = "Menonton tanpa batas";
+
+"Pro ile günlük izleme sınırı olmadan devam et." = "Lanjutkan menonton tanpa batas harian dengan Pro.";
+
+"Canlı" = "Siaran langsung";
+
+"Geçen süre" = "Waktu berlalu";
+
+"Toplam süre" = "Durasi total";
+
+"Oynatma konumu" = "Posisi pemutaran";
+
+"10 saniye geri" = "Mundur 10 detik";
+
+"10 saniye ileri" = "Maju 10 detik";
+
+"Görüntüyü sığdır" = "Sesuaikan video";
+
+"Ekranı doldur" = "Penuhi layar";
+
+"Kontrolleri kilitle" = "Kunci kontrol";
+
+"Kilidi aç" = "Buka kunci";

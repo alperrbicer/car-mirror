@@ -41,3 +41,21 @@ public struct BroadcastOptions: Codable, Sendable {
     public var durationLimit: TimeInterval?
     public init() {}
 }
+
+/// Device-local daily viewing budget. Intervals are split at local midnight.
+public struct DailyViewingBudget: Codable, Equatable {
+    public static let limit: TimeInterval = 2 * 60 * 60
+    public private(set) var day: Date
+    public private(set) var used: TimeInterval
+    public init(now: Date, calendar: Calendar = .current, used: TimeInterval = 0) {
+        day = calendar.startOfDay(for: now)
+        self.used = max(0, used)
+    }
+    public mutating func record(from start: Date, to end: Date, playing: Bool, calendar: Calendar = .current) {
+        let today = calendar.startOfDay(for: end)
+        if today > day { day = today; used = 0 }
+        guard playing, end > start else { return }
+        used += max(0, end.timeIntervalSince(max(start, day)))
+    }
+    public var remaining: TimeInterval { max(0, Self.limit - used) }
+}
