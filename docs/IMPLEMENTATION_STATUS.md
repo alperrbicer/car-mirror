@@ -2,6 +2,12 @@
 
 Devam noktası ve bütün açık işler: [NEXT_STEPS.md](NEXT_STEPS.md).
 
+4 Ekim 2026 disk temizliği: geçmiş derleme klasörleri, `.xcresult` paketleri ve
+geçici test görselleri silindi. Aşağıdaki bu dosyalara atıflar geçmiş koşuların
+kaydıdır; ayrıntılı paketler artık yerelde bulunmaz. Küçük log/JSON kayıtları,
+TestFlight arşivi/IPA ve build sayacı korundu. Derleme araçları artık ortak
+önbellek kullanır; bakım komutu için [DEPLOYMENT.md](DEPLOYMENT.md) belgesine bak.
+
 ## 3 Ekim 2026 — TV bağlantısı
 
 - Ana ekran, oynatıcı ve tam ekrana TV seçimi eklendi. Google Cast alıcısı etkin Android/Google TV ve Cast cihazları için resmi Google Cast iOS SDK 4.8.6 kullanılır. AirPlay için sistem aygıt seçicisi ve Ekran Yansıtma yönergesi bulunur. Android TV sürümü tek başına alıcının varlığını doğrulamaz; kullanıcının Nextstar Android TV 14 cihazı henüz fiziksel olarak sınanmadı. Yalnız Miracast/DLNA destekleyen cihazlar bu uygulamayla keşfedilmez.

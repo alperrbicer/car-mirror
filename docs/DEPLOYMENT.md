@@ -181,6 +181,19 @@ edilir. Yükleme, doğrulanan aynı arşivden Xcode'un `destination=upload` yolu
 yapılır. Çıktılar ve başarılı işlem kayıtları `build/deploy/` altında saklanır:
 `.xcarchive`, `.ipa`, export seçenekleri ve JSON işlem kayıtları.
 
+Kurulum, kontrol, arşiv ve uygulama testleri `build/cache/DerivedData` derleme
+önbelleğini ve `build/cache/SourcePackages` bağımlılıklarını ortak kullanır.
+Her kurulum için bağımlılıklar yeniden kopyalanmaz. Kurulum/önizleme/simülatör
+JSON kayıtları `build/deploy/runs/` altında son çalıştırmayla yenilenir;
+`test:app` yalnızca son `build/app-tests.xcresult` raporunu tutar. Ortak önbelleği
+kullanan komutlar aynı anda çalıştırılamaz. Bir komut zorla kapatıldıysa ve başka
+derleme çalışmıyorsa `build/.native-build.lock` dosyasını silerek tekrar dene.
+
+`bun run clean` yeniden üretilebilir önbellekleri ve son uygulama testi raporunu
+siler; yayın arşivlerini, IPA dosyalarını, yükleme kayıtlarını ve build sayacını
+korur. Sonraki derlemede önbellekler yeniden oluşturulur. Başarılı yayın çıktıları
+otomatik silinmez; saklama ihtiyacı bittiğinde ayrıca temizlenebilir.
+
 Başarılı upload sonrasında Apple'ın build'i işlemesini bekle. TestFlight test
 grupları, ihracat uyumu soruları, mağaza bilgileri, ekran görüntüleri ve App Review
 gönderimi App Store Connect'te tamamlanır. Bu komutlar incelemeye göndermez veya

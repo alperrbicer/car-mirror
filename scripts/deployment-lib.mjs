@@ -8,6 +8,8 @@ import { parseArgs } from 'node:util'
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const outputRoot = join(root, 'build/deploy')
+export const derivedDataRoot = join(root, 'build/cache/DerivedData')
+export const packageCacheRoot = join(root, 'build/cache/SourcePackages')
 export const carPlayKeys = ['com.apple.developer.carplay-audio', 'com.apple.developer.carplay-video']
 export const carPlayEntitlementFiles = { audio: 'Config/CarPlayAudio.entitlements', video: 'Config/CarPlay.entitlements' }
 
@@ -164,11 +166,34 @@ export function writeJson(path, data) {
   renameSync(temporary, path)
 }
 
-export function runDirectory(label, dryRun) {
-  if (dryRun) return join(outputRoot, `<${label}>`)
-  const directory = join(outputRoot, `${new Date().toISOString().replace(/[:.]/g, '-')}-${label}-${randomUUID().slice(0, 6)}`)
+export function runDirectory(label, dryRun, directoryRoot = outputRoot) {
+  if (dryRun) return join(directoryRoot, `<${label}>`)
+  if (['check', 'install', 'preview', 'simulator', 'devices'].includes(label)) {
+    const directory = join(directoryRoot, 'runs', label)
+    rmSync(directory, { recursive: true, force: true })
+    mkdirSync(directory, { recursive: true })
+    return directory
+  }
+  const directory = join(directoryRoot, `${new Date().toISOString().replace(/[:.]/g, '-')}-${label}-${randomUUID().slice(0, 6)}`)
   mkdirSync(directory, { recursive: true })
   return directory
+}
+
+// All native entry points share one build database and dependency cache.
+export function withNativeBuildLock(action, { dryRun = false, directory = join(root, 'build') } = {}) {
+  if (dryRun) return action()
+  mkdirSync(directory, { recursive: true })
+  const lock = join(directory, '.native-build.lock')
+  let descriptor
+  try { descriptor = openSync(lock, 'wx', 0o600) }
+  catch (error) {
+    if (error.code === 'EEXIST') throw new Error(`Another native command is using the shared build cache. If it stopped, remove ${lock} and retry.`)
+    throw error
+  }
+  try {
+    writeFileSync(descriptor, `${process.pid}\n`)
+    return action()
+  } finally { closeSync(descriptor); rmSync(lock, { force: true }) }
 }
 
 export function reserveBuild(current, requested, directory = outputRoot) {

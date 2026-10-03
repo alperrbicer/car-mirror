@@ -1,12 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   argumentsFor, carPlayModeFromInfo, configurationFromSettings, exportPlist, parsePlist, parseProfile,
-  physicalPhones, reserveBuild, root, selectDevice, validateProfile,
+  physicalPhones, reserveBuild, root, runDirectory, selectDevice, validateProfile, withNativeBuildLock,
 } from '../../scripts/deployment-lib.mjs'
 
 const team = 'TEAM123456'
@@ -30,7 +30,7 @@ function phone(identifier = 'core-id', udid = 'phone-udid', name = 'My iPhone') 
 }
 
 function temporary(t) {
-  const directory = mkdtempSync(join(tmpdir(), 'carmirror-deployment-test-'))
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), 'carmirror-deployment-test-')))
   t.after(() => rmSync(directory, { recursive: true, force: true }))
   return directory
 }
@@ -38,7 +38,7 @@ function temporary(t) {
 function isolatedCLI(t) {
   const directory = temporary(t)
   mkdirSync(join(directory, 'scripts'))
-  for (const file of ['ios.mjs', 'deployment-lib.mjs']) copyFileSync(join(root, 'scripts', file), join(directory, 'scripts', file))
+  for (const file of ['ios.mjs', 'deployment-lib.mjs', 'test_app.mjs', 'clean_build.mjs']) copyFileSync(join(root, 'scripts', file), join(directory, 'scripts', file))
   return { directory, script: join(directory, 'scripts/ios.mjs'), env: { ...process.env, MIRROR_TEAM_ID: '',
     APP_STORE_CONNECT_KEY_ID: '', APP_STORE_CONNECT_ISSUER_ID: '', APP_STORE_CONNECT_PRIVATE_KEY_PATH: '' } }
 }
@@ -217,6 +217,87 @@ test('every dry run works from another directory without native tools, credentia
   const upload = spawnSync(process.execPath, [fixture.script, 'upload', '--archive', '/a path/archive.xcarchive', '--dry-run'], { env, encoding: 'utf8' })
   assert.equal(upload.status, 0, upload.stderr)
   assert.ok(!upload.stdout.includes('"swift" "test"'), 'existing archive must not rebuild')
+})
+
+test('native commands reuse the same build and dependency caches', t => {
+  const fixture = isolatedCLI(t)
+  for (const command of ['install', 'simulator', 'archive', 'check']) {
+    const result = spawnSync(process.execPath, [fixture.script, command, '--dry-run'], {
+      env: { ...fixture.env, PATH: '/nonexistent' }, encoding: 'utf8',
+    })
+    assert.equal(result.status, 0, result.stderr)
+    assert.ok(result.stdout.includes(JSON.stringify(join(fixture.directory, 'build/cache/DerivedData'))))
+    assert.ok(result.stdout.includes(JSON.stringify(join(fixture.directory, 'build/cache/SourcePackages'))))
+    assert.ok(!result.stdout.includes('/<install>/DerivedData'))
+  }
+})
+
+test('operational runs replace old records while release archives remain distinct', t => {
+  const directory = temporary(t)
+  const archive = runDirectory('archive', false, directory)
+  writeFileSync(join(archive, 'release'), 'keep')
+  const first = runDirectory('install', false, directory)
+  writeFileSync(join(first, 'old.json'), '{}')
+  assert.equal(runDirectory('install', false, directory), first)
+  assert.equal(existsSync(join(first, 'old.json')), false)
+  assert.notEqual(runDirectory('archive', false, directory), archive)
+  assert.equal(readFileSync(join(archive, 'release'), 'utf8'), 'keep')
+})
+
+test('shared cache lock refuses overlapping commands and releases after failures', t => {
+  const directory = temporary(t)
+  withNativeBuildLock(() => {
+    assert.throws(() => withNativeBuildLock(() => assert.fail('must not run'), { directory }), /Another native command/)
+  }, { directory })
+  assert.throws(() => withNativeBuildLock(() => { throw new Error('build failed') }, { directory }), /build failed/)
+  assert.equal(existsSync(join(directory, '.native-build.lock')), false)
+  assert.equal(withNativeBuildLock(() => 'ready', { directory }), 'ready')
+})
+
+test('clean removes caches while retaining release files and the build counter', t => {
+  const fixture = isolatedCLI(t)
+  const disposable = ['.build/cache', 'build/cache/SourcePackages/artifact', 'build/ModuleCache/module',
+    'build/deploy/runs/install/install.json', 'build/app-tests.xcresult/result']
+  const retained = ['build/deploy/last-build.json', 'build/deploy/latest-archive.json',
+    'build/deploy/release/CarMirror.xcarchive/archive', 'build/deploy/release/CarMirror.ipa', 'build/deploy/upload.json']
+  for (const path of [...disposable, ...retained]) {
+    mkdirSync(join(fixture.directory, path, '..'), { recursive: true })
+    writeFileSync(join(fixture.directory, path), 'keep')
+  }
+  const result = spawnSync(process.execPath, [join(fixture.directory, 'scripts/clean_build.mjs')], { encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
+  for (const path of disposable) assert.equal(existsSync(join(fixture.directory, path)), false, path)
+  for (const path of retained) assert.equal(readFileSync(join(fixture.directory, path), 'utf8'), 'keep', path)
+})
+
+test('app test entry point replaces its previous report and uses shared caches', t => {
+  const fixture = isolatedCLI(t)
+  const binaries = join(fixture.directory, 'bin'); mkdirSync(binaries)
+  const fake = join(binaries, 'xcodebuild')
+  const log = join(fixture.directory, 'args.json')
+  writeFileSync(fake, `#!${process.execPath}
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const args = process.argv.slice(2);
+writeFileSync(process.env.TEST_ARGS, JSON.stringify(args));
+const result = args[args.indexOf('-resultBundlePath') + 1];
+mkdirSync(result, { recursive: true });
+writeFileSync(join(result, 'new'), 'result');
+`)
+  chmodSync(fake, 0o755)
+  const results = join(fixture.directory, 'build/app-tests.xcresult')
+  mkdirSync(results, { recursive: true }); writeFileSync(join(results, 'old'), 'old')
+  const result = spawnSync(process.execPath, [join(fixture.directory, 'scripts/test_app.mjs'),
+    '00000000-0000-0000-0000-000000000001', '--ui-only'], {
+    env: { ...fixture.env, PATH: binaries, TEST_ARGS: log }, encoding: 'utf8',
+  })
+  assert.equal(result.status, 0, result.stderr)
+  assert.equal(existsSync(join(results, 'old')), false)
+  assert.equal(existsSync(join(results, 'new')), true)
+  const args = JSON.parse(readFileSync(log, 'utf8'))
+  assert.equal(args[args.indexOf('-derivedDataPath') + 1], join(fixture.directory, 'build/cache/DerivedData'))
+  assert.equal(args[args.indexOf('-clonedSourcePackagesDirPath') + 1], join(fixture.directory, 'build/cache/SourcePackages'))
+  assert.ok(args.includes('-only-testing:MirivoUITests'))
 })
 
 test('upload with missing API credentials fails before creating build output or running Xcode', t => {

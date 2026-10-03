@@ -4,8 +4,8 @@ import { homedir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 import {
   argumentsFor, carPlayKeys, carPlayEntitlementFiles, carPlayModeFromInfo, requiredCarPlayKeys, configurationFromSettings, exportPlist, filePath, loadEnvironment,
-  outputRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
-  reserveBuild, root, run, runDirectory, selectDevice, validateProfile, writeJson,
+  outputRoot, derivedDataRoot, packageCacheRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
+  reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withNativeBuildLock, writeJson,
 } from './deployment-lib.mjs'
 
 const project = ['-project', join(root, 'CarMirror.xcodeproj'), '-scheme', 'CarMirror']
@@ -63,7 +63,8 @@ function settings(configuration = 'Release') {
   mkdirSync(outputRoot, { recursive: true })
   const rows = JSON.parse(run('xcodebuild', ['-showBuildSettings', '-json', ...project,
     '-configuration', selectedConfiguration(configuration), '-destination', 'generic/platform=iOS',
-    '-derivedDataPath', join(outputRoot, 'settings'), 'CODE_SIGNING_ALLOWED=NO', ...teamArguments()], { capture: true, quiet: true }))
+    '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot,
+    'CODE_SIGNING_ALLOWED=NO', ...teamArguments()], { capture: true, quiet: true }))
   return configurationFromSettings(rows)
 }
 
@@ -123,9 +124,9 @@ function suites() {
   execute('xcrun', ['swift', 'test', '--jobs', '2'])
 }
 
-function buildArguments(configuration, directory, destination, config, signing = 'device') {
+function buildArguments(configuration, destination, config, signing = 'device') {
   return ['-quiet', ...project, '-configuration', selectedConfiguration(configuration), '-destination', destination,
-    '-derivedDataPath', join(directory, 'DerivedData'), ...teamArguments(),
+    '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, ...teamArguments(),
     ...(config ? [`CURRENT_PROJECT_VERSION=${config.build}`, `MARKETING_VERSION=${config.version}`] : []),
     ...(config?.preview ? ['CODE_SIGN_ENTITLEMENTS=Config/App.entitlements', 'MIRIVO_CARPLAY_AUDIO_ENABLED=NO', 'MIRIVO_CARPLAY_VIDEO_ENABLED=NO'] : []),
     ...(signing === 'device' ? provisioning() : signing === 'simulator'
@@ -136,8 +137,7 @@ function selectedConfiguration(configuration) { return options['carplay-video'] 
 
 function check() {
   suites()
-  const directory = runDirectory('check', dryRun)
-  execute('xcodebuild', [...buildArguments('Debug', directory, 'generic/platform=iOS Simulator', null, 'none'), 'build'])
+  execute('xcodebuild', [...buildArguments('Debug', 'generic/platform=iOS Simulator', null, 'none'), 'build'])
   console.log(dryRun ? 'Check plan complete.' : 'Script tests, Swift tests and unsigned iOS Simulator build passed.')
 }
 
@@ -178,8 +178,8 @@ function install(simulator = false) {
     device = selectDevice(simulator && !options.device && booted.length === 1 ? booted : devices, options.device)
   }
   const directory = runDirectory(simulator ? 'simulator' : config.preview ? 'preview' : 'install', dryRun)
-  execute('xcodebuild', [...buildArguments('Debug', directory, `platform=${simulator ? 'iOS Simulator' : 'iOS'},id=${device.udid}`, config, simulator ? 'simulator' : 'device'), 'build'])
-  const app = join(directory, `DerivedData/Build/Products/${selectedConfiguration('Debug')}-${simulator ? 'iphonesimulator' : 'iphoneos'}/CarMirror.app`)
+  execute('xcodebuild', [...buildArguments('Debug', `platform=${simulator ? 'iOS Simulator' : 'iOS'},id=${device.udid}`, config, simulator ? 'simulator' : 'device'), 'build'])
+  const app = join(derivedDataRoot, `Build/Products/${selectedConfiguration('Debug')}-${simulator ? 'iphonesimulator' : 'iphoneos'}/CarMirror.app`)
   if (simulator) {
     if (device.state !== 'Booted') execute('xcrun', ['simctl', 'boot', device.udid])
     execute('xcrun', ['simctl', 'bootstatus', device.udid, '-b'])
@@ -213,7 +213,7 @@ function archive() {
   config.build = dryRun ? options.build || '<next local build number>' : reserveBuild(config.build, options.build)
   const directory = runDirectory('archive', dryRun)
   const path = join(directory, 'CarMirror.xcarchive')
-  execute('xcodebuild', [...buildArguments('Release', directory, 'generic/platform=iOS', config), '-archivePath', path, 'archive'])
+  execute('xcodebuild', [...buildArguments('Release', 'generic/platform=iOS', config), '-archivePath', path, 'archive'])
   verifyBundle(join(path, 'Products/Applications/CarMirror.app'), config)
   const record = { archive: path, ...config, createdAt: new Date().toISOString() }
   if (!dryRun) {
@@ -331,9 +331,10 @@ try {
   else {
     loadEnvironment()
     if (!dryRun) requireMac()
+    if (['upload', 'testflight'].includes(options.command)) authentication(true)
     const commands = { doctor, devices: showDevices, check, prepare: check, install: () => install(false), simulator: () => install(true),
       archive, export: () => exportArchive(existingArchive()), upload, testflight: upload }
-    commands[options.command]()
+    withNativeBuildLock(() => commands[options.command](), { dryRun })
   }
 } catch (error) {
   console.error(`\nCarMirror: ${error.message}`)
