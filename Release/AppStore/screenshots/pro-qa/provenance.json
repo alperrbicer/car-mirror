@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-04",
+  "sourceResult": "build/pro-resumed-tests.xcresult",
+  "device": "iPhone 17 Pro Max",
+  "runtime": "iOS 26.5",
+  "dimensions": [
+    1320,
+    2868
+  ],
+  "uiTest": "ProductUITests/testTurkishProductAndOfflineLegalFlows()",
+  "uiTestPassed": true,
+  "screenshotsEdited": false,
+  "uploaded": false,
+  "purchaseProductsVisible": false
+}

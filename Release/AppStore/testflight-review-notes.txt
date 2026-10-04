@@ -1,6 +1,6 @@
 Mirivo 1.0 — CarPlay Audio beta
 
-No Mirivo account or sign-in is required. This beta is free and ad-free. Pro purchases are disabled. Mirivo does not provide IPTV subscriptions, channel packages or service credentials.
+No Mirivo account or sign-in is required. This beta is ad-free. Pro purchases and restores should be tested using Apple sandbox; TestFlight purchases do not incur real charges. Settings > Mirivo Pro offers weekly, yearly and lifetime plans. Mirivo does not provide IPTV subscriptions, channel packages or service credentials.
 
 iPhone review steps:
 1. Open Sources (Kaynaklar) and choose Add source (Kaynak ekle).

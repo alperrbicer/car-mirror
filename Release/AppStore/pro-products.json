@@ -1,0 +1,120 @@
+{
+  "bundleId": "com.alperbicer.carmirror",
+  "appStoreAppId": "6818560405",
+  "subscriptionGroup": {
+    "referenceName": "Mirivo Pro",
+    "id": "22438082",
+    "sameLevelVerified": false,
+    "localizations": [
+      "tr",
+      "en-US"
+    ]
+  },
+  "revenueCat": {
+    "projectId": "7d9b6d16",
+    "appleAppSaved": false,
+    "blocker": "In-App Purchase Key ID and Issuer ID require owner authorization",
+    "offering": "default",
+    "productionProductMappingVerified": false
+  },
+  "products": [
+    {
+      "id": "com.alperbicer.carmirror.pro.weekly",
+      "appleId": "6818888654",
+      "type": "autoRenewable",
+      "period": "P1W",
+      "baseCountry": "USA",
+      "basePriceUSD": "1.99",
+      "availability": "all",
+      "localizations": {
+        "tr": {
+          "name": "Mirivo Pro Haftalık",
+          "description": "Sınırsız izleme ve kaynak, araç modu ve canlı altyazı."
+        },
+        "en-US": {
+          "name": "Mirivo Pro Weekly",
+          "description": "Unlimited viewing, sources, vehicle mode and captions."
+        }
+      },
+      "reviewScreenshotUploaded": false
+    },
+    {
+      "id": "com.alperbicer.carmirror.pro.yearly",
+      "appleId": "6818889933",
+      "type": "autoRenewable",
+      "period": "P1Y",
+      "billing": "upfront",
+      "baseCountry": "USA",
+      "basePriceUSD": "19.99",
+      "availability": "all",
+      "localizations": {
+        "tr": {
+          "name": "Mirivo Pro Yıllık",
+          "description": "Sınırsız izleme ve kaynak, araç modu ve canlı altyazı."
+        },
+        "en-US": {
+          "name": "Mirivo Pro Yearly",
+          "description": "Unlimited viewing, sources, vehicle mode and captions."
+        }
+      },
+      "reviewScreenshotUploaded": false
+    },
+    {
+      "id": "com.alperbicer.carmirror.pro.lifetime",
+      "appleId": "6818966443",
+      "type": "nonConsumable",
+      "baseCountry": "USA",
+      "localizations": {
+        "tr": {
+          "name": "Mirivo Pro Ömür Boyu",
+          "description": "Tek ödeme ile sınırsız izleme, kaynak ve Pro erişimi."
+        },
+        "en-US": {
+          "name": "Mirivo Pro Lifetime",
+          "description": "One payment for unlimited viewing, sources and Pro."
+        }
+      },
+      "reviewScreenshotUploaded": false,
+      "basePriceUSD": "39.99",
+      "availability": "all"
+    }
+  ],
+  "ownerOnly": [
+    "personal review contact",
+    "tax and banking details",
+    "agreements",
+    "Apple key permission",
+    "privacy declaration approval",
+    "price approval",
+    "Submit for Review"
+  ],
+  "versionMetadataSaved": [
+    "tr",
+    "en-US"
+  ],
+  "reviewNotesSaved": true,
+  "releaseMode": "manual",
+  "remainingTechnical": [
+    "same service level assignment",
+    "purchase review screenshots with visible plans",
+    "StoreKit runtime purchase verification",
+    "production RevenueCat product mapping after owner key authorization"
+  ],
+  "ownerApprovalRequired": [
+    "upload review screenshots",
+    "publish prepared support site ZIP",
+    "upload final IPA after RevenueCat configuration",
+    "privacy and price final approval",
+    "Submit for Review"
+  ],
+  "validation": {
+    "staticReleasePassed": true,
+    "turkishProductAndOfflineLegalUIPassed": true,
+    "keychainRoundTripPassed": true,
+    "storeKitPurchaseRestoreRefundPassed": false,
+    "iOS26StoreKitError": "SKInternalErrorDomain Code=3; CLI products empty/notEntitled",
+    "iOS27": "Device Hub display timeout / invalid device state",
+    "screenshotsDirectory": "Release/AppStore/screenshots/pro-qa",
+    "screenshotsUploaded": false
+  }
+}

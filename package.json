@@ -21,7 +21,7 @@
     "mobile:ios:testflight": "node scripts/ios.mjs testflight",
     "site:build": "python3 scripts/build_site.py",
     "release:check": "python3 scripts/verify_release.py",
-    "test:core": "swift test",
+    "test:core": "node scripts/test_core.mjs",
     "test:app": "node scripts/test_app.mjs"
   }
 }

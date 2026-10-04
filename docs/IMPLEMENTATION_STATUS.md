@@ -1,5 +1,10 @@
 # Mirivo · 2 Ekim 2026
 
+## 4 Ekim 2026 — Pro inceleme hazırlığı
+
+Kullanıcı ilk inceleme sürümünde Pro satışını istedi. Satış bayrağı YES; yakında metinleri kaldırıldı. RevenueCat SDK 5.92.0 ana uygulamaya StoreKit 2 işlem gözlemleme modunda eklendi; gerçek Apple SDK anahtarı/bağlantısı sahibin yetkilendirmesini bekler. StoreKit doğrulanmış işlemleri erişimi belirler. 1.0 (8) CarPlay Audio arşivi ve App Store IPA üretimi başarılı. 22 script testi, 42 Swift testi ve imzasız simülatör derlemesi geçti. Pro StoreKit/UI testleri simülatör açılışında ilerlemedi; gerçek satın alma ve uzantı erişimi doğrulanmadı. Güncel portal durumu ve kalanlar [PRO_RELEASE.md](PRO_RELEASE.md) içinde. Aşağıdaki önceki satış-kapalı kayıtları tarihsel build durumudur.
+
+
 Devam noktası ve bütün açık işler: [NEXT_STEPS.md](NEXT_STEPS.md).
 
 4 Ekim 2026 disk temizliği: geçmiş derleme klasörleri, `.xcresult` paketleri ve

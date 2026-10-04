@@ -240,7 +240,7 @@ final class MirrorModel: ObservableObject {
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil,
                    advanceAutomatically: Bool = false) -> Bool {
         accountViewingTime()
-        guard PurchaseStore.shared.verifiedPro || dailyRemaining > 0 else {
+        guard PurchaseStore.shared.access.fullAccess || dailyRemaining > 0 else {
             errorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
             return false
         }
@@ -286,11 +286,11 @@ final class MirrorModel: ObservableObject {
     private func accountViewingTime() {
         let now = Date()
         viewingBudget.record(from: viewingCheckpoint, to: now,
-                             playing: wasViewing && !PurchaseStore.shared.verifiedPro)
+                             playing: wasViewing && !PurchaseStore.shared.access.fullAccess)
         viewingCheckpoint = now
         dailyRemaining = viewingBudget.remaining
         if let data = try? JSONEncoder().encode(viewingBudget) { UserDefaults.standard.set(data, forKey: "dailyViewingBudget") }
-        if dailyRemaining == 0, !PurchaseStore.shared.verifiedPro, wasViewing {
+        if dailyRemaining == 0, !PurchaseStore.shared.access.fullAccess, wasViewing {
             wasViewing = false
             playback.stop()
             mediaTitle = nil

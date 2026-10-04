@@ -69,6 +69,7 @@
 		AF733C6BBD1A9304645F4918 /* GoogleCastUIResources.bundle in Copy Cast SDK resources */ = {isa = PBXBuildFile; fileRef = 3307D8A63180ADDA2C57F11C /* GoogleCastUIResources.bundle */; };
 		AF7D77F614BCD64A7B4F5637 /* PCMUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48519B80BB9C4242BA2940A0 /* PCMUtilities.swift */; };
 		B308AA757317EB12903EA2B9 /* ProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02587EE13CF8865D384BEEF /* ProView.swift */; };
+		B3F59409A6AD99E7EBD78430 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 50615A8DB1BD576581A4A1A9 /* RevenueCat */; };
 		B58D6F587D0325EB44FFAED0 /* Diagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6D59971C1F6473E6E95F41 /* Diagnostics.swift */; };
 		B61CCCBDCBDBE6D38866C192 /* CaptureStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558F6A9DFE25030AE3C65BBD /* CaptureStatus.swift */; };
 		BBBE94EC3DE68D36CCE0307C /* MediaByteRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46AF1281DEF6013248F11B05 /* MediaByteRange.swift */; };
@@ -321,6 +322,7 @@
 				21C3786F6C6FA99E9235472A /* Foundation.framework in Frameworks */,
 				9F0ABCE9AEF7873BE5269DDD /* VLCKit in Frameworks */,
 				D289CC7BE39AB2946DC88997 /* GoogleCast in Frameworks */,
+				B3F59409A6AD99E7EBD78430 /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -535,6 +537,7 @@
 			packageProductDependencies = (
 				AF3BAF61D08911B40537D51D /* VLCKit */,
 				BE949B2FF72971D7D7041663 /* GoogleCast */,
+				50615A8DB1BD576581A4A1A9 /* RevenueCat */,
 			);
 			productName = CarMirror;
 			productReference = 9777FF28174C1779DC4532F7 /* CarMirror.app */;
@@ -601,6 +604,7 @@
 			packageReferences = (
 				C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */,
 				66F102B481B0F26771A692C6 /* XCLocalSwiftPackageReference "GoogleCast" */,
+				C02B5C91332DB5B673E58BCD /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1C7BCF4B78485E347375FAC5 /* Products */;
@@ -1509,6 +1513,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C02B5C91332DB5B673E58BCD /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.43.0;
+			};
+		};
 		C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/videolan/vlckit.git";
@@ -1520,6 +1532,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		50615A8DB1BD576581A4A1A9 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C02B5C91332DB5B673E58BCD /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
 		AF3BAF61D08911B40537D51D /* VLCKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */;

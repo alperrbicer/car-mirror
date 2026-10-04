@@ -1,7 +1,7 @@
 {
   "tracking": false,
   "thirdPartyAdvertising": false,
-  "thirdPartyAnalyticsSDKs": false,
+  "thirdPartyAnalyticsSDKs": true,
   "developerBackend": false,
   "automaticDiagnosticsUpload": false,
   "onDevice": [
@@ -24,7 +24,7 @@
     "optional diagnostic export",
     "optional support email"
   ],
-  "privacyLabelPreparation": "No automatic off-device collection by the developer. Optional support must continue to satisfy Apple optional-disclosure criteria; confirm the real support workflow before portal declaration.",
+  "privacyLabelPreparation": "RevenueCat SDK 5.92.0 manifest: Purchase History for App Functionality, not linked to identity and not used for tracking. This integration uses anonymous IDs only, no login, customer attributes, IDFA, IDFV collection, attribution or third-party integrations. Confirm this declaration in App Store Connect after owner approves RevenueCat connection. See https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/apple-app-privacy",
   "requiredReasonAPIs": {
     "SystemBootTime": [
       "35F9.1"
@@ -39,5 +39,21 @@
   },
   "publicPrivacyPath": "/privacy.html",
   "publicSupportPath": "/support.html",
-  "publicTermsPath": "/terms.html"
+  "publicTermsPath": "/terms.html",
+  "purchaseProcessor": {
+    "name": "RevenueCat",
+    "enabledWhen": "MIRIVO_REVENUECAT_API_KEY contains an Apple public SDK key",
+    "data": [
+      "anonymous app user ID",
+      "purchase history and subscription status",
+      "technical device and connection information"
+    ],
+    "purpose": "app functionality and purchase analytics",
+    "excluded": [
+      "source credentials",
+      "screen content",
+      "audio",
+      "captions"
+    ]
+  }
 }

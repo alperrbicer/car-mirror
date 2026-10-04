@@ -39,7 +39,7 @@ export function argumentsFor(argv) {
   const command = args.length && !args[0].startsWith('-') ? args.shift() : 'help'
   if (command !== 'help' && !Object.hasOwn(commandOptions, command)) throw new Error(`Unknown command: ${command}. Use --help.`)
   const { values, positionals } = parseArgs({ args, strict: true, allowPositionals: true, options: {
-    help: { type: 'boolean', short: 'h' }, 'dry-run': { type: 'boolean' },
+    help: { type: 'boolean', short: 'h' }, 'dry-run': { type: 'boolean' }, 'keep-cache': { type: 'boolean' },
     device: { type: 'string' }, archive: { type: 'string' }, version: { type: 'string' }, build: { type: 'string' },
     preview: { type: 'boolean' }, 'carplay-video': { type: 'boolean' }, 'allow-provisioning-updates': { type: 'boolean' },
   } })
@@ -48,7 +48,7 @@ export function argumentsFor(argv) {
     values.device = positionals[0]
   }
   for (const [name, value] of Object.entries(values)) {
-    if (!['help', 'dry-run'].includes(name) && !commandOptions[command]?.includes(name)) throw new Error(`--${name} does not apply to ${command}.`)
+    if (!['help', 'dry-run', 'keep-cache'].includes(name) && !commandOptions[command]?.includes(name)) throw new Error(`--${name} does not apply to ${command}.`)
     if (typeof value === 'string' && !value.trim()) throw new Error(`--${name} requires a value.`)
   }
   if (values.version && !/^\d+(?:\.\d+){0,2}$/.test(values.version)) throw new Error('--version must look like 1.0 or 1.2.3.')
@@ -180,6 +180,17 @@ export function runDirectory(label, dryRun, directoryRoot = outputRoot) {
 }
 
 // All native entry points share one build database and dependency cache.
+export function cleanBuildCaches(projectRoot = root) {
+  for (const path of ['.build', 'build/cache', 'build/ModuleCache']) {
+    rmSync(join(projectRoot, path), { recursive: true, force: true })
+  }
+}
+
+export function withBuildCacheCleanup(action, { dryRun = false, keepCache = false, projectRoot = root } = {}) {
+  try { return action() }
+  finally { if (!dryRun && !keepCache) cleanBuildCaches(projectRoot) }
+}
+
 export function withNativeBuildLock(action, { dryRun = false, directory = join(root, 'build') } = {}) {
   if (dryRun) return action()
   mkdirSync(directory, { recursive: true })

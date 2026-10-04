@@ -44,7 +44,7 @@ for name,video in [('CarPlayAudio',False),('CarPlay',True)]:
  if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append(f'{name}: Audio entitlement missing')
  if (entitlements.get('com.apple.developer.carplay-video') is True)!=video:errors.append(f'{name}: Video entitlement does not match build mode')
 base=(ROOT/'Config/Base.xcconfig').read_text()
-if not re.search(r'^MIRIVO_PRO_SALES_ENABLED = NO$',base,re.M):errors.append('First release must keep Pro sales disabled')
+if not re.search(r'^MIRIVO_PRO_SALES_ENABLED = YES$',base,re.M):errors.append('Pro release must enable sales')
 if not re.search(r'^MARKETING_VERSION = 1.0$',base,re.M):errors.append('Version must match App Store Connect 1.0')
 languages=json.loads((ROOT/'Config/Localizations.json').read_text())
 if len(languages)!=22 or len(set(languages))!=22:errors.append('Expected 22 shipping languages')

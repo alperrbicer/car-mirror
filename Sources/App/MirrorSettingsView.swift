@@ -36,7 +36,7 @@ struct MirrorSettingsView: View {
                         HStack {
                             Label(L10n.tr("Mirivo Pro"), systemImage: "sparkles")
                             Spacer()
-                            Text(L10n.tr(purchases.verifiedPro ? "Etkin" : purchases.salesEnabled ? "Keşfet" : "Yakında"))
+                            Text(L10n.tr(purchases.verifiedPro ? "Etkin" : "Keşfet"))
                                 .font(.caption).foregroundStyle(MirrorStyle.accent)
                         }
                     }

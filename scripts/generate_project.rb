@@ -26,6 +26,19 @@ vlc_build = project.new(Xcodeproj::Project::Object::PBXBuildFile)
 vlc_build.product_ref = vlc_product
 app.frameworks_build_phase.files << vlc_build
 
+# RevenueCat observes the app's verified StoreKit 2 transactions.
+revenuecat = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+revenuecat.repositoryURL = 'https://github.com/RevenueCat/purchases-ios.git'
+revenuecat.requirement = {'kind' => 'upToNextMajorVersion', 'minimumVersion' => '5.43.0'}
+project.root_object.package_references << revenuecat
+rc_product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+rc_product.package = revenuecat
+rc_product.product_name = 'RevenueCat'
+app.package_product_dependencies << rc_product
+rc_build = project.new(Xcodeproj::Project::Object::PBXBuildFile)
+rc_build.product_ref = rc_product
+app.frameworks_build_phase.files << rc_build
+
 [app, broadcast].each do |target|
   %w[Debug-CarPlay Release-CarPlay].each { |name| target.add_build_configuration(name, name.start_with?('Debug') ? :debug : :release) }
   target.build_configurations.each do |config|

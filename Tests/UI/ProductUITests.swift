@@ -249,8 +249,11 @@ final class ProductUITests: XCTestCase {
         app.buttons["open-settings"].tap()
         capture("04-mirivo-settings-tr", app: app)
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Pro")).firstMatch.tap()
-        XCTAssertTrue(app.staticTexts["Pro yakında"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Satın al")).firstMatch.exists)
+        if app.alerts.firstMatch.waitForExistence(timeout: 3) {
+            app.alerts.firstMatch.buttons["Tamam"].tap()
+        }
+        XCTAssertTrue(app.buttons["Satın alımları geri yükle"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Pro yakında"].exists)
         capture("05-mirivo-pro-tr", app: app)
         app.navigationBars.buttons.element(boundBy: 0).tap()
         reveal(app.buttons["Gizlilik Politikası"], in: app)

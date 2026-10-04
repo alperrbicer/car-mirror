@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   argumentsFor, carPlayModeFromInfo, configurationFromSettings, exportPlist, parsePlist, parseProfile,
-  physicalPhones, reserveBuild, root, runDirectory, selectDevice, validateProfile, withNativeBuildLock,
+  physicalPhones, reserveBuild, root, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock,
 } from '../../scripts/deployment-lib.mjs'
 
 const team = 'TEAM123456'
@@ -38,7 +38,7 @@ function temporary(t) {
 function isolatedCLI(t) {
   const directory = temporary(t)
   mkdirSync(join(directory, 'scripts'))
-  for (const file of ['ios.mjs', 'deployment-lib.mjs', 'test_app.mjs', 'clean_build.mjs']) copyFileSync(join(root, 'scripts', file), join(directory, 'scripts', file))
+  for (const file of ['ios.mjs', 'deployment-lib.mjs', 'test_app.mjs', 'test_core.mjs', 'clean_build.mjs']) copyFileSync(join(root, 'scripts', file), join(directory, 'scripts', file))
   return { directory, script: join(directory, 'scripts/ios.mjs'), env: { ...process.env, MIRROR_TEAM_ID: '',
     APP_STORE_CONNECT_KEY_ID: '', APP_STORE_CONNECT_ISSUER_ID: '', APP_STORE_CONNECT_PRIVATE_KEY_PATH: '' } }
 }
@@ -254,9 +254,61 @@ test('shared cache lock refuses overlapping commands and releases after failures
   assert.equal(withNativeBuildLock(() => 'ready', { directory }), 'ready')
 })
 
+test('build caches are removed after success or failure without deleting release or report files', t => {
+  const directory = temporary(t)
+  const retained = ['build/deploy/release/App.ipa', 'build/deploy/last-build.json', 'build/app-tests.xcresult/report']
+  for (const path of retained) {
+    mkdirSync(join(directory, path, '..'), { recursive: true })
+    writeFileSync(join(directory, path), 'keep')
+  }
+  for (const fail of [false, true]) {
+    const action = () => {
+      for (const path of ['.build', 'build/cache/SourcePackages', 'build/ModuleCache']) {
+        mkdirSync(join(directory, path), { recursive: true })
+        writeFileSync(join(directory, path, 'artifact'), 'large')
+      }
+      if (fail) throw new Error('native failed')
+      return 17
+    }
+    if (fail) assert.throws(() => withBuildCacheCleanup(action, { projectRoot: directory }), /native failed/)
+    else assert.equal(withBuildCacheCleanup(action, { projectRoot: directory }), 17)
+    for (const path of ['.build', 'build/cache', 'build/ModuleCache']) assert.equal(existsSync(join(directory, path)), false)
+    for (const path of retained) assert.equal(readFileSync(join(directory, path), 'utf8'), 'keep')
+  }
+})
+
+test('cache retention is explicit and dry runs never delete existing caches', t => {
+  assert.equal(argumentsFor(['install', '--keep-cache'])['keep-cache'], true)
+  const directory = temporary(t)
+  mkdirSync(join(directory, 'build/cache'), { recursive: true })
+  writeFileSync(join(directory, 'build/cache/artifact'), 'keep')
+  for (const options of [{ keepCache: true }, { dryRun: true }]) {
+    withBuildCacheCleanup(() => {}, { projectRoot: directory, ...options })
+    assert.equal(readFileSync(join(directory, 'build/cache/artifact'), 'utf8'), 'keep')
+  }
+})
+
+test('core test entry point cleans compiler output by default and preserves it only on request', t => {
+  const fixture = isolatedCLI(t)
+  const binaries = join(fixture.directory, 'bin'); mkdirSync(binaries)
+  const fake = join(binaries, 'xcrun')
+  writeFileSync(fake, `#!${process.execPath}
+import {mkdirSync, writeFileSync} from 'node:fs';
+mkdirSync('.build', {recursive:true}); writeFileSync('.build/artifact','large');
+`)
+  chmodSync(fake, 0o755)
+  for (const flags of [[], ['--keep-cache']]) {
+    const result = spawnSync(process.execPath, [join(fixture.directory, 'scripts/test_core.mjs'), ...flags], {
+      env: { ...fixture.env, PATH: binaries }, encoding: 'utf8',
+    })
+    assert.equal(result.status, 0, result.stderr)
+    assert.equal(existsSync(join(fixture.directory, '.build/artifact')), flags.length > 0)
+  }
+})
+
 test('clean removes caches while retaining release files and the build counter', t => {
   const fixture = isolatedCLI(t)
-  const disposable = ['.build/cache', 'build/cache/SourcePackages/artifact', 'build/ModuleCache/module',
+  const disposable = ['.build/cache', 'build/cache/SourcePackages/artifact', 'build/ModuleCache/module', 'build/pro-tests-fresh.xcresult/report',
     'build/deploy/runs/install/install.json', 'build/app-tests.xcresult/result']
   const retained = ['build/deploy/last-build.json', 'build/deploy/latest-archive.json',
     'build/deploy/release/CarMirror.xcarchive/archive', 'build/deploy/release/CarMirror.ipa', 'build/deploy/upload.json']

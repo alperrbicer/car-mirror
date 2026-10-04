@@ -183,16 +183,23 @@ yapılır. Çıktılar ve başarılı işlem kayıtları `build/deploy/` altınd
 
 Kurulum, kontrol, arşiv ve uygulama testleri `build/cache/DerivedData` derleme
 önbelleğini ve `build/cache/SourcePackages` bağımlılıklarını ortak kullanır.
-Her kurulum için bağımlılıklar yeniden kopyalanmaz. Kurulum/önizleme/simülatör
+Bu önbellekler komut tamamlandığında veya hata verdiğinde varsayılan olarak
+silinir; `.build` ve modül önbellekleri de temizlenir. Art arda geliştirme
+derlemelerinde önbelleği tutmak için `--keep-cache` ver; bu seçenek gigabaytlarca
+dosyayı yerelde bırakabilir. Varsayılan temizlik sonraki derlemede bağımlılıkların
+yeniden indirilmesini ve derlenmesini gerektirebilir. Derleme sürerken geçici
+disk kullanımı yine yüksek olabilir. Kurulum/önizleme/simülatör
 JSON kayıtları `build/deploy/runs/` altında son çalıştırmayla yenilenir;
 `test:app` yalnızca son `build/app-tests.xcresult` raporunu tutar. Ortak önbelleği
 kullanan komutlar aynı anda çalıştırılamaz. Bir komut zorla kapatıldıysa ve başka
 derleme çalışmıyorsa `build/.native-build.lock` dosyasını silerek tekrar dene.
 
-`bun run clean` yeniden üretilebilir önbellekleri ve son uygulama testi raporunu
+`bun run clean` yeniden üretilebilir önbellekleri ve `build/` altındaki test raporlarını
 siler; yayın arşivlerini, IPA dosyalarını, yükleme kayıtlarını ve build sayacını
 korur. Sonraki derlemede önbellekler yeniden oluşturulur. Başarılı yayın çıktıları
 otomatik silinmez; saklama ihtiyacı bittiğinde ayrıca temizlenebilir.
+Bu politika `scripts/ios.mjs`, `test:app` ve `test:core` komutlarında uygulanır;
+doğrudan `xcodebuild` veya `swift test` çağrıları bu temizliği çalıştırmaz.
 
 Başarılı upload sonrasında Apple'ın build'i işlemesini bekle. TestFlight test
 grupları, ihracat uyumu soruları, mağaza bilgileri, ekran görüntüleri ve App Review

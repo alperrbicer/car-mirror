@@ -22,7 +22,7 @@ AppStore/tr ve AppStore/en: alan uzunlukları kontrol edilmiş metadata JSON dos
 AppStore/review-notes.txt: inceleme hazırlığı, gerçek araç kanıtı eklenmeden gönderilmez.
 AppStore/privacy-inventory.json: mevcut veri akışının envanteri.
 
-Pro satışları kullanıcı kararıyla kapalıdır; ilk sürümde özellikler açık ve reklamsızdır.
+4 Ekim 2026 kararıyla Pro satış ekranı açıktır. Ücretsiz ve Pro sürümler reklamsızdır. Güncel hazırlık ve kalan portal adımları: docs/PRO_RELEASE.md.
 Tests/App/Mirivo.storekit içindeki fiyatlar yalnızca yerel test verisidir; satış fiyatı değildir.
 Haftalık, yıllık ve ömür boyu ürünler daha sonra App Store Connect'te oluşturulup
 fiyatlandırılacak; gerçek fiyatlar StoreKit'ten alınacak.

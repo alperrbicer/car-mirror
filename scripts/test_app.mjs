@@ -3,17 +3,17 @@ import { spawnSync } from 'node:child_process'
 import { mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
-import { derivedDataRoot, packageCacheRoot, withNativeBuildLock } from './deployment-lib.mjs'
+import { derivedDataRoot, packageCacheRoot, withBuildCacheCleanup, withNativeBuildLock } from './deployment-lib.mjs'
 const root = fileURLToPath(new URL('..', import.meta.url))
-const device = process.argv[2]
-const uiOnly = process.argv[3] === '--ui-only'
-if (!device || !/^[0-9a-f-]{36}$/i.test(device) || (process.argv[3] && !uiOnly) || process.argv.length > 4) {
-  console.error('Usage: node scripts/test_app.mjs SIMULATOR_UDID [--ui-only]\nUse a working StoreKit Test runtime for purchase tests. --ui-only also works on iOS 26.5.')
+const [device, ...flags] = process.argv.slice(2)
+const uiOnly = flags.includes('--ui-only')
+if (!device || !/^[0-9a-f-]{36}$/i.test(device) || flags.some(flag => !['--ui-only', '--keep-cache'].includes(flag))) {
+  console.error('Usage: node scripts/test_app.mjs SIMULATOR_UDID [--ui-only] [--keep-cache]\nUse a working StoreKit Test runtime for purchase tests. --ui-only also works on iOS 26.5.')
   process.exit(1)
 }
 const results = join(root, 'build/app-tests.xcresult')
 try {
-  const status = withNativeBuildLock(() => {
+  const status = withNativeBuildLock(() => withBuildCacheCleanup(() => {
     mkdirSync(join(root, 'build'), { recursive: true })
     rmSync(results, { recursive: true, force: true })
     const run = spawnSync('xcodebuild', ['-project', join(root, 'CarMirror.xcodeproj'), '-scheme', 'CarMirror',
@@ -22,7 +22,7 @@ try {
       ...(uiOnly ? ['-only-testing:MirivoUITests'] : []),
       `CODE_SIGN_ENTITLEMENTS=${join(root, 'Config/App.entitlements')}`, 'CODE_SIGN_IDENTITY=-', 'test'], { stdio: 'inherit' })
     return run.status ?? 1
-  })
+  }, { keepCache: flags.includes('--keep-cache') }))
   process.exitCode = status
 } catch (error) {
   console.error(error.message)

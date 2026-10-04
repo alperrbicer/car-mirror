@@ -4,7 +4,6 @@ import StoreKit
 struct ProView: View {
     @ObservedObject private var store = PurchaseStore.shared
     @State private var selectedID = ProProduct.lifetime.rawValue
-    @Environment(\.dismiss) private var dismiss
     private let benefits: [(String, String, String)] = [
         ("play.rectangle", "Sınırsız izleme", "Pro ile günlük izleme sınırı olmadan devam et."),
         ("infinity", "Sınırsız kaynak", "Oynatma listelerini, yayın bağlantılarını ve IPTV sunucularını bir arada tut."),
@@ -42,13 +41,10 @@ struct ProView: View {
                 }.padding(22).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 26))
                 if store.verifiedPro {
                     Label(L10n.tr("Pro etkin"), systemImage: "checkmark.seal.fill").foregroundStyle(MirrorStyle.accent)
-                } else if !store.salesEnabled {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.tr("Pro yakında")).font(.headline)
-                        Text(L10n.tr("Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok.")).foregroundStyle(MirrorStyle.secondary)
-                    }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(MirrorStyle.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 22))
                 } else {
+                    if store.busy && store.products.isEmpty {
+                        ProgressView().frame(maxWidth: .infinity).padding(20)
+                    }
                     ForEach(store.products, id: \.id) { product in
                         Button { selectedID = product.id } label: {
                             HStack(spacing: 14) {
@@ -58,7 +54,7 @@ struct ProView: View {
                                     Text(L10n.tr(product.type == .nonConsumable ? "Tek seferlik ödeme" : "Otomatik yenilenir; istediğin zaman iptal et.")).font(.caption)
                                 }
                                 Spacer()
-                                Text(product.displayPrice).font(.title3.weight(.semibold))
+                                Text(price(product)).font(.title3.weight(.semibold))
                             }.padding(20).frame(maxWidth: .infinity)
                                 .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 22))
                                 .overlay { RoundedRectangle(cornerRadius: 22).stroke(selectedID == product.id ? MirrorStyle.accent : .clear, lineWidth: 1.5) }
@@ -77,6 +73,8 @@ struct ProView: View {
                             .buttonStyle(MirivoButtonStyle())
                     }
                 }
+                Text(L10n.tr("Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok."))
+                    .font(.footnote).foregroundStyle(MirrorStyle.secondary)
                 VStack(spacing: 16) {
                     if store.salesEnabled || store.verifiedPro {
                         Button(L10n.tr("Satın alımları geri yükle")) { Task { await store.restore() } }
@@ -99,6 +97,11 @@ struct ProView: View {
         .alert(L10n.tr("Mirivo Pro"), isPresented: Binding(get: { store.message != nil }, set: { if !$0 { store.message = nil } })) {
             Button(L10n.tr("Tamam")) { store.message = nil }
         } message: { Text(store.message ?? "") }
+    }
+    private func price(_ product: Product) -> String {
+        let period = product.id == ProProduct.weekly.rawValue ? L10n.tr("Haftalık")
+            : product.id == ProProduct.yearly.rawValue ? L10n.tr("Yıllık") : ""
+        return period.isEmpty ? product.displayPrice : "\(product.displayPrice) · \(period)"
     }
     private func title(_ product: Product) -> String {
         L10n.tr(product.id == ProProduct.weekly.rawValue ? "Haftalık" : product.id == ProProduct.yearly.rawValue ? "Yıllık" : "Ömür boyu")

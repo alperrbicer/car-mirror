@@ -5,7 +5,7 @@ import { join, resolve, sep } from 'node:path'
 import {
   argumentsFor, carPlayKeys, carPlayEntitlementFiles, carPlayModeFromInfo, requiredCarPlayKeys, configurationFromSettings, exportPlist, filePath, loadEnvironment,
   outputRoot, derivedDataRoot, packageCacheRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
-  reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withNativeBuildLock, writeJson,
+  reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock, writeJson,
 } from './deployment-lib.mjs'
 
 const project = ['-project', join(root, 'CarMirror.xcodeproj'), '-scheme', 'CarMirror']
@@ -40,6 +40,7 @@ testflight  mobile:ios:testflight     Alias for upload
 --carplay-video            Explicit Audio + Video build; requires both Apple capabilities
 --allow-provisioning-updates  Allow Xcode to update signing profiles using Apple
 --dry-run                  Print the plan without running commands or writing files
+--keep-cache               Keep build caches for repeated development builds
 
 Setup and examples: ${join(root, 'docs/DEPLOYMENT.md')}
 The default build requires CarPlay Audio. --carplay-video additionally requires Video.
@@ -334,7 +335,9 @@ try {
     if (['upload', 'testflight'].includes(options.command)) authentication(true)
     const commands = { doctor, devices: showDevices, check, prepare: check, install: () => install(false), simulator: () => install(true),
       archive, export: () => exportArchive(existingArchive()), upload, testflight: upload }
-    withNativeBuildLock(() => commands[options.command](), { dryRun })
+    withNativeBuildLock(() => withBuildCacheCleanup(() => commands[options.command](), {
+      dryRun, keepCache: Boolean(options['keep-cache']),
+    }), { dryRun })
   }
 } catch (error) {
   console.error(`\nCarMirror: ${error.message}`)

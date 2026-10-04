@@ -1,22 +1,33 @@
 import StoreKit
+import RevenueCat
 import SwiftUI
 
 @MainActor
 final class PurchaseStore: ObservableObject {
-    static let shared = PurchaseStore()
+    static let shared = PurchaseStore(observeRevenueCat: true)
     @Published private(set) var products: [Product] = []
     @Published private(set) var verifiedPro = false
     @Published private(set) var busy = false
     @Published var message: String?
     let salesEnabled: Bool
+    private let observeRevenueCat: Bool
     private var updates: Task<Void, Never>?
     var access: ProductAccess { ProductAccess(salesEnabled: salesEnabled, verifiedPro: verifiedPro) }
 
-    init(salesEnabled: Bool = SharedPreferences.salesEnabled) {
+    init(salesEnabled: Bool = SharedPreferences.salesEnabled, observeRevenueCat: Bool = false) {
         self.salesEnabled = salesEnabled
+        let key = (Bundle.main.object(forInfoDictionaryKey: "CMRevenueCatAPIKey") as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        // Apple SDK keys only. Test Store keys must never ship in the App Store app.
+        self.observeRevenueCat = observeRevenueCat && salesEnabled && key.hasPrefix("appl_")
+        if self.observeRevenueCat && !Purchases.isConfigured {
+            Purchases.logLevel = .warn
+            Purchases.configure(with: Configuration.Builder(withAPIKey: key)
+                .with(purchasesAreCompletedBy: .myApp, storeKitVersion: .storeKit2)
+                .build())
+        }
         updates = Task { [weak self] in
             await self?.refresh()
-            for await result in Transaction.updates {
+            for await result in StoreKit.Transaction.updates {
                 guard !Task.isCancelled else { return }
                 if case .verified(let transaction) = result,
                    ProProduct(rawValue: transaction.productID) != nil {
@@ -35,7 +46,7 @@ final class PurchaseStore: ObservableObject {
 
     func loadProducts() async {
         guard salesEnabled, !busy else { return }
-        busy = true; defer { busy = false }
+        busy = true; message = nil; defer { busy = false }
         do {
             let loaded = try await Product.products(for: ProProduct.allCases.map(\.rawValue))
             products = ProProduct.allCases.compactMap { id in loaded.first { $0.id == id.rawValue } }
@@ -53,6 +64,7 @@ final class PurchaseStore: ObservableObject {
             case .success(.verified(let transaction)):
                 await refresh()
                 await transaction.finish()
+                await syncRevenueCat()
                 if !verifiedPro { message = L10n.tr("Satın alma henüz doğrulanamadı. Satın alımları geri yükleyebilirsin.") }
             case .success(.unverified): message = L10n.tr("Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et.")
             case .pending: message = L10n.tr("Satın alma onay bekliyor. Onaylandığında Pro otomatik açılacak.")
@@ -68,7 +80,16 @@ final class PurchaseStore: ObservableObject {
         do {
             try await AppStore.sync()
             await refresh()
+            await syncRevenueCat()
             message = L10n.tr(verifiedPro ? "Pro satın alımın geri yüklendi." : "Bu Apple hesabında etkin Pro satın alımı bulunamadı.")
         } catch { message = L10n.tr("Satın alımlar geri yüklenemedi. Yeniden deneyebilirsin.") }
     }
+
+    private func syncRevenueCat() async {
+        guard observeRevenueCat, Purchases.isConfigured else { return }
+        // RevenueCat observes transactions; StoreKit remains the authority for phone
+        // and ReplayKit access, including refunds and expiry while offline.
+        _ = try? await Purchases.shared.syncPurchases()
+    }
+
 }
