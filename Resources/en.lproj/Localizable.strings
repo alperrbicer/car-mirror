@@ -176,7 +176,6 @@
 "Dil bul" = "Find a language";
 "Dil bulunamadı" = "No languages found";
 "Başka bir ad veya dil kodu dene." = "Try another name or language code.";
-"Belge dili" = "Document language";
 "Ekran paylaşımı durduruldu." = "Screen sharing stopped.";
 "Şu An Çalıyor" = "Now Playing";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Play queue";
 "Önceki" = "Previous";
 "Sonraki" = "Next";
+
+// Updates and notifications
+"Bildirimler" = "Notifications";
+"Bildirimler henüz kullanılamıyor." = "Notifications are not available yet.";
+"Bildirimler kapalı." = "Notifications are off.";
+"Bildirim izni bekleniyor." = "Waiting for notification permission.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Allow notifications in iOS Settings.";
+"Bildirimler hazırlanıyor…" = "Setting up notifications…";
+"Bildirimler açık." = "Notifications are on.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Notification registration failed. Try again.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "The server could not be reached to turn notifications off. We will retry when connected.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Receive release and product announcements. Your media and source addresses are never sent to the notification server.";
+"iOS Ayarlarını aç" = "Open iOS Settings";
+"Güncelleme gerekli" = "Update required";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Download the new version of Mirivo from the App Store to continue.";
+"App Store’da güncelle" = "Update in the App Store";
+"Yeniden kontrol et" = "Check again";
+"App Store açılamadı. Lütfen yeniden dene." = "The App Store could not be opened. Please try again.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Usage analytics";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Share usage statistics to help improve Mirivo. Media, source addresses and search text are not sent. You can turn this off anytime.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Billed once per year; renews automatically.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "A lifetime purchase does not automatically cancel your existing subscription. You can cancel it in your Apple account.";

@@ -1,3 +1,5 @@
+Tarihsel 4 Ekim QA görüntüleridir. Yerel belge ekranları 5 Ekim değişikliğinden sonra güncel uygulamayı temsil etmez; yeni inceleme için kullanılmamalıdır. Güncel Pro ekranları ../pro-plans altında.
+
 Gerçek simülatör ekran görüntüleri; görüntülere ürün veya fiyat eklenmedi.
 Türkçe ürün/çevrimdışı hukuk arayüz testi geçti.
 05-mirivo-pro-tr.png özellikleri gösteriyor; StoreKit ürün listesi boş olduğundan fiyat ve satın alma planı görünmüyor.

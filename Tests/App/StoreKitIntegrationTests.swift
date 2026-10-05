@@ -18,11 +18,13 @@ final class StoreKitIntegrationTests: XCTestCase {
         defer { session.clearTransactions() }
         let store = PurchaseStore(salesEnabled: true)
         await store.loadProducts()
-        XCTAssertEqual(store.products.count, 3)
+        XCTAssertEqual(store.products.map(\.id), ProProduct.forSale.map(\.rawValue))
         let product = try XCTUnwrap(store.products.first { $0.id == ProProduct.lifetime.rawValue })
         await store.purchase(product)
         await store.refresh()
         XCTAssertTrue(store.verifiedPro)
+        XCTAssertTrue(store.lifetimeOwned)
+        XCTAssertFalse(store.canPurchase(product))
         let restored = PurchaseStore(salesEnabled: true)
         await restored.restore()
         XCTAssertTrue(restored.verifiedPro)
@@ -34,13 +36,36 @@ final class StoreKitIntegrationTests: XCTestCase {
     func testSubscriptionExpiryRemovesAccess() async throws {
         let session = try session()
         defer { session.clearTransactions() }
-        _ = try await session.buyProduct(identifier: ProProduct.weekly.rawValue)
+        _ = try await session.buyProduct(identifier: ProProduct.yearly.rawValue)
         let store = PurchaseStore(salesEnabled: true)
         await store.refresh()
         XCTAssertTrue(store.verifiedPro)
-        try session.expireSubscription(productIdentifier: ProProduct.weekly.rawValue)
+        try session.expireSubscription(productIdentifier: ProProduct.yearly.rawValue)
         await store.refresh()
         XCTAssertFalse(store.verifiedPro)
+    }
+    func testYearlyPurchaseRestoreAndLifetimeUpgrade() async throws {
+        let session = try session()
+        defer { session.clearTransactions() }
+        let store = PurchaseStore(salesEnabled: true)
+        await store.loadProducts()
+        let yearly = try XCTUnwrap(store.products.first { $0.id == ProProduct.yearly.rawValue })
+        let lifetime = try XCTUnwrap(store.products.first { $0.id == ProProduct.lifetime.rawValue })
+        await store.purchase(yearly)
+        XCTAssertTrue(store.subscriptionActive)
+        XCTAssertFalse(store.canPurchase(yearly))
+        XCTAssertTrue(store.canPurchase(lifetime))
+        let restored = PurchaseStore(salesEnabled: true)
+        await restored.restore()
+        XCTAssertTrue(restored.subscriptionActive)
+        await store.purchase(lifetime)
+        XCTAssertTrue(store.lifetimeOwned)
+        // Buying lifetime does not cancel Apple's existing annual subscription.
+        try session.expireSubscription(productIdentifier: ProProduct.yearly.rawValue)
+        await store.refresh()
+        XCTAssertTrue(store.verifiedPro)
+        XCTAssertTrue(store.lifetimeOwned)
+        XCTAssertFalse(store.subscriptionActive)
     }
     func testDisabledSalesCannotStartPurchase() async throws {
         let session = try session()

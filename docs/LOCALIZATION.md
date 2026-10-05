@@ -8,7 +8,7 @@ Türkçe (`tr`), İngilizce (`en`), Basitleştirilmiş Çince (`zh-Hans`), Gelen
 
 Uygulama dili ayarlardan aranarak seçilir veya sistem tercihleri izlenir. Dilin kendi adı, seçili dildeki adı, İngilizce adı veya kodu aranabilir. Bölgesel dil kodları desteklenen uygulama diline eşlenir. Çince için açık yazı sistemi bölgeden önce gelir; Tayvan, Hong Kong ve Makao varsayılan olarak geleneksel Çince kullanır. Portekizce Brezilya çevirisine eşlenir. Desteklenmeyen tercihlerde listedeki sonraki desteklenen dil, hiçbiri yoksa İngilizce kullanılır.
 
-Arayüz ve yayın uzantısı aynı çevirileri kullanır. Sistem satın alma, ReplayKit ve yerel oynatıcı denetimlerinin dili iOS tarafından yönetilir. Hukuki belgeler ve yardım içeriği Türkçe/İngilizce sunulur; belge görünümünde dil seçimi vardır. Yeni altı arayüz dili, cihazın altı yeni SpeechAnalyzer konuşma modeli desteklediği anlamına gelmez.
+Arayüz ve yayın uzantısı aynı çevirileri kullanır. Sistem satın alma, ReplayKit ve yerel oynatıcı denetimlerinin dili iOS tarafından yönetilir. Hukuki belgeler ve yardım içeriği Türkçe/İngilizce sunulur; uygulama Türkçe arayüz için /tr/, diğer diller için /en/ Netlify sayfalarını açar. Dil değişimi site üzerinden yapılır. Yeni altı arayüz dili, cihazın altı yeni SpeechAnalyzer konuşma modeli desteklediği anlamına gelmez.
 
 Arapça ve İbranice, ana arayüz ve gerçek harici ekranın SwiftUI görünümünde sağdan sola düzen kullanır. Kaynak adı doğal metin yönünü korur; URL, kullanıcı adı ve parola alanları soldan sağa düzenlenir. İngilizce/Türkçe HTML belgeleri kendi metin yönlerini korur. CarPlay şablonlarının ve sistem oynatıcısının düzenini iOS yönetir.
 
@@ -30,3 +30,5 @@ Güncel kaynakta her dilde 207 uygulama metni ve yerel ağ izin açıklaması bu
 - Fiziksel cihaz, harici ekran ve araç kabulü bu çalışmada yapılmadı.
 
 2 Ekim’deki önceki 16 dil koşuları ve son belge gezinme kontrolünün açık durumu `docs/IMPLEMENTATION_STATUS.md` içinde tarihsel kayıt olarak korunur. Bu sonuçlar yeni altı dilin doğrulaması olarak kullanılmaz.
+
+5 Ekim 2026: Yerel belge görüntüleyicisi kaldırıldı. Arapça/İbranice gizlilik bağlantıları Safari’de İngilizce Netlify sayfasını açtı (`testRightToLeftWebsiteFallback`, `build/netlify-links-ui-verified-20261005.log`, test bazında geçti). Eski çevrimdışı belge testleri tarihsel kayıttır.

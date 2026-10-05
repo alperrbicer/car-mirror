@@ -176,7 +176,6 @@
 "Dil bul" = "Cerca una lingua";
 "Dil bulunamadı" = "Nessuna lingua trovata";
 "Başka bir ad veya dil kodu dene." = "Prova un altro nome o codice lingua.";
-"Belge dili" = "Lingua del documento";
 "Ekran paylaşımı durduruldu." = "Condivisione schermo interrotta.";
 "Şu An Çalıyor" = "In riproduzione";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Coda di riproduzione";
 "Önceki" = "Precedente";
 "Sonraki" = "Successivo";
+
+// Updates and notifications
+"Bildirimler" = "Notifiche";
+"Bildirimler henüz kullanılamıyor." = "Le notifiche non sono ancora disponibili.";
+"Bildirimler kapalı." = "Le notifiche sono disattivate.";
+"Bildirim izni bekleniyor." = "In attesa del permesso per le notifiche.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Consenti le notifiche nelle Impostazioni iOS.";
+"Bildirimler hazırlanıyor…" = "Configurazione delle notifiche…";
+"Bildirimler açık." = "Le notifiche sono attivate.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Registrazione delle notifiche non riuscita. Riprova.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Impossibile raggiungere il server per disattivarle. Riproveremo alla connessione.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Ricevi annunci su versioni e prodotti. I tuoi contenuti e indirizzi delle fonti non vengono inviati al server delle notifiche.";
+"iOS Ayarlarını aç" = "Apri Impostazioni iOS";
+"Güncelleme gerekli" = "Aggiornamento richiesto";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Scarica la nuova versione di Mirivo dall’App Store per continuare.";
+"App Store’da güncelle" = "Aggiorna nell’App Store";
+"Yeniden kontrol et" = "Controlla di nuovo";
+"App Store açılamadı. Lütfen yeniden dene." = "Impossibile aprire l’App Store. Riprova.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Analisi di utilizzo";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Condividi statistiche per migliorare Mirivo. Contenuti, indirizzi delle fonti e ricerche non vengono inviati. Puoi disattivare la condivisione in qualsiasi momento.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Addebitato una volta all’anno; rinnovo automatico.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "L’acquisto a vita non annulla automaticamente il tuo abbonamento attuale. Puoi annullarlo nel tuo account Apple.";

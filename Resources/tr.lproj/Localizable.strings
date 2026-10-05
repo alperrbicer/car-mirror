@@ -176,7 +176,6 @@
 "Dil bul" = "Dil bul";
 "Dil bulunamadı" = "Dil bulunamadı";
 "Başka bir ad veya dil kodu dene." = "Başka bir ad veya dil kodu dene.";
-"Belge dili" = "Belge dili";
 "Ekran paylaşımı durduruldu." = "Ekran paylaşımı durduruldu.";
 "Şu An Çalıyor" = "Şu An Çalıyor";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Oynatma sırası";
 "Önceki" = "Önceki";
 "Sonraki" = "Sonraki";
+
+// Updates and notifications
+"Bildirimler" = "Bildirimler";
+"Bildirimler henüz kullanılamıyor." = "Bildirimler henüz kullanılamıyor.";
+"Bildirimler kapalı." = "Bildirimler kapalı.";
+"Bildirim izni bekleniyor." = "Bildirim izni bekleniyor.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Bildirim izni iOS Ayarları’ndan açılmalı.";
+"Bildirimler hazırlanıyor…" = "Bildirimler hazırlanıyor…";
+"Bildirimler açık." = "Bildirimler açık.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Bildirim kaydı tamamlanamadı. Yeniden dene.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez.";
+"iOS Ayarlarını aç" = "iOS Ayarlarını aç";
+"Güncelleme gerekli" = "Güncelleme gerekli";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir.";
+"App Store’da güncelle" = "App Store’da güncelle";
+"Yeniden kontrol et" = "Yeniden kontrol et";
+"App Store açılamadı. Lütfen yeniden dene." = "App Store açılamadı. Lütfen yeniden dene.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Kullanım analizi";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Yılda bir tahsil edilir; otomatik yenilenir.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin.";

@@ -1,0 +1,6 @@
+{
+  "functions": [{ "source": "functions", "codebase": "mirivo-notifications", "runtime": "nodejs22", "ignore": ["node_modules", ".git", "*-debug.log", "test", "send.mjs", "*.example.json"] }],
+  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
+  "remoteconfig": { "template": "remoteconfig.template.json" },
+  "emulators": { "auth": { "port": 9099 }, "functions": { "port": 5001 }, "firestore": { "port": 8080 }, "ui": { "enabled": false }, "singleProjectMode": true }
+}

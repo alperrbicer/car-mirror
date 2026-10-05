@@ -113,24 +113,56 @@ final class ProductUITests: XCTestCase {
         }
     }
 
-    func testRightToLeftLegalFallback() {
-        for (language, privacy) in [("ar", "سياسة الخصوصية"), ("he", "מדיניות פרטיות")] {
+    func testRightToLeftWebsiteFallback() {
+        for language in ["ar", "he"] {
             let app = launch(language: language)
             app.buttons["open-settings"].tap()
-            XCTAssertTrue(app.buttons["settings-language"].waitForExistence(timeout: 5))
-            capture("rtl-settings-\(language)", app: app)
-            let form = app.collectionViews.firstMatch
-            form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
-                .press(forDuration: 0.1, thenDragTo: form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)))
-            let link = app.buttons[privacy]
-            reveal(link, in: app)
-            link.tap()
-            if !app.webViews.firstMatch.waitForExistence(timeout: 3), link.exists { link.tap() }
-            XCTAssertTrue(app.webViews.staticTexts["Privacy Policy"].waitForExistence(timeout: 10))
-            XCTAssertTrue(app.segmentedControls.buttons["English"].isSelected)
-            capture("rtl-legal-\(language)", app: app)
+            openWebsite(app.buttons["settings-privacy"], heading: "Privacy Policy", app: app)
             app.terminate()
         }
+    }
+
+    func testNetlifyDocumentsOpenFromSettingsAndPro() {
+        for language in ["tr", "en"] {
+            let privacy = language == "tr" ? "Gizlilik Politikası" : "Privacy Policy"
+            let terms = language == "tr" ? "Kullanım Koşulları (EULA)" : "Terms of Use (EULA)"
+            let support = language == "tr" ? "Yardım ve SSS" : "Help & FAQ"
+            let settingsApp = launch(language: language)
+            settingsApp.buttons["open-settings"].tap()
+            for (identifier, heading) in [("settings-privacy", privacy), ("settings-terms", terms), ("settings-support", support)] {
+                openWebsite(settingsApp.buttons[identifier], heading: heading, app: settingsApp)
+            }
+            settingsApp.terminate()
+
+            let proApp = launch(language: language)
+            proApp.buttons["open-settings"].tap()
+            XCTAssertTrue(proApp.buttons["settings-language"].waitForExistence(timeout: 10))
+            let pro = proApp.descendants(matching: .any)["settings-pro"]
+            for _ in 0..<8 {
+                if pro.isHittable { break }
+                proApp.swipeDown()
+            }
+            XCTAssertTrue(pro.waitForExistence(timeout: 10))
+            pro.tap()
+            for (identifier, heading) in [("pro-privacy", privacy), ("pro-terms", terms)] {
+                openWebsite(proApp.buttons[identifier], heading: heading, app: proApp)
+            }
+            proApp.terminate()
+        }
+    }
+
+    private func openWebsite(_ link: XCUIElement, heading: String, app: XCUIApplication) {
+        reveal(link, in: app)
+        let ready = NSPredicate { _, _ in link.isHittable }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: link)], timeout: 10), .completed)
+        link.tap()
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 10))
+        XCTAssertTrue(safari.webViews.staticTexts[heading].waitForExistence(timeout: 20), safari.debugDescription)
+        XCTAssertFalse(app.webViews.firstMatch.exists)
+        capture("website-\(link.identifier)", app: safari)
+        app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
     }
 
     func testRightToLeftLanguageSelectionPersistsAndReturnsToSystem() {
@@ -224,7 +256,7 @@ final class ProductUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
-    func testTurkishProductAndOfflineLegalFlows() {
+    func testTurkishProductAndSupportLinks() {
         let app = launch()
         XCTAssertTrue(app.buttons["page-mirror"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.tabBars.count, 0)
@@ -256,22 +288,10 @@ final class ProductUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Pro yakında"].exists)
         capture("05-mirivo-pro-tr", app: app)
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        reveal(app.buttons["Gizlilik Politikası"], in: app)
-        app.buttons["Gizlilik Politikası"].tap()
-        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 5))
-        XCTAssertTrue(app.webViews.staticTexts["Gizlilik Politikası"].waitForExistence(timeout: 10))
-        capture("06-mirivo-privacy-tr", app: app)
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        reveal(app.buttons["Kullanım Koşulları (EULA)"], in: app)
-        app.buttons["Kullanım Koşulları (EULA)"].tap()
-        XCTAssertTrue(app.webViews.links["Apple Standart EULA ↗"].waitForExistence(timeout: 10))
-        capture("07-mirivo-terms-tr", app: app)
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        reveal(app.buttons["Yardım ve SSS"], in: app)
-        app.buttons["Yardım ve SSS"].tap()
-        XCTAssertTrue(app.webViews.links["Destek için yaz ↗"].waitForExistence(timeout: 10))
-        capture("08-mirivo-help-tr", app: app)
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        for identifier in ["settings-privacy", "settings-terms", "settings-support"] {
+            reveal(app.buttons[identifier], in: app)
+            XCTAssertTrue(app.buttons[identifier].isHittable)
+        }
         reveal(app.buttons["Tüm kaynakları sil"], in: app)
         app.buttons["Tüm kaynakları sil"].tap()
         let confirm = app.buttons.matching(identifier: "Tüm kaynakları sil").allElementsBoundByIndex.first { $0.isHittable }
@@ -280,6 +300,30 @@ final class ProductUITests: XCTestCase {
         app.buttons["close-settings"].tap()
         app.buttons["page-library"].tap()
         XCTAssertTrue(app.staticTexts["Kaynakların burada"].waitForExistence(timeout: 5))
+    }
+    func testProAnnualAndLifetimePlans() {
+        for language in ["tr", "en"] {
+            let app = launch(language: language)
+            XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
+            app.buttons["open-settings"].tap()
+            app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Pro")).firstMatch.tap()
+            let annual = app.buttons["pro-plan-com.alperbicer.carmirror.pro.yearly"]
+            let lifetime = app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"]
+            XCTAssertTrue(annual.waitForExistence(timeout: 20), app.debugDescription)
+            XCTAssertTrue(lifetime.exists, app.debugDescription)
+            XCTAssertFalse(app.buttons["pro-plan-com.alperbicer.carmirror.pro.weekly"].exists)
+            XCTAssertTrue(annual.isSelected)
+            XCTAssertTrue(lifetime.label.contains("49.99"), "StoreKit fixture must use the current lifetime price: \(lifetime.label)")
+            reveal(app.buttons["pro-purchase"], in: app)
+            capture("pro-plans-\(language)", app: app)
+            reveal(lifetime, in: app)
+            lifetime.tap()
+            XCTAssertTrue(lifetime.isSelected)
+            reveal(app.buttons["pro-purchase"], in: app)
+            XCTAssertTrue(app.buttons["pro-purchase"].isEnabled)
+            capture("pro-lifetime-\(language)", app: app)
+            app.terminate()
+        }
     }
     func testEnglishLayoutAndLargeTextLandscape() {
         let app = launch(language: "en", large: true)

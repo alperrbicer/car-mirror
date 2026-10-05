@@ -1,9 +1,10 @@
 import Foundation
 
 public enum ProProduct: String, CaseIterable, Sendable {
-    case weekly = "com.alperbicer.carmirror.pro.weekly"
     case yearly = "com.alperbicer.carmirror.pro.yearly"
     case lifetime = "com.alperbicer.carmirror.pro.lifetime"
+
+    public static let forSale: [ProProduct] = [.yearly, .lifetime]
 }
 
 /// One policy for the phone, library and broadcast extension. Preparation builds

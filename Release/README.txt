@@ -1,6 +1,6 @@
 MIRIVO — Netlify ve App Store teslim dosyaları
 
-Netlify (3 Ekim 2026: yayımlandı):
+Netlify (5 Ekim 2026: güncel dağıtım doğrulandı):
 https://mirivo-support.netlify.app
 
 Yeniden yükleme:
@@ -16,7 +16,7 @@ Türkçe: /tr/privacy.html, /tr/support.html, /tr/index.html.
 
 Sitede yapılandırılacak anahtar, API, reklam, analitik, form veya çerez yoktur.
 Destek: alperrbicer@gmail.com. Yayıncı: Alper Biçer.
-Uygulama aynı belgeleri çevrimdışı içerir; belge ekranındaki Safari düğmesi aynı dildeki yayımlanmış sayfayı açar.
+Uygulama gizlilik, kullanım koşulları ve yardım bağlantılarını doğrudan bu siteye açar. Yerel HTML belge kopyası veya belge görüntüleyicisi içermez. Türkçe arayüz /tr/; diğer diller /en/ sayfalarını açar. Siteden Türkçe/İngilizce geçiş yapılabilir.
 
 AppStore/tr ve AppStore/en: alan uzunlukları kontrol edilmiş metadata JSON dosyaları.
 AppStore/review-notes.txt: inceleme hazırlığı, gerçek araç kanıtı eklenmeden gönderilmez.
@@ -24,8 +24,7 @@ AppStore/privacy-inventory.json: mevcut veri akışının envanteri.
 
 4 Ekim 2026 kararıyla Pro satış ekranı açıktır. Ücretsiz ve Pro sürümler reklamsızdır. Güncel hazırlık ve kalan portal adımları: docs/PRO_RELEASE.md.
 Tests/App/Mirivo.storekit içindeki fiyatlar yalnızca yerel test verisidir; satış fiyatı değildir.
-Haftalık, yıllık ve ömür boyu ürünler daha sonra App Store Connect'te oluşturulup
-fiyatlandırılacak; gerçek fiyatlar StoreKit'ten alınacak.
+Yalnız yıllık ve ömür boyu ürünler App Store Connect'te fiyatlandırıldı; gerçek fiyatlar StoreKit'ten alınır. Haftalık satışa kapalıdır.
 
 Bu paket imzalı iOS uygulaması, TestFlight yüklemesi veya Apple onayı içermez.
 Güncel doğrulama ve dış bağımlılıklar: ../docs/IMPLEMENTATION_STATUS.md.

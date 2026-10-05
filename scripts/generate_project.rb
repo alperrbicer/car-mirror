@@ -39,6 +39,25 @@ rc_build = project.new(Xcodeproj::Project::Object::PBXBuildFile)
 rc_build.product_ref = rc_product
 app.frameworks_build_phase.files << rc_build
 
+# Remote Config, opt-in FCM and Analytics without advertising identifiers.
+firebase = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+firebase.repositoryURL = 'https://github.com/firebase/firebase-ios-sdk.git'
+firebase.requirement = {'kind' => 'exactVersion', 'version' => '12.19.2'}
+project.root_object.package_references << firebase
+%w[FirebaseCore FirebaseRemoteConfig FirebaseMessaging FirebaseAuth FirebaseFunctions FirebaseAppCheck FirebaseAnalyticsCore].each do |name|
+  product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+  product.package = firebase
+  product.product_name = name
+  app.package_product_dependencies << product
+  build = project.new(Xcodeproj::Project::Object::PBXBuildFile)
+  build.product_ref = product
+  app.frameworks_build_phase.files << build
+end
+if File.file?(File.join(root, 'Config/GoogleService-Info.plist'))
+  firebase_config = project.main_group.new_file('Config/GoogleService-Info.plist')
+  app.resources_build_phase.add_file_reference(firebase_config)
+end
+
 [app, broadcast].each do |target|
   %w[Debug-CarPlay Release-CarPlay].each { |name| target.add_build_configuration(name, name.start_with?('Debug') ? :debug : :release) }
   target.build_configurations.each do |config|
@@ -66,10 +85,12 @@ app.build_configurations.each do |config|
   config.build_settings['INFOPLIST_FILE'] = 'Config/App-Info.plist'
   config.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
   video = config.name.end_with?('-CarPlay')
-  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = video ? 'Config/CarPlay.entitlements' : 'Config/CarPlayAudio.entitlements'
+  config.build_settings['MIRIVO_MAIN_APP_ENTITLEMENTS'] = video ? 'Config/CarPlay.entitlements' : 'Config/CarPlayAudio.entitlements'
+  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = '$(MIRIVO_MAIN_APP_ENTITLEMENTS)'
   config.build_settings['MIRIVO_CARPLAY_VIDEO_ENABLED'] = video ? 'YES' : 'NO'
 end
 broadcast.build_configurations.each do |config|
+  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Config/Broadcast.entitlements'
   config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = '$(MIRROR_BUNDLE_ID).broadcast'
   config.build_settings['INFOPLIST_FILE'] = 'Config/Broadcast-Info.plist'
   config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'YES'
@@ -97,10 +118,10 @@ app.add_dependency(broadcast)
 embed = app.new_copy_files_build_phase('Embed Broadcast Extension')
 embed.dst_subfolder_spec = '13'
 embed.add_file_reference(broadcast.product_reference).settings = { 'ATTRIBUTES' => ['RemoveHeadersOnCopy'] }
-# Offline legal pages are generated from the public Netlify bundle.
-legal = project.main_group.new_file('Resources/Legal')
-legal.last_known_file_type = 'folder'
-app.resources_build_phase.add_file_reference(legal)
+# Only third-party SDK licenses are bundled; product documents open on Netlify.
+notices = project.main_group.new_file('Resources/Notices')
+notices.last_known_file_type = 'folder'
+app.resources_build_phase.add_file_reference(notices)
 %w[Localizable.strings InfoPlist.strings].each do |filename|
   variant = project.main_group.new_variant_group(filename)
   languages.each do |language|

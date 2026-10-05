@@ -176,7 +176,6 @@
 "Dil bul" = "Cari bahasa";
 "Dil bulunamadı" = "Bahasa tidak ditemukan";
 "Başka bir ad veya dil kodu dene." = "Coba nama atau kode bahasa lain.";
-"Belge dili" = "Bahasa dokumen";
 "Ekran paylaşımı durduruldu." = "Berbagi layar dihentikan.";
 "Şu An Çalıyor" = "Sedang Diputar";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Antrean putar";
 "Önceki" = "Sebelumnya";
 "Sonraki" = "Berikutnya";
+
+// Updates and notifications
+"Bildirimler" = "Notifikasi";
+"Bildirimler henüz kullanılamıyor." = "Notifikasi belum tersedia.";
+"Bildirimler kapalı." = "Notifikasi nonaktif.";
+"Bildirim izni bekleniyor." = "Menunggu izin notifikasi.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Izinkan notifikasi di Pengaturan iOS.";
+"Bildirimler hazırlanıyor…" = "Menyiapkan notifikasi…";
+"Bildirimler açık." = "Notifikasi aktif.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Pendaftaran notifikasi gagal. Coba lagi.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Server tidak dapat dihubungi untuk menonaktifkan notifikasi. Akan dicoba lagi saat terhubung.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Terima pengumuman versi dan produk. Media dan alamat sumbermu tidak dikirim ke server notifikasi.";
+"iOS Ayarlarını aç" = "Buka Pengaturan iOS";
+"Güncelleme gerekli" = "Pembaruan diperlukan";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Unduh versi baru Mirivo dari App Store untuk melanjutkan.";
+"App Store’da güncelle" = "Perbarui di App Store";
+"Yeniden kontrol et" = "Periksa lagi";
+"App Store açılamadı. Lütfen yeniden dene." = "App Store tidak dapat dibuka. Coba lagi.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Analisis penggunaan";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Bagikan statistik penggunaan untuk membantu meningkatkan Mirivo. Media, alamat sumber, dan teks pencarian tidak dikirim. Kamu dapat menonaktifkannya kapan saja.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Ditagih sekali per tahun; diperpanjang otomatis.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Pembelian seumur hidup tidak membatalkan langganan yang ada secara otomatis. Anda dapat membatalkannya di akun Apple Anda.";

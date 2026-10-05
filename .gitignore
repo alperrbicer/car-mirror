@@ -14,3 +14,9 @@ DerivedData/
 .env.deploy
 *.p8
 node_modules/
+Config/GoogleService-Info.plist
+.firebaserc
+.firebase/
+Firebase/functions/.env*
+Firebase/functions/*service-account*.json
+*-debug.log

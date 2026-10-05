@@ -176,7 +176,6 @@
 "Dil bul" = "Tìm ngôn ngữ";
 "Dil bulunamadı" = "Không tìm thấy ngôn ngữ";
 "Başka bir ad veya dil kodu dene." = "Hãy thử tên hoặc mã ngôn ngữ khác.";
-"Belge dili" = "Ngôn ngữ tài liệu";
 "Ekran paylaşımı durduruldu." = "Đã dừng chia sẻ màn hình.";
 "Şu An Çalıyor" = "Đang phát";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Hàng đợi phát";
 "Önceki" = "Trước";
 "Sonraki" = "Tiếp";
+
+// Updates and notifications
+"Bildirimler" = "Thông báo";
+"Bildirimler henüz kullanılamıyor." = "Thông báo chưa khả dụng.";
+"Bildirimler kapalı." = "Thông báo đã tắt.";
+"Bildirim izni bekleniyor." = "Đang chờ quyền thông báo.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Cho phép thông báo trong Cài đặt iOS.";
+"Bildirimler hazırlanıyor…" = "Đang thiết lập thông báo…";
+"Bildirimler açık." = "Thông báo đã bật.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Đăng ký thông báo không thành công. Hãy thử lại.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Không thể kết nối máy chủ để tắt thông báo. Sẽ thử lại khi có kết nối.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Nhận tin về phiên bản và sản phẩm. Nội dung đa phương tiện và địa chỉ nguồn của bạn không được gửi đến máy chủ thông báo.";
+"iOS Ayarlarını aç" = "Mở Cài đặt iOS";
+"Güncelleme gerekli" = "Cần cập nhật";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Tải phiên bản Mirivo mới từ App Store để tiếp tục.";
+"App Store’da güncelle" = "Cập nhật trên App Store";
+"Yeniden kontrol et" = "Kiểm tra lại";
+"App Store açılamadı. Lütfen yeniden dene." = "Không thể mở App Store. Hãy thử lại.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Phân tích sử dụng";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Chia sẻ thống kê sử dụng để cải thiện Mirivo. Nội dung đa phương tiện, địa chỉ nguồn và văn bản tìm kiếm không được gửi đi. Bạn có thể tắt bất cứ lúc nào.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Thanh toán một lần mỗi năm; tự động gia hạn.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Mua trọn đời không tự động hủy gói đăng ký hiện tại. Bạn có thể hủy trong tài khoản Apple của mình.";

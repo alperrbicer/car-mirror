@@ -176,7 +176,6 @@
 "Dil bul" = "Знайти мову";
 "Dil bulunamadı" = "Мов не знайдено";
 "Başka bir ad veya dil kodu dene." = "Спробуйте іншу назву або код мови.";
-"Belge dili" = "Мова документа";
 "Ekran paylaşımı durduruldu." = "Трансляцію екрана зупинено.";
 "Şu An Çalıyor" = "Зараз грає";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Черга відтворення";
 "Önceki" = "Попередній";
 "Sonraki" = "Наступний";
+
+// Updates and notifications
+"Bildirimler" = "Сповіщення";
+"Bildirimler henüz kullanılamıyor." = "Сповіщення поки недоступні.";
+"Bildirimler kapalı." = "Сповіщення вимкнено.";
+"Bildirim izni bekleniyor." = "Очікування дозволу на сповіщення.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Дозвольте сповіщення в параметрах iOS.";
+"Bildirimler hazırlanıyor…" = "Налаштування сповіщень…";
+"Bildirimler açık." = "Сповіщення увімкнено.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Не вдалося зареєструвати сповіщення. Спробуйте ще раз.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Не вдалося зв’язатися із сервером для вимкнення. Повторимо спробу після підключення.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Отримуйте новини про версії та продукт. Ваші медіафайли й адреси джерел не надсилаються на сервер сповіщень.";
+"iOS Ayarlarını aç" = "Відкрити параметри iOS";
+"Güncelleme gerekli" = "Потрібне оновлення";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Щоб продовжити, завантажте нову версію Mirivo з App Store.";
+"App Store’da güncelle" = "Оновити в App Store";
+"Yeniden kontrol et" = "Перевірити ще раз";
+"App Store açılamadı. Lütfen yeniden dene." = "Не вдалося відкрити App Store. Спробуйте ще раз.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Аналіз використання";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Діліться статистикою для покращення Mirivo. Медіафайли, адреси джерел і пошукові запити не надсилаються. Це можна вимкнути будь-коли.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Оплата раз на рік; автоматичне поновлення.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Довічна покупка не скасовує поточну підписку автоматично. Ви можете скасувати її у своєму обліковому записі Apple.";

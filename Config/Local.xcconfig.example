@@ -4,3 +4,12 @@
 
 // RevenueCat > Mirivo > App Store public SDK key (appl_...). Never add a secret key.
 // MIRIVO_REVENUECAT_API_KEY = appl_...
+
+// App Store numeric ID; required before enabling the Remote Config update gate.
+// MIRIVO_APP_STORE_ID = 1234567890
+// Default topic mode works on Spark. Select registry only after deploying its backend.
+// MIRIVO_NOTIFICATION_REGISTRATION_MODE = registry
+// Must match the deployed Firebase Functions region.
+// MIRIVO_FIREBASE_FUNCTIONS_REGION = europe-west1
+// Only for local Debug builds after registering the debug token in App Check.
+// MIRIVO_FIREBASE_APPCHECK_DEBUG_ENABLED = YES

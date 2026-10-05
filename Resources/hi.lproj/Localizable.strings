@@ -176,7 +176,6 @@
 "Dil bul" = "भाषा खोजें";
 "Dil bulunamadı" = "कोई भाषा नहीं मिली";
 "Başka bir ad veya dil kodu dene." = "दूसरा नाम या भाषा कोड आज़माएँ।";
-"Belge dili" = "दस्तावेज़ की भाषा";
 "Ekran paylaşımı durduruldu." = "स्क्रीन शेयरिंग रुक गई।";
 "Şu An Çalıyor" = "अभी चल रहा है";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "प्लेबैक कतार";
 "Önceki" = "पिछला";
 "Sonraki" = "अगला";
+
+// Updates and notifications
+"Bildirimler" = "सूचनाएँ";
+"Bildirimler henüz kullanılamıyor." = "सूचनाएँ अभी उपलब्ध नहीं हैं।";
+"Bildirimler kapalı." = "सूचनाएँ बंद हैं।";
+"Bildirim izni bekleniyor." = "सूचना की अनुमति की प्रतीक्षा है।";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "iOS सेटिंग्स में सूचनाओं की अनुमति दें।";
+"Bildirimler hazırlanıyor…" = "सूचनाएँ सेट अप हो रही हैं…";
+"Bildirimler açık." = "सूचनाएँ चालू हैं।";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "सूचना पंजीकरण विफल हुआ। फिर प्रयास करें।";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "सूचनाएँ बंद करने के लिए सर्वर से संपर्क नहीं हो सका। कनेक्ट होने पर फिर प्रयास होगा।";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "संस्करण और उत्पाद की घोषणाएँ पाएँ। आपकी मीडिया और स्रोत के पते सूचना सर्वर को नहीं भेजे जाते।";
+"iOS Ayarlarını aç" = "iOS सेटिंग्स खोलें";
+"Güncelleme gerekli" = "अपडेट ज़रूरी है";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "जारी रखने के लिए App Store से Mirivo का नया संस्करण डाउनलोड करें।";
+"App Store’da güncelle" = "App Store में अपडेट करें";
+"Yeniden kontrol et" = "फिर जाँचें";
+"App Store açılamadı. Lütfen yeniden dene." = "App Store नहीं खुल सका। फिर प्रयास करें।";
+
+// Optional usage analytics
+"Kullanım analizi" = "उपयोग विश्लेषण";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Mirivo को बेहतर बनाने के लिए उपयोग के आँकड़े साझा करें। मीडिया, स्रोत पते और खोज टेक्स्ट नहीं भेजे जाते। आप इसे कभी भी बंद कर सकते हैं।";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "साल में एक बार शुल्क लिया जाता है; अपने आप नवीनीकृत होता है।";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "आजीवन खरीदारी से आपकी मौजूदा सदस्यता अपने आप रद्द नहीं होती। आप इसे अपने Apple खाते में रद्द कर सकते हैं।";

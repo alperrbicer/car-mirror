@@ -176,7 +176,6 @@
 "Dil bul" = "חיפוש שפה";
 "Dil bulunamadı" = "לא נמצאו שפות";
 "Başka bir ad veya dil kodu dene." = "כדאי לנסות שם אחר או קוד שפה אחר.";
-"Belge dili" = "שפת המסמך";
 "Ekran paylaşımı durduruldu." = "שיתוף המסך נעצר.";
 "Şu An Çalıyor" = "מתנגן כעת";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "תור ניגון";
 "Önceki" = "הקודם";
 "Sonraki" = "הבא";
+
+// Updates and notifications
+"Bildirimler" = "התראות";
+"Bildirimler henüz kullanılamıyor." = "ההתראות עדיין אינן זמינות.";
+"Bildirimler kapalı." = "ההתראות כבויות.";
+"Bildirim izni bekleniyor." = "ממתינים להרשאה להתראות.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "יש לאפשר התראות בהגדרות iOS.";
+"Bildirimler hazırlanıyor…" = "ההתראות בהגדרה…";
+"Bildirimler açık." = "ההתראות מופעלות.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "הרישום להתראות נכשל. יש לנסות שוב.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "לא ניתן להתחבר לשרת כדי לכבות התראות. ננסה שוב לאחר החיבור.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "קבלת חדשות על גרסאות והמוצר. המדיה וכתובות המקורות שלך אינן נשלחות לשרת ההתראות.";
+"iOS Ayarlarını aç" = "פתיחת הגדרות iOS";
+"Güncelleme gerekli" = "נדרש עדכון";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "כדי להמשיך, יש להוריד את הגרסה החדשה של Mirivo מה-App Store.";
+"App Store’da güncelle" = "עדכון ב-App Store";
+"Yeniden kontrol et" = "בדיקה חוזרת";
+"App Store açılamadı. Lütfen yeniden dene." = "לא ניתן לפתוח את ה-App Store. יש לנסות שוב.";
+
+// Optional usage analytics
+"Kullanım analizi" = "ניתוח שימוש";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "שיתוף נתוני שימוש כדי לשפר את Mirivo. מדיה, כתובות מקורות וטקסט חיפוש אינם נשלחים. אפשר לכבות בכל עת.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "החיוב מתבצע פעם בשנה; מתחדש אוטומטית.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "רכישה לכל החיים אינה מבטלת אוטומטית את המינוי הקיים שלך. ניתן לבטל אותו בחשבון Apple שלך.";

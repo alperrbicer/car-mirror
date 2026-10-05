@@ -13,7 +13,8 @@ Swift ile iPhone ekran paylaşımı ve kişisel medya kaynakları. Görsel kimli
 - iOS 26 ve desteklenen cihaz/dillerde SpeechAnalyzer ile cihaz içi canlı altyazı. Dil modeli önceden hazırlanır; altyazı yayın görüntüsüne eklenir.
 - CarPlay Audio ile kaynak listesi, ses oynatma ve Şu An Çalıyor kontrolleri. Video yapılandırmasında yetki ve araç desteğine bağlı ekran paylaşımı; iOS gerçekten harici ekran sahnesi sağladığında ortak oynatıcı.
 - 22 dilde arayüz ve aranabilir dil seçimi; Arapça/İbranice için sağdan sola düzen; Türkçe/İngilizce yasal sayfalar ve yardım; teknik rapor paylaşımı/temizleme; bütün kaynakları ve giriş bilgilerini silme.
-- StoreKit 2 ile haftalık, yıllık ve tek ödemelik Pro. Satış ekranı açık; RevenueCat işlem gözlemleme entegrasyonu Apple SDK anahtarıyla etkinleşir. **Hiçbir sürümde reklam yok.** Fiyatlar kodda sabitlenmez. [Pro hazırlığı](docs/PRO_RELEASE.md).
+- StoreKit 2 ile yıllık abonelik ve tek ödemelik Pro. Satış ekranı açık; RevenueCat işlem gözlemleme entegrasyonu Apple SDK anahtarıyla etkinleşir. **Hiçbir sürümde reklam yok.** Fiyatlar kodda sabitlenmez. [Pro hazırlığı](docs/PRO_RELEASE.md).
+- Firebase Remote Config ile zorunlu güncelleme ve izinle açılan FCM bildirim altyapısı. Ağ/politika hatasında uygulama açık kalır. Varsayılan genel duyuru aboneliği ücretsiz Spark planında çalışır; cihaza özel kayıt için isteğe bağlı Cloud Functions sunucusu da hazırdır. Canlı Firebase/Apple kurulumu ve doğrulama adımları: [Firebase kurulumu](docs/FIREBASE_SETUP.md).
 
 CarTV'nin kurulu sürümünde Audio/Video yetkileri ve harici ekran bildirimleri görüldü. Bu bulgu, uygulamanın iç aktarım yöntemini açıklamaz; Mirivo'nun aynı teknikle çalıştığı veya EV6 uyumluluğunun kanıtlandığı iddia edilmez.
 
@@ -55,6 +56,6 @@ bun run mobile:ios:testflight --allow-provisioning-updates
 
 Kaynak adresleri ve giriş bilgileri Keychain'de; kaynak adları ve ayarlar cihazda saklanır. Yayın, ses ve altyazı geçici bellekte işlenir. Durdurunca oturum adresi geçersizleşir. Kayıtlar en fazla 10 oturum / 5 MiB tutar; içerik, adres ve parola içermez. Raporu kullanıcı paylaşır.
 
-[Mirivo destek sitesi](https://mirivo-support.netlify.app) 3 Ekim 2026’da Netlify’da yayımlandı. `Release/mirivo-netlify.zip` yeniden manuel yükleme içindir; `index.html` ZIP kökündedir. Gizlilik, EULA ve yardım Türkçe/İngilizce hazırlanmıştır. Aynı belgeler `Resources/Legal` altında çevrimdışı açılır. Destek: **alperrbicer@gmail.com**. [Yükleme adımları](Release/README.txt).
+[Mirivo destek sitesi](https://mirivo-support.netlify.app) 3 Ekim 2026’da Netlify’da yayımlandı. `Release/mirivo-netlify.zip` yeniden manuel yükleme içindir; `index.html` ZIP kökündedir. Gizlilik, EULA ve yardım Türkçe/İngilizce hazırlanmıştır. Uygulamadaki gizlilik, EULA ve yardım bağlantıları doğrudan Netlify sayfalarını açar; uygulama paketinde belge HTML kopyaları yoktur. SDK lisans bildirimleri `Resources/Notices` altında korunur. Destek: **alperrbicer@gmail.com**. [Yükleme adımları](Release/README.txt).
 
 [22 dilin kapsamı ve doğrulaması](docs/LOCALIZATION.md), [Ürün planı](docs/PRODUCT_PLAN.md), [fiziksel kabul ölçütleri](docs/RELEASE_ACCEPTANCE.md), [seçilen tasarım](Design/mirivo.html).

@@ -55,5 +55,66 @@
       "audio",
       "captions"
     ]
+  },
+  "firebase": {
+    "enabledWhen": "GoogleService-Info.plist is bundled and Firebase services are activated",
+    "services": [
+      "Remote Config",
+      "Cloud Messaging",
+      "App Check",
+      "Analytics (explicit opt-in)"
+    ],
+    "data": [
+      "Firebase installation ID",
+      "FCM registration token",
+      "topic subscription",
+      "service technical and diagnostic data"
+    ],
+    "purposes": [
+      "app functionality",
+      "notification delivery",
+      "abuse prevention"
+    ],
+    "googleAnalyticsSDK": true,
+    "tracking": false,
+    "retention": "Opt-out unregisters APNs locally and removes the topic subscription after FCM acknowledgement; unsuccessful removal is retried. Removing the topic subscription does not delete the Firebase installation ID.",
+    "releaseGate": "Review Firebase SDK privacy manifests and update App Store Connect privacy answers before upload; live portal declarations have not been changed.",
+    "analytics": {
+      "library": "FirebaseAnalyticsCore",
+      "enabledWhen": "Explicit Usage analytics preference; off by default",
+      "events": [
+        "SDK session/engagement events",
+        "fixed screen_view names"
+      ],
+      "excluded": [
+        "IDFA",
+        "IDFV",
+        "ad personalization",
+        "ad network measurement",
+        "custom user IDs",
+        "media",
+        "source names and URLs",
+        "search text",
+        "credentials"
+      ],
+      "portalVerification": "Analytics reports and consent behavior require verification with the configured Firebase project"
+    },
+    "notificationMode": "topic (Spark); mirivo_announcements_ios; public announcements only",
+    "optionalRegistry": {
+      "enabledWhen": "MIRIVO_NOTIFICATION_REGISTRATION_MODE=registry and the server is deployed (not activated in the current Spark project)",
+      "services": [
+        "Anonymous Authentication",
+        "App Check",
+        "Cloud Functions",
+        "Firestore token registry"
+      ],
+      "additionalData": [
+        "anonymous Firebase Auth UID",
+        "app version",
+        "language",
+        "registration timestamp"
+      ],
+      "retention": "Opt-out deletes the token and metadata on server acknowledgement. Revision records and inactive registrations expire after 180 days with Firestore TTL enabled; expired records are excluded from sends even before deletion."
+    }
   }
 }

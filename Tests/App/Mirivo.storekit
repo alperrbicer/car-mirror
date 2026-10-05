@@ -3,7 +3,7 @@
   "nonRenewingSubscriptions": [],
   "products": [
     {
-      "displayPrice": "39.99",
+      "displayPrice": "49.99",
       "familyShareable": false,
       "internalID": "4c6b89ed-b4a2-4579-904c-ea5aedfa3bdc",
       "localizations": [
@@ -32,27 +32,6 @@
       "localizations": [],
       "name": "Mirivo Pro",
       "subscriptions": [
-        {
-          "displayPrice": "1.99",
-          "familyShareable": false,
-          "internalID": "36ca9350-2725-4d0e-a22b-3bc991d7cb23",
-          "localizations": [
-            {
-              "description": "Local test fixture only",
-              "displayName": "Mirivo Pro Weekly",
-              "locale": "en_US"
-            }
-          ],
-          "productID": "com.alperbicer.carmirror.pro.weekly",
-          "referenceName": "Mirivo Pro Weekly",
-          "type": "RecurringSubscription",
-          "adHocOffers": [],
-          "codeOffers": [],
-          "groupNumber": 1,
-          "introductoryOffer": null,
-          "recurringSubscriptionPeriod": "P1W",
-          "subscriptionGroupID": "20336421-6912-4c7d-830c-70bdfac8b50e"
-        },
         {
           "displayPrice": "19.99",
           "familyShareable": false,

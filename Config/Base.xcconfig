@@ -13,4 +13,10 @@ MIRIVO_CARPLAY_AUDIO_ENABLED = YES
 MIRIVO_CARPLAY_VIDEO_ENABLED = NO
 // Public Apple SDK key only; populated after owner approves RevenueCat credentials.
 MIRIVO_REVENUECAT_API_KEY =
+// Firebase is inactive until Config/GoogleService-Info.plist is supplied.
+MIRIVO_APP_STORE_ID = 6818560405
+// topic = free public announcements; registry = optional deployed Functions backend.
+MIRIVO_NOTIFICATION_REGISTRATION_MODE = topic
+MIRIVO_FIREBASE_FUNCTIONS_REGION = europe-west1
+MIRIVO_FIREBASE_APPCHECK_DEBUG_ENABLED = NO
 #include? "Local.xcconfig"

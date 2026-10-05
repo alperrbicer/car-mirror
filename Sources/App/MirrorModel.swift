@@ -159,6 +159,7 @@ final class MirrorModel: ObservableObject {
     }
 
     func playInCar() {
+        guard AppUpdateStore.shared.requiredURL == nil else { return }
         guard carPlayConnected || externalScreenCount > 0 || playback.tvDevice != nil else {
             errorMessage = L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç.")
             return
@@ -239,6 +240,7 @@ final class MirrorModel: ObservableObject {
     @discardableResult
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil,
                    advanceAutomatically: Bool = false) -> Bool {
+        guard AppUpdateStore.shared.requiredURL == nil else { return false }
         accountViewingTime()
         guard PurchaseStore.shared.access.fullAccess || dailyRemaining > 0 else {
             errorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")

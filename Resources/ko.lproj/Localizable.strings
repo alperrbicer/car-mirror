@@ -176,7 +176,6 @@
 "Dil bul" = "언어 검색";
 "Dil bulunamadı" = "언어를 찾을 수 없어요";
 "Başka bir ad veya dil kodu dene." = "다른 이름이나 언어 코드로 검색해 주세요.";
-"Belge dili" = "문서 언어";
 "Ekran paylaşımı durduruldu." = "화면 공유가 중지됐어요.";
 "Şu An Çalıyor" = "지금 재생 중";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "재생 대기열";
 "Önceki" = "이전";
 "Sonraki" = "다음";
+
+// Updates and notifications
+"Bildirimler" = "알림";
+"Bildirimler henüz kullanılamıyor." = "알림을 아직 사용할 수 없습니다.";
+"Bildirimler kapalı." = "알림이 꺼져 있습니다.";
+"Bildirim izni bekleniyor." = "알림 권한을 기다리는 중입니다.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "iOS 설정에서 알림을 허용하세요.";
+"Bildirimler hazırlanıyor…" = "알림 설정 중…";
+"Bildirimler açık." = "알림이 켜져 있습니다.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "알림 등록에 실패했습니다. 다시 시도하세요.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "알림을 끄기 위해 서버에 연결할 수 없습니다. 연결되면 다시 시도합니다.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "버전 및 제품 소식을 받으세요. 미디어와 소스 주소는 알림 서버로 전송되지 않습니다.";
+"iOS Ayarlarını aç" = "iOS 설정 열기";
+"Güncelleme gerekli" = "업데이트 필요";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "계속하려면 App Store에서 Mirivo 새 버전을 다운로드하세요.";
+"App Store’da güncelle" = "App Store에서 업데이트";
+"Yeniden kontrol et" = "다시 확인";
+"App Store açılamadı. Lütfen yeniden dene." = "App Store를 열 수 없습니다. 다시 시도하세요.";
+
+// Optional usage analytics
+"Kullanım analizi" = "사용 분석";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Mirivo 개선을 위해 사용 통계를 공유합니다. 미디어, 소스 주소 및 검색어는 전송되지 않습니다. 언제든지 끌 수 있습니다.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "연 1회 청구되며 자동 갱신됩니다.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "평생 이용권을 구매해도 기존 구독은 자동으로 취소되지 않습니다. Apple 계정에서 취소할 수 있습니다.";

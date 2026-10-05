@@ -19,6 +19,7 @@ const settings = { PRODUCT_BUNDLE_IDENTIFIER: bundleId, APP_GROUP_IDENTIFIER: ap
 
 function signing() {
   const entitlements = { 'application-identifier': `${team}.${bundleId}`, 'com.apple.developer.team-identifier': team,
+    'aps-environment': 'production', 'com.apple.developer.devicecheck.appattest-environment': 'production',
     'com.apple.security.application-groups': [appGroup], 'com.apple.developer.carplay-audio': true, 'com.apple.developer.carplay-video': true }
   return { entitlements, profile: { Entitlements: structuredClone(entitlements), TeamIdentifier: [team],
     ApplicationIdentifierPrefix: [team], ExpirationDate: '2027-01-01T00:00:00Z' } }
@@ -28,6 +29,37 @@ function phone(identifier = 'core-id', udid = 'phone-udid', name = 'My iPhone') 
   return { identifier, hardwareProperties: { reality: 'physical', productType: 'iPhone18,1', udid },
     connectionProperties: { pairingState: 'paired' }, deviceProperties: { name } }
 }
+
+test('push profiles must match the signature and distribution must use production APNs', () => {
+  for (const field of ['aps-environment', 'com.apple.developer.devicecheck.appattest-environment']) {
+    const fixture = signing()
+    delete fixture.profile.Entitlements[field]
+    assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /Push Notifications|App Attest/)
+  }
+  const development = signing()
+  development.entitlements['aps-environment'] = 'development'
+  development.profile.Entitlements['aps-environment'] = 'development'
+  validateProfile(development.entitlements, development.profile, config)
+  assert.throws(() => validateProfile(development.entitlements, development.profile, { ...config, distribution: true }), /production APNs/)
+})
+
+test('Apple App Attest profile arrays must explicitly permit production', () => {
+  const key = 'com.apple.developer.devicecheck.appattest-environment'
+  for (const grant of [['development', 'production'], ['production'], ['*']]) {
+    const fixture = signing()
+    fixture.profile.Entitlements[key] = grant
+    validateProfile(fixture.entitlements, fixture.profile, config)
+  }
+  for (const grant of [['development'], [], ['production-invalid'], true, null]) {
+    const fixture = signing()
+    fixture.profile.Entitlements[key] = grant
+    assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /App Attest/)
+  }
+  const fixture = signing()
+  fixture.profile.Entitlements[key] = ['development', 'production']
+  fixture.entitlements[key] = 'development'
+  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /App Attest/)
+})
 
 function temporary(t) {
   const directory = realpathSync(mkdtempSync(join(tmpdir(), 'carmirror-deployment-test-')))
@@ -158,6 +190,7 @@ test('broadcast extension needs its own identity/group, and legacy App ID prefix
   fixture.profile.ApplicationIdentifierPrefix = ['OLDPREFIX0']
   for (const values of [fixture.entitlements, fixture.profile.Entitlements]) {
     delete values['com.apple.developer.carplay-audio']; delete values['com.apple.developer.carplay-video']
+    delete values['aps-environment']; delete values['com.apple.developer.devicecheck.appattest-environment']
     values['application-identifier'] = `OLDPREFIX0.${bundleId}.broadcast`
   }
   const extension = { ...config, bundleId: `${bundleId}.broadcast`, mainApp: false }
@@ -377,7 +410,7 @@ test('preview overrides only the install entitlements and preserves device signi
   const env = { ...fixture.env, PATH: '/nonexistent' }
   const result = spawnSync(process.execPath, [fixture.script, 'install', '--preview', '--allow-provisioning-updates', '--dry-run'], { env, encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /CODE_SIGN_ENTITLEMENTS=Config\/App.entitlements/)
+  assert.match(result.stdout, /MIRIVO_MAIN_APP_ENTITLEMENTS=Config\/App.entitlements/)
   assert.match(result.stdout, /CarPlay is disabled/)
   assert.match(result.stdout, /App Groups and iPhone preview profiles/)
   assert.match(result.stdout, /-allowProvisioningUpdates/)
@@ -438,7 +471,7 @@ else if (command === 'xcrun' && args.includes('list') && args.includes('devices'
     calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
     const build = calls.find(call => call.command === 'xcodebuild' && call.args.includes('build'))
     assert.ok(build)
-    assert.equal(build.args.includes('CODE_SIGN_ENTITLEMENTS=Config/App.entitlements'), flags.includes('--preview'))
+    assert.equal(build.args.includes('MIRIVO_MAIN_APP_ENTITLEMENTS=Config/App.entitlements'), flags.includes('--preview'))
     assert.ok(!calls.some(call => call.args.includes('install') || call.args.includes('launch')))
   }
   writeFileSync(log, '')

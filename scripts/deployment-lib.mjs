@@ -143,6 +143,21 @@ export function validateProfile(entitlements, profile, { bundleId, appGroup, tea
     if (!required.includes(key) && entitlements[key] === true) throw new Error(`${bundleId}: unexpected ${key} in the signature for the selected CarPlay mode.`)
   }
   const granted = profile.Entitlements || {}
+  if (mainApp) {
+    if (!['development', 'production'].includes(entitlements['aps-environment']) ||
+        entitlements['aps-environment'] !== granted['aps-environment']) {
+      throw new Error(`${bundleId}: Push Notifications entitlement/profile mismatch. Enable Push Notifications and regenerate the profile.`)
+    }
+    if (distribution && entitlements['aps-environment'] !== 'production') throw new Error(`${bundleId}: App Store pushes must use production APNs.`)
+    const appAttestGrant = granted['com.apple.developer.devicecheck.appattest-environment']
+    const appAttestEnvironments = Array.isArray(appAttestGrant) ? appAttestGrant : [appAttestGrant]
+    if (entitlements['com.apple.developer.devicecheck.appattest-environment'] !== 'production' ||
+        !appAttestEnvironments.some(value => value === 'production' || value === '*')) {
+      throw new Error(`${bundleId}: App Attest production entitlement/profile is required for Firebase App Check.`)
+    }
+  } else if (entitlements['aps-environment']) {
+    throw new Error(`${bundleId}: the broadcast extension must not inherit the main app's push entitlement.`)
+  }
   const prefixes = profile.ApplicationIdentifierPrefix || profile.TeamIdentifier || []
   const expectedIds = prefixes.map(prefix => `${prefix}.${bundleId}`)
   for (const [label, values] of [['signature', entitlements], ['provisioning profile', granted]]) {

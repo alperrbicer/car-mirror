@@ -3,7 +3,7 @@ import StoreKit
 
 struct ProView: View {
     @ObservedObject private var store = PurchaseStore.shared
-    @State private var selectedID = ProProduct.lifetime.rawValue
+    @State private var selectedID = ProProduct.yearly.rawValue
     private let benefits: [(String, String, String)] = [
         ("play.rectangle", "Sınırsız izleme", "Pro ile günlük izleme sınırı olmadan devam et."),
         ("infinity", "Sınırsız kaynak", "Oynatma listelerini, yayın bağlantılarını ve IPTV sunucularını bir arada tut."),
@@ -41,7 +41,8 @@ struct ProView: View {
                 }.padding(22).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 26))
                 if store.verifiedPro {
                     Label(L10n.tr("Pro etkin"), systemImage: "checkmark.seal.fill").foregroundStyle(MirrorStyle.accent)
-                } else {
+                }
+                if !store.lifetimeOwned {
                     if store.busy && store.products.isEmpty {
                         ProgressView().frame(maxWidth: .infinity).padding(20)
                     }
@@ -51,26 +52,36 @@ struct ProView: View {
                                 Image(systemName: selectedID == product.id ? "checkmark.circle.fill" : "circle")
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(title(product)).font(.headline)
-                                    Text(L10n.tr(product.type == .nonConsumable ? "Tek seferlik ödeme" : "Otomatik yenilenir; istediğin zaman iptal et.")).font(.caption)
+                                    Text(L10n.tr(product.type == .nonConsumable ? "Tek seferlik ödeme" : "Yılda bir tahsil edilir; otomatik yenilenir.")).font(.caption)
+                                        .foregroundStyle(MirrorStyle.secondary).fixedSize(horizontal: false, vertical: true)
                                 }
                                 Spacer()
-                                Text(price(product)).font(.title3.weight(.semibold))
+                                Text(product.displayPrice).font(.title3.weight(.semibold)).fixedSize()
                             }.padding(20).frame(maxWidth: .infinity)
                                 .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 22))
                                 .overlay { RoundedRectangle(cornerRadius: 22).stroke(selectedID == product.id ? MirrorStyle.accent : .clear, lineWidth: 1.5) }
                         }.buttonStyle(.plain)
+                            .disabled(store.busy || (store.verifiedPro && product.id != ProProduct.lifetime.rawValue))
+                            .accessibilityIdentifier("pro-plan-\(product.id)")
+                            .accessibilityAddTraits(selectedID == product.id ? .isSelected : [])
                     }
                     if let selected {
                         Text(L10n.tr(selected.type == .nonConsumable
                             ? "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok."
                             : "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin."))
                             .font(.footnote).foregroundStyle(MirrorStyle.secondary)
+                        if store.subscriptionActive && selected.id == ProProduct.lifetime.rawValue {
+                            Text(L10n.tr("Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin."))
+                                .font(.footnote).foregroundStyle(MirrorStyle.secondary)
+                        }
                         Button { Task { await store.purchase(selected) } } label: {
                             HStack { if store.busy { ProgressView() }; Text("\(selected.displayPrice) · \(L10n.tr("Satın al"))") }
-                        }.buttonStyle(MirivoButtonStyle(prominent: true)).disabled(store.busy)
+                        }.buttonStyle(MirivoButtonStyle(prominent: true)).disabled(!store.canPurchase(selected))
+                            .accessibilityIdentifier("pro-purchase")
                     } else if !store.busy {
                         Button(L10n.tr("Planları yeniden yükle")) { Task { await store.loadProducts() } }
                             .buttonStyle(MirivoButtonStyle())
+                            .accessibilityIdentifier("pro-reload")
                     }
                 }
                 Text(L10n.tr("Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok."))
@@ -79,31 +90,36 @@ struct ProView: View {
                     if store.salesEnabled || store.verifiedPro {
                         Button(L10n.tr("Satın alımları geri yükle")) { Task { await store.restore() } }
                             .buttonStyle(MirivoButtonStyle()).disabled(store.busy)
+                            .accessibilityIdentifier("pro-restore")
                         Link(L10n.tr("Aboneliği yönet"), destination: URL(string: "https://apps.apple.com/account/subscriptions")!)
                             .frame(minHeight: 44)
                     }
                     HStack(spacing: 20) {
-                        NavigationLink(L10n.tr("Gizlilik")) { LegalDocumentView(page: .privacy) }
+                        Link(L10n.tr("Gizlilik"), destination: BrandIdentity.privacyURL)
                             .frame(minHeight: 44)
-                        NavigationLink(L10n.tr("Kullanım koşulları")) { LegalDocumentView(page: .terms) }
+                            .accessibilityIdentifier("pro-privacy")
+                        Link(L10n.tr("Kullanım koşulları"), destination: BrandIdentity.termsURL)
                             .frame(minHeight: 44)
+                            .accessibilityIdentifier("pro-terms")
                     }
                 }.font(.footnote).frame(maxWidth: .infinity)
             }.padding(24).frame(maxWidth: 580).frame(maxWidth: .infinity)
         }
         .background(MirrorStyle.background).tint(MirrorStyle.accent)
         .navigationTitle(L10n.tr("Mirivo Pro")).navigationBarTitleDisplayMode(.inline)
-        .task { await store.loadProducts(); if selected == nil, let first = store.products.first { selectedID = first.id } }
+        .task {
+            await store.loadProducts()
+            if store.subscriptionActive { selectedID = ProProduct.lifetime.rawValue }
+            else if selected == nil, let first = store.products.first { selectedID = first.id }
+        }
+        .onChange(of: store.subscriptionActive) { _, active in
+            if active { selectedID = ProProduct.lifetime.rawValue }
+        }
         .alert(L10n.tr("Mirivo Pro"), isPresented: Binding(get: { store.message != nil }, set: { if !$0 { store.message = nil } })) {
             Button(L10n.tr("Tamam")) { store.message = nil }
         } message: { Text(store.message ?? "") }
     }
-    private func price(_ product: Product) -> String {
-        let period = product.id == ProProduct.weekly.rawValue ? L10n.tr("Haftalık")
-            : product.id == ProProduct.yearly.rawValue ? L10n.tr("Yıllık") : ""
-        return period.isEmpty ? product.displayPrice : "\(product.displayPrice) · \(period)"
-    }
     private func title(_ product: Product) -> String {
-        L10n.tr(product.id == ProProduct.weekly.rawValue ? "Haftalık" : product.id == ProProduct.yearly.rawValue ? "Yıllık" : "Ömür boyu")
+        L10n.tr(product.id == ProProduct.yearly.rawValue ? "Yıllık" : "Ömür boyu")
     }
 }

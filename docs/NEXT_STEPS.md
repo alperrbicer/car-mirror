@@ -11,7 +11,7 @@ Asıl hedef iPhone 16 Pro'daki YouTube ve Smarters Player gibi uygulamaların g�
 - Varsayılan `CarMirror` yapılandırması Audio; `CarMirror CarPlay` veya `--carplay-video` Audio + Video ister. Video onayı/profili henüz doğrulanmadı.
 - CarPlay kaynak seçimi, ses oynatma, Şu An Çalıyor ve oynat/duraklat/durdur bağlantıları uygulandı.
 - 34 Swift, 17 kurulum ve 2 uygulama içi ses testi geçti. Son paket kontrolü: `build/carplay-audio-validation.json`.
-- 3 Ekim’de ertelenen altı dil eklendi; uygulama ve yayın uzantısı artık 22 dil içeriyor. Arapça/İbranice sağdan sola düzen kullanıyor. Doğrulama kaydı `docs/LOCALIZATION.md` içinde. Pro hazırlığı ve Türkçe/İngilizce çevrimdışı/public belgeler hazır. Güncel Netlify paketi: `Release/mirivo-netlify.zip`.
+- 3 Ekim’de ertelenen altı dil eklendi; uygulama ve yayın uzantısı artık 22 dil içeriyor. Arapça/İbranice sağdan sola düzen kullanıyor. Doğrulama kaydı `docs/LOCALIZATION.md` içinde. Pro hazırlığı ve Türkçe/İngilizce Netlify belgeleri hazır; uygulama doğrudan canlı sayfalara link verir. Güncel Netlify paketi: `Release/mirivo-netlify.zip`.
 
 ## Sıradaki işler
 

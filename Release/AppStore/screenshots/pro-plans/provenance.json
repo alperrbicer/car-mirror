@@ -1,0 +1,40 @@
+{
+  "capturedAt": "2026-10-05",
+  "test": "ProductUITests/testProAnnualAndLifetimePlans()",
+  "resultBundle": "build/pro-current-price-ui-20261005.xcresult",
+  "device": "iPhone 16 Pro Max simulator",
+  "runtime": "iOS 26.5",
+  "dimensions": "1320x2868",
+  "storeKitConfiguration": "Tests/App/Mirivo.storekit",
+  "storefront": "USA (local StoreKit test configuration)",
+  "annualPriceUSD": "19.99",
+  "lifetimePriceUSD": "49.99",
+  "edited": false,
+  "livePurchaseVerified": false,
+  "files": [
+    {
+      "file": "lifetime-en.png",
+      "sourceAttachment": "C868DBBD-EBB3-4492-9335-70417EEB856D.png",
+      "sha256": "150f7b69bb6b2a8f025ae2f5ca0764f06aae6b053d7a68f6c8d5a1cc8a549dc6",
+      "timestamp": 1791202005.028
+    },
+    {
+      "file": "annual-en.png",
+      "sourceAttachment": "2691B303-8B78-4BC3-A04D-2C0CE803B851.png",
+      "sha256": "334832ca51c81d239ef1a825f24ed5046f24079f51e4daa9318e130d97d412fd",
+      "timestamp": 1791202003.262
+    },
+    {
+      "file": "lifetime-tr.png",
+      "sourceAttachment": "AEA324C6-DF05-4B2E-A1E3-BD26E2B85A32.png",
+      "sha256": "20e0c7006c11db9b474f8c333fce607192bc4e9d07a3816c5b2ef54f4adf8191",
+      "timestamp": 1791201989.644
+    },
+    {
+      "file": "annual-tr.png",
+      "sourceAttachment": "0C47F901-ECC7-4CF5-9082-AD3048A908BB.png",
+      "sha256": "4aa677749b677a6230e9d2182a91597dd557c86b1fd60cbf5512e5c1902e988b",
+      "timestamp": 1791201988.52
+    }
+  ]
+}

@@ -176,7 +176,6 @@
 "Dil bul" = "ค้นหาภาษา";
 "Dil bulunamadı" = "ไม่พบภาษา";
 "Başka bir ad veya dil kodu dene." = "ลองใช้ชื่อหรือรหัสภาษาอื่น";
-"Belge dili" = "ภาษาเอกสาร";
 "Ekran paylaşımı durduruldu." = "หยุดแชร์หน้าจอแล้ว";
 "Şu An Çalıyor" = "กำลังเล่น";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "คิวการเล่น";
 "Önceki" = "ก่อนหน้า";
 "Sonraki" = "ถัดไป";
+
+// Updates and notifications
+"Bildirimler" = "การแจ้งเตือน";
+"Bildirimler henüz kullanılamıyor." = "ยังไม่พร้อมใช้งานการแจ้งเตือน";
+"Bildirimler kapalı." = "ปิดการแจ้งเตือนแล้ว";
+"Bildirim izni bekleniyor." = "กำลังรอสิทธิ์การแจ้งเตือน";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "อนุญาตการแจ้งเตือนในการตั้งค่า iOS";
+"Bildirimler hazırlanıyor…" = "กำลังตั้งค่าการแจ้งเตือน…";
+"Bildirimler açık." = "เปิดการแจ้งเตือนแล้ว";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "ลงทะเบียนการแจ้งเตือนไม่สำเร็จ โปรดลองอีกครั้ง";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "ติดต่อเซิร์ฟเวอร์เพื่อปิดการแจ้งเตือนไม่ได้ จะลองอีกครั้งเมื่อเชื่อมต่อ";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "รับข่าวสารเวอร์ชันและผลิตภัณฑ์ สื่อและที่อยู่แหล่งข้อมูลของคุณจะไม่ถูกส่งไปยังเซิร์ฟเวอร์การแจ้งเตือน";
+"iOS Ayarlarını aç" = "เปิดการตั้งค่า iOS";
+"Güncelleme gerekli" = "ต้องอัปเดต";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "ดาวน์โหลด Mirivo เวอร์ชันใหม่จาก App Store เพื่อดำเนินการต่อ";
+"App Store’da güncelle" = "อัปเดตใน App Store";
+"Yeniden kontrol et" = "ตรวจสอบอีกครั้ง";
+"App Store açılamadı. Lütfen yeniden dene." = "เปิด App Store ไม่ได้ โปรดลองอีกครั้ง";
+
+// Optional usage analytics
+"Kullanım analizi" = "การวิเคราะห์การใช้งาน";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "แชร์สถิติการใช้งานเพื่อช่วยปรับปรุง Mirivo โดยไม่ส่งสื่อ ที่อยู่แหล่งข้อมูล หรือข้อความค้นหา คุณปิดได้ทุกเมื่อ";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "เรียกเก็บเงินปีละครั้งและต่ออายุอัตโนมัติ";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "การซื้อแบบตลอดชีพจะไม่ยกเลิกการสมัครสมาชิกปัจจุบันโดยอัตโนมัติ คุณสามารถยกเลิกได้ในบัญชี Apple ของคุณ";

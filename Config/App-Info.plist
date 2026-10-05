@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
+    <key>CMAppStoreID</key><string>$(MIRIVO_APP_STORE_ID)</string>
+    <key>CMFirebaseFunctionsRegion</key><string>$(MIRIVO_FIREBASE_FUNCTIONS_REGION)</string>
+    <key>CMNotificationRegistrationMode</key><string>$(MIRIVO_NOTIFICATION_REGISTRATION_MODE)</string>
+    <key>CMFirebaseAppCheckDebugEnabled</key><string>$(MIRIVO_FIREBASE_APPCHECK_DEBUG_ENABLED)</string>
+    <key>FirebaseAppDelegateProxyEnabled</key><false/>
+    <key>FirebaseMessagingAutoInitEnabled</key><false/>
+    <key>FirebaseDataCollectionDefaultEnabled</key><false/>
+    <key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key><false/>
+    <key>FirebaseAutomaticScreenReportingEnabled</key><false/>
+    <key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key><false/>
+    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key><false/>
+    <key>GOOGLE_ANALYTICS_REGISTRATION_WITH_AD_NETWORK_ENABLED</key><false/>
+    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE</key><false/>
+    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE</key><false/>
+    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA</key><false/>
+    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION</key><false/>
     <key>CMRevenueCatAPIKey</key><string>$(MIRIVO_REVENUECAT_API_KEY)</string>
     <key>CMProPurchasesEnabled</key><string>$(MIRIVO_PRO_SALES_ENABLED)</string>
     <key>CMCarPlayAudioEnabled</key><string>$(MIRIVO_CARPLAY_AUDIO_ENABLED)</string>

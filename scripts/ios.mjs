@@ -129,7 +129,7 @@ function buildArguments(configuration, destination, config, signing = 'device') 
   return ['-quiet', ...project, '-configuration', selectedConfiguration(configuration), '-destination', destination,
     '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, ...teamArguments(),
     ...(config ? [`CURRENT_PROJECT_VERSION=${config.build}`, `MARKETING_VERSION=${config.version}`] : []),
-    ...(config?.preview ? ['CODE_SIGN_ENTITLEMENTS=Config/App.entitlements', 'MIRIVO_CARPLAY_AUDIO_ENABLED=NO', 'MIRIVO_CARPLAY_VIDEO_ENABLED=NO'] : []),
+    ...(config?.preview ? ['MIRIVO_MAIN_APP_ENTITLEMENTS=Config/App.entitlements', 'MIRIVO_CARPLAY_AUDIO_ENABLED=NO', 'MIRIVO_CARPLAY_VIDEO_ENABLED=NO'] : []),
     ...(signing === 'device' ? provisioning() : signing === 'simulator'
       ? ['CODE_SIGNING_ALLOWED=YES', 'CODE_SIGN_IDENTITY=-'] : ['CODE_SIGNING_ALLOWED=NO'])]
 }

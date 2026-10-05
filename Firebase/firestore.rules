@@ -1,0 +1,7 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Tokens can only be read or changed through authenticated server code.
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -7,12 +7,20 @@ final class PurchaseStore: ObservableObject {
     static let shared = PurchaseStore(observeRevenueCat: true)
     @Published private(set) var products: [Product] = []
     @Published private(set) var verifiedPro = false
+    @Published private(set) var activeProductIDs = Set<String>()
     @Published private(set) var busy = false
     @Published var message: String?
     let salesEnabled: Bool
     private let observeRevenueCat: Bool
     private var updates: Task<Void, Never>?
     var access: ProductAccess { ProductAccess(salesEnabled: salesEnabled, verifiedPro: verifiedPro) }
+    var lifetimeOwned: Bool { activeProductIDs.contains(ProProduct.lifetime.rawValue) }
+    var subscriptionActive: Bool { activeProductIDs.contains(ProProduct.yearly.rawValue) }
+
+    func canPurchase(_ product: Product) -> Bool {
+        salesEnabled && !busy && !lifetimeOwned && products.contains(where: { $0.id == product.id })
+            && (!verifiedPro || product.id == ProProduct.lifetime.rawValue)
+    }
 
     init(salesEnabled: Bool = SharedPreferences.salesEnabled, observeRevenueCat: Bool = false) {
         self.salesEnabled = salesEnabled
@@ -33,6 +41,7 @@ final class PurchaseStore: ObservableObject {
                    ProProduct(rawValue: transaction.productID) != nil {
                     await self?.refresh()
                     await transaction.finish()
+                    await self?.syncRevenueCat()
                 }
             }
         }
@@ -40,7 +49,8 @@ final class PurchaseStore: ObservableObject {
     deinit { updates?.cancel() }
 
     func refresh() async {
-        verifiedPro = await ProEntitlements.hasAccess()
+        activeProductIDs = await ProEntitlements.activeProductIDs()
+        verifiedPro = !activeProductIDs.isEmpty
         SharedPreferences.defaults.set(verifiedPro, forKey: "verifiedPro")
     }
 
@@ -48,16 +58,15 @@ final class PurchaseStore: ObservableObject {
         guard salesEnabled, !busy else { return }
         busy = true; message = nil; defer { busy = false }
         do {
-            let loaded = try await Product.products(for: ProProduct.allCases.map(\.rawValue))
-            products = ProProduct.allCases.compactMap { id in loaded.first { $0.id == id.rawValue } }
+            let loaded = try await Product.products(for: ProProduct.forSale.map(\.rawValue))
+            products = ProProduct.forSale.compactMap { id in loaded.first { $0.id == id.rawValue } }
             if products.isEmpty { message = L10n.tr("Planlar yüklenemedi. Biraz sonra yeniden dene.") }
         } catch { message = L10n.tr("App Store’a bağlanılamadı. Yeniden deneyebilirsin.") }
         await refresh()
     }
 
     func purchase(_ product: Product) async {
-        guard salesEnabled, !busy, !verifiedPro,
-              products.contains(where: { $0.id == product.id }) else { return }
+        guard canPurchase(product) else { return }
         busy = true; message = nil; defer { busy = false }
         do {
             switch try await product.purchase() {

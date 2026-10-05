@@ -19,11 +19,13 @@
 		130F31007BF41B629240C4F6 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0085FEC85B90187B8CD34088 /* AppLanguage.swift */; };
 		13C5C937936A362FB86251C4 /* ConnectionProbe.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 32603490DD8FADE8D53F6923 /* ConnectionProbe.mp4 */; };
 		1B57EC56D31A09A1C9086808 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA414D04A4BF6943272CB70 /* LibraryView.swift */; };
-		1BDA75F9635B78B9A1A6B357 /* LegalDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D9A2A2EAD3072C8E87DA27 /* LegalDocumentView.swift */; };
+		1BDA75F9635B78B9A1A6B357 /* ThirdPartyNoticesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D9A2A2EAD3072C8E87DA27 /* ThirdPartyNoticesView.swift */; };
 		1D8C06D847AC28832DB58AB9 /* ProductUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AB9EAA347674C3885997B0 /* ProductUITests.swift */; };
 		21C3786F6C6FA99E9235472A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F06E63BA8E4A93452DBF0D0F /* Foundation.framework */; };
 		24565B065BEC2CFED2625868 /* CompatibilityPlayback.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF0BD9F1C174AA247D8E1B0 /* CompatibilityPlayback.swift */; };
 		2CFFF0808B4FEA6880784C5B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C77496D014831C4456CE3010 /* PrivacyInfo.xcprivacy */; };
+		2D7C22C2AFDF7DC3B0EFE258 /* AppUpdatePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7F1AB2CCEE9F9D4B2C347E /* AppUpdatePolicy.swift */; };
+		344952EEDC41406F067D527D /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BE36D27DA2CD33FC838D94F /* NotificationSettingsView.swift */; };
 		37D27B2F2FB6220F226C81A8 /* SourceLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E96875ADF3E3168C4E5E40D3 /* SourceLibrary.swift */; };
 		3838C8DA3EC478F523A6B729 /* ProductPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF860170C467ED6270326293 /* ProductPolicy.swift */; };
 		3B0B461CB083BA49235A86FF /* CaptionRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD753FB4F5D62960D1ABEDA8 /* CaptionRenderer.swift */; };
@@ -34,13 +36,15 @@
 		4BE06EFC6E1FBBF52141B3C9 /* StreamHTTPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06E3BC7A424C02F5376EE8A /* StreamHTTPRouter.swift */; };
 		5CB7CAA0639D35A9EF209D57 /* Mirivo.storekit in Resources */ = {isa = PBXBuildFile; fileRef = A2B7C3B7722D29A7CA1A1501 /* Mirivo.storekit */; };
 		5EF1752F3D1CF3402E4C6170 /* MediaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E60EB83EF8CD3B025F9BE4 /* MediaLibrary.swift */; };
-		697082B6BDBEF67D8BA82386 /* Legal in Resources */ = {isa = PBXBuildFile; fileRef = 6BC94B648F45B95F6BB5698B /* Legal */; };
+		697082B6BDBEF67D8BA82386 /* Notices in Resources */ = {isa = PBXBuildFile; fileRef = 6BC94B648F45B95F6BB5698B /* Notices */; };
 		6974244E8066DA8C9160FD2C /* MirrorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42B44DD75D4EB5144BE445F /* MirrorModel.swift */; };
+		6AC8367163391B154AD63022 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6C869218B0080586C39FA447 /* GoogleService-Info.plist */; };
 		6B09FF2459F46FC45D28DFC5 /* PurchaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA6A08B3DBAAE14F5697C35 /* PurchaseStore.swift */; };
 		6C97F8A3B11659E9CB11FDCF /* CaptureStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558F6A9DFE25030AE3C65BBD /* CaptureStatus.swift */; };
 		717DDCFECE51D1C57E2BD04C /* PersonalMediaIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DD297F91921BF0C531DBF79 /* PersonalMediaIntegrationTests.swift */; };
 		7335B424B43594FCCADC5976 /* CarPlayAudioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC4208D262CD497848C719B /* CarPlayAudioTests.swift */; };
 		7552CC5AECF2EF84214A7069 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6BC9A368CCD80A35801D7936 /* Assets.xcassets */; };
+		759CA00341E0C0E64E0E823B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B5B43EE3B2F08219E66940FE /* FirebaseCore */; };
 		764D3BC108474E98D436735C /* PrivacyInfo.xcprivacy in Copy Cast privacy manifest */ = {isa = PBXBuildFile; fileRef = A5AC999CB2197C808F7D50A0 /* PrivacyInfo.xcprivacy */; };
 		7715094796A7479626A58550 /* LanguageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4886BA95665417219116CE7 /* LanguageSettingsView.swift */; };
 		787FF16C3A4E250F4E47FB3B /* AudioTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EB734BA25A2ADFF522C5C9 /* AudioTimeline.swift */; };
@@ -48,23 +52,33 @@
 		7F6969F9E2F5F3FA4174CF6F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6CB6B2FC0B0924DFE2E6203C /* InfoPlist.strings */; };
 		8090002D73B310A20A073EE6 /* TVConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB741868B5A56655B13AD68 /* TVConnectionView.swift */; };
 		824E9D7B02E1FF74F6F1758D /* MirivoRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76D15E7ADE74D8DD5C561F9 /* MirivoRootView.swift */; };
+		837068886C62694E74291D81 /* AppServicesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DACBDA46401BE7CCB0F40C9 /* AppServicesUITests.swift */; };
+		85D69A57BFE29FFCE159EC84 /* PushRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09600E5CB102EA4500DF5F71 /* PushRegistration.swift */; };
 		85E1AA5AC75F51332176EEF9 /* InlineVideo.mkv in Resources */ = {isa = PBXBuildFile; fileRef = D729D4A0B6B5797C1D08D56D /* InlineVideo.mkv */; };
+		86C16812398AE22D71FD254A /* FirebaseServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F4DA5176AF43712C699B17 /* FirebaseServices.swift */; };
 		86DF028C653BEA011F076FD7 /* PersonalMediaServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3D946DFCD19A57BC2E0004 /* PersonalMediaServer.swift */; };
 		88E8D5CC684C7F41671166F4 /* MirrorSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8381D2C138B8C343E1F81006 /* MirrorSettingsView.swift */; };
 		8A1A468EB38790A21724942D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F06E63BA8E4A93452DBF0D0F /* Foundation.framework */; };
 		8AA3253530940DB712E7B4AC /* BrandIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C184DA95ED13A79C53E666A /* BrandIdentity.swift */; };
+		8D8C0F62416C96391D5336D0 /* RequiredUpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C740A7E73BA245064671F56B /* RequiredUpdateView.swift */; };
 		8EA1170B1444AAAB03382BF1 /* SessionDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDFDC3C9C90C78E67449212 /* SessionDiagnostics.swift */; };
 		91727C6232A64050102F02C7 /* GoogleSansMedium.bundle in Copy Cast SDK resources */ = {isa = PBXBuildFile; fileRef = C9ADEE077A9CA1CBFC8105D9 /* GoogleSansMedium.bundle */; };
+		93656F5D69DE991668F97D4E /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 46BD8247E4F6908F41827479 /* FirebaseFunctions */; };
+		94228C552D327F49A41740AE /* AppServicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A257446DB7E9F2CD7F4EF34 /* AppServicesTests.swift */; };
 		95BEB3F0F44ADC216175463A /* CarMirrorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787FE9D69110D36DE32F7204 /* CarMirrorApp.swift */; };
 		96D277469DFDC41EEDDFEE5C /* TVDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = D08707F339C91A171233BEA6 /* TVDiscovery.swift */; };
 		99153280A70B2A12F0D2736D /* ProEntitlements.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6CDFABADC306B2CFBA2ADE /* ProEntitlements.swift */; };
 		9AD49CC0A41AB85034079ED1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C77496D014831C4456CE3010 /* PrivacyInfo.xcprivacy */; };
+		9ADEF30E743007696473144B /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = F73C28C743D12E83320C98D3 /* FirebaseAppCheck */; };
+		9BD3904AF317DD5381C2B565 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 4D72118A8132B020F800E87A /* FirebaseRemoteConfig */; };
+		9EE71926B1674D1FA4670BBB /* AppUpdateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080F64249E45EC75196E670A /* AppUpdateStore.swift */; };
 		9EEE526DB4B25C24FD618291 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35CEB56C16A29969E3B059 /* CarPlaySceneDelegate.swift */; };
 		9F0ABCE9AEF7873BE5269DDD /* VLCKit in Frameworks */ = {isa = PBXBuildFile; productRef = AF3BAF61D08911B40537D51D /* VLCKit */; };
 		9FC66D053245461C85292BFC /* MediaSharingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55F34ECD5262B75801668AF7 /* MediaSharingView.swift */; };
 		A48864FA01DA908E087A6B48 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0085FEC85B90187B8CD34088 /* AppLanguage.swift */; };
 		A4DCF0AB825B5BDA5CF953AE /* AudioTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13EB734BA25A2ADFF522C5C9 /* AudioTimeline.swift */; };
 		A6E6ACE0D5452B14DC250A67 /* ScreenStreamEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BDA51922E578A1AC03C900 /* ScreenStreamEncoder.swift */; };
+		A976BE647E11150E63AF235A /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = FC1639A9EE56238D24DC6BD0 /* FirebaseMessaging */; };
 		AB20B3B24161255745E0D26A /* MirrorSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3B0C9E62AAC44713526F5F /* MirrorSessionState.swift */; };
 		AF733C6BBD1A9304645F4918 /* GoogleCastUIResources.bundle in Copy Cast SDK resources */ = {isa = PBXBuildFile; fileRef = 3307D8A63180ADDA2C57F11C /* GoogleCastUIResources.bundle */; };
 		AF7D77F614BCD64A7B4F5637 /* PCMUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48519B80BB9C4242BA2940A0 /* PCMUtilities.swift */; };
@@ -82,8 +96,11 @@
 		D1A79C91F08E93B1DCDA2AE9 /* MirrorSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3B0C9E62AAC44713526F5F /* MirrorSessionState.swift */; };
 		D250A6537159818BD210E852 /* BroadcastSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5508F83D5F75807E02C7998C /* BroadcastSessionStore.swift */; };
 		D289CC7BE39AB2946DC88997 /* GoogleCast in Frameworks */ = {isa = PBXBuildFile; productRef = BE949B2FF72971D7D7041663 /* GoogleCast */; };
+		D2C5EEDD65E14A25ADA7DA81 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 675A3B82FABCFE4FF3977292 /* FirebaseAuth */; };
 		D4622DC538E78D7394D24FC8 /* MirrorHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B73AB87C5FA4106F0F72210 /* MirrorHomeView.swift */; };
 		D4A28BB2460092F3972E1374 /* CarPlayCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94E314225BDBE1952424009 /* CarPlayCapabilities.swift */; };
+		D5C73CED02503BC3B4D46F85 /* NotificationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 287C8BEDA9D1CB649C65E88D /* NotificationStore.swift */; };
+		D75DB42E94D3BF0C771798AA /* AppUpdatePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7F1AB2CCEE9F9D4B2C347E /* AppUpdatePolicy.swift */; };
 		D772D990DA4521FCF91FD85D /* MaterialDialogs.bundle in Copy Cast SDK resources */ = {isa = PBXBuildFile; fileRef = F91F2D590C6CAF35BC890D65 /* MaterialDialogs.bundle */; };
 		D8E70BFC5CE2034872A7E7FB /* MediaSharingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF202502F1745331710BCBD3 /* MediaSharingUITests.swift */; };
 		DA841C2F84CEC5B6EF7FB449 /* BroadcastSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5508F83D5F75807E02C7998C /* BroadcastSessionStore.swift */; };
@@ -96,6 +113,7 @@
 		E83C1F2E4FCE483323A7BAF7 /* LocalStreamServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F4AF80C6A523EAABCD51C3 /* LocalStreamServer.swift */; };
 		E88792B05C1E034808981351 /* StreamHTTPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06E3BC7A424C02F5376EE8A /* StreamHTTPRouter.swift */; };
 		EB40E1186195DC10D23DA16B /* CaptionSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C83C949A4BD7D185B9D82BE /* CaptionSettingsView.swift */; };
+		ECE0F3D2FF8F7B171D2483D0 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = FCB62B8857D1CE1E28298A50 /* FirebaseAnalyticsCore */; };
 		EECBDFBFCE08085B432289EC /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C680F9F5584AB9E2950C6A /* Preferences.swift */; };
 		EF6C037629756A8D13BCD2BB /* MediaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6E60EB83EF8CD3B025F9BE4 /* MediaLibrary.swift */; };
 		F0A24B0A0864DEBAFE4D155F /* GoogleCastOptionalUIResources.bundle in Copy Cast SDK resources */ = {isa = PBXBuildFile; fileRef = 75AA642AC94441D520AA15BB /* GoogleCastOptionalUIResources.bundle */; };
@@ -174,7 +192,9 @@
 		0085FEC85B90187B8CD34088 /* AppLanguage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
 		02669098FC36D8F26B6B5993 /* sv */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = sv; path = Resources/sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0506F94EA4A56BB734FF0D6C /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = Resources/ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		080F64249E45EC75196E670A /* AppUpdateStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppUpdateStore.swift; sourceTree = "<group>"; };
 		08AF008F42356510726CE454 /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "Resources/zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		09600E5CB102EA4500DF5F71 /* PushRegistration.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PushRegistration.swift; sourceTree = "<group>"; };
 		0BC87DB61D37FA9C64532078 /* MirrorStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MirrorStyle.swift; sourceTree = "<group>"; };
 		0DD297F91921BF0C531DBF79 /* PersonalMediaIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersonalMediaIntegrationTests.swift; path = Tests/App/PersonalMediaIntegrationTests.swift; sourceTree = "<group>"; };
 		0F2E033B36C794B2826E8BDE /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -190,21 +210,25 @@
 		206AFA116F9269AA8EEB1DDB /* fr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = fr; path = Resources/fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		277C7D5AC2A935EE6DFCF418 /* nl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = nl; path = Resources/nl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2830E768142C192CAA76F3C2 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = Resources/es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		287C8BEDA9D1CB649C65E88D /* NotificationStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationStore.swift; sourceTree = "<group>"; };
 		29B2835A10EC04973133EAAE /* he */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = he; path = Resources/he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2A02C77F42337BE8EA407374 /* ja */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ja; path = Resources/ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		32603490DD8FADE8D53F6923 /* ConnectionProbe.mp4 */ = {isa = PBXFileReference; includeInIndex = 1; name = ConnectionProbe.mp4; path = Resources/ConnectionProbe.mp4; sourceTree = "<group>"; };
 		32D0E7A83619DC0C2E0E4198 /* TVPlaybackTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TVPlaybackTests.swift; path = Tests/App/TVPlaybackTests.swift; sourceTree = "<group>"; };
 		3307D8A63180ADDA2C57F11C /* GoogleCastUIResources.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; name = GoogleCastUIResources.bundle; path = GoogleCast.framework/GoogleCastUIResources.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A257446DB7E9F2CD7F4EF34 /* AppServicesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppServicesTests.swift; path = Tests/App/AppServicesTests.swift; sourceTree = "<group>"; };
 		3B02C44746F000A5CD5D828F /* id */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = id; path = Resources/id.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3E880B67D7C5A05B6E66DE5A /* th */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = th; path = Resources/th.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4020D5D87ED09C62DACDDDB8 /* pl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = pl; path = Resources/pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		406052DB091B52C3940E2317 /* sv */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = sv; path = Resources/sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		45F4DA5176AF43712C699B17 /* FirebaseServices.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FirebaseServices.swift; sourceTree = "<group>"; };
 		46AF1281DEF6013248F11B05 /* MediaByteRange.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaByteRange.swift; sourceTree = "<group>"; };
 		46E18F4E8720C4EAB54A4A8A /* GoogleCastCoreResources.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; name = GoogleCastCoreResources.bundle; path = GoogleCast.framework/GoogleCastCoreResources.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		4752322CF56480E6AE328A81 /* ja */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ja; path = Resources/ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		48519B80BB9C4242BA2940A0 /* PCMUtilities.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PCMUtilities.swift; sourceTree = "<group>"; };
 		4A157152FB264CA827F1B5F7 /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Config/Base.xcconfig; sourceTree = "<group>"; };
 		4C83C949A4BD7D185B9D82BE /* CaptionSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CaptionSettingsView.swift; sourceTree = "<group>"; };
+		4DACBDA46401BE7CCB0F40C9 /* AppServicesUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppServicesUITests.swift; path = Tests/UI/AppServicesUITests.swift; sourceTree = "<group>"; };
 		4DACF53522CC18659D378D80 /* tr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = tr; path = Resources/tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5508F83D5F75807E02C7998C /* BroadcastSessionStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BroadcastSessionStore.swift; sourceTree = "<group>"; };
 		558F6A9DFE25030AE3C65BBD /* CaptureStatus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CaptureStatus.swift; sourceTree = "<group>"; };
@@ -218,8 +242,9 @@
 		65F59F813E340F6D1DD4D84A /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Resources/zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		6B51D883E52649C4FD2DA71E /* vi */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = vi; path = Resources/vi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6B6D59971C1F6473E6E95F41 /* Diagnostics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Diagnostics.swift; sourceTree = "<group>"; };
-		6BC94B648F45B95F6BB5698B /* Legal */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; name = Legal; path = Resources/Legal; sourceTree = "<group>"; };
+		6BC94B648F45B95F6BB5698B /* Notices */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; name = Notices; path = Resources/Notices; sourceTree = "<group>"; };
 		6BC9A368CCD80A35801D7936 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		6C869218B0080586C39FA447 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Config/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6DBB6E8E8F3DEDEBB0C1A8FD /* pl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = pl; path = Resources/pl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6EDFDC3C9C90C78E67449212 /* SessionDiagnostics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionDiagnostics.swift; sourceTree = "<group>"; };
 		7277766BF65E5A75968ECA9A /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = Resources/ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -236,6 +261,7 @@
 		83850904FB46C1780203F0E2 /* GoogleSansRegular.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; name = GoogleSansRegular.bundle; path = GoogleCast.framework/GoogleSansRegular.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		87F4AF80C6A523EAABCD51C3 /* LocalStreamServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalStreamServer.swift; sourceTree = "<group>"; };
 		89C680F9F5584AB9E2950C6A /* Preferences.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
+		8BE36D27DA2CD33FC838D94F /* NotificationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
 		8C184DA95ED13A79C53E666A /* BrandIdentity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BrandIdentity.swift; sourceTree = "<group>"; };
 		936C2B83F8352885417D939C /* hi */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = hi; path = Resources/hi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9777FF28174C1779DC4532F7 /* CarMirror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CarMirror.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -243,7 +269,7 @@
 		A0AB9EAA347674C3885997B0 /* ProductUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProductUITests.swift; path = Tests/UI/ProductUITests.swift; sourceTree = "<group>"; };
 		A2B7C3B7722D29A7CA1A1501 /* Mirivo.storekit */ = {isa = PBXFileReference; includeInIndex = 1; name = Mirivo.storekit; path = Tests/App/Mirivo.storekit; sourceTree = "<group>"; };
 		A2E1D5086C4CF78C5361A79D /* StoreKitIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StoreKitIntegrationTests.swift; path = Tests/App/StoreKitIntegrationTests.swift; sourceTree = "<group>"; };
-		A3D9A2A2EAD3072C8E87DA27 /* LegalDocumentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LegalDocumentView.swift; sourceTree = "<group>"; };
+		A3D9A2A2EAD3072C8E87DA27 /* ThirdPartyNoticesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ThirdPartyNoticesView.swift; sourceTree = "<group>"; };
 		A5AC999CB2197C808F7D50A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = GoogleCast.framework/PrivacyInfo.xcprivacy; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6624A69B678370753478771 /* LiveCaptionTranscriber.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveCaptionTranscriber.swift; sourceTree = "<group>"; };
 		A6DD1D16A555E7244F59DD52 /* vi */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = vi; path = Resources/vi.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -257,6 +283,7 @@
 		BB53F66D34B168934EF66DFD /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = Resources/de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C4886BA95665417219116CE7 /* LanguageSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguageSettingsView.swift; sourceTree = "<group>"; };
 		C727761C43BEE7095A780865 /* GoogleSansBold.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; name = GoogleSansBold.bundle; path = GoogleCast.framework/GoogleSansBold.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		C740A7E73BA245064671F56B /* RequiredUpdateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RequiredUpdateView.swift; sourceTree = "<group>"; };
 		C77496D014831C4456CE3010 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C7BDA51922E578A1AC03C900 /* ScreenStreamEncoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScreenStreamEncoder.swift; sourceTree = "<group>"; };
 		C99E14E30B6534DCB74BF5BE /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -272,6 +299,7 @@
 		D94E314225BDBE1952424009 /* CarPlayCapabilities.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CarPlayCapabilities.swift; sourceTree = "<group>"; };
 		DB1E7F901732A50728B261DE /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Resources/zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		DC00B837BB0FE5B5A06C5D54 /* MirivoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MirivoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC7F1AB2CCEE9F9D4B2C347E /* AppUpdatePolicy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppUpdatePolicy.swift; sourceTree = "<group>"; };
 		DCC336E28459571C1841F691 /* ru */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ru; path = Resources/ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		DD3D946DFCD19A57BC2E0004 /* PersonalMediaServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PersonalMediaServer.swift; sourceTree = "<group>"; };
 		E12D673AA3DC1E8AE2BC281D /* zh-Hant */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "Resources/zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -323,6 +351,13 @@
 				9F0ABCE9AEF7873BE5269DDD /* VLCKit in Frameworks */,
 				D289CC7BE39AB2946DC88997 /* GoogleCast in Frameworks */,
 				B3F59409A6AD99E7EBD78430 /* RevenueCat in Frameworks */,
+				759CA00341E0C0E64E0E823B /* FirebaseCore in Frameworks */,
+				9BD3904AF317DD5381C2B565 /* FirebaseRemoteConfig in Frameworks */,
+				A976BE647E11150E63AF235A /* FirebaseMessaging in Frameworks */,
+				D2C5EEDD65E14A25ADA7DA81 /* FirebaseAuth in Frameworks */,
+				93656F5D69DE991668F97D4E /* FirebaseFunctions in Frameworks */,
+				9ADEF30E743007696473144B /* FirebaseAppCheck in Frameworks */,
+				ECE0F3D2FF8F7B171D2483D0 /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +372,7 @@
 				CC35CEB56C16A29969E3B059 /* CarPlaySceneDelegate.swift */,
 				206AE38CFBB2B61C4F5B94ED /* ExternalDisplaySceneDelegate.swift */,
 				C4886BA95665417219116CE7 /* LanguageSettingsView.swift */,
-				A3D9A2A2EAD3072C8E87DA27 /* LegalDocumentView.swift */,
+				A3D9A2A2EAD3072C8E87DA27 /* ThirdPartyNoticesView.swift */,
 				5AA414D04A4BF6943272CB70 /* LibraryView.swift */,
 				0F5D3E1FEBA5BFFAB61D9F7D /* MirivoEntryView.swift */,
 				A76D15E7ADE74D8DD5C561F9 /* MirivoRootView.swift */,
@@ -357,6 +392,12 @@
 				55F34ECD5262B75801668AF7 /* MediaSharingView.swift */,
 				7D0BDCFA4800E23F1C46616E /* CastPlayback.swift */,
 				DD3D946DFCD19A57BC2E0004 /* PersonalMediaServer.swift */,
+				080F64249E45EC75196E670A /* AppUpdateStore.swift */,
+				45F4DA5176AF43712C699B17 /* FirebaseServices.swift */,
+				8BE36D27DA2CD33FC838D94F /* NotificationSettingsView.swift */,
+				287C8BEDA9D1CB649C65E88D /* NotificationStore.swift */,
+				09600E5CB102EA4500DF5F71 /* PushRegistration.swift */,
+				C740A7E73BA245064671F56B /* RequiredUpdateView.swift */,
 			);
 			name = App;
 			path = Sources/App;
@@ -387,7 +428,7 @@
 				C77496D014831C4456CE3010 /* PrivacyInfo.xcprivacy */,
 				6BC9A368CCD80A35801D7936 /* Assets.xcassets */,
 				32603490DD8FADE8D53F6923 /* ConnectionProbe.mp4 */,
-				6BC94B648F45B95F6BB5698B /* Legal */,
+				6BC94B648F45B95F6BB5698B /* Notices */,
 				1F43CE099B6AA1B9575C2568 /* Localizable.strings */,
 				6CB6B2FC0B0924DFE2E6203C /* InfoPlist.strings */,
 				7DC4208D262CD497848C719B /* CarPlayAudioTests.swift */,
@@ -406,6 +447,9 @@
 				C727761C43BEE7095A780865 /* GoogleSansBold.bundle */,
 				F91F2D590C6CAF35BC890D65 /* MaterialDialogs.bundle */,
 				A5AC999CB2197C808F7D50A0 /* PrivacyInfo.xcprivacy */,
+				3A257446DB7E9F2CD7F4EF34 /* AppServicesTests.swift */,
+				4DACBDA46401BE7CCB0F40C9 /* AppServicesUITests.swift */,
+				6C869218B0080586C39FA447 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -461,6 +505,7 @@
 				EF860170C467ED6270326293 /* ProductPolicy.swift */,
 				D06E3BC7A424C02F5376EE8A /* StreamHTTPRouter.swift */,
 				46AF1281DEF6013248F11B05 /* MediaByteRange.swift */,
+				DC7F1AB2CCEE9F9D4B2C347E /* AppUpdatePolicy.swift */,
 			);
 			name = Core;
 			path = Sources/Core;
@@ -538,6 +583,13 @@
 				AF3BAF61D08911B40537D51D /* VLCKit */,
 				BE949B2FF72971D7D7041663 /* GoogleCast */,
 				50615A8DB1BD576581A4A1A9 /* RevenueCat */,
+				B5B43EE3B2F08219E66940FE /* FirebaseCore */,
+				4D72118A8132B020F800E87A /* FirebaseRemoteConfig */,
+				FC1639A9EE56238D24DC6BD0 /* FirebaseMessaging */,
+				675A3B82FABCFE4FF3977292 /* FirebaseAuth */,
+				46BD8247E4F6908F41827479 /* FirebaseFunctions */,
+				F73C28C743D12E83320C98D3 /* FirebaseAppCheck */,
+				FCB62B8857D1CE1E28298A50 /* FirebaseAnalyticsCore */,
 			);
 			productName = CarMirror;
 			productReference = 9777FF28174C1779DC4532F7 /* CarMirror.app */;
@@ -605,6 +657,7 @@
 				C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */,
 				66F102B481B0F26771A692C6 /* XCLocalSwiftPackageReference "GoogleCast" */,
 				C02B5C91332DB5B673E58BCD /* XCRemoteSwiftPackageReference "purchases-ios" */,
+				89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1C7BCF4B78485E347375FAC5 /* Products */;
@@ -653,9 +706,10 @@
 				9AD49CC0A41AB85034079ED1 /* PrivacyInfo.xcprivacy in Resources */,
 				7552CC5AECF2EF84214A7069 /* Assets.xcassets in Resources */,
 				13C5C937936A362FB86251C4 /* ConnectionProbe.mp4 in Resources */,
-				697082B6BDBEF67D8BA82386 /* Legal in Resources */,
+				697082B6BDBEF67D8BA82386 /* Notices in Resources */,
 				7945BFEED87454A303408F17 /* Localizable.strings in Resources */,
 				42169685F5DE071457C51D3C /* InfoPlist.strings in Resources */,
+				6AC8367163391B154AD63022 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -686,7 +740,7 @@
 				9EEE526DB4B25C24FD618291 /* CarPlaySceneDelegate.swift in Sources */,
 				0EF7757C1702870EA1DC2754 /* ExternalDisplaySceneDelegate.swift in Sources */,
 				7715094796A7479626A58550 /* LanguageSettingsView.swift in Sources */,
-				1BDA75F9635B78B9A1A6B357 /* LegalDocumentView.swift in Sources */,
+				1BDA75F9635B78B9A1A6B357 /* ThirdPartyNoticesView.swift in Sources */,
 				1B57EC56D31A09A1C9086808 /* LibraryView.swift in Sources */,
 				C2E79F8036B879969A304FC2 /* MirivoEntryView.swift in Sources */,
 				824E9D7B02E1FF74F6F1758D /* MirivoRootView.swift in Sources */,
@@ -707,6 +761,13 @@
 				BE6DF6990071E82A696A9810 /* CastPlayback.swift in Sources */,
 				86DF028C653BEA011F076FD7 /* PersonalMediaServer.swift in Sources */,
 				BBBE94EC3DE68D36CCE0307C /* MediaByteRange.swift in Sources */,
+				2D7C22C2AFDF7DC3B0EFE258 /* AppUpdatePolicy.swift in Sources */,
+				9EE71926B1674D1FA4670BBB /* AppUpdateStore.swift in Sources */,
+				86C16812398AE22D71FD254A /* FirebaseServices.swift in Sources */,
+				344952EEDC41406F067D527D /* NotificationSettingsView.swift in Sources */,
+				D5C73CED02503BC3B4D46F85 /* NotificationStore.swift in Sources */,
+				85D69A57BFE29FFCE159EC84 /* PushRegistration.swift in Sources */,
+				8D8C0F62416C96391D5336D0 /* RequiredUpdateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -716,6 +777,7 @@
 			files = (
 				1D8C06D847AC28832DB58AB9 /* ProductUITests.swift in Sources */,
 				D8E70BFC5CE2034872A7E7FB /* MediaSharingUITests.swift in Sources */,
+				837068886C62694E74291D81 /* AppServicesUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -727,6 +789,7 @@
 				420F918FE47A8B68C0C64E54 /* StoreKitIntegrationTests.swift in Sources */,
 				0D4D9576C4ADF3D91550FC00 /* TVPlaybackTests.swift in Sources */,
 				717DDCFECE51D1C57E2BD04C /* PersonalMediaIntegrationTests.swift in Sources */,
+				94228C552D327F49A41740AE /* AppServicesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -755,6 +818,7 @@
 				A6E6ACE0D5452B14DC250A67 /* ScreenStreamEncoder.swift in Sources */,
 				001CC30A99B29A6EE4CBCA22 /* LiveCaptionTranscriber.swift in Sources */,
 				3C2DFA63739B5D1891F87328 /* SampleHandler.swift in Sources */,
+				D75DB42E94D3BF0C771798AA /* AppUpdatePolicy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -867,7 +931,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/CarPlay.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(MIRIVO_MAIN_APP_ENTITLEMENTS)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DEBUG=1",
@@ -877,6 +941,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MIRIVO_CARPLAY_VIDEO_ENABLED = YES;
+				MIRIVO_MAIN_APP_ENTITLEMENTS = Config/CarPlay.entitlements;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1015,7 +1080,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Config/Broadcast.entitlements;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Config/Broadcast-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -1093,7 +1158,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Config/Broadcast.entitlements;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DEBUG=1",
@@ -1211,7 +1276,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Config/Broadcast.entitlements;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Config/Broadcast-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -1235,7 +1300,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/CarPlayAudio.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(MIRIVO_MAIN_APP_ENTITLEMENTS)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DEBUG=1",
@@ -1245,6 +1310,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MIRIVO_CARPLAY_VIDEO_ENABLED = NO;
+				MIRIVO_MAIN_APP_ENTITLEMENTS = Config/CarPlayAudio.entitlements;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1347,7 +1413,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Config/Broadcast.entitlements;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"DEBUG=1",
@@ -1376,12 +1442,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/CarPlay.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(MIRIVO_MAIN_APP_ENTITLEMENTS)";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Config/App-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MIRIVO_CARPLAY_VIDEO_ENABLED = YES;
+				MIRIVO_MAIN_APP_ENTITLEMENTS = Config/CarPlay.entitlements;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1423,12 +1490,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/CarPlayAudio.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(MIRIVO_MAIN_APP_ENTITLEMENTS)";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Config/App-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MIRIVO_CARPLAY_VIDEO_ENABLED = NO;
+				MIRIVO_MAIN_APP_ENTITLEMENTS = Config/CarPlayAudio.entitlements;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1513,6 +1581,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = exactVersion;
+				version = 12.19.2;
+			};
+		};
 		C02B5C91332DB5B673E58BCD /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
@@ -1532,20 +1608,55 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		46BD8247E4F6908F41827479 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		4D72118A8132B020F800E87A /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
 		50615A8DB1BD576581A4A1A9 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C02B5C91332DB5B673E58BCD /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
+		};
+		675A3B82FABCFE4FF3977292 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 		AF3BAF61D08911B40537D51D /* VLCKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C046F01028AF943F11EDD552 /* XCRemoteSwiftPackageReference "vlckit" */;
 			productName = VLCKit;
 		};
+		B5B43EE3B2F08219E66940FE /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		BE949B2FF72971D7D7041663 /* GoogleCast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 66F102B481B0F26771A692C6 /* XCLocalSwiftPackageReference "GoogleCast" */;
 			productName = GoogleCast;
+		};
+		F73C28C743D12E83320C98D3 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		FC1639A9EE56238D24DC6BD0 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		FCB62B8857D1CE1E28298A50 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89AA1859BC6D7ED9A6E430A8 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

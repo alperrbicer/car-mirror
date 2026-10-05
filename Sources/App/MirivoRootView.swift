@@ -6,6 +6,7 @@ struct MirivoRootView: View {
     @State private var selectedPage = 0
     @State private var showingSettings = false
     @State private var showingPlayer = false
+    @ObservedObject private var notifications = NotificationStore.shared
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
@@ -44,6 +45,16 @@ struct MirivoRootView: View {
             NavigationStack { MediaPlayerScreen(model: model) }
         }
         .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
+        .onAppear { FirebaseServices.recordScreen(selectedPage == 0 ? .home : .library) }
+        .onChange(of: selectedPage) { _, page in FirebaseServices.recordScreen(page == 0 ? .home : .library) }
+        .onChange(of: notifications.pendingNavigation, initial: true) { _, navigation in
+            guard let navigation else { return }
+            showingPlayer = false
+            model.presentingPlayer = false
+            selectedPage = navigation.route == .library ? 1 : 0
+            showingSettings = navigation.route == .settings
+            notifications.consumedNavigation()
+        }
         .environment(\.locale, Locale(identifier: L10n.language))
         .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
         .environment(\.defaultMinListRowHeight, MirrorStyle.controlHeight)

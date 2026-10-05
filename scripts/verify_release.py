@@ -28,10 +28,9 @@ for path in web.rglob('*.html'):
   if not parts.path:continue
   target=(path.parent/unquote(parts.path)).resolve()
   if not target.is_relative_to(web) or not target.is_file():errors.append(f'{path}: broken local link {link}')
-for lang in ['tr','en']:
- for kind in ['privacy','terms','support']:
-  public=web/lang/(kind+'.html');bundled=ROOT/'Resources/Legal'/lang/(kind+'.html')
-  if public.read_bytes()!=bundled.read_bytes():errors.append(f'{kind}: offline and public content differ')
+if (ROOT/'Resources/Legal').exists():errors.append('Product documents must only be served from Netlify, not bundled locally')
+for name in ['VLCKit-COPYING.txt','GoogleCast-COPYING.txt']:
+ if not (ROOT/'Resources/Notices'/name).is_file():errors.append(f'Missing third-party notice: {name}')
 for path in ['Config/App-Info.plist','Config/Broadcast-Info.plist','Config/App.entitlements','Config/CarPlayAudio.entitlements','Config/CarPlay.entitlements','Resources/PrivacyInfo.xcprivacy']:
  with (ROOT/path).open('rb') as f:plistlib.load(f)
 with (ROOT/'Config/App-Info.plist').open('rb') as f:app_info=plistlib.load(f)

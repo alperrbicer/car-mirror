@@ -16,6 +16,7 @@ struct MirrorSettingsView: View {
     @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
     @ObservedObject private var purchases = PurchaseStore.shared
+    @AppStorage("analytics.enabled") private var analyticsEnabled = false
 
     var body: some View {
         NavigationStack {
@@ -39,9 +40,12 @@ struct MirrorSettingsView: View {
                             Text(L10n.tr(purchases.verifiedPro ? "Etkin" : "Keşfet"))
                                 .font(.caption).foregroundStyle(MirrorStyle.accent)
                         }
-                    }
+                    }.accessibilityIdentifier("settings-pro")
                 }.listRowBackground(MirrorStyle.surface)
                 Section(L10n.tr("Tercihler")) {
+                    NavigationLink { NotificationSettingsView() } label: {
+                        Label(L10n.tr("Bildirimler"), systemImage: "bell")
+                    }.accessibilityIdentifier("settings-notifications")
                     NavigationLink { LanguageSettingsView() } label: {
                         LabeledContent(L10n.tr("Dil"), value: language == "system" ? L10n.tr("Sistemi izle") : L10n.appLanguage.nativeName)
                     }.accessibilityIdentifier("settings-language")
@@ -59,12 +63,23 @@ struct MirrorSettingsView: View {
                         NavigationLink(L10n.tr("Canlı altyazılar · Pro")) { ProView() }
                     }
                 }.listRowBackground(MirrorStyle.surface)
+                Section {
+                    Toggle(L10n.tr("Kullanım analizi"), isOn: $analyticsEnabled)
+                        .disabled(!FirebaseServices.configured)
+                        .accessibilityIdentifier("settings-analytics")
+                        .onChange(of: analyticsEnabled) { _, _ in FirebaseServices.applyAnalyticsPreference(reset: true) }
+                } footer: {
+                    Text(L10n.tr("Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin."))
+                }.listRowBackground(MirrorStyle.surface)
                 Section(L10n.tr("Yasal")) {
-                    NavigationLink(L10n.tr("Gizlilik Politikası")) { LegalDocumentView(page: .privacy) }
-                    NavigationLink(L10n.tr("Kullanım Koşulları (EULA)")) { LegalDocumentView(page: .terms) }
+                    Link(L10n.tr("Gizlilik Politikası"), destination: BrandIdentity.privacyURL)
+                        .accessibilityIdentifier("settings-privacy")
+                    Link(L10n.tr("Kullanım Koşulları (EULA)"), destination: BrandIdentity.termsURL)
+                        .accessibilityIdentifier("settings-terms")
                 }.listRowBackground(MirrorStyle.surface)
                 Section(L10n.tr("Hakkında")) {
-                    NavigationLink(L10n.tr("Yardım ve SSS")) { LegalDocumentView(page: .support) }
+                    Link(L10n.tr("Yardım ve SSS"), destination: BrandIdentity.supportURL)
+                        .accessibilityIdentifier("settings-support")
                     Link(L10n.tr("Bize ulaş"), destination: URL(string: "mailto:alperrbicer@gmail.com?subject=Mirivo")!)
                     LabeledContent(L10n.tr("Sürüm"), value: version)
                 }.listRowBackground(MirrorStyle.surface)
@@ -143,6 +158,7 @@ struct MirrorSettingsView: View {
         .environment(\.locale, Locale(identifier: L10n.language))
         .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
         .preferredColorScheme(.dark)
+        .onAppear { FirebaseServices.recordScreen(.settings) }
     }
 
     private var version: String {

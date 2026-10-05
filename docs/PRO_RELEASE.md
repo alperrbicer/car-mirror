@@ -1,6 +1,6 @@
-# Mirivo Pro — 4 Ekim 2026
+# Mirivo Pro — 5 Ekim 2026
 
-Kullanıcı kararı: ilk App Review sürümü Pro ile gönderilecek. `MIRIVO_PRO_SALES_ENABLED = YES`; Pro yakında ifadeleri kaldırıldı. Ücretsiz ve Pro sürümler reklamsızdır.
+Mirivo henüz yayımlanmadı ve eski satın alma yok. Satış modeli yalnız yıllık ve ömür boyu Pro; aynı özellikleri açar. Haftalık plan koddan, StoreKit dosyasından ve aktif RevenueCat teklifinden çıkarıldı. Ücretsiz kullanım korunur; her iki sürüm reklamsızdır.
 
 | Erişim | Ücretsiz | Pro |
 | --- | --- | --- |
@@ -11,56 +11,58 @@ Kullanıcı kararı: ilk App Review sürümü Pro ile gönderilecek. `MIRIVO_PRO
 
 Pro içerik, IPTV hesabı, CarPlay Video yetkisi, araç uyumluluğu veya DRM erişimi sağlamaz.
 
-| Ürün | Kimlik | Dönem | Başlangıç USD fiyatı |
-| --- | --- | --- | --- |
-| Haftalık | `com.alperbicer.carmirror.pro.weekly` | 1 hafta, yenilenir | 1.99 |
-| Yıllık | `com.alperbicer.carmirror.pro.yearly` | 1 yıl peşin, yenilenir | 19.99 |
-| Ömür boyu | `com.alperbicer.carmirror.pro.lifetime` | Tüketilemeyen, tek ödeme | 39.99 |
+## Ürünler ve canlı mağaza kaydı
 
-Uygulama fiyatları StoreKit'ten alır; yerel test fiyatlarını satış fiyatı olarak kodlamaz. Haftalık ve yıllık aynı hizmet seviyesine yerleştirilmelidir. Aylık taksitli 12 ay taahhüt planı kullanılmaz. Fiyatlar App Review gönderilmeden önce sahibin son onayına tabidir.
+| Ürün | Kimlik | Dönem | ABD | Türkiye |
+| --- | --- | --- | --- | --- |
+| Yıllık | `com.alperbicer.carmirror.pro.yearly` | Yılda bir tahsil edilir, otomatik yenilenir | $19.99 | ₺399.99 |
+| Ömür boyu | `com.alperbicer.carmirror.pro.lifetime` | Tüketilemeyen, tek ödeme | $49.99 | ₺999.99 |
 
-## Satın alma ve RevenueCat
+Fiyatlar kullanıcı tarafından onaylandı, App Store Connect'te kaydedildi ve fiyat tabloları tekrar açılarak doğrulandı. İki ürün de 175 ülke/bölgede seçili. Yıllıkta 0 introductory offer; aylık taksitli 12 ay taahhüt planı kurulmadı. Uygulama tutarları StoreKit `displayPrice` üzerinden alır.
 
-StoreKit 2 `Transaction.currentEntitlements` doğrulanmış erişimi belirler. İade, abonelik bitişi ve yükseltme yerel erişim hesabında işlenir. ReplayKit uzantısı kendi StoreKit kontrolünü yapar; RevenueCat SDK'sı uzantıya eklenmez. Bekleyen/doğrulanamayan işlemler erişim açmaz. Uygulama ön plana döndüğünde erişim yenilenir.
+Mirivo Apple ID `6818560405`; abonelik grubu `22438082`; yıllık ürün `6818889933`; ömür boyu ürün `6818966443`. Haftalık taslak `6818888654` satıştan kaldırıldı ve **0/175 ülke** erişimi yeniden açılarak doğrulandı. Taslak kalıcı silinmedi. Apple tablosunda yıllık seviye 2, satış dışı haftalık seviye 1 olarak kaldı; seviye sürükleme kaydedilemedi. Tek satıştaki abonelik yıllıktır; eski satın alma taşınması uygulanmaz.
 
-RevenueCat 5.x ana uygulamaya eklenmiştir. Mevcut StoreKit satın alma akışı korunur; RevenueCat [uygulamanın işlemleri tamamladığı modda](https://www.revenuecat.com/docs/migrating-to-revenuecat/sdk-or-not/finishing-transactions) gözlem yapar. Yapılandırma yalnız `appl_` ile başlayan public Apple SDK anahtarıyla açılır. Gizli anahtar veya Test Store anahtarı uygulamaya konulmaz. Erişim RevenueCat ağ isteğine bağlı değildir.
+Sürüm 1.0 Türkçe/İngilizce açıklamaları ve inceleme notları yalnız iki planı anlatır. Kullanıcının verdiği inceleme iletişim bilgileri kaydedildi. Kayıt tekrar açılarak iki dil ve iletişim alanları doğrulandı. Yayınlama manuel; incelemeye gönderilmedi.
 
-RevenueCat projesi: [Mirivo](https://app.revenuecat.com/projects/7d9b6d16/overview). Başlangıç Test Store offering'i weekly/yearly/lifetime ve Mirivo Pro erişimiyle oluşturuldu. **Bu Test Store, gerçek App Store bağlantısı değildir.** App Store uygulaması kaydedilirken zorunlu In-App Purchase Key ID ve Issuer ID eksik olduğu bildirildi. Anahtar oluşturma/servise yetki verme sahibin onayına bırakıldı.
+## Daelix'ten ayrım ve RevenueCat
 
-Onaydan sonra RevenueCat App Store uygulamasını `com.alperbicer.carmirror` ile kaydet; gerçek Apple ürünlerini Mirivo Pro erişimine ve default offering'in weekly/yearly/lifetime paketlerine bağla. Public Apple SDK anahtarını git dışında tutulan `Config/Local.xcconfig` dosyasına `MIRIVO_REVENUECAT_API_KEY = appl_...` olarak ekle. Test Store kimlikleri yerine yukarıdaki gerçek ürün kimlikleri kullanılmalıdır.
+[Mirivo RevenueCat projesi](https://app.revenuecat.com/projects/7d9b6d16/overview) `7d9b6d16`; App Store uygulaması `app8e29ebec6d`, bundle `com.alperbicer.carmirror`. Mirivo'ya ait public Apple SDK anahtarı git dışındaki `Config/Local.xcconfig` içindedir. Daelix'in projesi, ürünleri ve SDK anahtarı değiştirilmedi.
 
-## Doğrulama ve kalan işlemler
+Mirivo `mirivo_pro` entitlement (`entl3e0b1e3182`) yalnız gerçek yıllık ve ömür boyu Apple ürünlerine bağlı. Varsayılan aktif offering `mirivo_pro` (`ofrng5cc5d706fb`): `$rc_annual` ve `$rc_lifetime`. Test Store ürünleri entitlement'tan ayrıldı; eski üç paketli test offering'i pasif. Aktif offering listesi ve varsayılan durumu tekrar doğrulandı.
 
-Kaynak sürüm 1.0 (8); önceki TestFlight 1.0 (7) kaydından ayrı build numarası kullanılır.
+Apple bağlantısında RevenueCat'te zaten saklı olan aynı geliştirici hesabının anahtarları kullanıldı. Her iki bağlantı “Valid credentials”. Bu anahtarlar Apple geliştirici hesabı kapsamındadır; yeni anahtar üretmek onları uygulama kapsamına daraltmaz. RevenueCat [aynı Apple hesabındaki uygulamalarda aynı IAP anahtarını destekler](https://www.revenuecat.com/docs/service-credentials/itunesconnect-app-specific-shared-secret/in-app-purchase-key-configuration). Satın alma erişimi ayrı proje, ürün kimlikleri ve uygulamaya özel SDK anahtarıyla ayrıdır. Gizli anahtar uygulamaya konulmaz.
 
-42 Swift testi ve imzasız iOS Simulator derlemesi geçti. 22 dil × 245 anahtar, 12 HTML, plist/yerel bağlantı ve ZIP eşleşmesi kontrolü geçti. Bu sonuçlar Apple sandbox veya gerçek satın alma kanıtı değildir.
+App Store Connect production ve sandbox sunucu bildirim URL'leri Mirivo RevenueCat uygulamasına ait aynı yönlendirmeyle kaydedilmiş olarak doğrulandı. Bildirim teslimi/sandbox işlem kaydı henüz doğrulanmadı.
 
-App Store Connect canlı kayıtları: Mirivo Pro grubu `22438082`, haftalık `6818888654`, yıllık `6818889933` ve ömür boyu tüketilemeyen ürün `6818966443`. Üç ürünün Türkçe/İngilizce görünen adları ve açıklamaları hazır. Ömür boyu ürün ABD fiyatı 39.99 USD, 175 ülke/bölge fiyat eşlemesi ve tüm ülke erişimiyle kaydedildi; inceleme notu yeniden açılarak doğrulandı. Grup adı Türkçe ve ABD İngilizcesinde Mirivo Pro / uygulama adı Mirivo olarak kaydedildi.
+## Kod davranışı
 
-Sürüm 1.0 Türkçe/İngilizce açıklama, tanıtım ve anahtar sözcükleri kaydedildi. İnceleme notları Pro planlarını ve CarPlay Audio sınırını açıklar. Sign-in required kapatıldı; yayınlama manuel seçildi. Kişisel iletişim ve copyright alanları boş bırakıldı. Ana açıklamalar CarPlay Audio paketinin araçta video/yansıtma sunmadığını belirtir.
+StoreKit 2 doğrulanmış `Transaction.currentEntitlements` erişimi belirler. İade, abonelik bitişi ve yükseltme yerel erişim hesabında işlenir. ReplayKit uzantısı kendi StoreKit kontrolünü yapar; RevenueCat SDK'sı uzantıya eklenmez. Bekleyen veya doğrulanamayan işlem Pro açmaz. Ön plana dönüşte erişim yenilenir.
 
-**Teknik kalan:** haftalık ve yıllık portalda hâlâ ayrı seviyelerde (1/2). Edit Level diyalogunda tekrarlanan sürükleme girişimleri düzeyi değiştirmedi; kaydetmeden kapatıldı. İki plan aynı hizmeti sunduğundan aynı seviyede gruplanması ve tablodan doğrulanması gerekir. İnceleme ekran görüntülerinin yüklenmesi de henüz yapılmadı.
+Yıllık plan varsayılan seçilir. Plan fiyatı ve yenilenme biçimi görünür. Ömür boyu sahibi yeniden satın alamaz; yıllık sahibi ömür boyuna geçebilir. Ekran, ömür boyu satın almanın mevcut yıllık aboneliği otomatik iptal etmediğini açıklar. Geri yükleme ve Apple abonelik yönetimi erişilebilir.
 
-Kişisel/son onay alanları: vergi, banka, Paid Applications Agreement, inceleme iletişim bilgileri, RevenueCat Apple anahtarı yetkilendirmesi, gizlilik beyanı ve Submit for Review. Bu alanlara bilgi girilmedi, sözleşme kabul edilmedi, incelemeye gönderilmedi.
+RevenueCat 5.x ana uygulamada `.myApp` / StoreKit 2 modunda işlemleri gözler. StoreKit satın alma/geri yükleme ve işlem güncellemelerinden sonra senkronize edilir. Erişim RevenueCat ağ isteğine bağlı değildir.
 
-Yerel destek sitesi ve offline belgeler güncellendi. `Release/mirivo-netlify.zip` yeni içeriği taşır; canlı Netlify sitesi henüz bu sürüme güncellenmedi. TestFlight metadata taslakları da Pro akışına göre düzenlendi.
+## Doğrulama ve dağıtım
 
-4 Ekim yeniden denemesi: iOS 26.5 simülatörü açıldı. `ProductUITests/testTurkishProductAndOfflineLegalFlows()` ve Keychain round-trip testi geçti (`build/pro-resumed-tests.xcresult`). Üç StoreKit testi başarısız: ürünler boş döndü / `notEntitled`. Xcode IDE üzerinden fixture eşitlenince ürünler yüklenebildi ve disabled-sales testi geçti; fakat SKTestSession yapılandırma ve işlem çağrıları `SKInternalErrorDomain Code=3` verdi, lifetime testi tamamlanmadı. CLI eşitleme sonrası tekrar denemesi ilerlemedi ve durduruldu. iOS 27 karşılaştırmasında Device Hub görüntü bağlantısı zaman aşımına uğradı; başarılı test sonucu alınmadı. Apple forumunda [aynı CLI/StoreKitTest semptomu](https://developer.apple.com/forums/thread/826971) raporlanmış olsa da burada satın alma akışının doğrulandığı anlamına gelmez.
+46 Swift core testi ve dağıtım betik testleri geçti. İmzalı Release arşivi ve dağıtım IPA'sı 1.0 (9) olarak oluşturuldu; imza, bundle/App Group, sürüm ve CarPlay Audio dağıtım yetkileri doğrulandı. Arşiv: `build/deploy/2026-10-05T11-28-07-485Z-archive-322bad/CarMirror.xcarchive`; IPA: `build/deploy/2026-10-05T11-30-45-900Z-export-a94545/ipa/CarMirror.ipa`. Apple'a yüklenmedi.
 
-Gerçek sandbox satın alma, geri yükleme, iade, abonelik bitişi ve ReplayKit Pro erişimi doğrulanmadan incelemeye hazır sayılmaz.
+Güncel fiyatlarla Türkçe/İngilizce iki planlı UI testi geçti: varsayılan yıllık, ömür boyu seçimi, haftalık yokluğu, satın alma düğmesi ve $49.99 fiyat kontrolü (`build/pro-current-price-ui-20261005.xcresult`). Düzenlenmemiş dört gerçek ödeme ekranı `Release/AppStore/screenshots/pro-plans` içinde hazır; kaynak ve SHA-256 bilgileri `provenance.json` içindedir. Görüntüler yerel StoreKit USA fiyatını ($19.99 / $49.99) gösterir; Türkçe dil seçimi Türkiye storefront kanıtı değildir. Canlı Apple USA/Türkiye fiyatları ayrı olarak doğrulandı.
 
-Sekiz düzenlenmemiş gerçek UI görüntüsü `Release/AppStore/screenshots/pro-qa/` içinde. `05-mirivo-pro-tr.png` Pro özelliklerini gösterir, fiyat/plan listesi boş olduğundan tamamlanmış satın alma ekranı kanıtı değildir; ürünler yüklendiğinde yeniden çekilmelidir. Kaynak cihaz/runtime/result bilgisi provenance.json dosyasındadır. Yükleme yapılmadı.
+Satın alma, geri yükleme, iade, yıllık bitişi ve yıllıktan ömür boyuna geçiş testleri eklendi. iOS 26.5 `SKInternalErrorDomain Code=3` işlem/yapılandırma hatası verdi; satın alma testleri başarısız veya zaman aşımında. iOS 27 test başlatma Device Hub zaman aşımına uğradı. Apple [aynı StoreKitTest semptomunu](https://developer.apple.com/forums/thread/826971) raporluyor; bu, Mirivo'nun satın alma akışının doğrulandığı anlamına gelmez. Xcode IDE Run sırasında Device Hub takıldı; yapılandırma yenilemesinden sonra güncel fiyatlı UI testi geçti. Buna rağmen yıllık bitişi için son tek test tekrar aynı Code=3 ve `notEntitled` hatasıyla başarısız oldu (`build/pro-expiry-recheck-20261005.xcresult`).
 
-## Sahibin onayına ayrılan somut işlemler
+Destek sitesi ve `Release/mirivo-netlify.zip` iki planı anlatacak şekilde güncellendi. 22 dil × 264 anahtar, 12 HTML ve ZIP/bağlantı doğrulaması geçti. Güncel ZIP 5 Ekim 2026 15:15 (İstanbul) tarihinde `mirivo-support` Netlify projesine yüklendi; production dağıtımı `6ac394f8bbe7ffd2ecb07a72` “Published” olarak doğrulandı. Canlı 12 HTML sayfasının metin/etiket/bağlantı içeriği ve 2 asset dosyası yüklenen ZIP ile eşleşti. Netlify'nin otomatik pretty URL dönüşümü ve eklediği HTML yorumları karşılaştırmada normalleştirildi. Kanıt: `Release/AppStore/netlify-deployment-20261005.json`.
 
-- RevenueCat Apple anahtarı oluşturma/seçme ve servise yetki verme; ardından gerçek App Store uygulaması/ürün eşlemesi ve public `appl_` anahtarının yerel build ayarına alınması.
-- Hazır `Release/mirivo-netlify.zip` paketini mevcut `mirivo-support` sitesine yayınlama; canlı sürüm halen eski.
-- Plan/fiyat ekranı doğrulandıktan sonra inceleme görsellerini Apple’a yükleme.
-- Final RevenueCat yapılandırmasından sonra yeni build numarasıyla IPA üretme ve Apple’a yükleme.
-- Fiyat ve gizlilik beyanı onayı; sözleşme/vergi/banka/iletişim alanları; Add for Review ve Submit for Review.
+## Kalan somut işler
 
-Tarayıcı araçlarının dosya yükleme ve güvenlik yetkilendirme onay kuralları nedeniyle bu son adımlar sahibin kapsam dışında bıraktığı onay listesine ayrıldı. Yalnız yerel hazırlık ve kayıt düzenlemeleri tamamlandı.
+- Apple Business: Paid Apps Agreement **Pending User Info**, U.S. Tax Questionnaire **Missing Tax Info**. Vergi/banka ve hukuki kabul kullanıcı tarafından tamamlanmalı; bilgi tahmin edilmedi.
+- Hazır güncel fiyatlı gerçek ödeme ekranlarını Apple ürün inceleme alanlarına yükleme.
+- Apple sandbox/TestFlight satın alma, geri yükleme, iade, abonelik bitişi, ReplayKit Pro erişimi ve RevenueCat işlem/bildirim kaydını doğrulama.
+- Doğrulanmış IPA'yı Apple'a yükleme; App Store build/ürün eşlemesi ve gizlilik beyanını tamamlayıp son inceleme gönderimi. Yerel CLI upload için `.env.deploy` bulunmuyor; RevenueCat'te kayıtlı özel Apple anahtarı yerel dışa aktarılmadı. Xcode hesabıyla yükleme veya mevcut anahtarın sahibi tarafından yerel kurulumu gerekir.
 
-Yerel Release arşivi başarıyla oluşturuldu ve script tarafından imza/entitlement doğrulaması yapıldı: `/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-03T22-59-20-258Z-archive-dd4ddd/CarMirror.xcarchive`. Sürüm 1.0 (8), CarPlay Audio. Bu yerel arşiv App Review gönderimi veya dağıtım IPA doğrulaması değildir.
+Yerel UI ve derleme sonucu canlı satın alma, cihaz/araç kabulü veya App Review kabulü kanıtı değildir.
 
-App Store IPA dışa aktarımı başarılı; yerel dağıtım paketi script tarafından doğrulandı: `build/deploy/2026-10-03T23-01-22-947Z-export-cc741c/ipa/CarMirror.ipa`. Apple’a yüklenmedi. RevenueCat anahtarı eklendikten sonra arşiv yeniden üretilmeli; bu IPA boş RevenueCat yapılandırmasıyla StoreKit satın alma akışını içerir.
+## Tek belge kaynağı — 5 Ekim 2026
+
+Netlify’deki 12 HTML sayfası ve asset dosyaları güncel ZIP ile tekrar karşılaştırıldı. Uygulama Ayarlar ve Pro ekranından doğrudan Türkçe/İngilizce Netlify sayfalarına yönlenir. `LegalDocumentView`, yerel WKWebView, dil seçici ve `Resources/Legal` HTML/CSS/logo kopyaları kaldırıldı; site üretimi artık uygulama kaynaklarına belge kopyalamaz. Üçüncü taraf SDK lisansları `Resources/Notices` altında korunur. Belgeleri açmak internet gerektirir; site içindeki dil bağlantısı kullanılabilir. Önceki 1.0 (9) IPA bu bağlantı değişikliğini içermez.
+
+Ayarlar ve Pro ekranındaki toplam 10 Türkçe/İngilizce bağlantının gerçek Safari sayfasına açılması geçti: `build/netlify-links-acceptance-20261005.xcresult` (**TEST SUCCEEDED**, 95.605 saniye, 0 hata). Arapça/İbranice İngilizce siteye yönlendirme testi ayrıca test bazında geçti; birleşik eski koşu başarılı sayılmaz. Derlenen Debug paketinde yerel ürün HTML'i yok; iki SDK lisans bildirimi mevcut. Fiziksel kurulum veya yeni dağıtım IPA'sı bu bağlantı değişikliğinden sonra yapılmadı.

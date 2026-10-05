@@ -176,7 +176,6 @@
 "Dil bul" = "Hitta ett språk";
 "Dil bulunamadı" = "Inga språk hittades";
 "Başka bir ad veya dil kodu dene." = "Prova ett annat namn eller en annan språkkod.";
-"Belge dili" = "Dokumentspråk";
 "Ekran paylaşımı durduruldu." = "Skärmdelningen har stoppats.";
 "Şu An Çalıyor" = "Spelas nu";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "Uppspelningskö";
 "Önceki" = "Föregående";
 "Sonraki" = "Nästa";
+
+// Updates and notifications
+"Bildirimler" = "Notiser";
+"Bildirimler henüz kullanılamıyor." = "Notiser är inte tillgängliga ännu.";
+"Bildirimler kapalı." = "Notiser är avstängda.";
+"Bildirim izni bekleniyor." = "Väntar på tillstånd för notiser.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "Tillåt notiser i iOS-inställningarna.";
+"Bildirimler hazırlanıyor…" = "Ställer in notiser…";
+"Bildirimler açık." = "Notiser är på.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Registreringen för notiser misslyckades. Försök igen.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Servern kunde inte nås för att stänga av notiser. Vi försöker igen när anslutningen är tillbaka.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Få nyheter om versioner och produkter. Dina medier och källadresser skickas inte till notisservern.";
+"iOS Ayarlarını aç" = "Öppna iOS-inställningar";
+"Güncelleme gerekli" = "Uppdatering krävs";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Hämta den nya versionen av Mirivo från App Store för att fortsätta.";
+"App Store’da güncelle" = "Uppdatera i App Store";
+"Yeniden kontrol et" = "Kontrollera igen";
+"App Store açılamadı. Lütfen yeniden dene." = "App Store kunde inte öppnas. Försök igen.";
+
+// Optional usage analytics
+"Kullanım analizi" = "Användningsanalys";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Dela användningsstatistik för att förbättra Mirivo. Medier, källadresser och söktexter skickas inte. Du kan stänga av detta när som helst.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "Debiteras en gång per år; förnyas automatiskt.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ett livstidsköp avslutar inte automatiskt din befintliga prenumeration. Du kan avsluta den i ditt Apple-konto.";

@@ -22,6 +22,8 @@
     "site:build": "python3 scripts/build_site.py",
     "release:check": "python3 scripts/verify_release.py",
     "test:core": "node scripts/test_core.mjs",
-    "test:app": "node scripts/test_app.mjs"
+    "test:app": "node scripts/test_app.mjs",
+    "test:firebase": "node --test Firebase/functions/test/*.test.mjs",
+    "test:firebase:emulator": "cd Firebase && firebase emulators:exec --only firestore --project demo-mirivo \"node --test functions/test/*.test.mjs\""
   }
 }

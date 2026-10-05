@@ -1,13 +1,13 @@
 Mirivo 1.0 — CarPlay Audio beta
 
-No Mirivo account or sign-in is required. This beta is ad-free. Pro purchases and restores should be tested using Apple sandbox; TestFlight purchases do not incur real charges. Settings > Mirivo Pro offers weekly, yearly and lifetime plans. Mirivo does not provide IPTV subscriptions, channel packages or service credentials.
+No Mirivo account or sign-in is required. This beta is ad-free. Pro purchases and restores should be tested using Apple sandbox; TestFlight purchases do not incur real charges. Settings > Mirivo Pro offers yearly and lifetime plans. Mirivo does not provide IPTV subscriptions, channel packages or service credentials.
 
 iPhone review steps:
 1. Open Sources (Kaynaklar) and choose Add source (Kaynak ekle).
 2. Select Stream URL (Yayın bağlantısı), enter a name and an HLS test stream URL, then add it. Apple's public developer test streams are available at https://developer.apple.com/streaming/examples/ ; use the Bip Bop example's stream URL. Alternatively use a stream you are authorized to access.
 3. Open the source and select its item. Test playback, pause, resume, stop, and returning to the current player from Sources. Playback on iPhone does not require a vehicle connection.
 4. For playlist testing, add an authorized M3U URL as Playlist. Xtream sources require the tester's own authorized server credentials; these are optional and are not needed for the direct-stream test above.
-5. Settings contains language selection and offline Privacy, Terms, Help and VideoLAN license notices. The app ships 22 interface languages.
+5. Settings contains language selection and links to current Netlify Privacy, Terms and Help pages. VideoLAN and Google Cast license notices remain bundled. The app ships 22 interface languages.
 
 CarPlay review steps:
 Connect to a compatible CarPlay system, open Mirivo, choose Sources and select the source added on iPhone. Test audio and system Now Playing controls. This binary requests CarPlay Audio and App Groups, without CarPlay Video. Vehicle screen mirroring is not part of this beta's CarPlay feature set. Physical vehicle acceptance remains to be tested; no EV6 validation is claimed.

@@ -176,7 +176,6 @@
 "Dil bul" = "搜尋語言";
 "Dil bulunamadı" = "找不到語言";
 "Başka bir ad veya dil kodu dene." = "請嘗試其他名稱或語言代碼。";
-"Belge dili" = "文件語言";
 "Ekran paylaşımı durduruldu." = "螢幕共享已停止。";
 "Şu An Çalıyor" = "播放中";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "播放佇列";
 "Önceki" = "上一項";
 "Sonraki" = "下一項";
+
+// Updates and notifications
+"Bildirimler" = "通知";
+"Bildirimler henüz kullanılamıyor." = "通知暫時無法使用。";
+"Bildirimler kapalı." = "通知已關閉。";
+"Bildirim izni bekleniyor." = "正在等候通知權限。";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "請在 iOS 設定中允許通知。";
+"Bildirimler hazırlanıyor…" = "正在設定通知…";
+"Bildirimler açık." = "通知已開啟。";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "通知註冊失敗，請重試。";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "無法連接伺服器以關閉通知。連線恢復後將重試。";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "接收版本及產品公告。你的媒體內容和來源位址不會傳送至通知伺服器。";
+"iOS Ayarlarını aç" = "開啟 iOS 設定";
+"Güncelleme gerekli" = "需要更新";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "請從 App Store 下載新版 Mirivo 以繼續使用。";
+"App Store’da güncelle" = "在 App Store 更新";
+"Yeniden kontrol et" = "重新檢查";
+"App Store açılamadı. Lütfen yeniden dene." = "無法開啟 App Store，請重試。";
+
+// Optional usage analytics
+"Kullanım analizi" = "使用情況分析";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "分享使用統計以協助改善 Mirivo。不會傳送媒體、來源位址或搜尋文字。你可以隨時關閉。";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "每年收費一次；自動續訂。";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "購買終身使用權不會自動取消現有訂閱。你可以在 Apple 帳號中取消訂閱。";

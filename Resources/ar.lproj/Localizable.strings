@@ -176,7 +176,6 @@
 "Dil bul" = "البحث عن لغة";
 "Dil bulunamadı" = "لم يتم العثور على لغات";
 "Başka bir ad veya dil kodu dene." = "جرّب اسمًا أو رمز لغة آخر.";
-"Belge dili" = "لغة المستند";
 "Ekran paylaşımı durduruldu." = "توقفت مشاركة الشاشة.";
 "Şu An Çalıyor" = "قيد التشغيل الآن";
 
@@ -267,3 +266,27 @@
 "Oynatma sırası" = "قائمة التشغيل التالية";
 "Önceki" = "السابق";
 "Sonraki" = "التالي";
+
+// Updates and notifications
+"Bildirimler" = "الإشعارات";
+"Bildirimler henüz kullanılamıyor." = "الإشعارات غير متاحة بعد.";
+"Bildirimler kapalı." = "الإشعارات متوقفة.";
+"Bildirim izni bekleniyor." = "بانتظار الإذن بالإشعارات.";
+"Bildirim izni iOS Ayarları’ndan açılmalı." = "اسمح بالإشعارات من إعدادات iOS.";
+"Bildirimler hazırlanıyor…" = "جارٍ إعداد الإشعارات…";
+"Bildirimler açık." = "الإشعارات مفعّلة.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "تعذّر تسجيل الإشعارات. حاول مجددًا.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "تعذّر الاتصال بالخادم لإيقاف الإشعارات. سنحاول مجددًا عند الاتصال.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "تلقَّ أخبار الإصدارات والمنتج. لا تُرسل وسائطك وعناوين مصادرك إلى خادم الإشعارات.";
+"iOS Ayarlarını aç" = "فتح إعدادات iOS";
+"Güncelleme gerekli" = "يلزم التحديث";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "نزّل الإصدار الجديد من Mirivo من App Store للمتابعة.";
+"App Store’da güncelle" = "التحديث في App Store";
+"Yeniden kontrol et" = "التحقق مجددًا";
+"App Store açılamadı. Lütfen yeniden dene." = "تعذّر فتح App Store. حاول مجددًا.";
+
+// Optional usage analytics
+"Kullanım analizi" = "تحليل الاستخدام";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "شارك إحصاءات الاستخدام لتحسين Mirivo. لا تُرسل الوسائط أو عناوين المصادر أو نصوص البحث. يمكنك إيقاف ذلك متى شئت.";
+"Yılda bir tahsil edilir; otomatik yenilenir." = "تُحصَّل الرسوم مرة سنويًا؛ يتجدد تلقائيًا.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "لا يؤدي الشراء مدى الحياة إلى إلغاء اشتراكك الحالي تلقائيًا. يمكنك إلغاؤه من حساب Apple الخاص بك.";

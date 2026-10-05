@@ -1,0 +1,10 @@
+{
+  "conditions": [],
+  "parameters": {
+    "ios_update_policy": {
+      "defaultValue": { "value": "{\"schemaVersion\":1,\"enabled\":false,\"minimumVersion\":\"1.0\",\"storeURL\":\"\"}" },
+      "description": "Enable only after the minimum version is downloadable in every supported App Store region. App validates the numeric ID against CMAppStoreID.",
+      "valueType": "JSON"
+    }
+  }
+}
