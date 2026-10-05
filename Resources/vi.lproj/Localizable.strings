@@ -290,3 +290,10 @@
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Chia sẻ thống kê sử dụng để cải thiện Mirivo. Nội dung đa phương tiện, địa chỉ nguồn và văn bản tìm kiếm không được gửi đi. Bạn có thể tắt bất cứ lúc nào.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Thanh toán một lần mỗi năm; tự động gia hạn.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Mua trọn đời không tự động hủy gói đăng ký hiện tại. Bạn có thể hủy trong tài khoản Apple của mình.";
+
+// Local CarPlay connection reminder
+"Genel duyurular" = "Thông báo chung";
+"Araç bağlantısında hatırlat" = "Nhắc khi kết nối với xe";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Gửi một lời nhắc trên điện thoại khi phát hiện phiên CarPlay mới. Thông tin kết nối với xe không được gửi đến máy chủ.";
+"Mirivo araç bağlantısına hazır" = "Mirivo đã sẵn sàng kết nối với xe của bạn";
+"Bildirim izni alınamadı. Yeniden dene." = "Không thể xin quyền thông báo. Hãy thử lại.";

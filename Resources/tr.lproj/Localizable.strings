@@ -290,3 +290,10 @@
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Yılda bir tahsil edilir; otomatik yenilenir.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin.";
+
+// Local CarPlay connection reminder
+"Genel duyurular" = "Genel duyurular";
+"Araç bağlantısında hatırlat" = "Araç bağlantısında hatırlat";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez.";
+"Mirivo araç bağlantısına hazır" = "Mirivo araç bağlantısına hazır";
+"Bildirim izni alınamadı. Yeniden dene." = "Bildirim izni alınamadı. Yeniden dene.";

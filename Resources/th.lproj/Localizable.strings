@@ -290,3 +290,10 @@
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "แชร์สถิติการใช้งานเพื่อช่วยปรับปรุง Mirivo โดยไม่ส่งสื่อ ที่อยู่แหล่งข้อมูล หรือข้อความค้นหา คุณปิดได้ทุกเมื่อ";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "เรียกเก็บเงินปีละครั้งและต่ออายุอัตโนมัติ";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "การซื้อแบบตลอดชีพจะไม่ยกเลิกการสมัครสมาชิกปัจจุบันโดยอัตโนมัติ คุณสามารถยกเลิกได้ในบัญชี Apple ของคุณ";
+
+// Local CarPlay connection reminder
+"Genel duyurular" = "ประกาศทั่วไป";
+"Araç bağlantısında hatırlat" = "เตือนเมื่อเชื่อมต่อกับรถ";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "ส่งการเตือนบนโทรศัพท์หนึ่งครั้งเมื่อตรวจพบเซสชัน CarPlay ใหม่ ข้อมูลการเชื่อมต่อกับรถจะไม่ถูกส่งไปยังเซิร์ฟเวอร์";
+"Mirivo araç bağlantısına hazır" = "Mirivo พร้อมเชื่อมต่อกับรถของคุณแล้ว";
+"Bildirim izni alınamadı. Yeniden dene." = "ไม่สามารถขอสิทธิ์การแจ้งเตือนได้ โปรดลองอีกครั้ง";

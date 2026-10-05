@@ -30,6 +30,7 @@ struct CarMirrorApp: App {
                 .task {
                     await updates.refresh()
                     await NotificationStore.shared.refresh()
+                    await CarConnectionReminderStore.shared.refreshAuthorization()
                 }
                 .onChange(of: updates.requiredURL) { _, url in
                     if url != nil { model.stopBroadcast(); model.stopProbe(); model.stopPlayback() }
@@ -37,7 +38,11 @@ struct CarMirrorApp: App {
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {
                         model.foregrounded()
-                        Task { await updates.refresh(); await NotificationStore.shared.refresh() }
+                        Task {
+                            await updates.refresh()
+                            await NotificationStore.shared.refresh()
+                            await CarConnectionReminderStore.shared.refreshAuthorization()
+                        }
                     }
                 }
         }

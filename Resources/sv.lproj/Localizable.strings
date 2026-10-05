@@ -290,3 +290,10 @@
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Dela användningsstatistik för att förbättra Mirivo. Medier, källadresser och söktexter skickas inte. Du kan stänga av detta när som helst.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Debiteras en gång per år; förnyas automatiskt.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ett livstidsköp avslutar inte automatiskt din befintliga prenumeration. Du kan avsluta den i ditt Apple-konto.";
+
+// Local CarPlay connection reminder
+"Genel duyurular" = "Allmänna meddelanden";
+"Araç bağlantısında hatırlat" = "Påminn vid anslutning till bilen";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Skickar en påminnelse på telefonen när en ny CarPlay-session upptäcks. Information om bilanslutningen skickas inte till någon server.";
+"Mirivo araç bağlantısına hazır" = "Mirivo är redo att ansluta till din bil";
+"Bildirim izni alınamadı. Yeniden dene." = "Det gick inte att få tillstånd för notiser. Försök igen.";

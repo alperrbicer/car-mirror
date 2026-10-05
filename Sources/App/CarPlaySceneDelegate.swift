@@ -12,6 +12,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private let capabilities = CarPlayCapabilities.current
 
     func templateApplicationScene(_ scene: CPTemplateApplicationScene, didConnect interfaceController: CPInterfaceController) {
+        CarConnectionReminderStore.shared.connected(sessionID: scene.session.persistentIdentifier)
         controller = interfaceController
         configuration = CPSessionConfiguration(delegate: self)
         let supported: Bool?
@@ -30,6 +31,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     func templateApplicationScene(_ scene: CPTemplateApplicationScene, didDisconnectInterfaceController interfaceController: CPInterfaceController) {
+        CarConnectionReminderStore.shared.disconnected(sessionID: scene.session.persistentIdentifier)
         loading?.cancel(); loading = nil
         timer?.invalidate()
         timer = nil

@@ -24,6 +24,10 @@ final class AppServicesUITests: XCTestCase {
         app.buttons["settings-notifications"].tap()
         XCTAssertTrue(app.switches["notifications-enabled"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.switches["notifications-enabled"].isEnabled)
+        let reminder = app.switches["car-connection-reminder-enabled"]
+        XCTAssertTrue(reminder.exists)
+        XCTAssertTrue(reminder.isEnabled, "Local reminders must work without Firebase")
+        XCTAssertEqual(reminder.value as? String, "0")
         XCTAssertEqual(app.alerts.count, 0)
         keepScreenshot(app, name: "Notification settings - Turkish")
     }

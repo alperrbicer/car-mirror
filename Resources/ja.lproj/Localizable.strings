@@ -290,3 +290,10 @@
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "利用統計を共有してMirivoの改善に協力します。メディア、ソースのアドレス、検索テキストは送信されません。いつでもオフにできます。";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "年に1回請求され、自動更新されます。";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "買い切りを購入しても、現在のサブスクリプションは自動的に解約されません。Appleアカウントから解約できます。";
+
+// Local CarPlay connection reminder
+"Genel duyurular" = "一般のお知らせ";
+"Araç bağlantısında hatırlat" = "車に接続したときに通知";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "新しい CarPlay セッションが検出されると、スマートフォンに一度だけ通知します。車との接続情報はサーバーに送信されません。";
+"Mirivo araç bağlantısına hazır" = "Mirivo は車に接続する準備ができています";
+"Bildirim izni alınamadı. Yeniden dene." = "通知の許可を取得できませんでした。もう一度お試しください。";
