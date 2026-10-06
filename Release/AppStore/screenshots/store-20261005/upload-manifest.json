@@ -1,0 +1,338 @@
+{
+  "date": "2026-10-05",
+  "order": [
+    "01-iptv.png",
+    "02-channels.png",
+    "03-player.png",
+    "04-sharing.png",
+    "05-xtream.png",
+    "06-carplay.png"
+  ],
+  "locales": {
+    "tr": "tr",
+    "en": "en-US",
+    "zh-Hans": "zh-Hans",
+    "zh-Hant": "zh-Hant",
+    "ja": "ja",
+    "ko": "ko",
+    "fr": "fr-FR",
+    "de": "de-DE",
+    "es": "es-ES",
+    "it": "it",
+    "pt-BR": "pt-BR",
+    "ru": "ru",
+    "nl": "nl-NL",
+    "pl": "pl",
+    "sv": "sv",
+    "uk": "uk",
+    "ar": "ar-SA",
+    "he": "he",
+    "th": "th",
+    "vi": "vi",
+    "id": "id",
+    "hi": "hi"
+  },
+  "devices": {
+    "iphone": {
+      "slot": "6.9-inch",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "smallerSlotInheritance": "6.5-inch inherits the same locale’s 6.9-inch set"
+    },
+    "ipad": {
+      "referenceOnly": true,
+      "requiredForBuild10": false,
+      "reason": "UIDeviceFamily=[1]; the iPad simulator used iPhone compatibility presentation",
+      "requiredForBuild11": false
+    }
+  },
+  "uploadVerified": true,
+  "allLocalesOrderVerifiedInPortal": true,
+  "deviceFamilyOfBuild10": [
+    "iPhone"
+  ],
+  "portalLocalesPresent": [
+    "tr",
+    "en-US",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "fr-FR",
+    "de-DE",
+    "es-ES",
+    "it",
+    "pt-BR",
+    "ru",
+    "nl-NL",
+    "pl",
+    "sv",
+    "uk",
+    "ar-SA",
+    "he",
+    "th",
+    "vi",
+    "id",
+    "hi"
+  ],
+  "localeStatus": {
+    "tr": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "en": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "zh-Hans": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "zh-Hant": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "ja": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "ko": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "fr": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "de": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "es": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "it": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "pt-BR": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "ru": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "nl": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "pl": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "sv": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "uk": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "ar": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "he": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "th": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "vi": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "id": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    },
+    "hi": {
+      "prepared": true,
+      "uploaded": true,
+      "orderVerifiedAfterUpload": true,
+      "orderVerifiedAfterPageReload": true,
+      "verifiedDate": "2026-10-05",
+      "smallerSizeInheritanceVerified": true
+    }
+  },
+  "metadataDraftsPrepared": [
+    "tr",
+    "en",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "fr",
+    "de",
+    "es",
+    "it",
+    "pt-BR",
+    "ru",
+    "nl",
+    "pl",
+    "sv",
+    "uk",
+    "ar",
+    "he",
+    "th",
+    "vi",
+    "id",
+    "hi"
+  ],
+  "metadataDraftsPortalSaved": [
+    "tr",
+    "en",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "fr",
+    "de",
+    "es",
+    "it",
+    "pt-BR",
+    "ru",
+    "nl",
+    "pl",
+    "sv",
+    "uk",
+    "ar",
+    "he",
+    "th",
+    "vi",
+    "id",
+    "hi"
+  ],
+  "all22LocalesPrepared": true,
+  "preparedPNGFiles": 132,
+  "playerLocalizationRefresh": {
+    "reason": "Nine shipping player/free-tier strings were English in 14 non-English catalogs; corrected resources require a new distribution build.",
+    "inProgress": false,
+    "includedInBuild10": false,
+    "passed": true,
+    "resultBundle": "build/store-localized-player-20261005.xcresult"
+  },
+  "metadataPersistenceVerified": true,
+  "verificationScope": "All 22 locales reselected after full Media Manager page reload; each owns six 6.9-inch images in the common order, with 6.5-inch inheriting its own locale set.",
+  "selectedBuild": "1.0 (11)",
+  "deviceFamilyOfBuild11": [
+    "iPhone"
+  ],
+  "latestSizeInheritanceRecheck": {
+    "checkedAt": "2026-10-05T21:47:11.060620+00:00",
+    "locale": "tr",
+    "displayedSlot": "6.5-inch",
+    "visibleInheritance": "Using 6.9\" Display",
+    "screenshotsInOrder": [
+      "01-iptv.png",
+      "02-channels.png",
+      "03-player.png",
+      "04-sharing.png",
+      "05-xtream.png",
+      "06-carplay.png"
+    ],
+    "all22FullReloadVerificationDate": "2026-10-05",
+    "appleSpecifications": "https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/",
+    "reason": "6.9-inch 1320x2868 accepted; 6.5-inch is required only when a 6.9-inch set is not provided. This candidate supports iPhone only."
+  }
+}

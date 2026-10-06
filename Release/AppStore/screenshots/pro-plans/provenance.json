@@ -1,7 +1,8 @@
 {
-  "capturedAt": "2026-10-05",
+  "capturedAt": "2026-10-05T20:29:20.298845+00:00",
   "test": "ProductUITests/testProAnnualAndLifetimePlans()",
-  "resultBundle": "build/pro-current-price-ui-20261005.xcresult",
+  "testPassed": true,
+  "resultBundle": "build/pro-ad-copy-ui-final-20261005.xcresult",
   "device": "iPhone 16 Pro Max simulator",
   "runtime": "iOS 26.5",
   "dimensions": "1320x2868",
@@ -11,30 +12,38 @@
   "lifetimePriceUSD": "49.99",
   "edited": false,
   "livePurchaseVerified": false,
+  "permanentAdPromiseRemoved": true,
+  "previousFilesPreserved": "build/pro-review-previous-20261005",
   "files": [
     {
-      "file": "lifetime-en.png",
-      "sourceAttachment": "C868DBBD-EBB3-4492-9335-70417EEB856D.png",
-      "sha256": "150f7b69bb6b2a8f025ae2f5ca0764f06aae6b053d7a68f6c8d5a1cc8a549dc6",
-      "timestamp": 1791202005.028
-    },
-    {
-      "file": "annual-en.png",
-      "sourceAttachment": "2691B303-8B78-4BC3-A04D-2C0CE803B851.png",
-      "sha256": "334832ca51c81d239ef1a825f24ed5046f24079f51e4daa9318e130d97d412fd",
-      "timestamp": 1791202003.262
+      "file": "annual-tr.png",
+      "sourceCapture": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/830981D8-8C3D-4C7C-B01A-002C381A802A/tmp/mirivo-pro-plans-tr.png",
+      "sha256": "37b5b252723ae047828ed217252270a8e1870b4e8be8e9aa0211a7fe1a46459d",
+      "edited": false,
+      "newReviewUploadCompleted": false
     },
     {
       "file": "lifetime-tr.png",
-      "sourceAttachment": "AEA324C6-DF05-4B2E-A1E3-BD26E2B85A32.png",
-      "sha256": "20e0c7006c11db9b474f8c333fce607192bc4e9d07a3816c5b2ef54f4adf8191",
-      "timestamp": 1791201989.644
+      "sourceCapture": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/830981D8-8C3D-4C7C-B01A-002C381A802A/tmp/mirivo-pro-lifetime-tr.png",
+      "sha256": "baf5aa9dea1d461aaf56c6af6433a98e0e5b351688ae8974542e0514d9f8db6a",
+      "edited": false,
+      "newReviewUploadCompleted": false
     },
     {
-      "file": "annual-tr.png",
-      "sourceAttachment": "0C47F901-ECC7-4CF5-9082-AD3048A908BB.png",
-      "sha256": "4aa677749b677a6230e9d2182a91597dd557c86b1fd60cbf5512e5c1902e988b",
-      "timestamp": 1791201988.52
+      "file": "annual-en.png",
+      "sourceCapture": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/830981D8-8C3D-4C7C-B01A-002C381A802A/tmp/mirivo-pro-plans-en.png",
+      "sha256": "080ece6c8c3ddc6789986cad9e2cd5b935ac3c5ec33d4d01a49613dd2a386498",
+      "edited": false,
+      "newReviewUploadCompleted": false
+    },
+    {
+      "file": "lifetime-en.png",
+      "sourceCapture": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/830981D8-8C3D-4C7C-B01A-002C381A802A/tmp/mirivo-pro-lifetime-en.png",
+      "sha256": "118750837accfd7cf8b177f392ca66963fb514949fc35d318c1e7612595cb1c5",
+      "edited": false,
+      "newReviewUploadCompleted": false
     }
-  ]
+  ],
+  "visualQACompleted": true,
+  "visualQANotes": "Four screenshots visually inspected: current annual/lifetime selection and prices, daily free allowance text, restore/management/legal links; no permanent advertising promise. These are local StoreKit UI captures, not purchase evidence."
 }

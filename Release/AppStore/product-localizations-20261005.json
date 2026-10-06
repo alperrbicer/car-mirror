@@ -1,0 +1,280 @@
+{
+  "status": "saved_and_verified_after_page_reload",
+  "appStoreAppId": "6818560405",
+  "products": {
+    "com.alperbicer.carmirror.pro.yearly": {
+      "localizations": {
+        "tr": {
+          "name": "Mirivo Pro Yıllık",
+          "description": "Sınırsız izleme ve kaynak, araç modu ve canlı altyazı.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "en": {
+          "name": "Mirivo Pro Yearly",
+          "description": "Unlimited viewing, sources, vehicle mode and captions.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "zh-Hans": {
+          "name": "Mirivo Pro 每年",
+          "description": "不限观看时长和来源数量，解锁全部Pro功能。",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "zh-Hant": {
+          "name": "Mirivo Pro 每年",
+          "description": "不限觀看時間與來源數量，解鎖所有Pro功能。",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ja": {
+          "name": "Mirivo Pro 毎年",
+          "description": "視聴時間とソース数が無制限。すべてのPro機能を利用。",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ko": {
+          "name": "Mirivo Pro 매년",
+          "description": "시청 시간과 소스 수 제한 없이 모든 Pro 기능을 이용하세요.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "fr": {
+          "name": "Mirivo Pro Annuel",
+          "description": "Visionnage, sources illimités et fonctions Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "de": {
+          "name": "Mirivo Pro Jährlich",
+          "description": "Unbegrenzt ansehen, Quellen und alle Pro-Funktionen.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "es": {
+          "name": "Mirivo Pro Anual",
+          "description": "Visualización, fuentes sin límites y funciones Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "it": {
+          "name": "Mirivo Pro Annuale",
+          "description": "Visione e fonti illimitate, tutte le funzioni Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "pt-BR": {
+          "name": "Mirivo Pro Anual",
+          "description": "Uso e fontes ilimitados, todos os recursos Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ru": {
+          "name": "Mirivo Pro Ежегодно",
+          "description": "Просмотр и источники без лимитов, все функции Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "nl": {
+          "name": "Mirivo Pro Jaarlijks",
+          "description": "Onbeperkt kijken, bronnen en alle Pro-functies.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "pl": {
+          "name": "Mirivo Pro Co rok",
+          "description": "Oglądanie i źródła bez limitów, wszystkie funkcje Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "sv": {
+          "name": "Mirivo Pro Årligen",
+          "description": "Obegränsat tittande, källor och alla Pro-funktioner.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "uk": {
+          "name": "Mirivo Pro Щороку",
+          "description": "Перегляд і джерела без лімітів, усі функції Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ar": {
+          "name": "Mirivo Pro سنوي",
+          "description": "مشاهدة ومصادر غير محدودة وكل ميزات Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "he": {
+          "name": "Mirivo Pro שנתי",
+          "description": "צפייה ומקורות ללא הגבלה וכל תכונות Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "th": {
+          "name": "Mirivo Pro รายปี",
+          "description": "รับชมและแหล่งสื่อไม่จำกัด พร้อมทุกฟีเจอร์ Pro",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "vi": {
+          "name": "Mirivo Pro Hàng năm",
+          "description": "Xem, nguồn không giới hạn và mọi tính năng Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "id": {
+          "name": "Mirivo Pro Tahunan",
+          "description": "Tontonan dan sumber tanpa batas, semua fitur Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "hi": {
+          "name": "Mirivo Pro वार्षिक",
+          "description": "असीमित देखना, स्रोत और सभी Pro सुविधाएँ।",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        }
+      }
+    },
+    "com.alperbicer.carmirror.pro.lifetime": {
+      "localizations": {
+        "tr": {
+          "name": "Mirivo Pro Ömür Boyu",
+          "description": "Tek ödeme ile sınırsız izleme, kaynak ve Pro erişimi.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "en": {
+          "name": "Mirivo Pro Lifetime",
+          "description": "One payment for unlimited viewing, sources and Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "zh-Hans": {
+          "name": "Mirivo Pro 终身",
+          "description": "不限观看时长和来源数量，解锁全部Pro功能。",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "zh-Hant": {
+          "name": "Mirivo Pro 終身",
+          "description": "不限觀看時間與來源數量，解鎖所有Pro功能。",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ja": {
+          "name": "Mirivo Pro 永久利用",
+          "description": "視聴時間とソース数が無制限。すべてのPro機能を利用。",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ko": {
+          "name": "Mirivo Pro 평생 이용",
+          "description": "시청 시간과 소스 수 제한 없이 모든 Pro 기능을 이용하세요.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "fr": {
+          "name": "Mirivo Pro À vie",
+          "description": "Visionnage, sources illimités et fonctions Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "de": {
+          "name": "Mirivo Pro Lebenslang",
+          "description": "Unbegrenzt ansehen, Quellen und alle Pro-Funktionen.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "es": {
+          "name": "Mirivo Pro De por vida",
+          "description": "Visualización, fuentes sin límites y funciones Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "it": {
+          "name": "Mirivo Pro A vita",
+          "description": "Visione e fonti illimitate, tutte le funzioni Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "pt-BR": {
+          "name": "Mirivo Pro Vitalício",
+          "description": "Uso e fontes ilimitados, todos os recursos Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ru": {
+          "name": "Mirivo Pro Навсегда",
+          "description": "Просмотр и источники без лимитов, все функции Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "nl": {
+          "name": "Mirivo Pro Levenslang",
+          "description": "Onbeperkt kijken, bronnen en alle Pro-functies.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "pl": {
+          "name": "Mirivo Pro Dożywotnio",
+          "description": "Oglądanie i źródła bez limitów, wszystkie funkcje Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "sv": {
+          "name": "Mirivo Pro Livstid",
+          "description": "Obegränsat tittande, källor och alla Pro-funktioner.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "uk": {
+          "name": "Mirivo Pro Назавжди",
+          "description": "Перегляд і джерела без лімітів, усі функції Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "ar": {
+          "name": "Mirivo Pro مدى الحياة",
+          "description": "مشاهدة ومصادر غير محدودة وكل ميزات Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "he": {
+          "name": "Mirivo Pro לכל החיים",
+          "description": "צפייה ומקורות ללא הגבלה וכל תכונות Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "th": {
+          "name": "Mirivo Pro ตลอดชีพ",
+          "description": "รับชมและแหล่งสื่อไม่จำกัด พร้อมทุกฟีเจอร์ Pro",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "vi": {
+          "name": "Mirivo Pro Trọn đời",
+          "description": "Xem, nguồn không giới hạn và mọi tính năng Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "id": {
+          "name": "Mirivo Pro Seumur hidup",
+          "description": "Tontonan dan sumber tanpa batas, semua fitur Pro.",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        },
+        "hi": {
+          "name": "Mirivo Pro आजीवन",
+          "description": "असीमित देखना, स्रोत और सभी Pro सुविधाएँ।",
+          "portalSaved": true,
+          "verifiedAfterPageReload": true
+        }
+      }
+    }
+  },
+  "source": "Plan names use the shipping UI translations; all descriptions describe identical Pro access. No CarPlay Video entitlement or content subscription is included.",
+  "verifiedDate": "2026-10-05"
+}

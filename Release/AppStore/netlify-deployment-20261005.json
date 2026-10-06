@@ -4,7 +4,7 @@
   "siteId": "3f169da4-1d2e-419b-a337-036879d91f9e",
   "deployId": "6ac394f8bbe7ffd2ecb07a72",
   "uiPublished": true,
-  "artifact": "Release/mirivo-netlify.zip",
+  "artifact": "build/netlify-6ac394f8bbe7ffd2ecb07a72-published.zip",
   "artifactSHA256": "9e338b0b03edea78c647a809ff354b184d7d19e6e227810fcde6923d2baf590b",
   "comparison": "HTML tags, text, attributes and resolved links match; Netlify comments and pretty URL rewrites normalized. Assets byte-identical.",
   "files": [
@@ -168,5 +168,7 @@
       "uiSizeBytes": 77
     }
   ],
-  "passed": true
+  "passed": true,
+  "originalArtifactPath": "Release/mirivo-netlify.zip",
+  "historicalDeployment": true
 }

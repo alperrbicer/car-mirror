@@ -4,6 +4,14 @@ import { registrationData, validateRegistration, validateMessage, canSend, isPer
 
 const active = { revision: 1, enabled: true, token: 'firebase-token-1234567890', locale: 'tr', appVersion: '1.10.0' }
 
+test('FID registrations retain the existing notification wire format', () => {
+  const registration = { ...active, token: 'c1234567890abcdefghijkL' }
+  assert.deepEqual(validateRegistration(registration), registration)
+  const stored = registrationData(null, registration, 1000)
+  assert.equal(stored.token, registration.token)
+  assert.equal(canSend(stored, 2000), true)
+})
+
 test('registration rejects malformed, oversized and unexpected data', () => {
   for (const input of [null, {}, { ...active, token: 'short' }, { ...active, token: 'x'.repeat(4097) },
     { ...active, revision: -1 }, { ...active, revision: 1.5 }, { ...active, enabled: 'true' },

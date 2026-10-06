@@ -28,7 +28,7 @@ Asıl hedef iPhone 16 Pro'daki YouTube ve Smarters Player gibi uygulamaların g�
 
 ## Korunacak kararlar
 
-- Pro satışları kapalı: `MIRIVO_PRO_SALES_ENABLED = NO`. Mevcut özellikler ücretsiz; hiçbir sürümde reklam olmayacak.
+- Pro satışları kapalı: `MIRIVO_PRO_SALES_ENABLED = NO`. Mevcut özellikler ücretsiz; mevcut sürüm reklamsız; gelecekteki tüm sürümler için reklam taahhüdü verilmez.
 - Destek `alperrbicer@gmail.com`, yayıncı Alper Biçer.
 - Kullanıcının 3 Ekim talimatıyla Arapça, İbranice, Tayca, Vietnamca, Endonezce ve Hintçe eklendi; kapsam 22 dil. Bu çalışma dil kapsamıyla sınırlı; diğer açık işler sonraki aşamada ele alınacak. Çevirilerin bağımsız ana dil editörü incelemesi yapılmadı.
 - Netlify'a yayımlama kullanıcıya ait. Son Audio çalışmasında Chrome kullanılmadı; profil işlemleri Xcode üzerinden yapıldı.

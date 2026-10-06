@@ -1,6 +1,158 @@
 import XCTest
 
 final class ProductUITests: XCTestCase {
+    // These captures use the shipping views and an original local test video.
+    // The playlist is served by scripts/capture_store_screenshots.py, never bundled.
+    func testAppStoreScreenshots() {
+        captureStoreLanguage("tr")
+        captureStoreLanguage("en")
+    }
+    func testAppStoreScreenshots_zh_Hans() { captureStoreLanguage("zh-Hans") }
+    func testAppStoreScreenshots_zh_Hant() { captureStoreLanguage("zh-Hant") }
+    func testAppStoreScreenshots_ja() { captureStoreLanguage("ja") }
+    func testAppStoreScreenshots_ko() { captureStoreLanguage("ko") }
+    func testAppStoreScreenshots_fr() { captureStoreLanguage("fr") }
+    func testAppStoreScreenshots_de() { captureStoreLanguage("de") }
+    func testAppStoreScreenshots_es() { captureStoreLanguage("es") }
+    func testAppStoreScreenshots_it() { captureStoreLanguage("it") }
+    func testAppStoreScreenshots_pt_BR() { captureStoreLanguage("pt-BR") }
+    func testAppStoreScreenshots_ru() { captureStoreLanguage("ru") }
+    func testAppStoreScreenshots_nl() { captureStoreLanguage("nl") }
+    func testAppStoreScreenshots_pl() { captureStoreLanguage("pl") }
+    func testAppStoreScreenshots_sv() { captureStoreLanguage("sv") }
+    func testAppStoreScreenshots_uk() { captureStoreLanguage("uk") }
+    func testAppStoreScreenshots_ar() { captureStoreLanguage("ar") }
+    func testAppStoreScreenshots_he() { captureStoreLanguage("he") }
+    func testAppStoreScreenshots_th() { captureStoreLanguage("th") }
+    func testAppStoreScreenshots_vi() { captureStoreLanguage("vi") }
+    func testAppStoreScreenshots_id() { captureStoreLanguage("id") }
+    func testAppStoreScreenshots_hi() { captureStoreLanguage("hi") }
+
+    func testAppStorePlayer_de() { captureStoreLanguage("de", playerOnly: true) }
+    func testAppStorePlayer_fr() { captureStoreLanguage("fr", playerOnly: true) }
+    func testAppStorePlayer_es() { captureStoreLanguage("es", playerOnly: true) }
+    func testAppStorePlayer_it() { captureStoreLanguage("it", playerOnly: true) }
+    func testAppStorePlayer_pt_BR() { captureStoreLanguage("pt-BR", playerOnly: true) }
+    func testAppStorePlayer_nl() { captureStoreLanguage("nl", playerOnly: true) }
+    func testAppStorePlayer_pl() { captureStoreLanguage("pl", playerOnly: true) }
+    func testAppStorePlayer_sv() { captureStoreLanguage("sv", playerOnly: true) }
+    func testAppStorePlayer_ru() { captureStoreLanguage("ru", playerOnly: true) }
+    func testAppStorePlayer_uk() { captureStoreLanguage("uk", playerOnly: true) }
+    func testAppStorePlayer_ja() { captureStoreLanguage("ja", playerOnly: true) }
+    func testAppStorePlayer_ko() { captureStoreLanguage("ko", playerOnly: true) }
+    func testAppStorePlayer_zh_Hans() { captureStoreLanguage("zh-Hans", playerOnly: true) }
+    func testAppStorePlayer_zh_Hant() { captureStoreLanguage("zh-Hant", playerOnly: true) }
+
+    // Labels are copied from the current shipping catalogs for locale-specific UI actions.
+    private let screenshotLabels: [String: [String]] = [
+        "tr": ["Ekle", "Oynatma listesi", "Tüm kanallar", "Duraklat", "Xtream Codes"],
+        "en": ["Add", "Playlist", "All channels", "Pause", "Xtream Codes"],
+        "zh-Hans": ["添加", "播放列表", "所有频道", "暂停", "Xtream Codes"],
+        "zh-Hant": ["加入", "播放列表", "所有頻道", "暫停", "Xtream Codes"],
+        "ja": ["追加", "プレイリスト", "すべてのチャンネル", "一時停止", "Xtream Codes"],
+        "ko": ["추가", "재생목록", "모든 채널", "일시 정지", "Xtream Codes"],
+        "fr": ["Ajouter", "Liste de lecture", "Toutes les chaînes", "Pause", "Xtream Codes"],
+        "de": ["Hinzufügen", "Wiedergabeliste", "Alle Kanäle", "Pause", "Xtream Codes"],
+        "es": ["Añadir", "Lista de reproducción", "Todos los canales", "Pausar", "Xtream Codes"],
+        "it": ["Aggiungi", "Playlist", "Tutti i canali", "Pausa", "Xtream Codes"],
+        "pt-BR": ["Adicionar", "Lista de reprodução", "Todos os canais", "Pausar", "Xtream Codes"],
+        "ru": ["Добавить", "Плейлист", "Все каналы", "Пауза", "Xtream Codes"],
+        "nl": ["Toevoegen", "Afspeellijst", "Alle kanalen", "Pauzeren", "Xtream Codes"],
+        "pl": ["Dodaj", "Playlista", "Wszystkie kanały", "Wstrzymaj", "Xtream Codes"],
+        "sv": ["Lägg till", "Spellista", "Alla kanaler", "Pausa", "Xtream Codes"],
+        "uk": ["Додати", "Плейліст", "Усі канали", "Пауза", "Xtream Codes"],
+        "ar": ["إضافة", "قائمة تشغيل", "جميع القنوات", "إيقاف مؤقت", "Xtream Codes"],
+        "he": ["הוספה", "רשימת השמעה", "כל הערוצים", "השהיה", "Xtream Codes"],
+        "th": ["เพิ่ม", "เพลย์ลิสต์", "ทุกช่อง", "หยุดชั่วคราว", "Xtream Codes"],
+        "vi": ["Thêm", "Danh sách phát", "Tất cả kênh", "Tạm dừng", "Xtream Codes"],
+        "id": ["Tambah", "Daftar putar", "Semua saluran", "Jeda", "Xtream Codes"],
+        "hi": ["जोड़ें", "प्लेलिस्ट", "सभी चैनल", "विराम दें", "Xtream Codes"],
+    ]
+
+    private func captureStoreLanguage(_ language: String, playerOnly: Bool = false) {
+        let labels = screenshotLabels[language]!
+        let app = launch(language: language)
+        guard openSourceEditor(in: app) else { app.terminate(); return }
+        // iPad's centered form sheet continues moving after it enters AX.
+        Thread.sleep(forTimeInterval: 0.8)
+        app.textFields["source-name"].tap()
+        if !app.keyboards.firstMatch.waitForExistence(timeout: 2) {
+            app.textFields["source-name"].tap()
+        }
+        app.textFields["source-name"].typeText("Mirivo Demo")
+        app.textFields["source-url"].tap()
+        app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
+        app.buttons[labels[0]].tap()
+        XCTAssertTrue(app.staticTexts["Mirivo Demo"].waitForExistence(timeout: 10))
+        if !playerOnly { capture("store-\(language)-01-iptv", app: app) }
+        let demoSource = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Mirivo Demo", labels[1])).firstMatch
+        demoSource.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        let allChannels = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", labels[2])).firstMatch
+        if !allChannels.waitForExistence(timeout: 3), demoSource.exists {
+            demoSource.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        }
+        guard allChannels.waitForExistence(timeout: 20) else { XCTFail(app.debugDescription); return }
+        allChannels.tap()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch.waitForExistence(timeout: 10))
+        if !playerOnly { capture("store-\(language)-02-channels", app: app) }
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch.tap()
+        let pause = app.buttons[labels[3]].firstMatch
+        guard pause.waitForExistence(timeout: 20) else { XCTFail(app.debugDescription); return }
+        pause.tap()
+        capture("store-\(language)-03-player", app: app)
+        app.terminate()
+        if playerOnly { return }
+
+        let home = launch(language: language)
+        XCTAssertTrue(home.buttons["share-photos"].waitForExistence(timeout: 10))
+        reveal(home.buttons["share-photos"], in: home)
+        capture("store-\(language)-04-sharing", app: home)
+        reveal(home.buttons["connection-guide"], in: home)
+        home.buttons["connection-guide"].tap()
+        XCTAssertTrue(home.buttons["guide-CarPlay"].waitForExistence(timeout: 10))
+        home.buttons["guide-CarPlay"].tap()
+        capture("store-\(language)-06-carplay", app: home)
+        home.terminate()
+
+        let editor = launch(language: language)
+        guard openSourceEditor(in: editor) else { editor.terminate(); return }
+        editor.buttons["source-kind"].tap()
+        let xtream = editor.buttons[labels[4]].firstMatch
+        XCTAssertTrue(xtream.waitForExistence(timeout: 5))
+        xtream.tap()
+        if !editor.textFields["source-username"].waitForExistence(timeout: 3) {
+            if !xtream.exists { editor.buttons["source-kind"].tap() }
+            XCTAssertTrue(xtream.waitForExistence(timeout: 5))
+            xtream.tap()
+        }
+        guard editor.textFields["source-username"].waitForExistence(timeout: 10) else {
+            XCTFail(editor.debugDescription)
+            editor.terminate()
+            return
+        }
+        capture("store-\(language)-05-xtream", app: editor)
+        editor.terminate()
+    }
+    private func openSourceEditor(in app: XCUIApplication) -> Bool {
+        let library = app.buttons["page-library"]
+        library.tap()
+        let selected = NSPredicate(format: "selected == true")
+        if !selected.evaluate(with: library) { library.tap() }
+        guard XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: selected, object: library)], timeout: 5) == .completed else {
+            XCTFail(app.debugDescription)
+            return false
+        }
+        let add = app.buttons["add-source"]
+        reveal(add, in: app)
+        add.tap()
+        let name = app.textFields["source-name"]
+        if !name.waitForExistence(timeout: 3), add.isHittable { add.tap() }
+        guard name.waitForExistence(timeout: 10) else {
+            XCTFail(app.debugDescription)
+            return false
+        }
+        return true
+    }
     private func launch(language: String = "tr", large: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(\(language))", "-AppleLocale", language.replacingOccurrences(of: "-", with: "_")]
@@ -306,10 +458,28 @@ final class ProductUITests: XCTestCase {
             let app = launch(language: language)
             XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
             app.buttons["open-settings"].tap()
-            app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Pro")).firstMatch.tap()
+            let proSettings = app.buttons["settings-pro"]
+            if !proSettings.waitForExistence(timeout: 3), app.buttons["open-settings"].exists {
+                app.buttons["open-settings"].tap()
+            }
+            guard proSettings.waitForExistence(timeout: 10) else {
+                XCTFail(app.debugDescription)
+                app.terminate()
+                return
+            }
+            // The settings sheet can enter AX before its transition completes.
+            Thread.sleep(forTimeInterval: 0.8)
+            proSettings.tap()
             let annual = app.buttons["pro-plan-com.alperbicer.carmirror.pro.yearly"]
             let lifetime = app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"]
-            XCTAssertTrue(annual.waitForExistence(timeout: 20), app.debugDescription)
+            if !annual.waitForExistence(timeout: 3), proSettings.exists {
+                proSettings.tap()
+            }
+            guard annual.waitForExistence(timeout: 20) else {
+                XCTFail(app.debugDescription)
+                app.terminate()
+                return
+            }
             XCTAssertTrue(lifetime.exists, app.debugDescription)
             XCTAssertFalse(app.buttons["pro-plan-com.alperbicer.carmirror.pro.weekly"].exists)
             XCTAssertTrue(annual.isSelected)

@@ -1,0 +1,12 @@
+{
+  "name": "Mirivo",
+  "subtitle": "IPTV, vídeo y CarPlay",
+  "keywords": "iptv,m3u,xtream,video,carplay,player,stream,airplay,cast,captions,media",
+  "promotionalText": "Mira tus fuentes IPTV con M3U y Xtream Codes. Reproduce vídeos y controla el audio en CarPlay. Mirivo no tiene anuncios.",
+  "description": "Mira tus propias fuentes IPTV y vídeos con Mirivo. Añade listas M3U, enlaces de transmisión o servidores Xtream Codes, busca canales y controla la reproducción de audio en CarPlay. También puedes transmitir la pantalla y compartir tus archivos multimedia personales.\n\nLa versión gratuita incluye 2 horas de reproducción al día, 1 fuente guardada y 10 minutos por transmisión de pantalla. Mirivo Pro ofrece reproducción, fuentes y transmisión ilimitadas, modo vehículo y subtítulos en directo compatibles. La suscripción anual se cobra una vez al año y se renueva automáticamente. El acceso de por vida es una compra única y no cancela automáticamente una suscripción anual existente. Los precios aparecen en la app. Gestiona tus suscripciones desde tu cuenta de Apple.\n\nMirivo no proporciona canales, cuentas IPTV ni contenido. Usa solo fuentes a las que tengas permiso para acceder. Esta versión admite CarPlay Audio, sin vídeo ni duplicación de pantalla en CarPlay. Pro no concede autorización para CarPlay Video. Los subtítulos en directo requieren iOS 26, un dispositivo y un idioma compatibles. El contenido protegido puede impedir la captura de pantalla.\n\nMirivo no tiene publicidad. Las direcciones y credenciales de las fuentes permanecen en el llavero del dispositivo.\n\nSupport: https://mirivo-support.netlify.app/en/support.html\nEULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "whatsNew": "Mira tus propias fuentes IPTV y vídeos con Mirivo. Añade listas M3U, enlaces de transmisión o servidores Xtream Codes, busca canales y controla la reproducción de audio en CarPlay. También puedes transmitir la pantalla y compartir tus archivos multimedia personales.",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/en/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/en/index.html"
+}

@@ -1,0 +1,178 @@
+{
+  "preparedAt": "2026-10-05T20:02:18.426891+00:00",
+  "sourceArchive": "build/netlify-6ac394f8bbe7ffd2ecb07a72-published.zip",
+  "sourceSHA256": "9e338b0b03edea78c647a809ff354b184d7d19e6e227810fcde6923d2baf590b",
+  "artifact": "build/netlify-ad-copy-20261005.zip",
+  "artifactSHA256": "8d089a1425a7a17c52dcaffeb24fe9394b79eb8b2bc689f2f5ccdf4fcbc5078f",
+  "scope": "Only permanent ad promises removed; all other published file content preserved. Pending privacy and billing policy changes excluded.",
+  "changes": [
+    {
+      "path": "en/index.html",
+      "changes": [
+        {
+          "old": "Always ad-free",
+          "new": "Ad-free viewing",
+          "count": 1
+        },
+        {
+          "old": "<p>Ad-free in every version.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "en/privacy.html",
+      "changes": [
+        {
+          "old": "<p>Ad-free in every version.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "en/support.html",
+      "changes": [
+        {
+          "old": "Every Mirivo version is ad-free.",
+          "new": "Mirivo has no ads.",
+          "count": 1
+        },
+        {
+          "old": "<p>Ad-free in every version.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "en/terms.html",
+      "changes": [
+        {
+          "old": "Every Mirivo version is ad-free.",
+          "new": "Mirivo has no ads.",
+          "count": 1
+        },
+        {
+          "old": "<p>Ad-free in every version.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "privacy.html",
+      "changes": [
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "support.html",
+      "changes": [
+        {
+          "old": "Mirivo her sürümde reklamsızdır.",
+          "new": "Mirivo reklam içermez.",
+          "count": 1
+        },
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "terms.html",
+      "changes": [
+        {
+          "old": "Mirivo’nun hiçbir sürümünde reklam yoktur.",
+          "new": "Mirivo reklam içermez.",
+          "count": 1
+        },
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "tr/index.html",
+      "changes": [
+        {
+          "old": "Her zaman reklamsız",
+          "new": "Reklamsız kullanım",
+          "count": 1
+        },
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "tr/privacy.html",
+      "changes": [
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "tr/support.html",
+      "changes": [
+        {
+          "old": "Mirivo her sürümde reklamsızdır.",
+          "new": "Mirivo reklam içermez.",
+          "count": 1
+        },
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "path": "tr/terms.html",
+      "changes": [
+        {
+          "old": "Mirivo’nun hiçbir sürümünde reklam yoktur.",
+          "new": "Mirivo reklam içermez.",
+          "count": 1
+        },
+        {
+          "old": "<p>Her sürümde reklamsız.</p>",
+          "new": "",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "inventoryUnchanged": true,
+  "uploaded": true,
+  "uiPublished": true,
+  "deployId": "6ac403313eda88f818df1f24",
+  "siteURL": "https://mirivo-support.netlify.app",
+  "publishedAt": "2026-10-05T23:06:00+03:00",
+  "liveCheckedPaths": [
+    "/tr/index.html",
+    "/en/index.html",
+    "/tr/support.html",
+    "/en/support.html",
+    "/tr/terms.html",
+    "/en/terms.html",
+    "/tr/privacy.html",
+    "/en/privacy.html"
+  ],
+  "permanentAdPromisesAbsentInCheckedPages": true,
+  "proof": "Release/AppStore/portal-proof-20261005-ad-copy.jpg"
+}

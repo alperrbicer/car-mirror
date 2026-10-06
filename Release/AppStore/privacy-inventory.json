@@ -24,7 +24,7 @@
     "optional diagnostic export",
     "optional support email"
   ],
-  "privacyLabelPreparation": "RevenueCat SDK 5.92.0 manifest: Purchase History for App Functionality, not linked to identity and not used for tracking. This integration uses anonymous IDs only, no login, customer attributes, IDFA, IDFV collection, attribution or third-party integrations. Confirm this declaration in App Store Connect after owner approves RevenueCat connection. See https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/apple-app-privacy",
+  "privacyLabelPreparation": "Build 1.0 (12): seven data types and complete purpose/linkage/tracking answers saved in App Store Connect draft and verified after reload; Publish enabled, not published. Final declaration requires account holder review.",
   "requiredReasonAPIs": {
     "SystemBootTime": [
       "35F9.1"
@@ -78,7 +78,7 @@
     "googleAnalyticsSDK": true,
     "tracking": false,
     "retention": "Opt-out unregisters APNs locally and removes the topic subscription after FCM acknowledgement; unsuccessful removal is retried. Removing the topic subscription does not delete the Firebase installation ID.",
-    "releaseGate": "Review Firebase SDK privacy manifests and update App Store Connect privacy answers before upload; live portal declarations have not been changed.",
+    "releaseGate": "Build 12 has the same 26 manifests as build 11. Live Analytics and RevenueCat technical checks complete; final owner review/publication, Analytics terms applicability, and physical runtime delivery remain open.",
     "analytics": {
       "library": "FirebaseAnalyticsCore",
       "enabledWhen": "Explicit Usage analytics preference; off by default",
@@ -97,7 +97,14 @@
         "search text",
         "credentials"
       ],
-      "portalVerification": "Analytics reports and consent behavior require verification with the configured Firebase project"
+      "portalVerification": "Mirivo Firebase project and Analytics property 557377354 inspected on 2026-10-05; Google signals off, Google Ads/AdMob links absent. Runtime consent/report delivery not yet verified.",
+      "data": [
+        "random app-instance identifier",
+        "sessions and fixed screen views",
+        "general location derived from masked IP",
+        "StoreKit product ID/name/price events when Analytics is enabled",
+        "app/OS technical usage metadata"
+      ]
     },
     "notificationMode": "topic (Spark); mirivo_announcements_ios; public announcements only",
     "optionalRegistry": {
@@ -116,5 +123,134 @@
       ],
       "retention": "Opt-out deletes the token and metadata on server acknowledgement. Revision records and inactive registrations expire after 180 days with Firestore TTL enabled; expired records are excluded from sends even before deletion."
     }
+  },
+  "automaticDiagnosticsUploadScope": "Mirivo session-log reports only; enabled third-party SDKs can process their own technical diagnostics.",
+  "build10Review": {
+    "date": "2026-10-05",
+    "manifestEvidence": "Release/AppStore/privacy-manifests-build-10.json",
+    "configuredServices": [
+      "RevenueCat anonymous purchase observation",
+      "Firebase Remote Config",
+      "Firebase App Check",
+      "Firebase Cloud Messaging topic notifications (opt-in)",
+      "Firebase Analytics (explicit opt-in, off by default)",
+      "Google Cast (discovery analytics disabled)"
+    ],
+    "excludedCollection": [
+      "IDFA",
+      "IDFV",
+      "ads/ad personalization",
+      "custom Analytics user IDs",
+      "source names/URLs/credentials",
+      "media/screen frames/audio/captions"
+    ],
+    "purchaseHistory": {
+      "purposes": [
+        "Analytics",
+        "App Functionality"
+      ],
+      "linked": false,
+      "tracking": false,
+      "source": "https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/apple-app-privacy"
+    },
+    "additionalDataReview": [
+      {
+        "type": "Device ID",
+        "purposes": [
+          "App Functionality",
+          "Analytics"
+        ],
+        "linkedInAppManifest": true,
+        "tracking": false,
+        "evidence": "Installation/APNs/FCM identifiers; anonymous Analytics app-instance identifier when opted in."
+      },
+      {
+        "type": "Product Interaction",
+        "purposes": [
+          "Analytics"
+        ],
+        "linkedInAppManifest": false,
+        "tracking": false,
+        "evidence": "Opt-in Analytics sessions/fixed screen names; SDK manifests also include potential Cast interactions."
+      },
+      {
+        "type": "Coarse Location",
+        "purposes": [
+          "Analytics"
+        ],
+        "tracking": false,
+        "evidence": "Analytics derives general location from masked IP addresses; no Location Services request."
+      },
+      {
+        "type": "Other Diagnostic Data",
+        "purposes": [
+          "Analytics",
+          "App Functionality"
+        ],
+        "tracking": false,
+        "evidence": "Configured Firebase SDK technical diagnostics; compare installed SDK manifests."
+      },
+      {
+        "type": "Other Data Types",
+        "purposes": [
+          "Analytics"
+        ],
+        "tracking": false,
+        "evidence": "Firebase Messaging manifest; service device/language/time-zone metadata."
+      }
+    ],
+    "configurationSensitiveItems": [
+      "The root app and FirebaseAuth manifests include User ID, but build 10 uses topic notification registration and does not invoke anonymous Authentication. Do not copy the full SDK-manifest union into the privacy form without accounting for this disabled feature.",
+      "Google Cast manifests include analytics/diagnostic types; TVDiscovery sets disableAnalyticsLogging=true before Cast initialization. This flag disables discovery diagnostics; it does not establish that every SDK collection category is disabled.",
+      "Analytics app-instance IDs are random and not assigned a Mirivo/Firebase Auth account ID. Confirm current Google Analytics sharing/integrations before deciding final linked-to-identity and tracking answers.",
+      "Optional consent does not by itself exempt ongoing usage analytics from the Apple disclosure."
+    ],
+    "portalFormSaved": false,
+    "published": false,
+    "sources": [
+      "https://firebase.google.com/docs/ios/app-store-data-collection",
+      "https://support.google.com/analytics/answer/10285841",
+      "https://developer.apple.com/app-store/app-privacy-details/",
+      "https://developers.google.com/cast/docs/ios_sender/app_privacy",
+      "https://developers.google.com/cast/docs/reference/ios/interface_g_c_k_cast_options"
+    ]
+  },
+  "build11Review": {
+    "date": "2026-10-05",
+    "manifestEvidence": "Release/AppStore/privacy-manifests-build-11.json",
+    "same26ManifestsAsBuild10": true,
+    "portalFormSaved": false,
+    "published": false,
+    "castNutritionEvidence": "build/cache/SourcePackages/artifacts/googlecast/GoogleCast/NutritionLabel/NutritionLabel.txt",
+    "castAdditionalData": [
+      "Performance Data",
+      "Coarse Location",
+      "Other Diagnostic Data"
+    ],
+    "castNote": "disableAnalyticsLogging=true and no GCKUI classes in app source; packaged nutrition label still describes default diagnostic processing. Do not infer all diagnostics are disabled.",
+    "technicalPortalChecksPending": [
+      "RevenueCat sign-in and integrations/identity mapping",
+      "per-source linked-to-identity classification and final tracking assessment"
+    ],
+    "dataAnswerDraft": "Release/AppStore/privacy-form-draft-20261005.json",
+    "portalDataCollectionSaved": true,
+    "portalDataTypesSaved": true,
+    "portalConfigurationCompleted": false,
+    "selectedDataTypes": 7,
+    "liveServiceChecks": "Release/AppStore/privacy-form-draft-20261005.json#liveServiceChecks"
+  },
+  "trackingAssessmentScope": "Current compiled build 12 and live Analytics/RevenueCat configuration inspected. No configured cross-app ad integrations observed; all seven technical draft tracking answers are No. Final public declaration remains unpublished.",
+  "build12Review": {
+    "date": "2026-10-05",
+    "manifestEvidence": "Release/AppStore/privacy-manifests-build-12.json",
+    "same26ManifestsAsBuild11": true,
+    "portalFormSaved": true,
+    "portalConfigurationCompleted": true,
+    "portalReloadVerified": true,
+    "published": false,
+    "dataAnswerDraft": "Release/AppStore/privacy-form-draft-20261005.json",
+    "liveServiceChecks": "Release/AppStore/privacy-form-draft-20261005.json#liveServiceChecks",
+    "identityClassification": "Four aggregate types conservatively linked; three diagnostics/other types unlinked under installed SDK disclosures. See draft rationale.",
+    "ownerPublicationRequired": true
   }
 }

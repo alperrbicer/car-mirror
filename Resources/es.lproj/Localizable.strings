@@ -17,7 +17,7 @@
 "Bize ulaş" = "Contacta con nosotros";
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "No se encontró ninguna compra Pro activa en esta cuenta de Apple.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "Este idioma aún no admite subtítulos en el dispositivo. Prueba con otro.";
-"Bu sürümde tüm özellikler açık. Mirivo’nun hiçbir sürümünde reklam yok." = "Todas las funciones están disponibles en esta versión. Ninguna versión de Mirivo tiene anuncios.";
+"Bu sürümde tüm özellikler açık." = "Todas las funciones están disponibles en esta versión.";
 "CARPLAY BAĞLI" = "CARPLAY CONECTADO";
 "CARPLAY BEKLENİYOR" = "ESPERANDO CARPLAY";
 "Canlı altyazılar" = "Subtítulos en directo";
@@ -185,23 +185,23 @@
 "Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "No se pudo actualizar la fuente. Comprueba la URL y las credenciales.";
 "Tüm kanallar" = "Todos los canales";
 
-"Tam ekran" = "Full screen";
+"Tam ekran" = "Pantalla completa";
 
-"Kanallar" = "Channels";
+"Kanallar" = "Canales";
 
-"Önceki kanal" = "Previous channel";
+"Önceki kanal" = "Canal anterior";
 
-"Sonraki kanal" = "Next channel";
+"Sonraki kanal" = "Canal siguiente";
 
-"Bugün kalan: %d dk" = "Remaining today: %d min";
+"Bugün kalan: %d dk" = "Tiempo restante hoy: %d min";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Has alcanzado el límite diario de 2 horas. Podrás volver a ver contenido mañana.";
 
-"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Free viewing includes 2 hours per day. Every version of Mirivo is ad-free.";
+"Ücretsiz izleme günde 2 saat." = "La versión gratuita incluye 2 horas de reproducción al día.";
 
-"Sınırsız izleme" = "Unlimited viewing";
+"Sınırsız izleme" = "Reproducción ilimitada";
 
-"Pro ile günlük izleme sınırı olmadan devam et." = "Keep watching without a daily viewing limit with Pro.";
+"Pro ile günlük izleme sınırı olmadan devam et." = "Sigue viendo sin límite diario con Pro.";
 
 "Canlı" = "En directo";
 

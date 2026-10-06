@@ -1,0 +1,12 @@
+{
+  "name": "Mirivo",
+  "subtitle": "IPTV, 동영상 및 CarPlay",
+  "keywords": "iptv,m3u,xtream,video,carplay,player,stream,airplay,cast,captions,media",
+  "promotionalText": "M3U 및 Xtream Codes로 자신의 IPTV 소스를 시청하세요. 동영상을 재생하고 CarPlay에서 오디오를 제어할 수 있습니다. Mirivo는 광고가 없습니다.",
+  "description": "Mirivo로 자신의 IPTV 소스와 동영상을 시청하세요. M3U 재생목록, 스트림 링크 또는 Xtream Codes 서버를 추가하고 채널을 검색하며 CarPlay에서 오디오 재생을 제어할 수 있습니다. 화면 방송과 개인 미디어 공유도 지원합니다.\n\n무료 버전은 하루 2시간 시청, 저장된 소스 1개, 방송당 10분을 제공합니다. Mirivo Pro는 무제한 시청, 소스와 방송, 차량 모드 및 지원되는 실시간 자막을 제공합니다. 연간 구독은 1년에 한 번 결제되며 자동으로 갱신됩니다. 평생 이용권은 일회성 구매이며 기존 연간 구독을 자동으로 취소하지 않습니다. 가격은 앱에 표시됩니다. Apple 계정에서 구독을 관리하세요.\n\nMirivo는 채널, IPTV 계정 또는 콘텐츠를 제공하지 않습니다. 접근 권한이 있는 소스만 사용하세요. 이 버전은 CarPlay Audio를 지원하며 CarPlay에서 동영상 또는 화면 미러링을 제공하지 않습니다. Pro 구매는 CarPlay Video 권한을 부여하지 않습니다. 실시간 자막에는 iOS 26과 지원되는 기기 및 언어가 필요합니다. 보호된 콘텐츠는 화면 캡처를 제한할 수 있습니다.\n\nMirivo는 광고가 없습니다. 소스 주소와 로그인 정보는 기기의 키체인에 보관됩니다.\n\nSupport: https://mirivo-support.netlify.app/en/support.html\nEULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "whatsNew": "Mirivo로 자신의 IPTV 소스와 동영상을 시청하세요. M3U 재생목록, 스트림 링크 또는 Xtream Codes 서버를 추가하고 채널을 검색하며 CarPlay에서 오디오 재생을 제어할 수 있습니다. 화면 방송과 개인 미디어 공유도 지원합니다.",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/en/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/en/index.html"
+}

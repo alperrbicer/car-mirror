@@ -84,7 +84,7 @@ struct ProView: View {
                             .accessibilityIdentifier("pro-reload")
                     }
                 }
-                Text(L10n.tr("Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok."))
+                Text(L10n.tr("Ücretsiz izleme günde 2 saat."))
                     .font(.footnote).foregroundStyle(MirrorStyle.secondary)
                 VStack(spacing: 16) {
                     if store.salesEnabled || store.verifiedPro {

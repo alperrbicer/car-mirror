@@ -195,13 +195,14 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
         Task { @MainActor in
             guard NotificationStore.shared.enabled else { return }
             Messaging.messaging().isAutoInitEnabled = true
-            do { NotificationStore.shared.receivedToken(try await Messaging.messaging().token()) }
+            // Registration delivers the FID through the Messaging delegate.
+            do { try await Messaging.messaging().register() }
             catch { NotificationStore.shared.registrationFailed() }
         }
     }
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken else { return }
-        Task { @MainActor in NotificationStore.shared.receivedToken(fcmToken) }
+    func messaging(_ messaging: Messaging, didReceiveRegistration installationID: String?) {
+        guard let installationID else { return }
+        Task { @MainActor in NotificationStore.shared.receivedToken(installationID) }
     }
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         Task { @MainActor in NotificationStore.shared.registrationFailed() }

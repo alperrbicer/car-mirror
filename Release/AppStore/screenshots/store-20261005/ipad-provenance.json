@@ -1,0 +1,117 @@
+{
+  "resultBundle": "build/store-ipad-screenshots-r2-20261005.xcresult",
+  "device": "iPad Pro 13-inch (M4)",
+  "runtime": "iOS 26.5",
+  "edited": false,
+  "content": "Original Resources/ConnectionProbe.mp4 via temporary local M3U",
+  "files": [
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/en/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-en-01-iptv.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "4fb080e84ffe1cd2478fb401f5c1edc7d993bf022ce7f61448426d300f3a9576"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/en/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-en-02-channels.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "e255e2ba368cfb05a043b979f9f495a744041bb6b887ef7baf35600092f50b5c"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/en/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-en-03-player.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "17388f1d6c7001f90e20b0978b234a2f38bff7ced3eb79877be1edbf0fe1afd0"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/en/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-en-04-sharing.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "8dca2172670961183b9e09baf883370c2eb110f21a60efe99c0d6e228c8ec31d"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/en/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-en-05-xtream.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "8ae8f846b61a2dbc491f359d27fa4eb713a7e8acc6149d25599276af810fcd06"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/en/06-carplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-en-06-carplay.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "ed1fd7c55456bddde9fffc64ccaf1d3c60f592c2df7c0793ee18b2b2d1c5411b"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/tr/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-tr-01-iptv.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "4663e21e002589aef59809ce1dbc096dbc13ee4370ff8805e430cf14435c8e63"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/tr/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-tr-02-channels.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "dde3b8e9b7eed97bfe868ac7ff6c9a946c3d4d38d44adc9980d50cfe9aa985a9"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/tr/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-tr-03-player.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "66f6526f720117b61a1a7bbf363a1dc93a86bfe9fc4b481febfc7812b3102f66"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/tr/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-tr-04-sharing.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "5e8e68c544237efd95afdb2d07752537b26f1fb6a15c5859e8389988ef8b1016"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/tr/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-tr-05-xtream.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "d10effd34ed460529cc8f0af8632cd397ebb8c32f29046757371f99cd2ee4cad"
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261005/ipad/tr/06-carplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/AA3A802E-0A18-4743-A5C9-50595BFE895A/data/Containers/Data/Application/61573C9C-5ADC-4679-8CF9-0D9DAE07F160/tmp/mirivo-store-tr-06-carplay.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "063395278d91a098035a802fc705e0f42f0cb597ef4e063a797cfb590db9eb8c"
+    }
+  ]
+}

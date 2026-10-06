@@ -1,0 +1,168 @@
+{
+  "appStoreAppId": "6818560405",
+  "candidate": "1.0 (12)",
+  "status": "full_technical_draft_saved_reload_verified_owner_review_not_published",
+  "collectsData": true,
+  "requiredBeforeFinalAnswers": [
+    "Account holder review of the conservative aggregate identity classifications and final publication.",
+    "Account holder assessment of Data Processing Terms applicability; accept personally if required."
+  ],
+  "dataTypes": [
+    {
+      "type": "Purchase History",
+      "purposes": [
+        "Analytics",
+        "App Functionality"
+      ],
+      "proposedLinkedToIdentity": true,
+      "proposedTracking": false,
+      "basis": "RevenueCat alone uses anonymous App User IDs and its guidance permits unlinked purchases when there is no identity mapping. Mirivo also includes optional Analytics StoreKit events associated with an app-instance identifier. The aggregate draft conservatively declares linked rather than assuming the RevenueCat-only answer applies to Analytics.",
+      "identityReviewRequired": true,
+      "identityReviewNote": "Final publication remains for the account holder. For Analytics-associated types, linked=Yes is a conservative technical inference; anonymous identifiers alone do not prove de-identification under Apple criteria.",
+      "trackingIntegrationReviewRequired": false,
+      "portalConfigurationSaved": true
+    },
+    {
+      "type": "Device ID",
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "proposedLinkedToIdentity": true,
+      "proposedTracking": false,
+      "basis": "The compiled root manifest declares linked Device ID. Firebase installation/APNs/FCM identifiers and optional Analytics app-instance IDs contribute to this app-level answer; advertising identifiers remain disabled.",
+      "trackingIntegrationReviewRequired": false,
+      "identityReviewRequired": true,
+      "identityReviewNote": "Final publication remains for the account holder. For Analytics-associated types, linked=Yes is a conservative technical inference; anonymous identifiers alone do not prove de-identification under Apple criteria.",
+      "portalConfigurationSaved": true
+    },
+    {
+      "type": "Product Interaction",
+      "purposes": [
+        "Analytics"
+      ],
+      "proposedLinkedToIdentity": true,
+      "proposedTracking": false,
+      "basis": "Analytics sessions and fixed screen views are associated with an app-instance identifier. Although there is no account/custom user ID/IDFA/IDFV and the core manifest marks its interaction data unlinked, the app-level draft conservatively includes the device association used by the Analytics SDK.",
+      "identityReviewRequired": true,
+      "identityReviewNote": "Final publication remains for the account holder. For Analytics-associated types, linked=Yes is a conservative technical inference; anonymous identifiers alone do not prove de-identification under Apple criteria.",
+      "trackingIntegrationReviewRequired": false,
+      "portalConfigurationSaved": true
+    },
+    {
+      "type": "Coarse Location",
+      "purposes": [
+        "Analytics",
+        "App Functionality"
+      ],
+      "proposedLinkedToIdentity": true,
+      "proposedTracking": false,
+      "basis": "Analytics derives general location from masked IP and can associate it with app-instance usage. The app-level draft conservatively includes that device association. Packaged Cast diagnostics also disclose general location, for Analytics/App Functionality.",
+      "identityReviewRequired": true,
+      "identityReviewNote": "Final publication remains for the account holder. For Analytics-associated types, linked=Yes is a conservative technical inference; anonymous identifiers alone do not prove de-identification under Apple criteria.",
+      "trackingIntegrationReviewRequired": false,
+      "portalConfigurationSaved": true
+    },
+    {
+      "type": "Performance Data",
+      "purposes": [
+        "Analytics",
+        "App Functionality"
+      ],
+      "proposedLinkedToIdentity": false,
+      "proposedTracking": false,
+      "basis": "Packaged Cast NutritionLabel describes default diagnostic performance processing. The Cast privacy manifest declares its diagnostic processing unlinked; discovery analytics is disabled and no GCKUI or ad identifier logging is configured.",
+      "identityReviewRequired": true,
+      "identityReviewNote": "Based on installed SDK disclosure and current app configuration; account holder reviews the final public declaration.",
+      "trackingIntegrationReviewRequired": false,
+      "portalConfigurationSaved": true
+    },
+    {
+      "type": "Other Diagnostic Data",
+      "purposes": [
+        "Analytics",
+        "App Functionality"
+      ],
+      "proposedLinkedToIdentity": false,
+      "proposedTracking": false,
+      "basis": "Installed Firebase/Cast manifests declare diagnostic data unlinked. The app does not configure account mapping, identity attributes or advertising identifiers for these diagnostics; own session-log exports are user directed.",
+      "identityReviewRequired": true,
+      "identityReviewNote": "Based on installed SDK disclosure and current app configuration; account holder reviews the final public declaration.",
+      "trackingIntegrationReviewRequired": false,
+      "portalConfigurationSaved": true
+    },
+    {
+      "type": "Other Data Types",
+      "purposes": [
+        "Analytics"
+      ],
+      "proposedLinkedToIdentity": false,
+      "proposedTracking": false,
+      "basis": "Installed FirebaseMessaging manifest declares Other Data Types unlinked and solely for Analytics. This includes service language/time-zone/app/OS metadata; no additional app-functionality purpose is claimed without supporting SDK evidence.",
+      "identityReviewRequired": true,
+      "identityReviewNote": "Based on installed SDK disclosure and current app configuration; account holder reviews the final public declaration.",
+      "trackingIntegrationReviewRequired": false,
+      "portalConfigurationSaved": true
+    }
+  ],
+  "notSelectedForCurrentConfiguration": [
+    "User ID: Firebase Authentication registry path is inactive; RevenueCat creates an anonymous ID with no account mapping in the app.",
+    "Payment Info: Apple handles payment card details.",
+    "Photos or Videos, Audio Data, Other User Content: source media, broadcasts and captions are not uploaded to a developer backend.",
+    "Precise Location, Contacts, Browsing History, Search History, advertising data: no corresponding app collection is configured."
+  ],
+  "evidence": [
+    "Release/AppStore/privacy-manifests-build-12.json",
+    "Sources/App/FirebaseServices.swift",
+    "Sources/App/PurchaseStore.swift",
+    "Sources/App/TVDiscovery.swift",
+    "Config/App-Info.plist",
+    "build/cache/SourcePackages/artifacts/googlecast/GoogleCast/NutritionLabel/NutritionLabel.txt"
+  ],
+  "sources": [
+    "https://developer.apple.com/app-store/app-privacy-details/",
+    "https://firebase.google.com/docs/ios/app-store-data-collection",
+    "https://support.google.com/analytics/answer/10285841",
+    "https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/apple-app-privacy",
+    "https://developers.google.com/cast/docs/ios_sender/app_privacy"
+  ],
+  "identityClassificationNote": "Apple includes device identity. The app-level draft conservatively marks Device ID, Product Interaction, Coarse Location and Purchase History linked because active/opt-in sources include persistent installation/app-instance associations. RevenueCat anonymous guidance alone does not settle the optional Analytics union. Diagnostics and Other Data follow installed SDK unlinked disclosures. These are proposed technical answers pending owner publication, not proof of real-world identification.",
+  "liveServiceChecks": {
+    "checkedAt": "2026-10-05",
+    "firebaseProject": "mirivo",
+    "analyticsProperty": "557377354",
+    "analyticsAccount": "398505209",
+    "googleSignals": "OFF - Turn on button visible",
+    "googleAdsLinks": 0,
+    "adMobLinks": 0,
+    "googleProductsServicesSharing": false,
+    "aggregatedModelingSharing": true,
+    "technicalSupportSharing": true,
+    "businessRecommendationSharing": true,
+    "granularLocationAndDeviceDataRegions": "307/307 allowed",
+    "propertyAdsPersonalizationRegions": "307/307 allowed",
+    "appAdsConsent": "denied in build 12; no IDFA/IDFV collection",
+    "firebaseBigQueryLink": "not linked; Link button visible",
+    "revenueCatIntegrations": "Integration catalog showed templates without configured records; Firebase and Meta templates explicitly inspected, required identifiers/secrets empty, Add integration state, no settings saved.",
+    "analyticsDataProcessingTerms": "not accepted; account holder must assess applicability and accept personally if required",
+    "settingsChanged": false,
+    "revenueCatProject": "7d9b6d16",
+    "revenueCatSignInCompleted": true,
+    "revenueCatCustomerIdentity": "Four customer IDs in the All Customers page were RCAnonymousID; one current profile inspected with no contact/device/ad identifier attribute values shown. Source code configures no custom App User ID or customer attributes.",
+    "revenueCatObservedCustomers": 4,
+    "revenueCatPaidSubscribers": 0,
+    "revenueCatTotalRevenueUSD": 0,
+    "revenueCatDefaultOffering": "mirivo_pro; only rc_annual and rc_lifetime mapped to Mirivo App Store products, rechecked after sign-in."
+  },
+  "portalDraft": {
+    "collectsDataSaved": true,
+    "dataTypeSelectionSaved": true,
+    "selectedDataTypes": 7,
+    "purposesCompleted": true,
+    "identityAndTrackingCompleted": true,
+    "publishDisabled": false,
+    "published": false,
+    "checkedAt": "2026-10-05",
+    "reloadVerified": true
+  }
+}

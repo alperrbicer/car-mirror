@@ -1,0 +1,12 @@
+{
+  "name": "Mirivo",
+  "subtitle": "IPTV、影片與CarPlay",
+  "keywords": "iptv,m3u,xtream,video,carplay,player,stream,airplay,cast,captions,media",
+  "promotionalText": "透過M3U與Xtream Codes觀看自己的IPTV來源。播放影片並在CarPlay中控制音訊。Mirivo沒有廣告。",
+  "description": "使用Mirivo觀看自己的IPTV來源與影片。加入M3U播放列表、串流連結或Xtream Codes伺服器，搜尋頻道，並透過CarPlay控制音訊播放。也支援螢幕廣播與個人媒體分享。\n\n免費版每天可觀看2小時、儲存1個來源，每次螢幕廣播限10分鐘。Mirivo Pro提供不限時觀看、不限數量的來源與廣播、車載模式及支援的即時字幕。年度訂閱每年收費一次並自動續訂。終身使用權為單次購買，不會自動取消現有的年度訂閱。價格顯示於App內。請在Apple帳號中管理訂閱。\n\nMirivo不提供頻道、IPTV帳號或內容。請僅使用您有權存取的來源。此版本支援CarPlay Audio，不提供CarPlay影片播放或螢幕鏡像。購買Pro不會授予CarPlay Video權限。即時字幕需要iOS 26及支援的裝置與語言。受保護的內容可能禁止螢幕擷取。\n\nMirivo沒有廣告。來源網址與登入資訊保存在裝置的鑰匙圈中。\n\nSupport: https://mirivo-support.netlify.app/en/support.html\nEULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "whatsNew": "使用Mirivo觀看自己的IPTV來源與影片。加入M3U播放列表、串流連結或Xtream Codes伺服器，搜尋頻道，並透過CarPlay控制音訊播放。也支援螢幕廣播與個人媒體分享。",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/en/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/en/index.html"
+}

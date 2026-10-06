@@ -17,7 +17,7 @@
 "Bize ulaş" = "ติดต่อเรา";
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "ไม่พบการซื้อ Pro ที่ใช้งานอยู่ในบัญชี Apple นี้";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "ภาษานี้ยังไม่รองรับคำบรรยายบนอุปกรณ์ ลองเลือกภาษาอื่น";
-"Bu sürümde tüm özellikler açık. Mirivo’nun hiçbir sürümünde reklam yok." = "เวอร์ชันนี้ใช้งานได้ทุกฟีเจอร์ Mirivo ทุกเวอร์ชันไม่มีโฆษณา";
+"Bu sürümde tüm özellikler açık." = "เวอร์ชันนี้ใช้งานได้ทุกฟีเจอร์";
 "CARPLAY BAĞLI" = "เชื่อมต่อ CARPLAY แล้ว";
 "CARPLAY BEKLENİYOR" = "กำลังรอ CARPLAY";
 "Canlı altyazılar" = "คำบรรยายสด";
@@ -197,7 +197,7 @@
 
 "Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "คุณใช้เวลารับชมครบ 2 ชั่วโมงสำหรับวันนี้แล้ว กลับมารับชมได้อีกครั้งพรุ่งนี้";
 
-"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "รับชมฟรีวันละ 2 ชั่วโมง Mirivo ทุกเวอร์ชันไม่มีโฆษณา";
+"Ücretsiz izleme günde 2 saat." = "รับชมฟรีวันละ 2 ชั่วโมง";
 
 "Sınırsız izleme" = "รับชมไม่จำกัด";
 

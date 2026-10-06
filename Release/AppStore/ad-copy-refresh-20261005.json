@@ -1,0 +1,113 @@
+{
+  "updatedAt": "2026-10-05T21:47:11.060620+00:00",
+  "scope": "Remove permanent promise about future advertising; current ad-free claim remains factual.",
+  "localizedCatalogCount": 22,
+  "compiledCandidate": "1.0 (12)",
+  "compiledCatalogs": [
+    {
+      "locale": "ar",
+      "freeUsageText": "المشاهدة المجانية متاحة لساعتين يوميًا."
+    },
+    {
+      "locale": "de",
+      "freeUsageText": "Kostenloses Ansehen umfasst 2 Stunden pro Tag."
+    },
+    {
+      "locale": "en",
+      "freeUsageText": "Free viewing includes 2 hours per day."
+    },
+    {
+      "locale": "es",
+      "freeUsageText": "La versión gratuita incluye 2 horas de reproducción al día."
+    },
+    {
+      "locale": "fr",
+      "freeUsageText": "La version gratuite permet 2 heures de lecture par jour."
+    },
+    {
+      "locale": "he",
+      "freeUsageText": "הצפייה החינמית כוללת שעתיים ביום."
+    },
+    {
+      "locale": "hi",
+      "freeUsageText": "हर दिन 2 घंटे मुफ़्त देखें।"
+    },
+    {
+      "locale": "id",
+      "freeUsageText": "Menonton gratis tersedia selama 2 jam per hari."
+    },
+    {
+      "locale": "it",
+      "freeUsageText": "La versione gratuita include 2 ore di riproduzione al giorno."
+    },
+    {
+      "locale": "ja",
+      "freeUsageText": "無料版では1日2時間視聴できます。"
+    },
+    {
+      "locale": "ko",
+      "freeUsageText": "무료 시청은 하루 2시간입니다."
+    },
+    {
+      "locale": "nl",
+      "freeUsageText": "Gratis kijken omvat 2 uur per dag."
+    },
+    {
+      "locale": "pl",
+      "freeUsageText": "Bezpłatne oglądanie obejmuje 2 godziny dziennie."
+    },
+    {
+      "locale": "pt-BR",
+      "freeUsageText": "A versão gratuita inclui 2 horas de reprodução por dia."
+    },
+    {
+      "locale": "ru",
+      "freeUsageText": "Бесплатный просмотр — 2 часа в день."
+    },
+    {
+      "locale": "sv",
+      "freeUsageText": "Gratis uppspelning omfattar 2 timmar per dag."
+    },
+    {
+      "locale": "th",
+      "freeUsageText": "รับชมฟรีวันละ 2 ชั่วโมง"
+    },
+    {
+      "locale": "tr",
+      "freeUsageText": "Ücretsiz izleme günde 2 saat."
+    },
+    {
+      "locale": "uk",
+      "freeUsageText": "Безкоштовний перегляд — 2 години на день."
+    },
+    {
+      "locale": "vi",
+      "freeUsageText": "Xem miễn phí 2 giờ mỗi ngày."
+    },
+    {
+      "locale": "zh-Hans",
+      "freeUsageText": "免费版每天可观看2小时。"
+    },
+    {
+      "locale": "zh-Hant",
+      "freeUsageText": "免費版每天可觀看2小時。"
+    }
+  ],
+  "storePromotionalTextLocalesChanged": [
+    "tr",
+    "en-US"
+  ],
+  "storePromotionalTextSavedAndReloadVerified": true,
+  "sitePublished": true,
+  "siteDeploymentRecord": "Release/AppStore/netlify-ad-copy-deployment-20261005.json",
+  "public132ScreenshotsNeedReplacement": false,
+  "proReviewScreenshotsRefreshComplete": true,
+  "uploadRecord": "build/deploy/2026-10-05-build12-upload/upload.json",
+  "appStoreProcessingState": "Validated",
+  "selectedInVersion": true,
+  "proReviewScreenshotsUploaded": true,
+  "proReviewScreenshotProvenance": "Release/AppStore/screenshots/pro-plans/provenance.json",
+  "proUICapturePassed": true,
+  "proReviewScreenshotsVerifiedAfterReload": true,
+  "portalCompletionRecord": "Release/AppStore/portal-completion-20261006.json"
+}

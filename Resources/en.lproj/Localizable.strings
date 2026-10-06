@@ -17,7 +17,7 @@
 "Bize ulaş" = "Contact us";
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "No active Pro purchase was found for this Apple account.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "This language is not yet supported for on-device captions. Try another language.";
-"Bu sürümde tüm özellikler açık. Mirivo’nun hiçbir sürümünde reklam yok." = "All features are available in this version. Every version of Mirivo is ad-free.";
+"Bu sürümde tüm özellikler açık." = "All features are available in this version.";
 "CARPLAY BAĞLI" = "CARPLAY CONNECTED";
 "CARPLAY BEKLENİYOR" = "WAITING FOR CARPLAY";
 "Canlı altyazılar" = "Live captions";
@@ -197,7 +197,7 @@
 
 "Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
 
-"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Free viewing includes 2 hours per day. Every version of Mirivo is ad-free.";
+"Ücretsiz izleme günde 2 saat." = "Free viewing includes 2 hours per day.";
 
 "Sınırsız izleme" = "Unlimited viewing";
 

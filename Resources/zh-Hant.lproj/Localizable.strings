@@ -17,7 +17,7 @@
 "Bize ulaş" = "聯絡我們";
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "此 Apple 帳號沒有有效的 Pro 購買紀錄。";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "此語言尚不支援裝置端字幕，請選擇其他語言。";
-"Bu sürümde tüm özellikler açık. Mirivo’nun hiçbir sürümünde reklam yok." = "此版本的所有功能皆可使用。Mirivo 的所有版本都沒有廣告。";
+"Bu sürümde tüm özellikler açık." = "此版本的所有功能皆可使用。";
 "CARPLAY BAĞLI" = "CARPLAY 已連線";
 "CARPLAY BEKLENİYOR" = "正在等待 CARPLAY";
 "Canlı altyazılar" = "即時字幕";
@@ -185,23 +185,23 @@
 "Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "無法更新來源，請檢查網址和登入資訊。";
 "Tüm kanallar" = "所有頻道";
 
-"Tam ekran" = "Full screen";
+"Tam ekran" = "全螢幕";
 
-"Kanallar" = "Channels";
+"Kanallar" = "頻道";
 
-"Önceki kanal" = "Previous channel";
+"Önceki kanal" = "上一個頻道";
 
-"Sonraki kanal" = "Next channel";
+"Sonraki kanal" = "下一個頻道";
 
-"Bugün kalan: %d dk" = "Remaining today: %d min";
+"Bugün kalan: %d dk" = "今天剩餘：%d分鐘";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "您已達到每天2小時的觀看上限。明天可以繼續觀看。";
 
-"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Free viewing includes 2 hours per day. Every version of Mirivo is ad-free.";
+"Ücretsiz izleme günde 2 saat." = "免費版每天可觀看2小時。";
 
-"Sınırsız izleme" = "Unlimited viewing";
+"Sınırsız izleme" = "不限時觀看";
 
-"Pro ile günlük izleme sınırı olmadan devam et." = "Keep watching without a daily viewing limit with Pro.";
+"Pro ile günlük izleme sınırı olmadan devam et." = "使用Pro可繼續觀看，不受每日時間限制。";
 
 "Canlı" = "直播";
 

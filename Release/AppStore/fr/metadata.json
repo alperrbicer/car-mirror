@@ -1,0 +1,12 @@
+{
+  "name": "Mirivo",
+  "subtitle": "IPTV, vidéo et CarPlay",
+  "keywords": "iptv,m3u,xtream,video,carplay,player,stream,airplay,cast,captions,media",
+  "promotionalText": "Regardez vos sources IPTV avec M3U et Xtream Codes. Lisez vos vidéos et contrôlez le son dans CarPlay. Mirivo ne contient aucune publicité.",
+  "description": "Avec Mirivo, regardez vos propres sources IPTV et vidéos. Ajoutez des listes M3U, des liens de flux ou des serveurs Xtream Codes, recherchez des chaînes et contrôlez la lecture audio dans CarPlay. La diffusion de l’écran et le partage de médias personnels sont aussi disponibles.\n\nLa version gratuite comprend 2 heures de lecture par jour, 1 source enregistrée et 10 minutes par diffusion d’écran. Mirivo Pro offre la lecture, les sources et la diffusion illimitées, le mode véhicule et les sous-titres en direct pris en charge. L’abonnement annuel est facturé une fois par an et se renouvelle automatiquement. L’accès à vie est un achat unique et ne résilie pas automatiquement un abonnement annuel existant. Les prix sont affichés dans l’app. Gérez vos abonnements dans votre compte Apple.\n\nMirivo ne fournit ni chaînes, ni comptes IPTV, ni contenu. Utilisez uniquement des sources auxquelles vous êtes autorisé à accéder. Cette version prend en charge CarPlay Audio, sans vidéo ni recopie d’écran dans CarPlay. Pro n’accorde pas l’autorisation CarPlay Video. Les sous-titres en direct nécessitent iOS 26, un appareil et une langue compatibles. Les contenus protégés peuvent empêcher la capture d’écran.\n\nMirivo est sans publicité. Les adresses des sources et les identifiants restent dans le trousseau de votre appareil.\n\nSupport: https://mirivo-support.netlify.app/en/support.html\nEULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "whatsNew": "Avec Mirivo, regardez vos propres sources IPTV et vidéos. Ajoutez des listes M3U, des liens de flux ou des serveurs Xtream Codes, recherchez des chaînes et contrôlez la lecture audio dans CarPlay. La diffusion de l’écran et le partage de médias personnels sont aussi disponibles.",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/en/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/en/index.html"
+}

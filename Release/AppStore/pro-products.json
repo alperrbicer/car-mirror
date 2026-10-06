@@ -6,7 +6,27 @@
     "id": "22438082",
     "localizations": [
       "tr",
-      "en-US"
+      "en-US",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+      "ko",
+      "fr-FR",
+      "de-DE",
+      "es-ES",
+      "it",
+      "pt-BR",
+      "ru",
+      "nl-NL",
+      "pl",
+      "sv",
+      "uk",
+      "ar-SA",
+      "he",
+      "th",
+      "vi",
+      "id",
+      "hi"
     ],
     "activeSubscriptionProductIds": [
       "com.alperbicer.carmirror.pro.yearly"
@@ -26,7 +46,15 @@
     "oldTestOfferingInactive": true,
     "testStoreProductsDetached": true,
     "serverNotificationProductionURLVerified": true,
-    "serverNotificationSandboxURLVerified": true
+    "serverNotificationSandboxURLVerified": true,
+    "serverNotificationURLsRecheckedAt": "2026-10-05",
+    "runtimeDeliveryVerified": false,
+    "signInCheckedAt": "2026-10-05",
+    "anonymousCustomersObserved": 4,
+    "paidSubscribersObserved": 0,
+    "totalRevenueUSDObserved": 0,
+    "liveIntegrationInspectionCompleted": true,
+    "integrationInspectionRecord": "Release/AppStore/privacy-form-draft-20261005.json#liveServiceChecks"
   },
   "products": [
     {
@@ -46,9 +74,89 @@
         "en-US": {
           "name": "Mirivo Pro Yearly",
           "description": "Unlimited viewing, sources, vehicle mode and captions."
+        },
+        "zh-Hans": {
+          "name": "Mirivo Pro 每年",
+          "description": "不限观看时长和来源数量，解锁全部Pro功能。"
+        },
+        "zh-Hant": {
+          "name": "Mirivo Pro 每年",
+          "description": "不限觀看時間與來源數量，解鎖所有Pro功能。"
+        },
+        "ja": {
+          "name": "Mirivo Pro 毎年",
+          "description": "視聴時間とソース数が無制限。すべてのPro機能を利用。"
+        },
+        "ko": {
+          "name": "Mirivo Pro 매년",
+          "description": "시청 시간과 소스 수 제한 없이 모든 Pro 기능을 이용하세요."
+        },
+        "fr-FR": {
+          "name": "Mirivo Pro Annuel",
+          "description": "Visionnage, sources illimités et fonctions Pro."
+        },
+        "de-DE": {
+          "name": "Mirivo Pro Jährlich",
+          "description": "Unbegrenzt ansehen, Quellen und alle Pro-Funktionen."
+        },
+        "es-ES": {
+          "name": "Mirivo Pro Anual",
+          "description": "Visualización, fuentes sin límites y funciones Pro."
+        },
+        "it": {
+          "name": "Mirivo Pro Annuale",
+          "description": "Visione e fonti illimitate, tutte le funzioni Pro."
+        },
+        "pt-BR": {
+          "name": "Mirivo Pro Anual",
+          "description": "Uso e fontes ilimitados, todos os recursos Pro."
+        },
+        "ru": {
+          "name": "Mirivo Pro Ежегодно",
+          "description": "Просмотр и источники без лимитов, все функции Pro."
+        },
+        "nl-NL": {
+          "name": "Mirivo Pro Jaarlijks",
+          "description": "Onbeperkt kijken, bronnen en alle Pro-functies."
+        },
+        "pl": {
+          "name": "Mirivo Pro Co rok",
+          "description": "Oglądanie i źródła bez limitów, wszystkie funkcje Pro."
+        },
+        "sv": {
+          "name": "Mirivo Pro Årligen",
+          "description": "Obegränsat tittande, källor och alla Pro-funktioner."
+        },
+        "uk": {
+          "name": "Mirivo Pro Щороку",
+          "description": "Перегляд і джерела без лімітів, усі функції Pro."
+        },
+        "ar-SA": {
+          "name": "Mirivo Pro سنوي",
+          "description": "مشاهدة ومصادر غير محدودة وكل ميزات Pro."
+        },
+        "he": {
+          "name": "Mirivo Pro שנתי",
+          "description": "צפייה ומקורות ללא הגבלה וכל תכונות Pro."
+        },
+        "th": {
+          "name": "Mirivo Pro รายปี",
+          "description": "รับชมและแหล่งสื่อไม่จำกัด พร้อมทุกฟีเจอร์ Pro"
+        },
+        "vi": {
+          "name": "Mirivo Pro Hàng năm",
+          "description": "Xem, nguồn không giới hạn và mọi tính năng Pro."
+        },
+        "id": {
+          "name": "Mirivo Pro Tahunan",
+          "description": "Tontonan dan sumber tanpa batas, semua fitur Pro."
+        },
+        "hi": {
+          "name": "Mirivo Pro वार्षिक",
+          "description": "असीमित देखना, स्रोत और सभी Pro सुविधाएँ।"
         }
       },
-      "reviewScreenshotUploaded": false,
+      "reviewScreenshotUploaded": true,
       "countryPriceOverrides": {
         "TUR": {
           "currency": "TRY",
@@ -58,7 +166,32 @@
       "portalPricesVerified": true,
       "subscriptionLevel": 2,
       "introductoryOffer": null,
-      "reviewScreenshotPrepared": "Release/AppStore/screenshots/pro-plans/annual-en.png"
+      "reviewScreenshotPrepared": "Release/AppStore/screenshots/pro-plans/annual-en.png",
+      "reviewScreenshotUploadVerifiedAt": "2026-10-05T21:47:11.060620+00:00",
+      "reviewNotesSaved": true,
+      "reviewStatus": "DRAFT_READY_TO_SUBMIT_NOT_SUBMITTED",
+      "purchaseOptions": {
+        "multiseatPurchases": "NOT_ALLOWED",
+        "purchaseFrom": [
+          "APP_STORE"
+        ],
+        "savedAndVisibleInPortal": true,
+        "verifiedAfterReload": true,
+        "reason": "Current Mirivo Pro implementation is an individual consumer license; bulk-seat purchase is not implemented or validated.",
+        "checkedAt": "2026-10-05T21:47:11.060620+00:00"
+      },
+      "draftSubmissionItemState": "Items Ready to Submit",
+      "taxCategory": "Matches parent app: App Store Software",
+      "previousReviewScreenshot": {
+        "uploaded": true,
+        "verifiedAt": "2026-10-05",
+        "localHistoricalCopy": "build/pro-review-previous-20261005/annual-en.png",
+        "sha256": "334832ca51c81d239ef1a825f24ed5046f24079f51e4daa9318e130d97d412fd"
+      },
+      "reviewScreenshotPendingReason": null,
+      "reviewScreenshotVerifiedAfterReload": true,
+      "reviewScreenshotAppleAssetURL": "https://is1-ssl.mzstatic.com/image/thumb/ktN7ygYysSHRfr0NlKa1DQ/1320x2868bb.png",
+      "reviewScreenshotSHA256": "080ece6c8c3ddc6789986cad9e2cd5b935ac3c5ec33d4d01a49613dd2a386498"
     },
     {
       "id": "com.alperbicer.carmirror.pro.lifetime",
@@ -73,9 +206,89 @@
         "en-US": {
           "name": "Mirivo Pro Lifetime",
           "description": "One payment for unlimited viewing, sources and Pro."
+        },
+        "zh-Hans": {
+          "name": "Mirivo Pro 终身",
+          "description": "不限观看时长和来源数量，解锁全部Pro功能。"
+        },
+        "zh-Hant": {
+          "name": "Mirivo Pro 終身",
+          "description": "不限觀看時間與來源數量，解鎖所有Pro功能。"
+        },
+        "ja": {
+          "name": "Mirivo Pro 永久利用",
+          "description": "視聴時間とソース数が無制限。すべてのPro機能を利用。"
+        },
+        "ko": {
+          "name": "Mirivo Pro 평생 이용",
+          "description": "시청 시간과 소스 수 제한 없이 모든 Pro 기능을 이용하세요."
+        },
+        "fr-FR": {
+          "name": "Mirivo Pro À vie",
+          "description": "Visionnage, sources illimités et fonctions Pro."
+        },
+        "de-DE": {
+          "name": "Mirivo Pro Lebenslang",
+          "description": "Unbegrenzt ansehen, Quellen und alle Pro-Funktionen."
+        },
+        "es-ES": {
+          "name": "Mirivo Pro De por vida",
+          "description": "Visualización, fuentes sin límites y funciones Pro."
+        },
+        "it": {
+          "name": "Mirivo Pro A vita",
+          "description": "Visione e fonti illimitate, tutte le funzioni Pro."
+        },
+        "pt-BR": {
+          "name": "Mirivo Pro Vitalício",
+          "description": "Uso e fontes ilimitados, todos os recursos Pro."
+        },
+        "ru": {
+          "name": "Mirivo Pro Навсегда",
+          "description": "Просмотр и источники без лимитов, все функции Pro."
+        },
+        "nl-NL": {
+          "name": "Mirivo Pro Levenslang",
+          "description": "Onbeperkt kijken, bronnen en alle Pro-functies."
+        },
+        "pl": {
+          "name": "Mirivo Pro Dożywotnio",
+          "description": "Oglądanie i źródła bez limitów, wszystkie funkcje Pro."
+        },
+        "sv": {
+          "name": "Mirivo Pro Livstid",
+          "description": "Obegränsat tittande, källor och alla Pro-funktioner."
+        },
+        "uk": {
+          "name": "Mirivo Pro Назавжди",
+          "description": "Перегляд і джерела без лімітів, усі функції Pro."
+        },
+        "ar-SA": {
+          "name": "Mirivo Pro مدى الحياة",
+          "description": "مشاهدة ومصادر غير محدودة وكل ميزات Pro."
+        },
+        "he": {
+          "name": "Mirivo Pro לכל החיים",
+          "description": "צפייה ומקורות ללא הגבלה וכל תכונות Pro."
+        },
+        "th": {
+          "name": "Mirivo Pro ตลอดชีพ",
+          "description": "รับชมและแหล่งสื่อไม่จำกัด พร้อมทุกฟีเจอร์ Pro"
+        },
+        "vi": {
+          "name": "Mirivo Pro Trọn đời",
+          "description": "Xem, nguồn không giới hạn và mọi tính năng Pro."
+        },
+        "id": {
+          "name": "Mirivo Pro Seumur hidup",
+          "description": "Tontonan dan sumber tanpa batas, semua fitur Pro."
+        },
+        "hi": {
+          "name": "Mirivo Pro आजीवन",
+          "description": "असीमित देखना, स्रोत और सभी Pro सुविधाएँ।"
         }
       },
-      "reviewScreenshotUploaded": false,
+      "reviewScreenshotUploaded": true,
       "basePriceUSD": "49.99",
       "availability": "all",
       "countryPriceOverrides": {
@@ -87,31 +300,70 @@
       "portalPricesVerified": true,
       "subscriptionLevel": null,
       "introductoryOffer": null,
-      "reviewScreenshotPrepared": "Release/AppStore/screenshots/pro-plans/lifetime-en.png"
+      "reviewScreenshotPrepared": "Release/AppStore/screenshots/pro-plans/lifetime-en.png",
+      "reviewScreenshotUploadVerifiedAt": "2026-10-05T21:47:11.060620+00:00",
+      "reviewNotesSaved": true,
+      "reviewStatus": "DRAFT_READY_TO_SUBMIT_NOT_SUBMITTED",
+      "draftSubmissionItemState": "Items Ready to Submit",
+      "taxCategory": "Matches parent app: App Store Software",
+      "previousReviewScreenshot": {
+        "uploaded": true,
+        "verifiedAt": "2026-10-05",
+        "localHistoricalCopy": "build/pro-review-previous-20261005/lifetime-en.png",
+        "sha256": "150f7b69bb6b2a8f025ae2f5ca0764f06aae6b053d7a68f6c8d5a1cc8a549dc6"
+      },
+      "reviewScreenshotPendingReason": null,
+      "reviewScreenshotVerifiedAfterReload": true,
+      "reviewScreenshotAppleAssetURL": "https://is1-ssl.mzstatic.com/image/thumb/dh7mXhtR8S5BjSA-nDwQCQ/1320x2868bb.png",
+      "reviewScreenshotSHA256": "118750837accfd7cf8b177f392ca66963fb514949fc35d318c1e7612595cb1c5"
     }
   ],
   "ownerOnly": [
+    "age-rating and third-party content rights declarations",
+    "DSA trader/non-trader status",
     "tax and banking details",
-    "agreements",
-    "privacy declaration approval",
-    "Submit for Review"
+    "legally binding agreements and applicable Data Processing Terms",
+    "final privacy declaration publication",
+    "final Submit for Review"
   ],
   "versionMetadataSaved": [
     "tr",
-    "en-US"
+    "en",
+    "zh-Hans",
+    "zh-Hant",
+    "ja",
+    "ko",
+    "fr",
+    "de",
+    "es",
+    "it",
+    "pt-BR",
+    "ru",
+    "nl",
+    "pl",
+    "sv",
+    "uk",
+    "ar",
+    "he",
+    "th",
+    "vi",
+    "id",
+    "hi"
   ],
   "reviewNotesSaved": true,
   "releaseMode": "manual",
   "remainingTechnical": [
-    "upload prepared current-price purchase review screenshots",
-    "Apple sandbox/TestFlight purchase, restore, refund, expiry and RevenueCat verification",
-    "upload release build",
-    "rebuild release IPA with remote document links"
+    "Run physical Apple sandbox/TestFlight purchase/restore/refund/expiry acceptance on build 12 and verify RevenueCat event/server notification delivery.",
+    "After owner approval, publish pending privacy/billing site update and verify live documents.",
+    "For the CarPlay Video release objective, obtain Apple approval, prepare a Video-entitled distribution candidate and verify playback in a supported parked vehicle."
   ],
   "ownerApprovalRequired": [
-    "upload review screenshots",
-    "upload final IPA after RevenueCat configuration",
-    "Submit for Review"
+    "tax and banking details / legally binding agreements",
+    "privacy declaration approval",
+    "final Submit for Review",
+    "age-rating questionnaire (automatic approval review requires explicit confirmation)",
+    "third-party content rights declaration",
+    "DSA trader/non-trader status for paid Pro"
   ],
   "validation": {
     "staticReleasePassed": true,
@@ -120,9 +372,9 @@
     "iOS26StoreKitError": "SKInternalErrorDomain Code=3 saving configuration/clearing transactions; purchase RPC fails or times out; expiry recheck still failed after fixture refresh",
     "iOS27": "Device Hub display timeout / invalid device state",
     "screenshotsDirectory": "Release/AppStore/screenshots/pro-plans",
-    "screenshotsUploaded": false,
+    "screenshotsUploaded": true,
     "annualLifetimeUIPassed": true,
-    "annualLifetimeUIResult": "build/pro-current-price-ui-20261005.xcresult",
+    "annualLifetimeUIResult": "build/pro-ad-copy-ui-final-20261005.xcresult",
     "currentPriceUIPassed": true,
     "storeKitExpiryRecheckPassed": false,
     "storeKitExpiryRecheckResult": "build/pro-expiry-recheck-20261005.xcresult",
@@ -133,34 +385,567 @@
     "rtlRemoteDocumentFallbackPassed": true,
     "rtlRemoteDocumentFallbackEvidence": "build/netlify-links-ui-verified-20261005.log: testRightToLeftWebsiteFallback passed; combined suite failed in the separate navigation test",
     "compiledAppHasLocalProductHTML": false,
-    "compiledAppIncludesThirdPartyNotices": true
+    "compiledAppIncludesThirdPartyNotices": true,
+    "screenshotsUploadScope": "Yearly/Lifetime product review images and 132 public iPhone screenshots across all 22 store locales; identical order and same-locale size inheritance verified after page reload.",
+    "artifactConsistencyAudit": "Release/AppStore/preparation-validation-20261005.json",
+    "localArtifactConsistencyPassed": true,
+    "latestReviewScreenshotUploadRecord": "Release/AppStore/portal-completion-20261006.json"
   },
   "approvedPricingDate": "2026-10-05",
   "weeklyAvailabilityRemoved": true,
   "versionMetadataSavePendingContact": false,
   "releaseArtifact": {
+    "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T19-55-24-871Z-archive-8ac3a3/CarMirror.xcarchive",
+    "bundleId": "com.alperbicer.carmirror",
+    "appGroup": "group.com.alperbicer.carmirror",
+    "team": "3T2VY64864",
     "version": "1.0",
-    "build": "9",
-    "ipa": "build/deploy/2026-10-05T11-30-45-900Z-export-a94545/ipa/CarMirror.ipa",
+    "build": "12",
+    "carPlayMode": "audio",
+    "ipa": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T20-06-37-124Z-export-346b04/ipa/CarMirror.ipa",
+    "method": "Xcode account upload",
+    "commandExitCode": 0,
+    "log": "build/deploy/2026-10-05-build12-upload/upload.log",
+    "uploaded": true,
+    "recordedAt": "2026-10-05T20:23:11.031190+00:00",
+    "symbolUploadWarnings": [
+      "GoogleAppMeasurement.framework dSYM missing",
+      "GoogleCast.framework dSYM missing"
+    ],
+    "processingVerifiedInPortal": true,
+    "lastVisiblePortalState": "Validated",
+    "selectedInVersion": true,
+    "portalReauthenticationRequired": false,
+    "privacyManifestEvidence": "Release/AppStore/privacy-manifests-build-12.json",
+    "adCopyRecord": "Release/AppStore/ad-copy-refresh-20261005.json",
     "distributionVerified": true,
-    "uploaded": false,
-    "includesRemoteDocumentLinks": false
+    "signatureVerifiedWithSystemTrustService": true,
+    "validationRecord": "Release/AppStore/ad-copy-build12-validation-20261005.json",
+    "compiledCatalogs": 22,
+    "deviceFamily": [
+      "iPhone"
+    ],
+    "carPlayAudioEntitlement": true,
+    "carPlayVideoEntitlement": false,
+    "proSalesEnabled": true,
+    "proReviewScreenshotCapturePassed": true,
+    "proReviewScreenshotProvenance": "Release/AppStore/screenshots/pro-plans/provenance.json",
+    "appStoreConnectBuildId": "baed1b1a-7ab6-4241-8dea-f76f3d24e4a8",
+    "binaryState": "Validated",
+    "versionSelectionVerifiedAfterReload": true,
+    "minimumIOSVersion": "18.0",
+    "appleBuildLocalizations": 22,
+    "uploadedAt": "2026-10-05T23:21:00+03:00",
+    "portalCompletionRecord": "Release/AppStore/portal-completion-20261006.json",
+    "checkedAt": "2026-10-05T21:47:11.060620+00:00"
   },
   "reviewContactSaved": true,
   "appleBusiness": {
     "paidAppsAgreement": "Pending User Info",
     "usTaxQuestionnaire": "Missing Tax Info",
-    "checkedAt": "2026-10-05"
+    "checkedAt": "2026-10-05",
+    "freeAppsAgreement": "Active",
+    "bankAccountConfigured": false,
+    "bankAccountsEmptyVerified": true,
+    "bankAccountBanner": "To receive payments, add a bank account",
+    "financialInformationEnteredByAgent": false
   },
   "supportSite": {
     "url": "https://mirivo-support.netlify.app",
     "published": true,
-    "deployId": "6ac394f8bbe7ffd2ecb07a72",
-    "deployedAt": "2026-10-05T15:15:00+03:00",
+    "deployId": "6ac403313eda88f818df1f24",
+    "deployedAt": "2026-10-05T23:06:00+03:00",
     "liveContentVerified": true,
-    "verificationRecord": "Release/AppStore/netlify-deployment-20261005.json",
+    "verificationRecord": "Release/AppStore/netlify-ad-copy-deployment-20261005.json",
     "appUsesRemoteLinks": true,
     "localProductDocumentsBundled": false,
-    "validationScope": "12 HTML pages, 2 assets, robots.txt, 3 root aliases, headers and 17-file deploy inventory"
+    "validationScope": "Scoped ad-promise removal only; prior 17-file published inventory preserved, 8 TR/EN live pages inspected. Pending privacy/billing changes excluded.",
+    "localSourceMatchesVerifiedDeployment": false,
+    "pendingUpdate": {
+      "artifact": "Release/mirivo-netlify.zip",
+      "sha256": "cca0d0b58b57ef46a16ad1119d5a5f6ef901aba4547355b92ca5efffabad2b72",
+      "published": false,
+      "changes": [
+        "Cast diagnostics and general-location disclosure",
+        "opt-in Analytics app-instance, masked-IP general location and purchase event disclosure",
+        "RevenueCat purchase analytics purpose",
+        "yearly upfront billing and lifetime does not cancel yearly explanation"
+      ],
+      "ownerPrivacyApprovalRequired": true
+    },
+    "permanentAdPromiseRemoved": true
+  },
+  "versionMetadataRefresh20261005": {
+    "tr": true,
+    "en-US": true,
+    "appInformationSubtitles": true,
+    "reviewNotes": true,
+    "copyright": true,
+    "reviewNotesRefreshPending": false,
+    "all22LanguagesSaved": true,
+    "all22LanguagesPersistenceVerified": true
+  },
+  "carPlayVideoApproval": {
+    "status": "not_received",
+    "source": "owner message on 2026-10-05"
+  },
+  "publicStoreScreenshots": {
+    "manifest": "Release/AppStore/screenshots/store-20261005/upload-manifest.json",
+    "uploadedLocales": [
+      "tr",
+      "en-US",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+      "ko",
+      "fr-FR",
+      "de-DE",
+      "es-ES",
+      "it",
+      "pt-BR",
+      "ru",
+      "nl-NL",
+      "pl",
+      "sv",
+      "uk",
+      "ar-SA",
+      "he",
+      "th",
+      "vi",
+      "id",
+      "hi"
+    ],
+    "orderVerifiedAfterUpload": true,
+    "orderVerifiedAfterPageReload": true,
+    "all22LocalesUploaded": true,
+    "requiredDeviceFamily": [
+      "iPhone"
+    ],
+    "preparedLocales": [
+      "tr",
+      "en",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+      "ko",
+      "fr",
+      "de",
+      "es",
+      "it",
+      "pt-BR",
+      "ru",
+      "nl",
+      "pl",
+      "sv",
+      "uk",
+      "ar",
+      "he",
+      "th",
+      "vi",
+      "id",
+      "hi"
+    ],
+    "preparedPNGFiles": 132,
+    "all22StoreLocalesCreated": true,
+    "all22LocalesPersistentlyVerified": true
+  },
+  "localizationFix20261005": {
+    "keys": 9,
+    "languages": [
+      "de",
+      "fr",
+      "es",
+      "it",
+      "pt-BR",
+      "nl",
+      "pl",
+      "sv",
+      "ru",
+      "uk",
+      "ja",
+      "ko",
+      "zh-Hans",
+      "zh-Hant"
+    ],
+    "sourceUpdated": true,
+    "includedInSelectedBuild10": false,
+    "newDistributionBuildRequired": false,
+    "playerScreenshotRefreshInProgress": false,
+    "playerScreenshotRefreshResult": "build/store-localized-player-20261005.xcresult",
+    "playerScreenshotRefreshPassed": true,
+    "newDistributionBuildPrepared": "11",
+    "includedInSelectedBuild11": true
+  },
+  "preparedReleaseArtifact11": {
+    "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T16-08-13-568Z-archive-f8bfb9/CarMirror.xcarchive",
+    "bundleId": "com.alperbicer.carmirror",
+    "appGroup": "group.com.alperbicer.carmirror",
+    "team": "3T2VY64864",
+    "version": "1.0",
+    "build": "11",
+    "carPlayMode": "audio",
+    "ipa": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T16-12-16-929Z-export-70a822/ipa/CarMirror.ipa",
+    "distributionVerified": true,
+    "uploaded": true,
+    "uploadInProgress": false,
+    "uploadRecord": "build/deploy/2026-10-05T16-14-48Z-build11-upload/upload.json",
+    "processingVerifiedInPortal": true,
+    "selectedInVersion": false,
+    "symbolUploadWarnings": [
+      "Third-party GoogleAppMeasurement.framework dSYM missing",
+      "Third-party GoogleCast.framework dSYM missing"
+    ],
+    "iconVerifiedInArchive": true,
+    "deviceFamily": [
+      "iPhone"
+    ],
+    "iconEvidence": "build/deploy/build11-icon-evidence.json",
+    "appStoreConnectBuildId": "1ad1d9f1-b21f-443a-b293-ab2422b11dad",
+    "binaryState": "Validated"
+  },
+  "appIconHeader": {
+    "visibleInPortal": true,
+    "checkedAt": "2026-10-05",
+    "evidence": "Correct mint Mirivo app icon visible in the Media Manager header after page reload; earlier placeholder cause not established.",
+    "proofScreenshot": "Release/AppStore/portal-proof-20261005-logo.jpg"
+  },
+  "previousReleaseArtifact10": {
+    "version": "1.0",
+    "build": "10",
+    "archive": "build/deploy/2026-10-05T12-22-55-601Z-archive-b9c4fc/CarMirror.xcarchive",
+    "ipa": "build/deploy/2026-10-05T12-25-45-968Z-export-7c6078/ipa/CarMirror.ipa",
+    "distributionVerified": true,
+    "uploaded": true,
+    "selectedInVersion": true,
+    "appStoreConnectBuildId": "4525df0a-adc8-4435-8844-a5a0e917cec6",
+    "includesRemoteDocumentLinks": true,
+    "includesLocalProductHTML": false,
+    "carPlayAudioEntitlement": true,
+    "carPlayVideoEntitlement": false,
+    "proSalesEnabled": true,
+    "revenueCatPublicKeyPresent": true,
+    "firebaseConfigured": true,
+    "uploadEvidence": "Build 10 was listed in App Store Connect, selected and saved in version 1.0. Re-upload returned a duplicate-build validation error.",
+    "iconVerifiedInAppleIncludedAssets": true,
+    "iconVerifiedAt": "2026-10-05",
+    "deviceFamily": [
+      "iPhone"
+    ]
+  },
+  "appInformation": {
+    "namesAndSubtitlesSavedLocales": [
+      "tr",
+      "en",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+      "ko",
+      "fr",
+      "de",
+      "es",
+      "it",
+      "pt-BR",
+      "ru",
+      "nl",
+      "pl",
+      "sv",
+      "uk",
+      "ar",
+      "he",
+      "th",
+      "vi",
+      "id",
+      "hi"
+    ],
+    "all22PersistentlyVerified": true,
+    "primaryCategory": "Entertainment",
+    "secondaryCategory": "Photo & Video",
+    "ageRatingSaved": false,
+    "ageRatingBlocker": "Automatic approval review rejected age-rating No selections because compliance-sensitive declarations require explicit user confirmation.",
+    "contentRightsSaved": false,
+    "DSAStatus": "Non-trader shown in App Information; owner must reassess for Pro monetization.",
+    "categoriesSaved": true,
+    "privacyURLs": {
+      "saveRequestedLocales": [
+        "tr",
+        "en",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "ko",
+        "fr",
+        "de",
+        "es",
+        "it",
+        "pt-BR",
+        "ru",
+        "nl",
+        "pl",
+        "sv",
+        "uk",
+        "ar",
+        "he",
+        "th",
+        "vi",
+        "id",
+        "hi"
+      ],
+      "lastLocaleSaveCompletionUnverified": null,
+      "all22PersistenceVerified": true,
+      "verificationBlocker": null,
+      "verifiedAfterReloadDate": "2026-10-05"
+    }
+  },
+  "livePortalBlocker": null,
+  "productLocalizationPreparation": {
+    "file": "Release/AppStore/product-localizations-20261005.json",
+    "products": 2,
+    "preparedLocalesPerProduct": 22,
+    "portalSavedLocalesPerProduct": [
+      "tr",
+      "en-US",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+      "ko",
+      "fr-FR",
+      "de-DE",
+      "es-ES",
+      "it",
+      "pt-BR",
+      "ru",
+      "nl-NL",
+      "pl",
+      "sv",
+      "uk",
+      "ar-SA",
+      "he",
+      "th",
+      "vi",
+      "id",
+      "hi"
+    ],
+    "remaining20PerProductUploaded": true,
+    "all22VerifiedAfterReloadPerProduct": true
+  },
+  "ownerActionGuide": "docs/APP_STORE_OWNER_ACTIONS_2026-10-05.md",
+  "readinessReport": "docs/APP_STORE_READINESS_2026-10-05.md",
+  "reviewReady": false,
+  "reviewSubmitted": false,
+  "subscriptionGroupLocalizations": {
+    "groupId": "22438082",
+    "displayName": "Mirivo Pro",
+    "appName": "Mirivo",
+    "portalLocales": [
+      "tr",
+      "en-US",
+      "zh-Hans",
+      "zh-Hant",
+      "ja",
+      "ko",
+      "fr-FR",
+      "de-DE",
+      "es-ES",
+      "it",
+      "pt-BR",
+      "ru",
+      "nl-NL",
+      "pl",
+      "sv",
+      "uk",
+      "ar-SA",
+      "he",
+      "th",
+      "vi",
+      "id",
+      "hi"
+    ],
+    "all22Saved": true,
+    "all22VerifiedAfterFreshNavigation": true,
+    "verifiedAt": "2026-10-05"
+  },
+  "baseAppPricing": {
+    "baseCountry": "USA",
+    "basePriceUSD": "0.00",
+    "availableRegions": 175,
+    "futureRegionsIncluded": true,
+    "storedPriceRowsVerifiedAfterReload": 175,
+    "allStoredPricesZero": true,
+    "taxCategory": "App Store Software",
+    "macAppleSiliconAvailability": false,
+    "appleVisionProAvailability": false,
+    "educationalVolumeDiscount": false,
+    "platformChoicesVerifiedAfterReload": true,
+    "distributionMethod": "public",
+    "checkedAt": "2026-10-05"
+  },
+  "testFlight": {
+    "build": "1.0 (12)",
+    "group": "Mirivo Internal Testers",
+    "groupId": "da4b1168-5aa5-4ea7-8712-04e991e67cc3",
+    "groupUrl": "https://appstoreconnect.apple.com/teams/31972ed8-cc56-40e5-a97f-ecc06b25ed2a/apps/6818560405/testflight/groups/da4b1168-5aa5-4ea7-8712-04e991e67cc3/builds",
+    "buildAddedToGroup": true,
+    "visibleBuildStatus": "Testing",
+    "testers": 1,
+    "testerScope": "own account holder only",
+    "invitationStatus": "Invited",
+    "invitationAcceptedVerified": false,
+    "installationVerified": false,
+    "paymentRuntimeVerified": false,
+    "checkedAt": "2026-10-05T21:47:11.060620+00:00",
+    "appStoreConnectBuildId": "baed1b1a-7ab6-4241-8dea-f76f3d24e4a8",
+    "buildsInGroup": 3,
+    "verifiedAfterReload": true,
+    "invitationLastCheckedAt": "2026-10-05",
+    "testDetailsLocalesSaved": [
+      "tr",
+      "en-US"
+    ],
+    "testDetailsVerifiedAfterReload": true
+  },
+  "draftReviewSubmission": {
+    "platform": "iOS",
+    "startedAt": "2026-10-05T22:01:00+03:00",
+    "readyItems": 3,
+    "items": [
+      {
+        "name": "Mirivo Pro Yearly",
+        "type": "Subscription",
+        "appleId": "6818889933"
+      },
+      {
+        "name": "Mirivo Pro",
+        "type": "Subscription Group",
+        "appleId": "22438082"
+      },
+      {
+        "name": "Mirivo Pro Lifetime",
+        "type": "In-App Purchase",
+        "appleId": "6818966443"
+      }
+    ],
+    "versionAdded": false,
+    "versionAddAttemptPerformedAfterBasePriceFix": true,
+    "remainingVersionValidationErrors": [
+      "App Privacy practices must be provided by an Admin",
+      "Content Rights Information required",
+      "Required age ratings questions must be answered"
+    ],
+    "basePriceErrorResolved": true,
+    "submitButtonDisabled": true,
+    "submitted": false,
+    "checkedAt": "2026-10-05T21:47:11.060620+00:00",
+    "reviewImagesRefreshed": true,
+    "itemsTemporarilyRemovedForImageRefreshThenRestored": true
+  },
+  "appPrivacy": {
+    "collectsDataSaved": true,
+    "dataTypeSelectionSaved": true,
+    "selectedDataTypes": [
+      "Device ID",
+      "Purchase History",
+      "Product Interaction",
+      "Performance Data",
+      "Other Diagnostic Data",
+      "Other Data Types",
+      "Coarse Location"
+    ],
+    "purposesCompleted": true,
+    "identityAndTrackingCompleted": true,
+    "publishDisabled": false,
+    "published": false,
+    "draft": "Release/AppStore/privacy-form-draft-20261005.json",
+    "reloadVerified": true,
+    "recheckedAt": "2026-10-05T21:47:11.060620+00:00",
+    "recheckScope": "Seven configured types, linked-purpose preview and Turkish policy URL visible; Publish enabled; not published."
+  },
+  "preparedReleaseArtifact12": {
+    "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T19-55-24-871Z-archive-8ac3a3/CarMirror.xcarchive",
+    "bundleId": "com.alperbicer.carmirror",
+    "appGroup": "group.com.alperbicer.carmirror",
+    "team": "3T2VY64864",
+    "version": "1.0",
+    "build": "12",
+    "carPlayMode": "audio",
+    "ipa": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T20-06-37-124Z-export-346b04/ipa/CarMirror.ipa",
+    "method": "Xcode account upload",
+    "commandExitCode": 0,
+    "log": "build/deploy/2026-10-05-build12-upload/upload.log",
+    "uploaded": true,
+    "recordedAt": "2026-10-05T20:23:11.031190+00:00",
+    "symbolUploadWarnings": [
+      "GoogleAppMeasurement.framework dSYM missing",
+      "GoogleCast.framework dSYM missing"
+    ],
+    "processingVerifiedInPortal": true,
+    "lastVisiblePortalState": "Validated",
+    "selectedInVersion": true,
+    "portalReauthenticationRequired": false,
+    "privacyManifestEvidence": "Release/AppStore/privacy-manifests-build-12.json",
+    "adCopyRecord": "Release/AppStore/ad-copy-refresh-20261005.json",
+    "distributionVerified": true,
+    "signatureVerifiedWithSystemTrustService": true,
+    "validationRecord": "Release/AppStore/ad-copy-build12-validation-20261005.json",
+    "compiledCatalogs": 22,
+    "deviceFamily": [
+      "iPhone"
+    ],
+    "carPlayAudioEntitlement": true,
+    "carPlayVideoEntitlement": false,
+    "proSalesEnabled": true,
+    "proReviewScreenshotCapturePassed": true,
+    "proReviewScreenshotProvenance": "Release/AppStore/screenshots/pro-plans/provenance.json",
+    "appStoreConnectBuildId": "baed1b1a-7ab6-4241-8dea-f76f3d24e4a8",
+    "binaryState": "Validated",
+    "versionSelectionVerifiedAfterReload": true,
+    "minimumIOSVersion": "18.0",
+    "appleBuildLocalizations": 22,
+    "uploadedAt": "2026-10-05T23:21:00+03:00",
+    "portalCompletionRecord": "Release/AppStore/portal-completion-20261006.json",
+    "checkedAt": "2026-10-05T21:47:11.060620+00:00"
+  },
+  "appStoreConnectSessionExpired": false,
+  "previousReleaseArtifact11": {
+    "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T16-08-13-568Z-archive-f8bfb9/CarMirror.xcarchive",
+    "bundleId": "com.alperbicer.carmirror",
+    "appGroup": "group.com.alperbicer.carmirror",
+    "team": "3T2VY64864",
+    "version": "1.0",
+    "build": "11",
+    "carPlayMode": "audio",
+    "ipa": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-05T16-12-16-929Z-export-70a822/ipa/CarMirror.ipa",
+    "distributionVerified": true,
+    "uploaded": true,
+    "uploadInProgress": false,
+    "uploadRecord": "build/deploy/2026-10-05T16-14-48Z-build11-upload/upload.json",
+    "processingVerifiedInPortal": true,
+    "selectedInVersion": false,
+    "symbolUploadWarnings": [
+      "Third-party GoogleAppMeasurement.framework dSYM missing",
+      "Third-party GoogleCast.framework dSYM missing"
+    ],
+    "iconVerifiedInArchive": true,
+    "deviceFamily": [
+      "iPhone"
+    ],
+    "iconEvidence": "build/deploy/build11-icon-evidence.json",
+    "appStoreConnectBuildId": "1ad1d9f1-b21f-443a-b293-ab2422b11dad",
+    "carPlayAudioEntitlement": true,
+    "carPlayVideoEntitlement": false,
+    "proSalesEnabled": true,
+    "includesRemoteDocumentLinks": true,
+    "includesLocalProductHTML": false,
+    "revenueCatPublicKeyPresent": true,
+    "firebaseConfigured": true,
+    "iconVerifiedInAppleIncludedAssets": false,
+    "binaryState": "Validated",
+    "uploadedAt": "2026-10-05T19:18:00+03:00",
+    "minimumIOSVersion": "18.0",
+    "appleBuildLocalizations": 22,
+    "signatureVerifiedWithSystemTrustService": true,
+    "versionSelectionVerifiedAfterReload": true,
+    "wasSelectedInVersion": true,
+    "replacedByBuild": "12",
+    "replacedAt": "2026-10-05T21:47:11.060620+00:00"
   }
 }

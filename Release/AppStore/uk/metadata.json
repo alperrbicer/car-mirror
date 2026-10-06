@@ -1,0 +1,12 @@
+{
+  "name": "Mirivo",
+  "subtitle": "IPTV, відео та CarPlay",
+  "keywords": "iptv,m3u,xtream,video,carplay,player,stream,airplay,cast,captions,media",
+  "promotionalText": "Дивіться власні IPTV-джерела через M3U і Xtream Codes. Відтворюйте відео та керуйте аудіо в CarPlay. Mirivo без реклами.",
+  "description": "Дивіться власні IPTV-джерела та відео в Mirivo. Додавайте плейлісти M3U, посилання на потоки або сервери Xtream Codes, шукайте канали й керуйте відтворенням аудіо в CarPlay. Також доступні трансляція екрана та поширення особистих медіафайлів.\n\nБезкоштовна версія включає 2 години перегляду на день, 1 збережене джерело та 10 хвилин на трансляцію екрана. Mirivo Pro надає необмежений перегляд, джерела й трансляції, автомобільний режим і підтримувані живі субтитри. Річна підписка оплачується раз на рік і поновлюється автоматично. Довічний доступ — одноразова покупка, яка не скасовує наявну річну підписку автоматично. Ціни вказані в застосунку. Керуйте підписками в обліковому записі Apple.\n\nMirivo не надає канали, IPTV-акаунти чи вміст. Використовуйте лише джерела, до яких маєте право доступу. Ця версія підтримує CarPlay Audio без відео чи дублювання екрана в CarPlay. Pro не надає дозволу CarPlay Video. Живі субтитри потребують iOS 26, підтримуваного пристрою та мови. Захищений вміст може забороняти захоплення екрана.\n\nMirivo не містить реклами. Адреси й облікові дані джерел залишаються у В’язці ключів пристрою.\n\nSupport: https://mirivo-support.netlify.app/en/support.html\nEULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "whatsNew": "Дивіться власні IPTV-джерела та відео в Mirivo. Додавайте плейлісти M3U, посилання на потоки або сервери Xtream Codes, шукайте канали й керуйте відтворенням аудіо в CarPlay. Також доступні трансляція екрана та поширення особистих медіафайлів.",
+  "privacyPolicyURL": "https://mirivo-support.netlify.app/en/privacy.html",
+  "termsURL": "https://mirivo-support.netlify.app/en/terms.html",
+  "supportURL": "https://mirivo-support.netlify.app/en/support.html",
+  "marketingURL": "https://mirivo-support.netlify.app/en/index.html"
+}

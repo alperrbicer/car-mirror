@@ -17,7 +17,7 @@
 "Bize ulaş" = "Neem contact op";
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "Er is geen actieve Pro-aankoop gevonden voor dit Apple Account.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "Deze taal ondersteunt nog geen ondertiteling op het apparaat. Kies een andere taal.";
-"Bu sürümde tüm özellikler açık. Mirivo’nun hiçbir sürümünde reklam yok." = "Alle functies zijn beschikbaar in deze versie. Elke versie van Mirivo is reclamevrij.";
+"Bu sürümde tüm özellikler açık." = "Alle functies zijn beschikbaar in deze versie.";
 "CARPLAY BAĞLI" = "CARPLAY VERBONDEN";
 "CARPLAY BEKLENİYOR" = "WACHTEN OP CARPLAY";
 "Canlı altyazılar" = "Live ondertiteling";
@@ -185,23 +185,23 @@
 "Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "De bron kon niet worden bijgewerkt. Controleer de URL en inloggegevens.";
 "Tüm kanallar" = "Alle kanalen";
 
-"Tam ekran" = "Full screen";
+"Tam ekran" = "Volledig scherm";
 
-"Kanallar" = "Channels";
+"Kanallar" = "Kanalen";
 
-"Önceki kanal" = "Previous channel";
+"Önceki kanal" = "Vorig kanaal";
 
-"Sonraki kanal" = "Next channel";
+"Sonraki kanal" = "Volgend kanaal";
 
-"Bugün kalan: %d dk" = "Remaining today: %d min";
+"Bugün kalan: %d dk" = "Vandaag resterend: %d min";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Je hebt de dagelijkse limiet van 2 uur bereikt. Morgen kun je weer kijken.";
 
-"Ücretsiz izleme günde 2 saat. Mirivo’nun hiçbir sürümünde reklam yok." = "Free viewing includes 2 hours per day. Every version of Mirivo is ad-free.";
+"Ücretsiz izleme günde 2 saat." = "Gratis kijken omvat 2 uur per dag.";
 
-"Sınırsız izleme" = "Unlimited viewing";
+"Sınırsız izleme" = "Onbeperkt kijken";
 
-"Pro ile günlük izleme sınırı olmadan devam et." = "Keep watching without a daily viewing limit with Pro.";
+"Pro ile günlük izleme sınırı olmadan devam et." = "Blijf kijken zonder dagelijkse limiet met Pro.";
 
 "Canlı" = "Live";
 
