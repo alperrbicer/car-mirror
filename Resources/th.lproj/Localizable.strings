@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "เพลย์ลิสต์จากไฟล์";
 "Dosya seç" = "เลือกไฟล์";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "เปิดไฟล์เพลย์ลิสต์ไม่ได้ โปรดเลือกไฟล์ M3U หรือ M3U8";
+"Bilgiler yenileniyor…" = "กำลังรีเฟรชข้อมูล…";
+"İzlemeye devam et" = "ดูต่อ";
+"Ses ve altyazı" = "เสียงและคำบรรยาย";
+"Ses dili" = "ภาษาเสียง";
+"Altyazı" = "คำบรรยาย";
+"Tümünü gör" = "ดูทั้งหมด";
+"Listeden kaldır" = "นำออกจากรายการ";
+"İçerik bulunamadı" = "ไม่พบเนื้อหา";
+"Film veya dizi ara" = "ค้นหาภาพยนตร์หรือซีรีส์";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "นำประวัติการรับชมออกไม่ได้ โปรดลองอีกครั้ง";

@@ -106,7 +106,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                     do {
                         let channels = try await SourceLibrary.shared.channels(for: source)
                         guard !Task.isCancelled else { return }
-                        self?.showChannels(channels, title: source.name)
+                        self?.showChannels(channels, title: source.name, sourceID: source.id)
                     } catch {
                         guard !Task.isCancelled else { return }
                         let alert = CPAlertTemplate(titleVariants: [L10n.tr("Kaynak yüklenemedi. Adresi ve bağlantını kontrol et.")],
@@ -137,7 +137,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         if replacing == nil { controller?.pushTemplate(template, animated: true, completion: nil) }
     }
 
-    private func showChannels(_ channels: [MediaChannel], title: String, offset: Int = 0, replacing: CPListTemplate? = nil) {
+    private func showChannels(_ channels: [MediaChannel], title: String, sourceID: UUID, offset: Int = 0, replacing: CPListTemplate? = nil) {
         let template = replacing ?? CPListTemplate(title: title, sections: [])
         let pageSize = max(1, min(90, CPListTemplate.maximumItemCount - 2))
         var items = channels.dropFirst(offset).prefix(pageSize).map { channel in
@@ -148,7 +148,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
             }
             item.handler = { [weak self] _, completion in
-                let started = MirrorModel.shared.playMedia(channel, presentation: video ? .video : .audio)
+                let started = MirrorModel.shared.playMedia(channel, presentation: video ? .video : .audio, sourceID: sourceID)
                 completion()
                 if started {
                     // iOS 26.4+ presents the preferred playback UI through CPPlaybackConfiguration.
@@ -160,14 +160,14 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         if offset > 0 {
             let previous = CPListItem(text: L10n.tr("Önceki sayfa"), detailText: nil)
             previous.handler = { [weak self, weak template] _, completion in
-                self?.showChannels(channels, title: title, offset: max(0, offset - pageSize), replacing: template); completion()
+                self?.showChannels(channels, title: title, sourceID: sourceID, offset: max(0, offset - pageSize), replacing: template); completion()
             }
             items.insert(previous, at: 0)
         }
         if channels.count > offset + pageSize {
             let more = CPListItem(text: L10n.tr("Diğer kanallar"), detailText: nil)
             more.handler = { [weak self, weak template] _, completion in
-                self?.showChannels(channels, title: title, offset: offset + pageSize, replacing: template); completion()
+                self?.showChannels(channels, title: title, sourceID: sourceID, offset: offset + pageSize, replacing: template); completion()
             }
             items.append(more)
         }

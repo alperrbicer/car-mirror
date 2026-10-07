@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "Список відтворення з файлу";
 "Dosya seç" = "Вибрати файл";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Не вдалося відкрити список. Вибери файл M3U або M3U8.";
+"Bilgiler yenileniyor…" = "Оновлення інформації…";
+"İzlemeye devam et" = "Продовжити перегляд";
+"Ses ve altyazı" = "Аудіо та субтитри";
+"Ses dili" = "Мова аудіо";
+"Altyazı" = "Субтитри";
+"Tümünü gör" = "Переглянути все";
+"Listeden kaldır" = "Прибрати зі списку";
+"İçerik bulunamadı" = "Вміст не знайдено";
+"Film veya dizi ara" = "Пошук фільмів або серіалів";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Не вдалося видалити запис перегляду. Спробуй ще раз.";

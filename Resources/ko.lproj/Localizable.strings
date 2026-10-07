@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "파일에서 재생목록";
 "Dosya seç" = "파일 선택";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "재생목록 파일을 열 수 없습니다. M3U 또는 M3U8 파일을 선택하세요.";
+"Bilgiler yenileniyor…" = "정보 새로고침 중…";
+"İzlemeye devam et" = "계속 시청하기";
+"Ses ve altyazı" = "오디오 및 자막";
+"Ses dili" = "오디오 언어";
+"Altyazı" = "자막";
+"Tümünü gör" = "모두 보기";
+"Listeden kaldır" = "목록에서 제거";
+"İçerik bulunamadı" = "콘텐츠를 찾을 수 없습니다";
+"Film veya dizi ara" = "영화 또는 시리즈 검색";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "시청 기록을 제거할 수 없습니다. 다시 시도하세요.";

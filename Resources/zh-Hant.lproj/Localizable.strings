@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "從檔案匯入播放清單";
 "Dosya seç" = "選擇檔案";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "無法開啟播放清單檔案。請選擇 M3U 或 M3U8 檔案。";
+"Bilgiler yenileniyor…" = "正在重新整理資訊…";
+"İzlemeye devam et" = "繼續觀看";
+"Ses ve altyazı" = "音訊與字幕";
+"Ses dili" = "音訊語言";
+"Altyazı" = "字幕";
+"Tümünü gör" = "查看全部";
+"Listeden kaldır" = "從列表中移除";
+"İçerik bulunamadı" = "找不到內容";
+"Film veya dizi ara" = "搜尋電影或影集";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "無法移除觀看記錄，請再試一次。";

@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "Playlist from file";
 "Dosya seç" = "Choose file";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Could not open the playlist file. Choose an M3U or M3U8 file.";
+"Bilgiler yenileniyor…" = "Refreshing information…";
+"İzlemeye devam et" = "Continue watching";
+"Ses ve altyazı" = "Audio and subtitles";
+"Ses dili" = "Audio language";
+"Altyazı" = "Subtitles";
+"Tümünü gör" = "See all";
+"Listeden kaldır" = "Remove from list";
+"İçerik bulunamadı" = "No content found";
+"Film veya dizi ara" = "Search movies or series";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Unable to remove the viewing record. Try again.";

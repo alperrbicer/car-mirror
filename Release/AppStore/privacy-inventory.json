@@ -11,7 +11,8 @@
     "bounded technical logs",
     "verified StoreKit entitlements",
     "protected copies of user-imported playlist files",
-    "provider-reported account expiry and last check time"
+    "provider-reported account expiry and last check time",
+    "device-only Keychain records of the last watched online item and up to 30 unfinished movies/series, including playback positions and last watched times"
   ],
   "transient": [
     "screen frames",

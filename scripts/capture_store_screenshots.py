@@ -4,7 +4,7 @@
 Run this while taking screenshots, then stop it. No provider data is used and
 the fixture is never added to the shipping application.
 """
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 import json
@@ -55,6 +55,12 @@ class Handler(BaseHTTPRequestHandler):
             data, mime = PLAYLIST, "application/vnd.apple.mpegurl"
         elif path == "/demo.mp4":
             data, mime = VIDEO, "video/mp4"
+        elif path in ["/tracks/options.mp4", "/tracks/options.mkv"]:
+            fixture = ROOT / "build/playback-options-fixtures" / Path(path).name
+            if not fixture.is_file():
+                self.send_error(404)
+                return
+            data, mime = fixture.read_bytes(), "video/mp4" if fixture.suffix == ".mp4" else "video/x-matroska"
         else:
             self.send_error(404)
             return
@@ -85,9 +91,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Range", f"bytes {start}-{end}/{len(data)}")
         self.end_headers()
         if body:
-            self.wfile.write(data[start:end + 1])
+            try:
+                self.wfile.write(data[start:end + 1])
+            except (BrokenPipeError, ConnectionResetError):
+                pass  # Players cancel an old range request when seeking.
 
 
 if __name__ == "__main__":
     print("Mirivo screenshot fixture: http://127.0.0.1:8769/demo.m3u", flush=True)
-    HTTPServer(("127.0.0.1", 8769), Handler).serve_forever()
+    # MKV can seek to its cue index while an earlier range is still open.
+    ThreadingHTTPServer(("127.0.0.1", 8769), Handler).serve_forever()

@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "Spellista från fil";
 "Dosya seç" = "Välj fil";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Det gick inte att öppna spellistan. Välj en M3U- eller M3U8-fil.";
+"Bilgiler yenileniyor…" = "Uppdaterar information…";
+"İzlemeye devam et" = "Fortsätt titta";
+"Ses ve altyazı" = "Ljud och undertexter";
+"Ses dili" = "Ljudspråk";
+"Altyazı" = "Undertexter";
+"Tümünü gör" = "Visa alla";
+"Listeden kaldır" = "Ta bort från listan";
+"İçerik bulunamadı" = "Inget innehåll hittades";
+"Film veya dizi ara" = "Sök filmer eller serier";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Kunde inte ta bort visningsposten. Försök igen.";

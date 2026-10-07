@@ -312,3 +312,13 @@
 "Dosyadan oynatma listesi" = "Daftar putar dari file";
 "Dosya seç" = "Pilih file";
 "Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "File daftar putar tidak dapat dibuka. Pilih file M3U atau M3U8.";
+"Bilgiler yenileniyor…" = "Memperbarui informasi…";
+"İzlemeye devam et" = "Lanjutkan menonton";
+"Ses ve altyazı" = "Audio dan subtitle";
+"Ses dili" = "Bahasa audio";
+"Altyazı" = "Subtitle";
+"Tümünü gör" = "Lihat semua";
+"Listeden kaldır" = "Hapus dari daftar";
+"İçerik bulunamadı" = "Konten tidak ditemukan";
+"Film veya dizi ara" = "Cari film atau serial";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Tidak dapat menghapus riwayat tontonan. Coba lagi.";

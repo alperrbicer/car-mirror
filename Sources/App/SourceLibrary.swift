@@ -1,5 +1,127 @@
 import Foundation
 import Security
+import CryptoKit
+
+struct LastPlaybackRecord: Codable, Equatable, Identifiable {
+    let sourceID: UUID?
+    let title: String
+    let group: String
+    let url: URL
+    let isLive: Bool
+    let position: Double
+    let duration: Double
+    let updatedAt: Date
+
+    init(channel: MediaChannel, sourceID: UUID?, position: Double, duration: Double, isLive: Bool, updatedAt: Date = Date()) {
+        self.sourceID = sourceID; title = channel.title; group = channel.group; url = channel.url
+        self.isLive = isLive; self.updatedAt = updatedAt
+        self.duration = duration.isFinite ? max(0, duration) : 0
+        self.position = position.isFinite ? max(0, position) : 0
+    }
+    private enum CodingKeys: String, CodingKey { case sourceID, title, group, url, isLive, position, duration, updatedAt }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(channel: MediaChannel(title: try values.decode(String.self, forKey: .title),
+                                       group: try values.decode(String.self, forKey: .group),
+                                       url: try values.decode(URL.self, forKey: .url)),
+                  sourceID: try values.decodeIfPresent(UUID.self, forKey: .sourceID),
+                  position: try values.decode(Double.self, forKey: .position),
+                  duration: try values.decode(Double.self, forKey: .duration),
+                  isLive: try values.decode(Bool.self, forKey: .isLive),
+                  updatedAt: try values.decodeIfPresent(Date.self, forKey: .updatedAt) ?? .distantPast)
+    }
+    var channel: MediaChannel { MediaChannel(title: title, group: group, url: url) }
+    var resumePosition: Double {
+        guard !isLive, duration <= 0 || position < duration - 2 else { return 0 }
+        return position
+    }
+    var isFinished: Bool { !isLive && duration > 0 && position >= duration * 0.95 }
+    var isInProgress: Bool { !isLive && position >= 30 && !isFinished }
+    var progress: Double? { duration > 0 ? min(1, max(0, position / duration)) : nil }
+    // Only explicit season/episode notation is grouped; unrelated titles stay separate.
+    var seriesTitle: String? {
+        guard !isLive, let match = title.range(of: #"(?i)\s+(?:S\d{1,3}[\s._-]*E\d{1,4}|\d{1,3}x\d{1,4})(?:\b.*)?$"#, options: .regularExpression) else { return nil }
+        let name = String(title[..<match.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? nil : name
+    }
+    // Hash identifiers so accessibility identifiers never expose stream credentials.
+    var id: String {
+        let content = seriesTitle.map { "series:" + $0.lowercased() } ?? "url:" + url.absoluteString
+        return SHA256.hash(data: Data(((sourceID?.uuidString ?? "") + "|" + content).utf8))
+            .map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+/// Credential-bearing resume URLs stay in device-only Keychain storage.
+@MainActor
+final class LastPlaybackStore: ObservableObject {
+    static let shared = LastPlaybackStore()
+    static let maximumEntries = 30
+    @Published private(set) var record: LastPlaybackRecord?
+    @Published private(set) var entries: [LastPlaybackRecord] = []
+    private struct Snapshot: Codable {
+        let record: LastPlaybackRecord?
+        let entries: [LastPlaybackRecord]
+    }
+    private let account: String
+    private var query: [String: Any] {
+        [kSecClass as String: kSecClassGenericPassword,
+         kSecAttrService as String: "com.alperbicer.carmirror.last-playback",
+         kSecAttrAccount as String: account]
+    }
+    init(account: String = "last-watched") {
+        self.account = account
+        var read = query
+        read[kSecReturnData as String] = true; read[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: CFTypeRef?
+        if SecItemCopyMatching(read as CFDictionary, &result) == errSecSuccess, let data = result as? Data {
+            if let saved = try? JSONDecoder().decode(Snapshot.self, from: data) {
+                record = saved.record
+                var seen: Set<String> = []
+                entries = Array(saved.entries.filter { $0.isInProgress }.sorted { $0.updatedAt > $1.updatedAt }
+                    .filter { seen.insert($0.id).inserted }.prefix(Self.maximumEntries))
+            } else if let legacy = try? JSONDecoder().decode(LastPlaybackRecord.self, from: data) {
+                record = legacy
+                if legacy.isInProgress { entries = [legacy] }
+            }
+        }
+    }
+    func save(_ record: LastPlaybackRecord) throws {
+        guard ["http", "https"].contains(record.url.scheme?.lowercased() ?? "") else { throw LibraryError.unsupportedURL }
+        var next = entries
+        if record.isInProgress {
+            next.removeAll { $0.id == record.id }
+            next.insert(record, at: 0)
+        } else if record.isFinished {
+            // Finishing an older episode must not erase progress in a newer one.
+            next.removeAll { $0.id == record.id && $0.url == record.url }
+        }
+        try persist(record: record, entries: Array(next.prefix(Self.maximumEntries)))
+    }
+    func remove(id: String) throws {
+        try persist(record: record?.id == id ? nil : record, entries: entries.filter { $0.id != id })
+    }
+    func clear(sourceID: UUID? = nil) throws {
+        guard let sourceID else { try persist(record: nil, entries: []); return }
+        try persist(record: record?.sourceID == sourceID ? nil : record, entries: entries.filter { $0.sourceID != sourceID })
+    }
+    private func persist(record: LastPlaybackRecord?, entries: [LastPlaybackRecord]) throws {
+        if record == nil && entries.isEmpty {
+            let status = SecItemDelete(query as CFDictionary)
+            guard status == errSecSuccess || status == errSecItemNotFound else { throw LibraryError.storage }
+        } else {
+            let data = try JSONEncoder().encode(Snapshot(record: record, entries: entries))
+            let status = SecItemUpdate(query as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+            if status == errSecItemNotFound {
+                var item = query
+                item[kSecValueData as String] = data
+                item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+                guard SecItemAdd(item as CFDictionary, nil) == errSecSuccess else { throw LibraryError.storage }
+            } else if status != errSecSuccess { throw LibraryError.storage }
+        }
+        self.record = record; self.entries = entries
+    }
+}
 
 enum SourceKeychain {
     private static let service = "com.alperbicer.carmirror.sources"
@@ -37,9 +159,11 @@ final class SourceLibrary: ObservableObject {
     @Published var message: String?
     private let file: URL
     private let importedPlaylists: URL
+    private let tracksUserHistory: Bool
     private let channelCache = SourceChannelCache()
     let accounts: SourceAccountStore
     init(directory: URL? = nil, accountLoad: (@MainActor (MediaSource) async throws -> IPTVAccountInfo?)? = nil) {
+        tracksUserHistory = directory == nil
         let directory = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Library", isDirectory: true)
         file = directory.appendingPathComponent("sources.json")
         importedPlaylists = directory.appendingPathComponent("Playlists", isDirectory: true)
@@ -69,6 +193,7 @@ final class SourceLibrary: ObservableObject {
         try persist(next); sources = next
         channelCache.invalidate(source.id)
         accounts.invalidate(source.id)
+        if tracksUserHistory { MirrorModel.shared.discardLastPlayback(sourceID: source.id) }
         removeImportedPlaylist(oldSecret?.url)
     }
     func update(_ source: MediaSource, name: String, kind: MediaSourceKind, secret: SourceSecret) throws {
@@ -88,6 +213,7 @@ final class SourceLibrary: ObservableObject {
         if previousSecret.url != secret.url { removeImportedPlaylist(previousSecret.url) }
         channelCache.invalidate(source.id)
         accounts.invalidate(source.id)
+        if tracksUserHistory { MirrorModel.shared.discardLastPlayback(sourceID: source.id) }
         let updatedSource = next[index]
         // Credentials can change while the source's visible name/kind stay identical.
         // In that case a SwiftUI task keyed by MediaSource would not run again.
@@ -102,6 +228,7 @@ final class SourceLibrary: ObservableObject {
         try persist([]); sources = []
         channelCache.removeAll()
         accounts.removeAll()
+        if tracksUserHistory { MirrorModel.shared.discardLastPlayback() }
         for url in previousFiles { removeImportedPlaylist(url) }
     }
     /// Copy a user-selected file while its security scope is open. The saved source never

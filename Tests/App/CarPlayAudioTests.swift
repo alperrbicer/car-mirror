@@ -3,11 +3,239 @@ import AVFoundation
 import AVKit
 import MediaPlayer
 import SwiftUI
+import Security
 @preconcurrency import VLCKit
 @testable import CarMirror
 
 @MainActor
 final class CarPlayAudioTests: XCTestCase {
+    func testContinueWatchingGroupsSeriesKeepsMoviesAndCleansCompletedAndSources() throws {
+        let account = "continue-test-\(UUID())"
+        let store = LastPlaybackStore(account: account)
+        defer { try? store.clear() }
+        let firstSource = UUID(), secondSource = UUID()
+        func entry(_ name: String, _ path: String, source: UUID? = nil, position: Double = 180, live: Bool = false) -> LastPlaybackRecord {
+            LastPlaybackRecord(channel: MediaChannel(title: name, url: URL(string: "https://example.com/\(path)")!),
+                               sourceID: source ?? firstSource, position: position, duration: 3600, isLive: live)
+        }
+        let episode1 = entry("Kıyı Hikâyeleri S01-E01", "ep1.mp4")
+        let episode2 = entry("Kıyı Hikâyeleri S01-E02", "ep2.mp4")
+        let film = entry("Uzun Yol", "film.mp4")
+        try store.save(episode1); try store.save(film); try store.save(episode2)
+        XCTAssertEqual(store.entries.count, 2)
+        XCTAssertEqual(store.entries.first?.title, episode2.title)
+        XCTAssertEqual(store.entries.first?.resumePosition, 180)
+        XCTAssertEqual(episode1.id, episode2.id)
+        XCTAssertEqual(entry("Kıyı Hikâyeleri 1x03", "ep3.mp4").id, episode2.id)
+        XCTAssertNotEqual(entry("S01-E01", "unrelated.mp4").id, episode2.id)
+        let otherProvider = entry(episode2.title, "other.mp4", source: secondSource)
+        try store.save(otherProvider)
+        XCTAssertEqual(store.entries.count, 3, "Different providers must not merge their content")
+        try store.save(entry(episode1.title, "ep1.mp4", position: 3599))
+        XCTAssertTrue(store.entries.contains { $0.url == episode2.url }, "Finishing an older episode must keep the newer continuation")
+        try store.save(entry("Kıyı Hikâyeleri S01-E03", "ep3.mp4", position: 5))
+        try store.save(entry("Brief preview", "preview.mp4", position: 5))
+        try store.save(entry("Live", "channel.m3u8", live: true))
+        XCTAssertEqual(store.entries.count, 3, "Brief previews and live channels must not fill the collection")
+        try store.save(entry(episode2.title, "ep2.mp4", position: 3599))
+        XCTAssertEqual(store.entries.count, 2)
+        XCTAssertEqual(LastPlaybackStore(account: account).entries, store.entries)
+        try store.clear(sourceID: firstSource)
+        XCTAssertEqual(store.entries.map(\.sourceID), [secondSource])
+        try store.remove(id: otherProvider.id)
+        XCTAssertTrue(LastPlaybackStore(account: account).entries.isEmpty)
+        XCTAssertNil(LastPlaybackStore(account: account).record)
+    }
+
+    func testContinueWatchingIsBoundedAndUpdatesWithoutDuplicates() throws {
+        let store = LastPlaybackStore(account: "continue-limit-\(UUID())")
+        defer { try? store.clear() }
+        var saved: [LastPlaybackRecord] = []
+        for index in 0..<35 {
+            let entry = LastPlaybackRecord(channel: MediaChannel(title: "Film \(index)", url: URL(string: "https://example.com/\(index).mp4")!),
+                                           sourceID: nil, position: 300, duration: 7200, isLive: false)
+            saved.append(entry); try store.save(entry)
+        }
+        XCTAssertEqual(store.entries.count, LastPlaybackStore.maximumEntries)
+        XCTAssertEqual(store.entries.first?.id, saved.last?.id)
+        XCTAssertFalse(store.entries.contains { $0.id == saved[0].id })
+        let updated = LastPlaybackRecord(channel: saved[10].channel, sourceID: nil, position: 600, duration: 7200, isLive: false)
+        try store.save(updated)
+        XCTAssertEqual(store.entries.count, 30)
+        XCTAssertEqual(store.entries.first?.resumePosition, 600)
+        XCTAssertEqual(store.entries.filter { $0.id == updated.id }.count, 1)
+        try store.remove(id: updated.id)
+        XCTAssertEqual(store.entries.count, 29)
+    }
+
+    func testContinueWatchingMigratesThePreviousSingleKeychainRecord() throws {
+        let account = "continue-migration-\(UUID())"
+        let old = LastPlaybackRecord(channel: MediaChannel(title: "Saved film", url: URL(string: "https://example.com/saved.mp4")!),
+                                     sourceID: nil, position: 420, duration: 7200, isLive: false)
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(old)) as? [String: Any])
+        json.removeValue(forKey: "updatedAt")
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                  kSecAttrService as String: "com.alperbicer.carmirror.last-playback",
+                                  kSecAttrAccount as String: account,
+                                  kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                                  kSecValueData as String: try JSONSerialization.data(withJSONObject: json)]
+        XCTAssertEqual(SecItemAdd(query as CFDictionary, nil), errSecSuccess)
+        let migrated = LastPlaybackStore(account: account)
+        defer { try? migrated.clear() }
+        XCTAssertEqual(migrated.record?.resumePosition, 420)
+        XCTAssertEqual(migrated.entries.map(\.id), [old.id])
+        let second = LastPlaybackRecord(channel: MediaChannel(title: "Second film", url: URL(string: "https://example.com/second.mp4")!),
+                                        sourceID: nil, position: 300, duration: 7200, isLive: false)
+        try migrated.save(second)
+        XCTAssertEqual(LastPlaybackStore(account: account).entries.map(\.id), [second.id, old.id])
+    }
+
+    func testRemovingActiveContinuationDoesNotRecreateItAtTheNextCheckpoint() async throws {
+        let model = MirrorModel.shared
+        let library = SourceLibrary.shared
+        try library.add(name: "Continue QA", kind: .stream,
+                        secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/tracks/options.mp4")!),
+                        access: ProductAccess(salesEnabled: false, verifiedPro: false))
+        let source = try XCTUnwrap(library.sources.last)
+        defer { model.stopPlayback(); try? library.delete(source) }
+        let channels = try await library.channels(for: source)
+        let channel = try XCTUnwrap(channels.first)
+        XCTAssertTrue(model.playMedia(channel, sourceID: source.id, startAt: 35))
+        for _ in 0..<150 {
+            if model.playback.isPlaying && model.playback.currentTime >= 35 && !LastPlaybackStore.shared.entries.isEmpty { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        model.refresh()
+        let entry = try XCTUnwrap(LastPlaybackStore.shared.entries.first)
+        try model.removeContinuation(entry.id)
+        model.refresh(); model.stopPlayback()
+        XCTAssertFalse(LastPlaybackStore.shared.entries.contains { $0.id == entry.id })
+        XCTAssertFalse(LastPlaybackStore().entries.contains { $0.id == entry.id })
+    }
+
+    func testLastPlaybackPersistsSecurelyAndHandlesLiveFinishedAndLocalMedia() throws {
+        let account = "resume-test-\(UUID())"
+        let store = LastPlaybackStore(account: account)
+        defer { try? store.clear() }
+        let channel = MediaChannel(title: "Episode", group: "Series", url: URL(string: "https://example.com/episode.mp4?token=fixture")!)
+        let sourceID = UUID()
+        let saved = LastPlaybackRecord(channel: channel, sourceID: sourceID, position: 123, duration: 900, isLive: false)
+        try store.save(saved)
+        let reopened = LastPlaybackStore(account: account)
+        XCTAssertEqual(reopened.record, saved)
+        XCTAssertEqual(reopened.record?.channel, channel)
+        XCTAssertEqual(reopened.record?.resumePosition, 123)
+        try reopened.clear(sourceID: UUID())
+        XCTAssertEqual(reopened.record, saved)
+        try reopened.clear(sourceID: sourceID)
+        XCTAssertNil(LastPlaybackStore(account: account).record)
+        XCTAssertEqual(LastPlaybackRecord(channel: channel, sourceID: nil, position: 123, duration: 900, isLive: true).resumePosition, 0)
+        XCTAssertEqual(LastPlaybackRecord(channel: channel, sourceID: nil, position: 899, duration: 900, isLive: false).resumePosition, 0)
+        XCTAssertThrowsError(try store.save(LastPlaybackRecord(channel: MediaChannel(title: "Temporary", url: URL(fileURLWithPath: "/tmp/video.mp4")), sourceID: nil, position: 1, duration: 10, isLive: false)))
+    }
+
+    func testLastPlaybackRestoresPositionAndSourceDeletionClearsIt() async throws {
+        let library = SourceLibrary.shared
+        let model = MirrorModel.shared
+        try library.add(name: "Resume QA", kind: .stream,
+                        secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/tracks/options.mp4")!),
+                        access: ProductAccess(salesEnabled: false, verifiedPro: false))
+        let source = try XCTUnwrap(library.sources.last)
+        defer { model.stopPlayback(); try? library.delete(source); try? LastPlaybackStore.shared.clear() }
+        let channels = try await library.channels(for: source)
+        let channel = try XCTUnwrap(channels.first)
+        XCTAssertTrue(model.playMedia(channel, sourceID: source.id, startAt: 12))
+        for _ in 0..<200 {
+            if model.playback.isPlaying && model.playback.currentTime >= 12 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
+        model.stopPlayback()
+        let saved = try XCTUnwrap(LastPlaybackStore().record)
+        XCTAssertEqual(saved.sourceID, source.id)
+        XCTAssertGreaterThanOrEqual(saved.resumePosition, 12)
+        XCTAssertTrue(model.resumeLastPlayback())
+        for _ in 0..<200 {
+            if model.playback.isPlaying && model.playback.currentTime >= saved.resumePosition { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
+        XCTAssertGreaterThanOrEqual(model.playback.currentTime, saved.resumePosition)
+        model.stopPlayback()
+        try library.delete(source)
+        XCTAssertNil(LastPlaybackStore.shared.record)
+        XCTAssertNil(LastPlaybackStore().record)
+    }
+
+    func testNativeAudioAndSubtitleSelectionUsesRealMediaTracks() async throws {
+        try await checkMediaTrackSelection(compatibility: false)
+    }
+
+    func testCompatibilityAudioAndSubtitleSelectionUsesRealMediaTracks() async throws {
+        try await checkMediaTrackSelection(compatibility: true)
+    }
+
+    private func checkMediaTrackSelection(compatibility: Bool) async throws {
+        let playback = PlaybackController()
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.screen.bounds
+        window.rootViewController = UIHostingController(rootView: MediaVideoView(playback: playback))
+        window.makeKeyAndVisible()
+        defer { playback.stop(); window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        let url = URL(string: "http://127.0.0.1:8769/tracks/options.\(compatibility ? "mkv" : "mp4")")!
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          title: "Tracks QA", live: false, useCompatibility: compatibility)
+        for _ in 0..<300 {
+            if playback.isPlaying && playback.audioTracks.count == 2 && playback.subtitleTracks.count == 2 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.isPlaying, "Playback: \(playback.state), VLC: \(String(describing: playback.compatibility?.mediaPlayer.state))")
+        XCTAssertEqual(playback.audioTracks.count, 2)
+        XCTAssertEqual(playback.subtitleTracks.count, 2)
+        guard playback.audioTracks.count == 2, playback.subtitleTracks.count == 2 else { return }
+        let item = playback.player.currentItem
+        let engine = playback.compatibility
+        let audio = playback.audioTracks[1].id
+        let subtitle = playback.subtitleTracks[0].id
+        playback.selectAudioTrack(audio)
+        playback.selectSubtitleTrack(subtitle)
+        for _ in 0..<100 {
+            if playback.audioTracks.first(where: { $0.id == audio })?.isSelected == true &&
+                playback.subtitleTracks.first(where: { $0.id == subtitle })?.isSelected == true { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertEqual(playback.audioTracks.first(where: { $0.id == audio })?.isSelected, true)
+        XCTAssertEqual(playback.subtitleTracks.first(where: { $0.id == subtitle })?.isSelected, true)
+        if let engine {
+            XCTAssertTrue(engine.mediaPlayer.audioTracks[1].isSelected)
+            XCTAssertTrue(engine.mediaPlayer.textTracks[0].isSelected)
+        } else if let item {
+            let loadedAudio = try await item.asset.loadMediaSelectionGroup(for: .audible)
+            let group = try XCTUnwrap(loadedAudio)
+            XCTAssertEqual(item.currentMediaSelection.selectedMediaOption(in: group), group.options[1])
+            let loadedSubtitles = try await item.asset.loadMediaSelectionGroup(for: .legible)
+            let captions = try XCTUnwrap(loadedSubtitles)
+            let ordinary = captions.options.filter { !$0.hasMediaCharacteristic(.containsOnlyForcedSubtitles) }
+            XCTAssertEqual(item.currentMediaSelection.selectedMediaOption(in: captions), ordinary[0])
+        }
+        playback.selectSubtitleTrack(nil)
+        for _ in 0..<100 {
+            if !playback.subtitleTracks.contains(where: \.isSelected) { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertFalse(playback.subtitleTracks.contains(where: \.isSelected))
+        let position = playback.currentTime
+        try await Task.sleep(for: .milliseconds(800))
+        XCTAssertGreaterThan(playback.currentTime, position + 0.2, "Track switching must keep video moving")
+        XCTAssertTrue(playback.isPlaying)
+        XCTAssertTrue(playback.player.currentItem === item)
+        XCTAssertTrue(playback.compatibility === engine)
+        playback.stop()
+        XCTAssertFalse(playback.hasMediaChoices)
+    }
+
     func testImportedPlaylistSurvivesOriginalRemovalAndCleansUpOnReplacement() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("file-source-\(UUID())")
         let library = SourceLibrary(directory: directory) { _ in nil }
@@ -405,7 +633,7 @@ final class CarPlayAudioTests: XCTestCase {
             return layer.sublayers?.lazy.compactMap { videoLayer(in: $0) }.first
         }
         let video = try XCTUnwrap(videoLayer(in: engine.videoView.layer))
-        XCTAssertTrue(video.preventsCapture)
+        XCTAssertFalse(video.preventsCapture, "Capture remains available for the user's device examples")
         // The simulator's VLC build has no system PiP controller. Exercise its
         // didStart/didStop callback contract against the actual decoding layer.
         let pip = PictureInPictureStub()
@@ -440,6 +668,202 @@ final class CarPlayAudioTests: XCTestCase {
         capturePlayer(host.view, name: "inline-player-restored-clipping")
     }
 
+    func testCompatibilityPiPReturnRejectsLateClippingAndKeepsNextPiPUnchanged() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        let surface = CompatibilityVideoSurface(frame: CGRect(x: 0, y: 0, width: 390, height: 220))
+        let renderer = UIView(frame: surface.bounds)
+        let video = AVSampleBufferDisplayLayer()
+        video.frame = renderer.bounds
+        renderer.layer.addSublayer(video)
+        surface.addSubview(renderer)
+        window.rootViewController?.view.addSubview(surface)
+        for height in [220.0, 844.0] {
+            surface.frame.size.height = height
+            surface.setNeedsLayout(); surface.layoutIfNeeded()
+            try await checkLatePiPClipping(video, restore: surface.restoreAfterPictureInPicture,
+                                          prepare: surface.prepareForPictureInPicture)
+        }
+        // VLC can mount a new rendering layer after the return callback.
+        surface.restoreAfterPictureInPicture()
+        let replacement = UIView(frame: surface.bounds)
+        let lateVideo = AVSampleBufferDisplayLayer()
+        lateVideo.cornerRadius = 48
+        replacement.layer.addSublayer(lateVideo)
+        surface.addSubview(replacement)
+        XCTAssertEqual(lateVideo.cornerRadius, 0)
+        surface.prepareForPictureInPicture()
+    }
+
+    func testNativePiPReturnRejectsLateClippingAndKeepsNextPiPUnchanged() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        let controller = NativeVideoController(player: AVPlayer(), playback: nil, primary: false)
+        controller.loadViewIfNeeded()
+        host.addChild(controller); host.view.addSubview(controller.view); controller.didMove(toParent: host)
+        for height in [220.0, 844.0] {
+            controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: height)
+            controller.view.setNeedsLayout(); controller.view.layoutIfNeeded()
+            // System PiP is unavailable here. Exercise the same geometry
+            // methods used by its delegate with the real AVPlayerLayer.
+            try await checkLatePiPClipping(controller.videoLayer, restore: controller.restoreVideoClipping,
+                                          prepare: controller.prepareForPictureInPicture)
+        }
+    }
+
+    func testPiPReturnRepairsRendererWrappersAndChildrenBeforeStopAndPreservesOtherViews() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        let surface = CompatibilityVideoSurface(frame: CGRect(x: 0, y: 0, width: 390, height: 220))
+        window.rootViewController?.view.addSubview(surface)
+        let wrapper = UIView(frame: surface.bounds)
+        let video = AVSampleBufferDisplayLayer()
+        video.frame = wrapper.bounds
+        let content = CALayer()
+        content.frame = video.bounds
+        video.addSublayer(content)
+        wrapper.layer.addSublayer(video)
+        surface.addSubview(wrapper)
+        let subtitle = UIView(frame: surface.bounds)
+        subtitle.layer.cornerRadius = 12
+        let subtitleMask = CALayer()
+        subtitle.layer.mask = subtitleMask
+        surface.addSubview(subtitle)
+
+        // The old cleanup visited only the AVSampleBufferDisplayLayer. A
+        // rounded parent or renderer child continued to clip the same picture.
+        for height in [220.0, 844.0] {
+            surface.frame.size.height = height
+            surface.prepareForPictureInPicture()
+            for layer in [surface.layer, wrapper.layer, content] { layer.cornerRadius = 64 }
+            surface.restoreAfterPictureInPicture()
+            for layer in [surface.layer, wrapper.layer, content] {
+                XCTAssertEqual(layer.cornerRadius, 0)
+                try await checkLatePiPClipping(layer, restore: surface.restoreAfterPictureInPicture,
+                                              prepare: surface.prepareForPictureInPicture)
+            }
+            XCTAssertEqual(subtitle.layer.cornerRadius, 12, "Non-video sibling geometry must be preserved")
+            XCTAssertTrue(subtitle.layer.mask === subtitleMask)
+        }
+        surface.restoreAfterPictureInPicture()
+        let lateContent = CALayer()
+        lateContent.cornerRadius = 36
+        video.addSublayer(lateContent)
+        XCTAssertEqual(lateContent.cornerRadius, 0, "Observe newly attached renderer children before the next frame")
+        surface.prepareForPictureInPicture()
+    }
+
+    func testPiPButtonReturnWaitsForLayoutAndAvoidsASecondStop() async throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          title: "Return handoff", live: false, useCompatibility: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        let window = try mountCompatibilityPiPSource(engine)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        let video = AVSampleBufferDisplayLayer()
+        engine.videoView.layer.addSublayer(video)
+        let pip = PictureInPictureStub()
+        engine.configurePiP(pip)
+        playback.applicationDidEnterBackground()
+        await Task.yield()
+        XCTAssertTrue(engine.pipActive)
+        video.cornerRadius = 64
+        XCTAssertEqual(video.cornerRadius, 64)
+        playback.applicationWillEnterForeground()
+        XCTAssertEqual(video.cornerRadius, 64, "Foreground layout must not fight the in-flight system transition")
+        XCTAssertTrue(engine.pipActive)
+        XCTAssertEqual(pip.stopCount, 0)
+        video.cornerRadius = 40
+        XCTAssertEqual(video.cornerRadius, 40)
+        var restored = false
+        engine.onRestore? { restored = $0 }
+        XCTAssertFalse(restored, "onAppear alone must not complete restoration before UIKit commits the source layout")
+        playback.applicationDidBecomeActive()
+        for _ in 0..<50 {
+            if restored { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertTrue(restored)
+        XCTAssertEqual(pip.stopCount, 0, "The PiP return button already owns the stop animation")
+        XCTAssertEqual(video.cornerRadius, 40)
+        pip.stopPictureInPicture()
+        XCTAssertFalse(engine.pipActive)
+        XCTAssertEqual(pip.stopCount, 1)
+        XCTAssertEqual(video.cornerRadius, 0, "Repair begins when AVKit has finished its transition")
+    }
+
+    private func mountCompatibilityPiPSource(_ engine: CompatibilityPlayback) throws -> UIWindow {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        window.rootViewController = root
+        window.isHidden = false
+        let host = CompatibilityVideoHost(frame: CGRect(x: 20, y: 120, width: 350, height: 197))
+        root.view.addSubview(host)
+        host.configure(engine: engine, role: .inline, fillsFrame: false)
+        window.layoutIfNeeded()
+        return window
+    }
+
+    private func checkLatePiPClipping(_ video: CALayer, restore: () -> Void, prepare: () -> Void) async throws {
+        let radius = CABasicAnimation(keyPath: "cornerRadius")
+        radius.fromValue = 64; radius.toValue = 0; radius.duration = 1
+        let opacity = CABasicAnimation(keyPath: "opacity")
+        opacity.fromValue = 0.8; opacity.toValue = 1; opacity.duration = 1
+        let group = CAAnimationGroup()
+        group.animations = [radius, opacity]; group.duration = 1
+        video.add(group, forKey: "system-return-transition")
+        restore()
+        let remaining = try XCTUnwrap(video.animation(forKey: "system-return-transition") as? CAAnimationGroup)
+        XCTAssertEqual(remaining.animations?.count, 1)
+        XCTAssertEqual((remaining.animations?.first as? CAPropertyAnimation)?.keyPath, "opacity",
+                       "Removing a grouped corner animation must preserve unrelated animation")
+
+        // This happens AFTER didStop, when the old single cleanup already ran.
+        try await Task.sleep(for: .milliseconds(120))
+        video.cornerRadius = 48
+        video.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        let mask = CAShapeLayer()
+        mask.path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: 390, height: 220), cornerRadius: 48).cgPath
+        video.mask = mask
+        XCTAssertEqual(video.cornerRadius, 0, "Late radius changes must be corrected synchronously")
+        XCTAssertNil(video.mask)
+        XCTAssertEqual(video.maskedCorners, [.layerMinXMinYCorner, .layerMaxXMinYCorner,
+                                            .layerMinXMaxYCorner, .layerMaxXMaxYCorner])
+
+        // A later explicit animation can round the presentation while the
+        // model radius is already zero, so no KVO change is emitted.
+        video.add(radius, forKey: "late-return-animation")
+        for _ in 0..<20 {
+            if video.animation(forKey: "late-return-animation") == nil { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        XCTAssertNil(video.animation(forKey: "late-return-animation"))
+        prepare()
+        video.cornerRadius = 32
+        video.mask = mask
+        video.add(radius, forKey: "next-pip-animation")
+        try await Task.sleep(for: .milliseconds(60))
+        XCTAssertEqual(video.cornerRadius, 32, "A new system PiP transition must retain its own geometry")
+        XCTAssertTrue(video.mask === mask)
+        XCTAssertNotNil(video.animation(forKey: "next-pip-animation"))
+    }
+
     func testBackgroundPiPWaitsForCompatibilityRendererAndKeepsPauseAndTVRouting() async throws {
         let playback = PlaybackController()
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
@@ -452,11 +876,13 @@ final class CarPlayAudioTests: XCTestCase {
         }
         XCTAssertTrue(playback.isPlaying)
         let engine = try XCTUnwrap(playback.compatibility)
-        // The simulator has no VLC system PiP controller until this stub is supplied.
+        // Keep the source detached until a deterministic PiP controller is ready.
         playback.applicationDidEnterBackground()
         XCTAssertTrue(playback.pendingAutomaticPiP)
         let pip = PictureInPictureStub()
         engine.configurePiP(pip)
+        let window = try mountCompatibilityPiPSource(engine)
+        defer { window.isHidden = true; window.rootViewController = nil }
         await Task.yield()
         XCTAssertEqual(pip.startCount, 1)
         XCTAssertTrue(engine.pipActive)
@@ -478,7 +904,10 @@ final class CarPlayAudioTests: XCTestCase {
         XCTAssertEqual(pip.stopCount, 0)
         XCTAssertTrue(engine.pipActive)
         restoration?(true)
-        await Task.yield()
+        for _ in 0..<50 {
+            if pip.stopCount == 1 { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
         XCTAssertEqual(pip.stopCount, 1)
         XCTAssertFalse(engine.pipActive)
         XCTAssertFalse(playback.isPlaying)
@@ -493,7 +922,10 @@ final class CarPlayAudioTests: XCTestCase {
         await Task.yield()
         XCTAssertEqual(pip.startCount, 2)
         playback.applicationDidBecomeActive()
-        await Task.yield()
+        for _ in 0..<50 {
+            if pip.stopCount == 2 { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
         XCTAssertEqual(pip.stopCount, 2)
         XCTAssertFalse(engine.pipActive)
         XCTAssertTrue(playback.isPlaying)
@@ -517,6 +949,8 @@ final class CarPlayAudioTests: XCTestCase {
         let pip = PictureInPictureStub()
         pip.completesStartImmediately = false
         engine.configurePiP(pip)
+        let window = try mountCompatibilityPiPSource(engine)
+        defer { window.isHidden = true; window.rootViewController = nil }
         XCTAssertEqual(pip.startCount, 0, "A renderer ready after foreground must not start a cancelled request")
 
         playback.applicationDidEnterBackground()
@@ -599,6 +1033,61 @@ final class CarPlayAudioTests: XCTestCase {
         }
         func stopPictureInPicture() { stopCount += 1; stateChangeEventHandler?(false) }
         func invalidatePlaybackState() {}
+    }
+
+    func testPiPSourcesFitThePictureWithoutLetterboxAndStillSupportFill() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        window.rootViewController = root
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        let nativeURL = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let player = AVPlayer(url: nativeURL)
+        player.isMuted = true
+        let controller = NativeVideoController(player: player, playback: nil, primary: false)
+        root.addChild(controller); root.view.addSubview(controller.view); controller.didMove(toParent: root)
+        controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        player.play()
+        defer { player.pause(); player.replaceCurrentItem(with: nil) }
+        for _ in 0..<100 {
+            if controller.videoLayer.isReadyForDisplay && (player.currentItem?.presentationSize.width ?? 0) > 0 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(controller.videoLayer.isReadyForDisplay)
+        controller.view.setNeedsLayout(); controller.view.layoutIfNeeded()
+        XCTAssertGreaterThan(controller.videoLayer.frame.minY, 0)
+        XCTAssertLessThan(controller.videoLayer.frame.height, controller.view.bounds.height)
+        XCTAssertEqual(controller.videoLayer.videoRect.width, controller.videoLayer.bounds.width, accuracy: 1)
+        XCTAssertEqual(controller.videoLayer.videoRect.height, controller.videoLayer.bounds.height, accuracy: 1)
+        controller.videoLayer.videoGravity = .resizeAspectFill
+        controller.view.setNeedsLayout(); controller.view.layoutIfNeeded()
+        XCTAssertEqual(controller.videoLayer.frame, controller.view.bounds)
+
+        let engine = CompatibilityPlayback()
+        defer { engine.stop() }
+        let host = CompatibilityVideoHost(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        host.configure(engine: engine, role: .fullscreen, fillsFrame: false)
+        root.view.addSubview(host)
+        engine.open(try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv")))
+        for _ in 0..<150 {
+            if engine.mediaPlayer.hasVideoOut && engine.mediaPlayer.videoSize.width > 0 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(engine.mediaPlayer.hasVideoOut)
+        host.setNeedsLayout(); host.layoutIfNeeded()
+        XCTAssertTrue(engine.videoView.superview === host)
+        XCTAssertGreaterThan(engine.videoView.frame.minY, 0)
+        XCTAssertLessThan(engine.videoView.frame.height, host.bounds.height)
+        let fitted = engine.videoView.frame
+        host.configure(engine: engine, role: .fullscreen, fillsFrame: true)
+        XCTAssertEqual(engine.videoView.frame, host.bounds)
+        XCTAssertEqual(engine.mediaPlayer.videoFitMode, .larger)
+        host.configure(engine: engine, role: .fullscreen, fillsFrame: false)
+        XCTAssertEqual(engine.videoView.frame, fitted)
+        XCTAssertEqual(engine.mediaPlayer.videoFitMode, .smaller)
+        XCTAssertTrue(engine.mediaPlayer.hasVideoOut, "Fit changes must retain the running decoder")
     }
 
     func testCompatibilityVideoOwnershipSurvivesPreviewUpdatesAndFullscreenReturn() throws {

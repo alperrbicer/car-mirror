@@ -2,13 +2,13 @@
 
 7 Ekim 2026
 
-Kaynak kartında kaynak türünün altında, kanal listesindeyse üstte IPTV hizmetinin bitiş tarihi gösterilir. Geçmiş tarih veya sağlayıcının `Expired` durumu turuncu “IPTV süresi doldu” metniyle belirtilir. Bu bilgi Mirivo Pro aboneliği veya günlük ücretsiz izleme hakkıyla ilgili değildir.
+IPTV hizmetinin bitiş tarihi yalnızca kaynak kartında, kaynak türünün altında gösterilir. Kanal listesinin üstündeki hesap bilgisi alanı kaldırılmıştır; “Son kontrol” zamanı arayüzde gösterilmez. Geçmiş tarih veya sağlayıcının `Expired` durumu turuncu “IPTV süresi doldu” metniyle belirtilir. Bu bilgi Mirivo Pro aboneliği veya günlük ücretsiz izleme hakkıyla ilgili değildir.
 
 Xtream Codes hesaplarında aynı sunucunun `player_api.php` uç noktasındaki `user_info.exp_date` alanı okunur. Kullanıcı adı/parola içeren `get.php` M3U bağlantılarında da aynı sorgu desteklenir; sunucunun alt dizini, portu, kodlanmış giriş bilgileri ve ek sağlayıcı parametreleri korunur. Normal M3U dosyaları ve doğrudan yayın bağlantıları için hesap API’si tahmin edilmez.
 
 Sayısal veya metin biçimindeki Unix zaman damgaları desteklenir. Tarih cihazın saat dilimi ve uygulama dilinde gösterilir. Boş, null, sıfır veya geçersiz bir değer sınırsız hizmet olarak yorumlanmaz: “Bitiş tarihi paylaşılmıyor” yazılır. İlk isteğin başarısız olması halinde “Bitiş tarihi alınamadı” görünür.
 
-Son başarılı sonuç cihazda saklanır. Yenileme başarısızsa önceki tarih, son kontrol zamanıyla birlikte gösterilir. Listeye giriş ve uygulamaya dönüşte 15 dakikadan eski bilgi yenilenir; hatalar bir dakika boyunca yeniden otomatik denenmez. Kaynak menüsündeki “Bilgileri yenile” veya kanal listesini aşağı çekme önbelleği beklemeden yeniler. Düzenleme, silme ve tüm kaynakları temizleme işlemleri ilgili hesap bilgisini de temizler. Ad veya kaynak türü aynı kalsa bile giriş bilgisi değişikliği yeni hesap bilgisini otomatik sorgular. Eşzamanlı istekler birleştirilir; silinmiş/düzenlenmiş kaynağın geç yanıtı yayımlanmaz.
+Son başarılı sonuç cihazda saklanır. Yenileme başarısızsa önceki tarih korunur. Son kontrol zamanı önbellek yenilemesi için tutulur; kartta ek bir satır açıp kapatmaz. Listeye giriş ve uygulamaya dönüşte 15 dakikadan eski bilgi yenilenir; hatalar bir dakika boyunca yeniden otomatik denenmez. Kaynak menüsündeki “Bilgileri yenile” veya kanal listesini aşağı çekme önbelleği beklemeden yeniler. Düzenleme, silme ve tüm kaynakları temizleme işlemleri ilgili hesap bilgisini de temizler. Ad veya kaynak türü aynı kalsa bile giriş bilgisi değişikliği yeni hesap bilgisini otomatik sorgular. Eşzamanlı istekler birleştirilir; silinmiş/düzenlenmiş kaynağın geç yanıtı yayımlanmaz.
 
 Menüden yenileme sürerken ilgili kaynak kartında üç noktanın yerinde spinner görünür; kayıtlı bilgi kaybolmaz. Aynı kaynak için ikinci manuel yenileme başlatılamaz. İşlem başarıyla veya hatayla bitince spinner kaldırılır. “Sil” seçeneği çöp kutusu simgesiyle gösterilir.
 

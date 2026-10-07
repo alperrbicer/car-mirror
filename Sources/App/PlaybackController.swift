@@ -4,6 +4,12 @@ import Combine
 import MediaPlayer
 @preconcurrency import GoogleCast
 
+struct PlaybackTrack: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let isSelected: Bool
+}
+
 @MainActor
 final class PlaybackController: ObservableObject {
     enum State { case idle, loading, playing, paused, failed }
@@ -33,6 +39,15 @@ final class PlaybackController: ObservableObject {
     @Published private(set) var duration: Double = 0
     @Published private(set) var isLive = false
     @Published private(set) var canSeek = false
+    @Published private(set) var audioTracks: [PlaybackTrack] = []
+    @Published private(set) var subtitleTracks: [PlaybackTrack] = []
+    @Published private(set) var canDisableSubtitles = false
+    var hasMediaChoices: Bool { audioTracks.count > 1 || !subtitleTracks.isEmpty }
+    private var audioGroup: AVMediaSelectionGroup?
+    private var subtitleGroup: AVMediaSelectionGroup?
+    private var nativeAudioOptions: [AVMediaSelectionOption] = []
+    private var nativeSubtitleOptions: [AVMediaSelectionOption] = []
+    private var trackLoadingTask: Task<Void, Never>?
     private var timeObserver: Any?
     private var durationObservation: NSKeyValueObservation?
     private var pendingSeek: UUID?
@@ -43,6 +58,7 @@ final class PlaybackController: ObservableObject {
     weak var nativePiP: AVPictureInPictureController?
     private(set) var pendingAutomaticPiP = false
     private var startingPiP = false
+    private var stoppingPiP = false
     private var enteredBackgroundWithVideo = false
     private var restorePiPOnStart = false
     private var foregroundPiPRestoreID: UUID?
@@ -51,7 +67,7 @@ final class PlaybackController: ObservableObject {
     }
     var canStartPictureInPicture: Bool {
         hasActivePlayback && request?.presentation == .video && tvDevice == nil && !externalPlaybackActive && !externalDisplayConnected &&
-        (compatibility?.pip != nil || currentNativePiP?.isPictureInPicturePossible == true)
+        (compatibility?.pipPossible == true || currentNativePiP?.isPictureInPicturePossible == true)
     }
     func startPictureInPicture() {
         guard canStartPictureInPicture else { return }
@@ -59,7 +75,7 @@ final class PlaybackController: ObservableObject {
             if compatibility.pipActive { pictureInPictureStarted() }
             else if !startingPiP {
                 startingPiP = true
-                compatibility.pip?.startPictureInPicture()
+                compatibility.startPictureInPicture()
             }
         } else if let pip = currentNativePiP {
             if pip.isPictureInPictureActive || (retainedPiPController as? NativeVideoController)?.startingPiP == true { pictureInPictureStarted() }
@@ -75,8 +91,14 @@ final class PlaybackController: ObservableObject {
         pendingAutomaticPiP = false
         if restorePiPOnStart { restorePictureInPictureToApp() }
     }
+    func pictureInPictureWillStop() {
+        stoppingPiP = true
+        restorePiPOnStart = false
+        foregroundPiPRestoreID = nil
+    }
     func pictureInPictureStopped() {
         startingPiP = false
+        stoppingPiP = false
         pendingAutomaticPiP = false
         restorePiPOnStart = false
         foregroundPiPRestoreID = nil
@@ -94,19 +116,68 @@ final class PlaybackController: ObservableObject {
     func applicationDidBecomeActive() {
         guard enteredBackgroundWithVideo else { return }
         enteredBackgroundWithVideo = false
+        // The PiP return button already owns this stop. Sending another one
+        // during activation interrupts the system's return to the inline view.
+        guard !stoppingPiP else { return }
         // AVKit doesn't stop PiP when the user returns via the app icon.
         // Keep the existing player screen (and its full-screen state), restore
         // it before stopping PiP, and handle a start that is still in flight.
-        restorePiPOnStart = startingPiP || compatibility?.pipActive == true ||
+        restorePiPOnStart = startingPiP || compatibility?.pipStarting == true || compatibility?.pipActive == true ||
             currentNativePiP?.isPictureInPictureActive == true ||
             (retainedPiPController as? NativeVideoController)?.startingPiP == true
         pendingAutomaticPiP = false
         if restorePiPOnStart { restorePictureInPictureToApp() }
     }
+    func applicationWillEnterForeground() {
+        guard enteredBackgroundWithVideo else { return }
+        // Settle the source's layout without overwriting AVKit's in-flight
+        // corner animation. Clipping cleanup belongs to didStop only.
+        prepareVideoForPictureInPictureReturn()
+    }
+    private func prepareVideoForPictureInPictureReturn() {
+        if let compatibility { compatibility.layoutVideoForPictureInPictureReturn() }
+        else if let controller = retainedPiPController as? NativeVideoController { controller.layoutVideoForPictureInPictureReturn() }
+        else if let layer = currentNativePiP?.playerLayer {
+            // A PiP source may still be alive through a mounted inline view.
+            // Its controller normally owns the repair policy.
+            layer.setNeedsLayout()
+            layer.layoutIfNeeded()
+        }
+    }
+    func restoreUserInterfaceForPictureInPictureStop(completion: @escaping (Bool) -> Void) {
+        pictureInPictureWillStop()
+        restorePlayerInterface { [weak self] restored in
+            if !restored { self?.stoppingPiP = false }
+            completion(restored)
+        }
+    }
+    private func restorePlayerInterface(completion: @escaping (Bool) -> Void) {
+        let engine = compatibility
+        let usesCompatibility = engine != nil
+        let controller = retainedPiPController as? NativeVideoController
+        let item = player.currentItem
+        let prepared: (Bool) -> Void = { [weak self, weak engine, weak controller] restored in
+            guard let self, restored, self.hasActivePlayback else { completion(false); return }
+            let sameSource = usesCompatibility ? engine != nil && self.compatibility === engine :
+                controller != nil && self.compatibility == nil &&
+                self.retainedPiPController === controller && self.player.currentItem === item
+            completion(sameSource)
+        }
+        let finish: (Bool) -> Void = { [weak self, weak engine, weak controller] restored in
+            guard let self, restored, self.hasActivePlayback else { completion(false); return }
+            if let engine, self.compatibility === engine {
+                engine.preparePictureInPictureReturn(completion: prepared)
+            } else if let controller, self.retainedPiPController === controller {
+                controller.preparePictureInPictureReturn(completion: prepared)
+            } else { completion(false) }
+        }
+        if let restore = onRestorePlayer { restore(finish) }
+        else { finish(true) }
+    }
     private func restorePictureInPictureToApp() {
         let engine = compatibility
         let pip = currentNativePiP
-        guard engine?.pipActive == true || (pip?.isPictureInPictureActive == true &&
+        guard !stoppingPiP, engine?.pipActive == true || (pip?.isPictureInPictureActive == true &&
             (retainedPiPController as? NativeVideoController)?.startingPiP != true),
             foregroundPiPRestoreID == nil else { return }
         let id = UUID()
@@ -116,14 +187,14 @@ final class PlaybackController: ObservableObject {
             self.foregroundPiPRestoreID = nil
             self.restorePiPOnStart = false
             guard restored else { return }
+            self.stoppingPiP = true
             if let engine, self.compatibility === engine {
                 engine.pip?.stopPictureInPicture()
             } else if let pip, self.compatibility == nil, self.currentNativePiP === pip {
                 pip.stopPictureInPicture()
             }
         }
-        if let restore = onRestorePlayer { restore(finish) }
-        else { finish(true) }
+        restorePlayerInterface(completion: finish)
     }
     @Published private(set) var state: State = .idle
     var hasActivePlayback: Bool { state == .loading || state == .playing || state == .paused }
@@ -148,6 +219,10 @@ final class PlaybackController: ObservableObject {
     private var remoteTargets: [(MPRemoteCommand, Any)] = []
 
     init() {
+        notificationTokens.append(NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.applicationWillEnterForeground() }
+            })
         notificationTokens.append(NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification,
             object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.applicationDidEnterBackground() }
@@ -160,6 +235,14 @@ final class PlaybackController: ObservableObject {
         player.allowsExternalPlayback = false
         player.usesExternalPlaybackWhileExternalScreenIsActive = true
         player.isMuted = true
+        notificationTokens.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.mediaSelectionDidChangeNotification,
+            object: nil, queue: .main) { [weak self] note in
+                guard let item = note.object as? AVPlayerItem else { return }
+                Task { @MainActor in
+                    guard let self, self.player.currentItem === item else { return }
+                    self.refreshNativeTrackSelection(item)
+                }
+            })
         externalObservation = player.observe(\.isExternalPlaybackActive, options: [.initial, .new]) { [weak self] player, _ in
             Task { @MainActor in
                 guard let self else { return }
@@ -359,6 +442,12 @@ final class PlaybackController: ObservableObject {
         if useCompatibility {
             let engine = CompatibilityPlayback()
             compatibility = engine
+            engine.onTracksChanged = { [weak self, weak engine] in
+                guard let self, let engine, self.compatibility === engine else { return }
+                self.audioTracks = engine.audioChoices
+                self.subtitleTracks = engine.subtitleChoices
+                self.canDisableSubtitles = !self.subtitleTracks.isEmpty
+            }
             engine.onPiPReady = { [weak self, weak engine] in
                 guard let self, self.compatibility === engine else { return }
                 self.startPendingPictureInPicture()
@@ -370,6 +459,10 @@ final class PlaybackController: ObservableObject {
             engine.onPiPStopped = { [weak self, weak engine] in
                 guard let self, self.compatibility === engine else { return }
                 self.pictureInPictureStopped()
+            }
+            engine.onPiPWillStop = { [weak self, weak engine] in
+                guard let self, self.compatibility === engine else { return }
+                self.pictureInPictureWillStop()
             }
             state = .loading
             var resumePosition: Double? = position > 0 ? position : nil
@@ -406,7 +499,10 @@ final class PlaybackController: ObservableObject {
                 guard let self, let engine, self.compatibility === engine else { return }
                 self.stop(); self.onFinished?()
             }
-            engine.onRestore = { [weak self] in self?.onRestorePlayer?({ _ in }) }
+            engine.onRestore = { [weak self, weak engine] completion in
+                guard let self, self.compatibility === engine else { completion(false); return }
+                self.restoreUserInterfaceForPictureInPictureStop(completion: completion)
+            }
             engine.open(url)
             installRemoteCommands(); recordAudioRoute()
             startupTask = Task { [weak self, weak engine] in
@@ -425,7 +521,9 @@ final class PlaybackController: ObservableObject {
                 if item.status == .failed {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."),
                               reason: .playback, failure: item.error.map(DiagnosticFailure.init))
-                } else if item.status == .readyToPlay, let position = self.nativeResumePosition {
+                } else if item.status == .readyToPlay {
+                    self.loadNativeTracks(item)
+                    guard let position = self.nativeResumePosition else { self.refreshNativeTimeline(item); return }
                     self.nativeResumePosition = nil
                     self.player.seek(to: CMTime(seconds: position, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self, weak item] _ in
                         Task { @MainActor in
@@ -463,8 +561,13 @@ final class PlaybackController: ObservableObject {
     }
 
     func stop() {
+        trackLoadingTask?.cancel(); trackLoadingTask = nil
+        audioGroup = nil; subtitleGroup = nil
+        nativeAudioOptions = []; nativeSubtitleOptions = []
+        audioTracks = []; subtitleTracks = []; canDisableSubtitles = false
         pendingAutomaticPiP = false
         startingPiP = false
+        stoppingPiP = false
         enteredBackgroundWithVideo = false
         restorePiPOnStart = false
         foregroundPiPRestoreID = nil
@@ -550,6 +653,56 @@ final class PlaybackController: ObservableObject {
     func togglePlayPause() {
         guard hasActivePlayback else { return }
         if isPlaying { pause() } else { resume() }
+    }
+
+    func selectAudioTrack(_ id: String) {
+        if let compatibility { compatibility.selectAudioTrack(id); return }
+        guard let item = player.currentItem, let group = audioGroup,
+              let index = audioTracks.firstIndex(where: { $0.id == id }), nativeAudioOptions.indices.contains(index) else { return }
+        item.select(nativeAudioOptions[index], in: group)
+        refreshNativeTrackSelection(item)
+    }
+
+    func selectSubtitleTrack(_ id: String?) {
+        if let compatibility { compatibility.selectSubtitleTrack(id); return }
+        guard let item = player.currentItem, let group = subtitleGroup else { return }
+        if let id {
+            guard let index = subtitleTracks.firstIndex(where: { $0.id == id }), nativeSubtitleOptions.indices.contains(index) else { return }
+            item.select(nativeSubtitleOptions[index], in: group)
+        } else {
+            guard group.allowsEmptySelection else { return }
+            item.select(nil, in: group)
+        }
+        refreshNativeTrackSelection(item)
+    }
+
+    private func loadNativeTracks(_ item: AVPlayerItem) {
+        trackLoadingTask?.cancel()
+        trackLoadingTask = Task { @MainActor [weak self, weak item] in
+            guard let self, let item else { return }
+            let audio = try? await item.asset.loadMediaSelectionGroup(for: .audible)
+            let subtitles = try? await item.asset.loadMediaSelectionGroup(for: .legible)
+            guard !Task.isCancelled, self.player.currentItem === item, self.compatibility == nil else { return }
+            self.audioGroup = audio; self.subtitleGroup = subtitles
+            self.nativeAudioOptions = audio?.options ?? []
+            // AVFoundation can synthesize forced-only variants of the same
+            // subtitle track. Keep ordinary language choices in the picker.
+            self.nativeSubtitleOptions = subtitles?.options.filter { !$0.hasMediaCharacteristic(.containsOnlyForcedSubtitles) } ?? []
+            self.refreshNativeTrackSelection(item)
+        }
+    }
+
+    private func refreshNativeTrackSelection(_ item: AVPlayerItem) {
+        func choices(_ group: AVMediaSelectionGroup?, options: [AVMediaSelectionOption], prefix: String) -> [PlaybackTrack] {
+            guard let group else { return [] }
+            let selected = item.currentMediaSelection.selectedMediaOption(in: group)
+            return options.enumerated().map { index, option in
+                PlaybackTrack(id: "\(prefix)-\(index)", title: option.displayName, isSelected: option == selected)
+            }
+        }
+        audioTracks = choices(audioGroup, options: nativeAudioOptions, prefix: "audio")
+        subtitleTracks = choices(subtitleGroup, options: nativeSubtitleOptions, prefix: "subtitle")
+        canDisableSubtitles = subtitleGroup?.allowsEmptySelection == true
     }
 
     func resume() {

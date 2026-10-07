@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 import CarPlay
 @preconcurrency import GoogleCast
 
@@ -26,8 +27,13 @@ final class MirrorModel: ObservableObject {
     private var viewingCheckpoint = Date()
     private var wasViewing = false
     private var viewingObserver: AnyCancellable?
-    private var pendingPlayerRestore: ((Bool) -> Void)?
+    private var historyObserver: AnyCancellable?
+    private var pendingPlayerRestores: [(Bool) -> Void] = []
     private var mediaPresentation: MediaPlaybackPresentation?
+    private var mediaSourceID: UUID?
+    private var resumeCheckpoint = Date.distantPast
+    private var resumeRecordingEnabled = false
+    private var backgroundObserver: NSObjectProtocol?
     let playback = PlaybackController()
     let diagnostics = SessionDiagnostics(process: .app)
     private var store: BroadcastSessionStore?
@@ -50,11 +56,21 @@ final class MirrorModel: ObservableObject {
         playback.onRestorePlayer = { [weak self] completion in
             guard let self, self.selectedMediaChannel != nil else { completion(false); return }
             if self.playerScreenVisible { completion(true) }
-            else { self.pendingPlayerRestore = completion; self.presentingPlayer = true }
+            else {
+                self.pendingPlayerRestores.append(completion)
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { self.presentingPlayer = true }
+            }
         }
         playback.onRemoteStop = { [weak self] in self?.stopBroadcast() }
         playback.onFinished = { [weak self] in
             guard let self else { return }
+            if self.resumeRecordingEnabled, let last = LastPlaybackStore.shared.record,
+               last.channel.id == self.selectedMediaChannel?.id, !last.isLive, last.duration > 0 {
+                try? LastPlaybackStore.shared.save(LastPlaybackRecord(channel: last.channel, sourceID: last.sourceID,
+                    position: last.duration, duration: last.duration, isLive: false))
+            }
             if self.advancesQueue, let next = self.adjacentChannel(1) {
                 self.playMedia(next)
             } else {
@@ -75,6 +91,15 @@ final class MirrorModel: ObservableObject {
             self?.accountViewingTime()
             self?.wasViewing = playing && self?.selectedMediaChannel != nil && self?.playback.hasActivePlayback == true
         }
+        historyObserver = playback.$state.sink { [weak self] state in
+            if state == .playing || state == .paused {
+                Task { @MainActor in self?.saveLastPlayback(force: true) }
+            }
+        }
+        backgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.saveLastPlayback(force: true) }
+            }
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.refresh() }
@@ -104,6 +129,7 @@ final class MirrorModel: ObservableObject {
 
     func refresh() {
         accountViewingTime()
+        saveLastPlayback()
         capture = store?.readStatus()
         if capture?.sessionID != lastCaptureID { playbackAttemptFailed = false }
         if broadcasting, probeStartedAt != nil { stopProbe() }
@@ -239,7 +265,7 @@ final class MirrorModel: ObservableObject {
 
     @discardableResult
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil,
-                   advanceAutomatically: Bool = false) -> Bool {
+                   advanceAutomatically: Bool = false, sourceID: UUID? = nil, startAt: Double = 0) -> Bool {
         guard AppUpdateStore.shared.requiredURL == nil else { return false }
         accountViewingTime()
         guard PurchaseStore.shared.access.fullAccess || dailyRemaining > 0 else {
@@ -248,6 +274,7 @@ final class MirrorModel: ObservableObject {
         }
         if selectedMediaChannel == channel, playback.hasActivePlayback { return true }
         let nextQueue = queue ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? playbackQueue : [channel])
+        let nextSourceID = sourceID ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? mediaSourceID : nil)
         let releasedFiles = playbackQueue.filter { previous in !nextQueue.contains(where: { $0.id == previous.id }) }.map(\.url)
         let shouldAdvance = queue != nil ? advanceAutomatically : (playbackQueue.contains(where: { $0.id == channel.id }) && advancesQueue)
         let keepPlayerPresented = presentingPlayer
@@ -258,12 +285,15 @@ final class MirrorModel: ObservableObject {
         advancesQueue = shouldAdvance
         errorMessage = nil
         selectedMediaChannel = channel
+        mediaSourceID = nextSourceID
+        resumeRecordingEnabled = true
+        resumeCheckpoint = .distantPast
         mediaPresentation = presentation
         let resolvedPresentation: MediaPlaybackPresentation = playback.tvDevice == nil && carPlayConnected && supportsVideo != true ? .audio : (presentation ?? (channel.isAudio ? .audio : .video))
         do {
             try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
                               title: channel.title, live: channel.isLive, presentation: resolvedPresentation,
-                              useCompatibility: channel.requiresCompatibilityPlayback)
+                              useCompatibility: channel.requiresCompatibilityPlayback, startAt: startAt)
             guard playback.hasActivePlayback else { return false }
             mediaTitle = channel.title
             return true
@@ -303,7 +333,12 @@ final class MirrorModel: ObservableObject {
 
     func playerVisibilityChanged(_ visible: Bool) {
         playerScreenVisible = visible
-        if visible { pendingPlayerRestore?(true); pendingPlayerRestore = nil }
+        if visible { finishPlayerRestoration(true) }
+    }
+    private func finishPlayerRestoration(_ restored: Bool) {
+        let completions = pendingPlayerRestores
+        pendingPlayerRestores.removeAll()
+        completions.forEach { $0(restored) }
     }
 
     func retryMedia() {
@@ -311,13 +346,56 @@ final class MirrorModel: ObservableObject {
         playMedia(channel, presentation: mediaPresentation)
     }
 
+    private func saveLastPlayback(force: Bool = false) {
+        guard resumeRecordingEnabled, let channel = selectedMediaChannel, !channel.isAudio, !channel.url.isFileURL,
+              mediaTitle != nil, playback.state == .playing || playback.state == .paused else { return }
+        let now = Date()
+        guard force || now.timeIntervalSince(resumeCheckpoint) >= 5 else { return }
+        let record = LastPlaybackRecord(channel: channel, sourceID: mediaSourceID,
+                                        position: playback.currentTime, duration: playback.duration, isLive: playback.isLive)
+        do { try LastPlaybackStore.shared.save(record); resumeCheckpoint = now }
+        catch { /* A history write must not interrupt playback. */ }
+    }
+
+    @discardableResult
+    func resumeLastPlayback() -> Bool {
+        guard let last = LastPlaybackStore.shared.record else { return false }
+        return resumePlayback(last)
+    }
+
+    @discardableResult
+    func resumePlayback(_ last: LastPlaybackRecord) -> Bool {
+        if let sourceID = last.sourceID, !SourceLibrary.shared.sources.contains(where: { $0.id == sourceID }) {
+            try? LastPlaybackStore.shared.clear(sourceID: sourceID)
+            return false
+        }
+        return playMedia(last.channel, sourceID: last.sourceID, startAt: last.resumePosition)
+    }
+
+    var activeContinuationID: String? {
+        guard playback.hasActivePlayback, let channel = selectedMediaChannel else { return nil }
+        return LastPlaybackRecord(channel: channel, sourceID: mediaSourceID, position: 0, duration: 0, isLive: playback.isLive).id
+    }
+
+    func removeContinuation(_ id: String) throws {
+        try LastPlaybackStore.shared.remove(id: id)
+        if activeContinuationID == id { resumeRecordingEnabled = false }
+    }
+
+    func discardLastPlayback(sourceID: UUID? = nil) {
+        if sourceID == nil || mediaSourceID == sourceID { resumeRecordingEnabled = false }
+        try? LastPlaybackStore.shared.clear(sourceID: sourceID)
+    }
+
     func stopPlayback() {
-        pendingPlayerRestore?(false); pendingPlayerRestore = nil
+        saveLastPlayback(force: true)
+        finishPlayerRestoration(false)
         presentingPlayer = false
         playback.stop()
         mediaTitle = nil
         selectedMediaChannel = nil
         mediaPresentation = nil
+        mediaSourceID = nil
         mediaErrorMessage = nil
         advancesQueue = false
         playbackSessionID = nil
