@@ -38,9 +38,93 @@ final class PlaybackController: ObservableObject {
     private var pendingSeek: UUID?
     private var requestedLive = false
     var onRestorePlayer: ((@escaping (Bool) -> Void) -> Void)?
-    // Retain both during PiP even if SwiftUI removes the inline player.
-    var retainedPiPController: AVPlayerViewController?
-    var retainedPiPDelegate: AnyObject?
+    // Keep the source layer and its delegate alive while PiP owns the video.
+    var retainedPiPController: UIViewController?
+    weak var nativePiP: AVPictureInPictureController?
+    private(set) var pendingAutomaticPiP = false
+    private var startingPiP = false
+    private var enteredBackgroundWithVideo = false
+    private var restorePiPOnStart = false
+    private var foregroundPiPRestoreID: UUID?
+    private var currentNativePiP: AVPictureInPictureController? {
+        (retainedPiPController as? NativeVideoController)?.pip ?? nativePiP
+    }
+    var canStartPictureInPicture: Bool {
+        hasActivePlayback && request?.presentation == .video && tvDevice == nil && !externalPlaybackActive && !externalDisplayConnected &&
+        (compatibility?.pip != nil || currentNativePiP?.isPictureInPicturePossible == true)
+    }
+    func startPictureInPicture() {
+        guard canStartPictureInPicture else { return }
+        if let compatibility {
+            if compatibility.pipActive { pictureInPictureStarted() }
+            else if !startingPiP {
+                startingPiP = true
+                compatibility.pip?.startPictureInPicture()
+            }
+        } else if let pip = currentNativePiP {
+            if pip.isPictureInPictureActive || (retainedPiPController as? NativeVideoController)?.startingPiP == true { pictureInPictureStarted() }
+            else if !startingPiP { startingPiP = true; pip.startPictureInPicture() }
+        }
+    }
+    func startPendingPictureInPicture() {
+        guard pendingAutomaticPiP else { return }
+        startPictureInPicture()
+    }
+    func pictureInPictureStarted() {
+        startingPiP = false
+        pendingAutomaticPiP = false
+        if restorePiPOnStart { restorePictureInPictureToApp() }
+    }
+    func pictureInPictureStopped() {
+        startingPiP = false
+        pendingAutomaticPiP = false
+        restorePiPOnStart = false
+        foregroundPiPRestoreID = nil
+    }
+    func applicationDidEnterBackground() {
+        restorePiPOnStart = false
+        foregroundPiPRestoreID = nil
+        enteredBackgroundWithVideo = false
+        guard hasActivePlayback, request?.presentation == .video, tvDevice == nil,
+              !externalPlaybackActive, !externalDisplayConnected else { return }
+        enteredBackgroundWithVideo = true
+        pendingAutomaticPiP = true
+        startPendingPictureInPicture()
+    }
+    func applicationDidBecomeActive() {
+        guard enteredBackgroundWithVideo else { return }
+        enteredBackgroundWithVideo = false
+        // AVKit doesn't stop PiP when the user returns via the app icon.
+        // Keep the existing player screen (and its full-screen state), restore
+        // it before stopping PiP, and handle a start that is still in flight.
+        restorePiPOnStart = startingPiP || compatibility?.pipActive == true ||
+            currentNativePiP?.isPictureInPictureActive == true ||
+            (retainedPiPController as? NativeVideoController)?.startingPiP == true
+        pendingAutomaticPiP = false
+        if restorePiPOnStart { restorePictureInPictureToApp() }
+    }
+    private func restorePictureInPictureToApp() {
+        let engine = compatibility
+        let pip = currentNativePiP
+        guard engine?.pipActive == true || (pip?.isPictureInPictureActive == true &&
+            (retainedPiPController as? NativeVideoController)?.startingPiP != true),
+            foregroundPiPRestoreID == nil else { return }
+        let id = UUID()
+        foregroundPiPRestoreID = id
+        let finish: (Bool) -> Void = { [weak self, weak engine, weak pip] restored in
+            guard let self, self.foregroundPiPRestoreID == id else { return }
+            self.foregroundPiPRestoreID = nil
+            self.restorePiPOnStart = false
+            guard restored else { return }
+            if let engine, self.compatibility === engine {
+                engine.pip?.stopPictureInPicture()
+            } else if let pip, self.compatibility == nil, self.currentNativePiP === pip {
+                pip.stopPictureInPicture()
+            }
+        }
+        if let restore = onRestorePlayer { restore(finish) }
+        else { finish(true) }
+    }
     @Published private(set) var state: State = .idle
     var hasActivePlayback: Bool { state == .loading || state == .playing || state == .paused }
     var canUseVehicleMode: Bool { state == .playing || state == .paused }
@@ -64,6 +148,14 @@ final class PlaybackController: ObservableObject {
     private var remoteTargets: [(MPRemoteCommand, Any)] = []
 
     init() {
+        notificationTokens.append(NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.applicationDidEnterBackground() }
+            })
+        notificationTokens.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.applicationDidBecomeActive() }
+            })
         player.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
         player.allowsExternalPlayback = false
         player.usesExternalPlaybackWhileExternalScreenIsActive = true
@@ -267,6 +359,18 @@ final class PlaybackController: ObservableObject {
         if useCompatibility {
             let engine = CompatibilityPlayback()
             compatibility = engine
+            engine.onPiPReady = { [weak self, weak engine] in
+                guard let self, self.compatibility === engine else { return }
+                self.startPendingPictureInPicture()
+            }
+            engine.onPiPStarted = { [weak self, weak engine] in
+                guard let self, self.compatibility === engine else { return }
+                self.pictureInPictureStarted()
+            }
+            engine.onPiPStopped = { [weak self, weak engine] in
+                guard let self, self.compatibility === engine else { return }
+                self.pictureInPictureStopped()
+            }
             state = .loading
             var resumePosition: Double? = position > 0 ? position : nil
             engine.onState = { [weak self, weak engine] state in
@@ -359,6 +463,12 @@ final class PlaybackController: ObservableObject {
     }
 
     func stop() {
+        pendingAutomaticPiP = false
+        startingPiP = false
+        enteredBackgroundWithVideo = false
+        restorePiPOnStart = false
+        foregroundPiPRestoreID = nil
+        currentNativePiP?.stopPictureInPicture()
         personalMediaServer?.stop(); personalMediaServer = nil
         MediaScreenAwake.release(localCastAwakeLease); localCastAwakeLease = nil
         request = nil

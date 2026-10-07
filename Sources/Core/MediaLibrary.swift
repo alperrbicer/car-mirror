@@ -9,7 +9,7 @@ public enum PlaybackTimeDisplay {
     }
 }
 
-public enum MediaSourceKind: String, Codable, CaseIterable, Sendable { case playlist, stream, xtream }
+public enum MediaSourceKind: String, Codable, CaseIterable, Sendable { case playlist, stream, xtream, playlistFile }
 
 public struct MediaSource: Codable, Identifiable, Equatable, Sendable {
     public let id: UUID
@@ -132,6 +132,29 @@ public enum M3UParser {
 }
 
 public enum XtreamEndpoint {
+    /// Account metadata is available for Xtream credentials and identifiable get.php playlists.
+    /// Ordinary M3U files and direct streams have no standard account endpoint.
+    public static func accountInfo(kind: MediaSourceKind, secret: SourceSecret) throws -> URL? {
+        guard kind != .stream, kind != .playlistFile else { return nil }
+        let url = try kind == .xtream ? playlist(secret: secret) : MediaURL.validate(secret.url.absoluteString)
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.path.hasSuffix("/get.php"), let items = components.queryItems else { return nil }
+        for name in ["username", "password"] {
+            let values = items.filter { $0.name == name }
+            guard values.count == 1, !(values[0].value ?? "").isEmpty else { return nil }
+        }
+        components.path = String(components.path.dropLast("get.php".count)) + "player_api.php"
+        // Preserve encoded credentials and provider-specific tokens. Remove playlist/action
+        // parameters so this request returns account information rather than channel data.
+        components.percentEncodedQuery = (components.percentEncodedQuery ?? "").components(separatedBy: "&").filter {
+            let name = $0.components(separatedBy: "=").first?.removingPercentEncoding ?? ""
+            return !["type", "output", "action"].contains(name)
+        }.joined(separator: "&")
+        components.fragment = nil
+        guard let result = components.url else { throw LibraryError.invalidURL }
+        return try MediaURL.validate(result.absoluteString)
+    }
+
     /// The same Xtream account can be added as a playlist URL or as server credentials.
     /// Ask for HLS and category metadata in both cases; never rename channel URLs.
     public static func nativePlaylistURL(_ url: URL) -> URL {
@@ -160,14 +183,67 @@ public enum XtreamEndpoint {
     }
 
     public static func playlist(secret: SourceSecret) throws -> URL {
-        guard let user = secret.username, !user.isEmpty, let password = secret.password, !password.isEmpty,
-              var components = URLComponents(url: secret.url, resolvingAgainstBaseURL: true) else { throw LibraryError.credentials }
-        components.path = components.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")).isEmpty ? "/get.php" : components.path.trimmingCharacters(in: CharacterSet(charactersIn: "/")).appending("/get.php")
-        if !components.path.hasPrefix("/") { components.path = "/" + components.path }
-        components.queryItems = [URLQueryItem(name: "username", value: user), URLQueryItem(name: "password", value: password),
+        let validated = try MediaURL.validate(secret.url.absoluteString)
+        guard var components = URLComponents(url: validated, resolvingAgainstBaseURL: true) else { throw LibraryError.invalidURL }
+        let items = components.queryItems ?? []
+        let isEndpoint = ["get.php", "player_api.php"].contains(validated.lastPathComponent.lowercased())
+        func credential(_ name: String, explicit: String?) -> String? {
+            if let explicit, !explicit.isEmpty { return explicit }
+            let matches = items.filter { $0.name == name }
+            return isEndpoint && matches.count == 1 ? matches[0].value : nil
+        }
+        guard let user = credential("username", explicit: secret.username), !user.isEmpty,
+              let password = credential("password", explicit: secret.password), !password.isEmpty else { throw LibraryError.credentials }
+        var path = components.path
+        if isEndpoint { path = String(path.dropLast(validated.lastPathComponent.count)) }
+        if !path.hasSuffix("/") { path += "/" }
+        components.path = path + "get.php"
+        let reserved = ["username", "password", "type", "output", "action"]
+        components.queryItems = items.filter { !reserved.contains($0.name) } + [
+            URLQueryItem(name: "username", value: user), URLQueryItem(name: "password", value: password),
             URLQueryItem(name: "type", value: "m3u_plus"), URLQueryItem(name: "output", value: "m3u8")]
+        // PHP treats a literal '+' in a query as a space; URLQueryItem alone leaves it unescaped.
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         components.fragment = nil
         guard let url = components.url else { throw LibraryError.invalidURL }
-        return url
+        return try MediaURL.validate(url.absoluteString)
+    }
+}
+
+/// Only expiry metadata is retained; provider responses may also contain credentials.
+public struct IPTVAccountInfo: Codable, Equatable, Sendable {
+    public let expiresAt: Date?
+    public let providerReportsExpired: Bool
+    public init(expiresAt: Date?, providerReportsExpired: Bool = false) {
+        self.expiresAt = expiresAt; self.providerReportsExpired = providerReportsExpired
+    }
+    public func isExpired(at now: Date) -> Bool {
+        providerReportsExpired || expiresAt.map { $0 <= now } == true
+    }
+    public static func parse(_ data: Data) throws -> Self {
+        let info = try JSONDecoder().decode(Response.self, from: data).user_info
+        guard info.auth?.value == 1 else { throw LibraryError.credentials }
+        // A missing/null/zero or malformed value is unknown, never an unlimited plan.
+        let timestamp = info.exp_date?.value
+        let expiry = timestamp.flatMap { value -> Date? in
+            guard value.isFinite, value > 0, value <= 253_402_300_799 else { return nil }
+            return Date(timeIntervalSince1970: value)
+        }
+        return Self(expiresAt: expiry, providerReportsExpired: info.status?.lowercased() == "expired")
+    }
+    private struct Response: Decodable { let user_info: UserInfo }
+    private struct UserInfo: Decodable {
+        let auth: Number?
+        let exp_date: Number?
+        let status: String?
+    }
+    private struct Number: Decodable {
+        let value: Double?
+        init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let string = try? container.decode(String.self) {
+                value = Double(string.trimmingCharacters(in: .whitespacesAndNewlines))
+            } else { value = try? container.decode(Double.self) }
+        }
     }
 }

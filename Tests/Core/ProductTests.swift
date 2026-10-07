@@ -170,4 +170,73 @@ final class ProductTests: XCTestCase {
         XCTAssertEqual(components.queryItems?.filter { $0.name == "password" }.count, 1)
         XCTAssertEqual(components.queryItems?.first { $0.name == "password" }?.value, secret.password)
     }
+
+    func testXtreamAcceptsServerOrEndpointAndEscapesPHPPlusCredentials() throws {
+        for path in ["/prefix", "/prefix/", "/prefix/get.php", "/prefix/player_api.php"] {
+            let url = URL(string: "https://server.example:8080\(path)?token=extra%2Btoken&action=ignored#fragment")!
+            let playlist = try XtreamEndpoint.playlist(secret: SourceSecret(url: url, username: "a+b", password: "p+&ss"))
+            let parts = try XCTUnwrap(URLComponents(url: playlist, resolvingAgainstBaseURL: false))
+            XCTAssertEqual(parts.path, "/prefix/get.php")
+            XCTAssertEqual(parts.port, 8080)
+            XCTAssertNil(parts.fragment)
+            XCTAssertFalse(parts.percentEncodedQuery!.contains("+"), "PHP query parsing treats a literal plus as a space")
+            XCTAssertEqual(parts.queryItems?.first { $0.name == "token" }?.value, "extra+token")
+            XCTAssertEqual(parts.queryItems?.first { $0.name == "username" }?.value, "a+b")
+            XCTAssertNil(parts.queryItems?.first { $0.name == "action" })
+        }
+        let pasted = SourceSecret(url: URL(string: "https://example.com/get.php?username=a%2Bb&password=p%2Bss&type=m3u")!)
+        let parts = URLComponents(url: try XtreamEndpoint.playlist(secret: pasted), resolvingAgainstBaseURL: false)
+        XCTAssertEqual(parts?.queryItems?.first { $0.name == "username" }?.value, "a+b")
+        XCTAssertThrowsError(try XtreamEndpoint.playlist(secret: SourceSecret(url: URL(string: "https://example.com")!)))
+        XCTAssertThrowsError(try XtreamEndpoint.playlist(secret: SourceSecret(url: URL(string: "file:///get.php")!, username: "a", password: "b")))
+    }
+
+    func testXtreamAccountEndpointSupportsCredentialsAndEncodedM3UWithoutActions() throws {
+        let secret = SourceSecret(url: URL(string: "https://server.example:8080/prefix/")!, username: "a&user=other", password: "p+&=/secret")
+        let url = try XCTUnwrap(XtreamEndpoint.accountInfo(kind: .xtream, secret: secret))
+        let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        XCTAssertEqual(components.path, "/prefix/player_api.php")
+        XCTAssertEqual(components.queryItems?.map(\.name), ["username", "password"])
+        XCTAssertEqual(components.queryItems?.first?.value, secret.username)
+        XCTAssertEqual(components.queryItems?.last?.value, secret.password)
+        let playlist = SourceSecret(url: URL(string: "http://server.example:8080/prefix/get.php?username=a%2Bb&password=s%26e%3Dc%2Fret&type=std_m3u&output=ts&token=x%2By&action=get_live_streams#fragment")!)
+        XCTAssertEqual(try XtreamEndpoint.accountInfo(kind: .playlist, secret: playlist)?.absoluteString,
+                       "http://server.example:8080/prefix/player_api.php?username=a%2Bb&password=s%26e%3Dc%2Fret&token=x%2By")
+    }
+
+    func testAccountEndpointDoesNotProbeOrdinaryPlaylistsOrAmbiguousCredentials() throws {
+        for raw in ["https://example.com/list.m3u?username=u&password=p", "https://example.com/get.php?token=t",
+                    "https://example.com/get.php?username=u&password=", "https://example.com/get.php?username=u&username=v&password=p"] {
+            XCTAssertNil(try XtreamEndpoint.accountInfo(kind: .playlist, secret: SourceSecret(url: URL(string: raw)!)))
+        }
+        let secret = SourceSecret(url: URL(string: "https://example.com/get.php?username=u&password=p")!)
+        XCTAssertNil(try XtreamEndpoint.accountInfo(kind: .stream, secret: secret))
+    }
+
+    func testIPTVExpiryAcceptsProviderTimestampFormatsAndIgnoresCredentials() throws {
+        for timestamp in ["1800000000", "\"1800000000\"", "\" 1800000000 \""] {
+            let data = Data("{\"user_info\":{\"auth\":\"1\",\"status\":\"Active\",\"exp_date\":\(timestamp),\"username\":\"private\",\"password\":\"secret\"}}".utf8)
+            let info = try IPTVAccountInfo.parse(data)
+            XCTAssertEqual(info.expiresAt, Date(timeIntervalSince1970: 1_800_000_000))
+            XCTAssertFalse(info.isExpired(at: Date(timeIntervalSince1970: 1_799_999_999)))
+            XCTAssertTrue(info.isExpired(at: Date(timeIntervalSince1970: 1_800_000_000)))
+            let persisted = String(decoding: try JSONEncoder().encode(info), as: UTF8.self)
+            XCTAssertFalse(persisted.contains("private")); XCTAssertFalse(persisted.contains("secret"))
+        }
+        let expired = try IPTVAccountInfo.parse(Data(#"{"user_info":{"auth":1,"status":"Expired","exp_date":null}}"#.utf8))
+        XCTAssertTrue(expired.isExpired(at: .distantPast))
+    }
+
+    func testIPTVExpiryDoesNotInventUnlimitedDatesOrAcceptRejectedAccounts() throws {
+        for value in ["null", "0", "\"0\"", "\"\"", "-1", "true", "\"invalid\"", "\"NaN\"", "\"Infinity\"", "1800000000000"] {
+            let info = try IPTVAccountInfo.parse(Data("{\"user_info\":{\"auth\":1,\"exp_date\":\(value)}}".utf8))
+            XCTAssertNil(info.expiresAt)
+            XCTAssertFalse(info.providerReportsExpired)
+        }
+        XCTAssertNil(try IPTVAccountInfo.parse(Data(#"{"user_info":{"auth":1}}"#.utf8)).expiresAt)
+        for response in [#"{"user_info":{"auth":0,"exp_date":"1800000000"}}"#,
+                         #"{"user_info":{"auth":true,"exp_date":"1800000000"}}"#, #"{"user_info":{}}"#, #"{}"#, "<html>error</html>"] {
+            XCTAssertThrowsError(try IPTVAccountInfo.parse(Data(response.utf8)))
+        }
+    }
 }

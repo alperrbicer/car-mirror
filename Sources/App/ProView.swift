@@ -2,12 +2,12 @@ import SwiftUI
 import StoreKit
 
 struct ProView: View {
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject private var store = PurchaseStore.shared
     @State private var selectedID = ProProduct.yearly.rawValue
     private let benefits: [(String, String, String)] = [
         ("play.rectangle", "Sınırsız izleme", "Pro ile günlük izleme sınırı olmadan devam et."),
         ("infinity", "Sınırsız kaynak", "Oynatma listelerini, yayın bağlantılarını ve IPTV sunucularını bir arada tut."),
-        ("car.side", "Araç modu", "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı."),
         ("captions.bubble", "Canlı altyazılar", "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle."),
         ("rectangle.on.rectangle", "Sınırsız yayın", "Ekran paylaşımını Mirivo süre sınırı olmadan kullan.")
     ]
@@ -107,6 +107,13 @@ struct ProView: View {
         }
         .background(MirrorStyle.background).tint(MirrorStyle.accent)
         .navigationTitle(L10n.tr("Mirivo Pro")).navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark").font(.body.weight(.semibold)).frame(width: 44, height: 44)
+                }.accessibilityLabel(L10n.tr("Kapat")).accessibilityIdentifier("pro-close")
+            }
+        }
         .task {
             await store.loadProducts()
             if store.subscriptionActive { selectedID = ProProduct.lifetime.rawValue }

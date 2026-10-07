@@ -297,3 +297,18 @@
 "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "检测到新的 CarPlay 会话时，在手机上提醒一次。车辆连接信息不会发送到服务器。";
 "Mirivo araç bağlantısına hazır" = "Mirivo 已准备好连接车辆";
 "Bildirim izni alınamadı. Yeniden dene." = "无法获取通知权限。请重试。";
+
+// IPTV account expiry
+"IPTV bitişi: %@" = "IPTV 到期日期：%@";
+"IPTV süresi doldu: %@" = "IPTV 已到期：%@";
+"IPTV süresi doldu" = "IPTV 已到期";
+"Bitiş tarihi paylaşılmıyor" = "未提供到期日期";
+"Bitiş tarihi alınamadı" = "无法获取到期日期";
+"Bitiş tarihi alınıyor…" = "正在获取到期日期…";
+"Son kontrol: %@" = "上次检查：%@";
+"Bilgileri yenile" = "刷新信息";
+
+// Local playlist import
+"Dosyadan oynatma listesi" = "从文件导入播放列表";
+"Dosya seç" = "选择文件";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "无法打开播放列表文件。请选择 M3U 或 M3U8 文件。";

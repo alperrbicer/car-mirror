@@ -8,6 +8,117 @@ import SwiftUI
 
 @MainActor
 final class CarPlayAudioTests: XCTestCase {
+    func testImportedPlaylistSurvivesOriginalRemovalAndCleansUpOnReplacement() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("file-source-\(UUID())")
+        let library = SourceLibrary(directory: directory) { _ in nil }
+        defer { try? library.clear(); try? FileManager.default.removeItem(at: directory) }
+        let original = directory.appendingPathComponent("selected.m3u8")
+        let data = Data("#EXTM3U\n#EXTINF:-1 group-title=\"Film\",First\nhttps://example.com/first.mp4\n".utf8)
+        try data.write(to: original)
+        let access = ProductAccess(salesEnabled: false, verifiedPro: false)
+        try library.importPlaylist(original, name: "File source", access: access)
+        let source = try XCTUnwrap(library.sources.first)
+        XCTAssertEqual(source.kind, .playlistFile)
+        let imported = try SourceKeychain.read(source.id).url
+        XCTAssertNotEqual(imported, original)
+        XCTAssertEqual(try Data(contentsOf: original), data)
+        try FileManager.default.removeItem(at: original)
+        let reopened = SourceLibrary(directory: directory) { _ in nil }
+        let first = try await reopened.channels(for: source)
+        XCTAssertEqual(first.first?.title, "First")
+        XCTAssertEqual(first.first?.group, "Film")
+        try Data("#EXTM3U\nhttps://example.com/second.mp4\n".utf8).write(to: original)
+        try library.importPlaylist(original, name: "Replacement", replacing: source, access: access)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: imported.path))
+        let replacement = try XCTUnwrap(library.sources.first)
+        XCTAssertEqual(replacement.id, source.id)
+        let second = try await library.channels(for: replacement)
+        XCTAssertEqual(second.first?.url.lastPathComponent, "second.mp4")
+        let replacementFile = try SourceKeychain.read(source.id).url
+        try library.update(replacement, name: "Direct", kind: .stream, secret: SourceSecret(url: URL(string: "https://example.com/live.mp4")!))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: replacementFile.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: original.path), "Never delete a user's selected original")
+    }
+
+    func testFileSourceRejectsUnsafeOrInvalidFilesAndHonorsFreeSourceLimit() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("invalid-file-source-\(UUID())")
+        let library = SourceLibrary(directory: directory) { _ in nil }
+        defer { try? library.clear(); try? FileManager.default.removeItem(at: directory) }
+        let original = directory.appendingPathComponent("selected.m3u")
+        let access = ProductAccess(salesEnabled: true, verifiedPro: false)
+        for contents in ["not a playlist", "#EXTM3U\nfile:///private/secret.mp4\n", "#EXTM3U\n#EXT-X-TARGETDURATION:10\npart.ts\n"] {
+            try Data(contents.utf8).write(to: original)
+            XCTAssertThrowsError(try library.importPlaylist(original, name: "Invalid", access: access))
+            XCTAssertTrue(library.sources.isEmpty)
+        }
+        try Data(repeating: 65, count: M3UParser.maximumBytes + 1).write(to: original)
+        XCTAssertThrowsError(try library.importPlaylist(original, name: "Oversized", access: access))
+        try Data("#EXTM3U\nhttps://example.com/one.mp4\n".utf8).write(to: original)
+        XCTAssertThrowsError(try library.add(name: "Outside", kind: .playlistFile, secret: SourceSecret(url: original), access: access))
+        try library.importPlaylist(original, name: "Allowed", access: access)
+        let source = try XCTUnwrap(library.sources.first)
+        let imported = try SourceKeychain.read(source.id).url
+        XCTAssertThrowsError(try library.importPlaylist(original, name: "Second", access: access))
+        try Data("invalid replacement".utf8).write(to: original)
+        XCTAssertThrowsError(try library.importPlaylist(original, name: "Broken", replacing: source, access: access))
+        XCTAssertEqual(library.sources, [source])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: imported.path))
+        try library.delete(source)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: imported.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: original.path))
+    }
+
+    func testXtreamSourceLoadsEndpointsAndRejectsBadCredentialsOrResponse() async throws {
+        let root = "http://127.0.0.1:8769/sources"
+        let source = MediaSource(name: "Xtream fixture", kind: .xtream)
+        for suffix in ["", "/", "/get.php", "/player_api.php"] {
+            let secret = SourceSecret(url: URL(string: root + suffix)!, username: "source+user", password: "source+p&ss")
+            let channels = try await SourceLoader.load(source: source, secret: secret)
+            XCTAssertEqual(channels.count, 6)
+            XCTAssertEqual(channels.first?.group, "Mirivo Demo")
+        }
+        let pasted = SourceSecret(url: URL(string: root + "/player_api.php?username=source%2Buser&password=source%2Bp%26ss")!)
+        let pastedChannels = try await SourceLoader.load(source: source, secret: pasted)
+        XCTAssertEqual(pastedChannels.count, 6)
+        for secret in [SourceSecret(url: URL(string: root)!, username: "wrong", password: "wrong"),
+                       SourceSecret(url: URL(string: root + "/invalid")!, username: "source+user", password: "source+p&ss")] {
+            do { _ = try await SourceLoader.load(source: source, secret: secret); XCTFail("Rejected accounts must not become playable channels") }
+            catch { XCTAssertTrue(error is LibraryError) }
+        }
+    }
+
+    func testDirectAndXtreamSourcesDecodeActualHTTPVideo() async throws {
+        let direct = MediaSource(name: "Direct fixture", kind: .stream)
+        let directChannels = try await SourceLoader.load(source: direct, secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/demo.mp4")!))
+        let xtream = MediaSource(name: "Xtream fixture", kind: .xtream)
+        let xtreamChannels = try await SourceLoader.load(source: xtream, secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/sources")!, username: "source+user", password: "source+p&ss"))
+        let model = MirrorModel.shared
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = UIHostingController(rootView: NavigationStack { MediaPlayerScreen(model: model) })
+        window.makeKeyAndVisible()
+        defer { model.stopPlayback(); window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        for channel in [try XCTUnwrap(directChannels.first), try XCTUnwrap(xtreamChannels.first)] {
+            XCTAssertTrue(model.playMedia(channel))
+            let item = try XCTUnwrap(model.playback.player.currentItem)
+            let output = AVPlayerItemVideoOutput(pixelBufferAttributes: nil)
+            item.add(output)
+            for _ in 0..<200 {
+                if model.playback.currentTime > 0.5 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertTrue(model.playback.isPlaying)
+            var firstTime = CMTime.invalid
+            XCTAssertNotNil(output.copyPixelBuffer(forItemTime: item.currentTime(), itemTimeForDisplay: &firstTime))
+            try await Task.sleep(for: .milliseconds(600))
+            var nextTime = CMTime.invalid
+            XCTAssertNotNil(output.copyPixelBuffer(forItemTime: item.currentTime(), itemTimeForDisplay: &nextTime))
+            XCTAssertGreaterThan(nextTime.seconds, firstTime.seconds + 0.3, "Both entry methods must deliver decoded video frames")
+            model.stopPlayback()
+        }
+    }
+
     func testPlayingCompatibilityVideoContinuesAfterSeeking() async throws {
         try await checkPlayingVideoSeeks(useCompatibility: true)
     }
@@ -139,7 +250,9 @@ final class CarPlayAudioTests: XCTestCase {
             window.isHidden = true
             window.rootViewController = nil
             previousWindow?.makeKeyAndVisible()
-            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+            // Restore the app's full supported mask, rather than leaving a
+            // portrait geometry preference in the simulator scene session.
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .allButUpsideDown))
         }
         XCTAssertTrue(model.playMedia(MediaChannel(title: "Fullscreen fixture", url: url)))
         let engine = model.playback.compatibility
@@ -202,8 +315,8 @@ final class CarPlayAudioTests: XCTestCase {
         }
     }
 
-    private func nativeVideoController(in controller: UIViewController) -> AVPlayerViewController? {
-        if let player = controller as? AVPlayerViewController { return player }
+    private func nativeVideoController(in controller: UIViewController) -> NativeVideoController? {
+        if let player = controller as? NativeVideoController { return player }
         return controller.children.lazy.compactMap { self.nativeVideoController(in: $0) }.first
     }
 
@@ -292,6 +405,7 @@ final class CarPlayAudioTests: XCTestCase {
             return layer.sublayers?.lazy.compactMap { videoLayer(in: $0) }.first
         }
         let video = try XCTUnwrap(videoLayer(in: engine.videoView.layer))
+        XCTAssertTrue(video.preventsCapture)
         // The simulator's VLC build has no system PiP controller. Exercise its
         // didStart/didStop callback contract against the actual decoding layer.
         let pip = PictureInPictureStub()
@@ -326,10 +440,164 @@ final class CarPlayAudioTests: XCTestCase {
         capturePlayer(host.view, name: "inline-player-restored-clipping")
     }
 
+    func testBackgroundPiPWaitsForCompatibilityRendererAndKeepsPauseAndTVRouting() async throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          title: "PiP readiness", live: false, useCompatibility: true)
+        for _ in 0..<150 {
+            if playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.isPlaying)
+        let engine = try XCTUnwrap(playback.compatibility)
+        // The simulator has no VLC system PiP controller until this stub is supplied.
+        playback.applicationDidEnterBackground()
+        XCTAssertTrue(playback.pendingAutomaticPiP)
+        let pip = PictureInPictureStub()
+        engine.configurePiP(pip)
+        await Task.yield()
+        XCTAssertEqual(pip.startCount, 1)
+        XCTAssertTrue(engine.pipActive)
+        XCTAssertFalse(playback.pendingAutomaticPiP)
+        playback.togglePlayPause()
+        for _ in 0..<40 {
+            if !playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        playback.applicationDidEnterBackground()
+        XCTAssertFalse(playback.pendingAutomaticPiP)
+        XCTAssertEqual(pip.startCount, 1)
+        // App-icon return restores the existing UI before it stops PiP. A pause
+        // in PiP must survive this handoff without replacing the decoder.
+        var restoration: ((Bool) -> Void)?
+        playback.onRestorePlayer = { restoration = $0 }
+        playback.applicationDidBecomeActive()
+        XCTAssertNotNil(restoration)
+        XCTAssertEqual(pip.stopCount, 0)
+        XCTAssertTrue(engine.pipActive)
+        restoration?(true)
+        await Task.yield()
+        XCTAssertEqual(pip.stopCount, 1)
+        XCTAssertFalse(engine.pipActive)
+        XCTAssertFalse(playback.isPlaying)
+        XCTAssertTrue(playback.compatibility === engine)
+        playback.onRestorePlayer = nil
+        playback.resume()
+        for _ in 0..<40 {
+            if playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        playback.applicationDidEnterBackground()
+        await Task.yield()
+        XCTAssertEqual(pip.startCount, 2)
+        playback.applicationDidBecomeActive()
+        await Task.yield()
+        XCTAssertEqual(pip.stopCount, 2)
+        XCTAssertFalse(engine.pipActive)
+        XCTAssertTrue(playback.isPlaying)
+        playback.externalDisplayConnected = true
+        playback.applicationDidEnterBackground()
+        XCTAssertFalse(playback.pendingAutomaticPiP)
+        XCTAssertFalse(playback.canStartPictureInPicture)
+        XCTAssertEqual(pip.startCount, 2)
+    }
+
+    func testForegroundPiPReturnHandlesLateStartAndCancelledBackgroundRequest() async throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          title: "PiP race", live: false, useCompatibility: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        playback.applicationDidEnterBackground()
+        XCTAssertTrue(playback.pendingAutomaticPiP)
+        playback.applicationDidBecomeActive()
+        let pip = PictureInPictureStub()
+        pip.completesStartImmediately = false
+        engine.configurePiP(pip)
+        XCTAssertEqual(pip.startCount, 0, "A renderer ready after foreground must not start a cancelled request")
+
+        playback.applicationDidEnterBackground()
+        XCTAssertEqual(pip.startCount, 1)
+        playback.applicationDidBecomeActive()
+        XCTAssertEqual(pip.stopCount, 0)
+        pip.stateChangeEventHandler?(true)
+        for _ in 0..<20 {
+            if pip.stopCount == 1 && !engine.pipActive { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertEqual(pip.stopCount, 1, "A PiP start completing after foreground must return to the app")
+        XCTAssertFalse(engine.pipActive)
+
+        playback.startPictureInPicture()
+        pip.stateChangeEventHandler?(true)
+        await Task.yield()
+        XCTAssertTrue(engine.pipActive, "A later explicit PiP request must remain open")
+        XCTAssertEqual(pip.stopCount, 1)
+        playback.applicationDidBecomeActive()
+        XCTAssertEqual(pip.stopCount, 1, "Temporary inactivity without backgrounding must not close explicit PiP")
+        var restoration: ((Bool) -> Void)?
+        playback.onRestorePlayer = { restoration = $0 }
+        playback.applicationDidEnterBackground()
+        playback.applicationDidBecomeActive()
+        XCTAssertNotNil(restoration)
+        playback.stop()
+        let stopsBeforeLateRestore = pip.stopCount
+        restoration?(true)
+        XCTAssertEqual(pip.stopCount, stopsBeforeLateRestore, "An old restoration must not act after playback stops")
+    }
+
+    func testCompatibilityCaptureProtectionIncludesNestedAndLateVideoLayers() {
+        let surface = CompatibilityVideoSurface()
+        surface.captureProtectionEnabled = true
+        let renderer = UIView()
+        let wrapper = CALayer()
+        let video = AVSampleBufferDisplayLayer()
+        wrapper.addSublayer(video)
+        renderer.layer.addSublayer(wrapper)
+        surface.addSubview(renderer)
+        XCTAssertTrue(video.preventsCapture)
+        let lateVideo = AVSampleBufferDisplayLayer()
+        wrapper.addSublayer(lateVideo)
+        surface.setNeedsLayout(); surface.layoutIfNeeded()
+        XCTAssertTrue(lateVideo.preventsCapture)
+        surface.restoreAfterPictureInPicture()
+        XCTAssertTrue(video.preventsCapture)
+        XCTAssertTrue(lateVideo.preventsCapture)
+        surface.captureProtectionEnabled = false
+        XCTAssertFalse(video.preventsCapture)
+        XCTAssertFalse(lateVideo.preventsCapture)
+    }
+
+    func testCaptureIsTemporarilyAllowedForPiPCornerExamples() {
+        let surface = CompatibilityVideoSurface()
+        let renderer = UIView()
+        let video = AVSampleBufferDisplayLayer()
+        video.preventsCapture = true
+        renderer.layer.addSublayer(video)
+        surface.addSubview(renderer)
+        XCTAssertFalse(video.preventsCapture, "Diagnostic builds must allow examples from the device")
+        let lateVideo = AVSampleBufferDisplayLayer()
+        lateVideo.preventsCapture = true
+        renderer.layer.addSublayer(lateVideo)
+        surface.setNeedsLayout(); surface.layoutIfNeeded()
+        surface.restoreAfterPictureInPicture()
+        XCTAssertFalse(lateVideo.preventsCapture)
+        XCTAssertFalse(video.preventsCapture)
+    }
+
     private final class PictureInPictureStub: NSObject, VLCPictureInPictureWindowControlling {
         var stateChangeEventHandler: ((Bool) -> Void)?
-        func startPictureInPicture() { stateChangeEventHandler?(true) }
-        func stopPictureInPicture() { stateChangeEventHandler?(false) }
+        private(set) var startCount = 0
+        private(set) var stopCount = 0
+        var completesStartImmediately = true
+        func startPictureInPicture() {
+            startCount += 1
+            if completesStartImmediately { stateChangeEventHandler?(true) }
+        }
+        func stopPictureInPicture() { stopCount += 1; stateChangeEventHandler?(false) }
         func invalidatePlaybackState() {}
     }
 
@@ -644,6 +912,116 @@ final class CarPlayAudioTests: XCTestCase {
         XCTAssertEqual(requests, 2)
         cache.removeAll()
         XCTAssertNil(cache.cached(for: source))
+    }
+
+    func testAccountExpiryPersistsWithoutSecretsAndRefreshesAfterTTL() async throws {
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("expiry-\(UUID()).json")
+        defer { try? FileManager.default.removeItem(at: file) }
+        let source = MediaSource(name: "IPTV fixture", kind: .xtream)
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        var calls = 0
+        let store = SourceAccountStore(file: file) { _ in
+            calls += 1
+            return IPTVAccountInfo(expiresAt: now.addingTimeInterval(Double(calls) * 86_400))
+        }
+        await store.refresh(for: source, now: now)
+        await store.refresh(for: source, now: now.addingTimeInterval(899))
+        XCTAssertEqual(calls, 1)
+        let restored = SourceAccountStore(file: file)
+        XCTAssertEqual(restored.state(for: source), store.state(for: source))
+        let data = try Data(contentsOf: file)
+        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("password"))
+        await store.refresh(for: source, now: now.addingTimeInterval(901))
+        XCTAssertEqual(calls, 2)
+        guard case .information(let snapshot, false) = store.state(for: source) else { return XCTFail("Expected refreshed date") }
+        XCTAssertEqual(snapshot.info.expiresAt, now.addingTimeInterval(2 * 86_400))
+        store.invalidate(source.id)
+        XCTAssertNil(store.state(for: source))
+        XCTAssertNil(SourceAccountStore(file: file).state(for: source))
+    }
+
+    func testAccountExpiryFailureKeepsLastKnownDateAndAllowsRetry() async throws {
+        let source = MediaSource(name: "IPTV fixture", kind: .xtream)
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        var fail = false
+        var calls = 0
+        let store = SourceAccountStore { _ in
+            calls += 1
+            if fail { throw LibraryError.invalidResponse }
+            return IPTVAccountInfo(expiresAt: now.addingTimeInterval(86_400))
+        }
+        await store.refresh(for: source, now: now)
+        fail = true
+        await store.refresh(for: source, force: true, now: now.addingTimeInterval(901))
+        guard case .information(let snapshot, true) = store.state(for: source) else { return XCTFail("Keep cached date with failure flag") }
+        XCTAssertEqual(snapshot.checkedAt, now)
+        await store.refresh(for: source, now: now.addingTimeInterval(930))
+        XCTAssertEqual(calls, 2, "Avoid repeated failing requests")
+        fail = false
+        await store.refresh(for: source, now: now.addingTimeInterval(962))
+        XCTAssertEqual(calls, 3)
+        guard case .information(_, false) = store.state(for: source) else { return XCTFail("Clear failure after retry") }
+    }
+
+    func testSourceCredentialEditRefreshesExpiryWithoutRenaming() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("expiry-library-\(UUID())")
+        let library = SourceLibrary(directory: directory) { source in
+            let secret = try SourceKeychain.read(source.id)
+            return IPTVAccountInfo(expiresAt: Date(timeIntervalSince1970: secret.username == "renewed" ? 1_900_000_000 : 1_800_000_000))
+        }
+        defer { try? library.clear(); try? FileManager.default.removeItem(at: directory) }
+        let url = URL(string: "https://example.com")!
+        try library.add(name: "Same source", kind: .xtream, secret: SourceSecret(url: url, username: "initial", password: "fixture"),
+                        access: ProductAccess(salesEnabled: false, verifiedPro: false))
+        let source = try XCTUnwrap(library.sources.first)
+        await library.accounts.refresh(for: source)
+        try library.update(source, name: source.name, kind: source.kind,
+                           secret: SourceSecret(url: url, username: "renewed", password: "fixture"))
+        XCTAssertEqual(library.sources.first, source, "Editing credentials keeps the SwiftUI task's source key unchanged")
+        for _ in 0..<40 {
+            if case .information = library.accounts.state(for: source) { break }
+            try await Task.sleep(for: .milliseconds(25))
+        }
+        guard case .information(let snapshot, false) = library.accounts.state(for: source) else { return XCTFail("Credential edits must trigger a refresh") }
+        XCTAssertEqual(snapshot.info.expiresAt, Date(timeIntervalSince1970: 1_900_000_000))
+        try library.delete(source)
+        XCTAssertNil(library.accounts.state(for: source))
+    }
+
+    func testAccountExpiryCoalescesAndDiscardsDeletedSourceResponse() async throws {
+        let source = MediaSource(name: "Slow", kind: .xtream)
+        var requests = 0
+        let store = SourceAccountStore { _ in
+            requests += 1
+            try? await Task.sleep(for: .milliseconds(100))
+            return IPTVAccountInfo(expiresAt: .distantFuture)
+        }
+        let first = Task { await store.refresh(for: source) }
+        try await Task.sleep(for: .milliseconds(20))
+        let second = Task { await store.refresh(for: source) }
+        try await Task.sleep(for: .milliseconds(20))
+        store.invalidate(source.id)
+        await first.value; await second.value
+        XCTAssertEqual(requests, 1)
+        XCTAssertNil(store.state(for: source))
+        await store.refresh(for: source)
+        XCTAssertNotNil(store.state(for: source))
+        store.removeAll()
+        XCTAssertNil(store.state(for: source))
+    }
+
+    func testAccountExpiryUnsupportedAndFailedLoadsDoNotAffectChannelCache() async throws {
+        let source = MediaSource(name: "Plain M3U", kind: .playlist)
+        let channels = SourceChannelCache()
+        let channel = MediaChannel(title: "One", url: URL(string: "https://example.com/live.m3u8")!)
+        _ = try await channels.channels(for: source) { [channel] }
+        let unsupported = SourceAccountStore { _ in nil }
+        await unsupported.refresh(for: source)
+        XCTAssertEqual(unsupported.state(for: source), .unsupported)
+        let failed = SourceAccountStore { _ in throw LibraryError.invalidResponse }
+        await failed.refresh(for: source)
+        XCTAssertEqual(failed.state(for: source), .failed)
+        XCTAssertEqual(channels.cached(for: source), [channel])
     }
 
     func testSourceCacheCoalescesConcurrentLoads() async throws {

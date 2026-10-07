@@ -297,3 +297,18 @@
 "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Mengirim satu pengingat di ponsel saat sesi CarPlay baru terdeteksi. Informasi koneksi mobil tidak dikirim ke server.";
 "Mirivo araç bağlantısına hazır" = "Mirivo siap terhubung ke mobil Anda";
 "Bildirim izni alınamadı. Yeniden dene." = "Izin notifikasi tidak dapat diperoleh. Coba lagi.";
+
+// IPTV account expiry
+"IPTV bitişi: %@" = "IPTV berakhir: %@";
+"IPTV süresi doldu: %@" = "IPTV telah berakhir: %@";
+"IPTV süresi doldu" = "IPTV telah berakhir";
+"Bitiş tarihi paylaşılmıyor" = "Tanggal berakhir tidak diberikan";
+"Bitiş tarihi alınamadı" = "Tidak dapat mengambil tanggal berakhir";
+"Bitiş tarihi alınıyor…" = "Mengambil tanggal berakhir…";
+"Son kontrol: %@" = "Terakhir diperiksa: %@";
+"Bilgileri yenile" = "Segarkan informasi";
+
+// Local playlist import
+"Dosyadan oynatma listesi" = "Daftar putar dari file";
+"Dosya seç" = "Pilih file";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "File daftar putar tidak dapat dibuka. Pilih file M3U atau M3U8.";

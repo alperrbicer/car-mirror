@@ -297,3 +297,18 @@
 "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "नया CarPlay सत्र मिलने पर फ़ोन पर एक बार याद दिलाता है। कार कनेक्शन की जानकारी सर्वर पर नहीं भेजी जाती।";
 "Mirivo araç bağlantısına hazır" = "Mirivo आपकी कार से कनेक्ट होने के लिए तैयार है";
 "Bildirim izni alınamadı. Yeniden dene." = "सूचनाओं की अनुमति नहीं मिल सकी। फिर से कोशिश करें।";
+
+// IPTV account expiry
+"IPTV bitişi: %@" = "IPTV की समाप्ति: %@";
+"IPTV süresi doldu: %@" = "IPTV समाप्त हुआ: %@";
+"IPTV süresi doldu" = "IPTV समाप्त हो गया";
+"Bitiş tarihi paylaşılmıyor" = "समाप्ति तिथि उपलब्ध नहीं है";
+"Bitiş tarihi alınamadı" = "समाप्ति तिथि प्राप्त नहीं हो सकी";
+"Bitiş tarihi alınıyor…" = "समाप्ति तिथि प्राप्त की जा रही है…";
+"Son kontrol: %@" = "अंतिम जाँच: %@";
+"Bilgileri yenile" = "जानकारी रीफ़्रेश करें";
+
+// Local playlist import
+"Dosyadan oynatma listesi" = "फ़ाइल से प्लेलिस्ट";
+"Dosya seç" = "फ़ाइल चुनें";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "प्लेलिस्ट फ़ाइल नहीं खुल सकी। M3U या M3U8 फ़ाइल चुनें।";

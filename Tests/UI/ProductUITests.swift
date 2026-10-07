@@ -133,6 +133,149 @@ final class ProductUITests: XCTestCase {
         capture("store-\(language)-05-xtream", app: editor)
         editor.terminate()
     }
+    func testPlayerModesGesturesAndControlLayout() {
+        let app = launch()
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
+        guard openSourceEditor(in: app) else { return }
+        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Player QA")
+        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
+        app.buttons["Ekle"].tap()
+        let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Player QA", "Oynatma listesi")).firstMatch
+        guard source.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+        Thread.sleep(forTimeInterval: 0.8)
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        let all = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Tüm kanallar")).firstMatch
+        if !all.waitForExistence(timeout: 3), source.isHittable {
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        }
+        guard all.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+        all.tap()
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch.tap()
+        let video = app.otherElements["player-video"]
+        guard video.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
+        let pause = app.buttons["player-play-pause"]
+        if !pause.waitForExistence(timeout: 2) {
+            video.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.32)).tap()
+        }
+        guard pause.waitForExistence(timeout: 3) else { XCTFail(app.debugDescription); return }
+        XCTAssertEqual(pause.label, "Duraklat"); pause.tap()
+        let vehicle = app.buttons["player-vehicle-mode"]
+        let fullscreen = app.buttons["player-fullscreen"]
+        let pip = app.buttons["player-pip"]
+        let playlist = app.buttons["vehicle-channel-picker"]
+        for button in [vehicle, fullscreen, pip, playlist] {
+            XCTAssertTrue(button.exists)
+            XCTAssertGreaterThanOrEqual(button.frame.height, 44)
+            XCTAssertTrue(video.frame.contains(button.frame))
+        }
+        XCTAssertFalse(app.buttons["player-options"].exists)
+        XCTAssertLessThanOrEqual(fullscreen.frame.maxY, pip.frame.minY)
+        XCTAssertLessThanOrEqual(vehicle.frame.maxX, pip.frame.minX)
+        XCTAssertLessThanOrEqual(pip.frame.maxX, playlist.frame.minX)
+        // The right and left halves must seek while paused, without toggling play.
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.32)).doubleTap()
+        capture("player-seek-forward-inline", app: app, waitForTransition: false)
+        let timeline = app.sliders["Oynatma konumu"]
+        let forwarded = NSPredicate { _, _ in
+            let value = timeline.value as? String ?? ""
+            return value.hasPrefix("00:1")
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: forwarded, object: timeline)], timeout: 5), .completed)
+        XCTAssertEqual(pause.label, "Oynat")
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.32)).doubleTap()
+        capture("player-seek-backward-inline", app: app, waitForTransition: false)
+        XCTAssertEqual(pause.label, "Oynat")
+        capture("player-inline-custom-controls", app: app)
+        vehicle.tap()
+        let close = app.buttons["close-fullscreen"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["pro-close"].exists, "Free viewing must include vehicle mode")
+        capture("player-free-vehicle-mode", app: app)
+        close.tap()
+        XCTAssertTrue(fullscreen.waitForExistence(timeout: 5)); fullscreen.tap()
+        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        video.pinch(withScale: 2, velocity: 1)
+        pause.tap()
+        app.buttons["player-options"].tap()
+        XCTAssertTrue(app.buttons["Görüntüyü sığdır"].waitForExistence(timeout: 3))
+        guard app.buttons["Görüntüyü sığdır"].exists else { XCTFail(app.debugDescription); return }
+        capture("player-fullscreen-options", app: app)
+        Thread.sleep(forTimeInterval: 5)
+        XCTAssertTrue(app.buttons["Görüntüyü sığdır"].isHittable, "The popover must survive the old four-second timeout")
+        app.buttons["Görüntüyü sığdır"].tap()
+        pause.tap()
+        // A paused fixture lets us verify the full menu timeout without ending
+        // this short video. It must stay open near 30s and then dismiss itself.
+        app.buttons["player-options"].tap()
+        let stopOption = app.buttons["Durdur"]
+        XCTAssertTrue(stopOption.waitForExistence(timeout: 3))
+        Thread.sleep(forTimeInterval: 27)
+        XCTAssertTrue(stopOption.isHittable)
+        let optionsClosed = NSPredicate { _, _ in !stopOption.exists }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: optionsClosed, object: stopOption)], timeout: 6), .completed)
+        Thread.sleep(forTimeInterval: 0.8) // Finish the UIKit dismissal before rotating.
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 5), .completed)
+        XCTAssertLessThan(close.frame.minY, 50, "Rotation must refresh the portrait top inset")
+        XCTAssertGreaterThanOrEqual(app.staticTexts["Mirivo Demo 01"].frame.minX, 50, "Keep the title outside the notch")
+        XCTAssertLessThan(close.frame.maxX, app.frame.maxX - 40, "Keep the close button inside the landscape safe area")
+        capture("player-fullscreen-landscape-controls", app: app)
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.32)).doubleTap()
+        capture("player-seek-forward-landscape", app: app, waitForTransition: false)
+        XCUIDevice.shared.orientation = .portrait
+        let portrait = NSPredicate { _, _ in
+            app.frame.height > app.frame.width && video.frame.height > video.frame.width && close.frame.minY >= 50
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.28))
+            .press(forDuration: 0.05, thenDragTo: video.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.72)))
+        XCTAssertTrue(app.navigationBars["Oynatıcı"].waitForExistence(timeout: 5))
+        XCTAssertFalse(close.exists)
+        capture("player-inline-after-fullscreen", app: app)
+    }
+
+    func testProCloseButtonDismissesScreen() {
+        let app = launch()
+        defer { app.terminate() }
+        let settings = app.buttons["open-settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 10)); settings.tap()
+        let pro = app.buttons["settings-pro"]
+        if !pro.waitForExistence(timeout: 3), settings.isHittable { settings.tap() }
+        guard pro.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+        Thread.sleep(forTimeInterval: 0.8)
+        pro.tap()
+        let close = app.buttons["pro-close"]
+        if !close.waitForExistence(timeout: 3), pro.isHittable { pro.tap() }
+        guard close.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+        if app.alerts.firstMatch.exists { app.alerts.firstMatch.buttons["Tamam"].tap() }
+        XCTAssertTrue(close.isHittable)
+        close.tap()
+        XCTAssertTrue(pro.waitForExistence(timeout: 5))
+        XCTAssertFalse(close.exists)
+    }
+
+    func testSourceLimitProSheetHasOneCloseButton() {
+        let app = launch()
+        defer { app.terminate() }
+        guard openSourceEditor(in: app) else { return }
+        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Source Limit QA")
+        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
+        app.buttons["Ekle"].tap()
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Source Limit QA")).firstMatch.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 0.8)
+        app.buttons["add-source"].tap()
+        let close = app.buttons["pro-close"]
+        guard close.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
+        if app.alerts.firstMatch.exists { app.alerts.firstMatch.buttons["Tamam"].tap() }
+        let dismissButtons = app.navigationBars.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "Kapat", "Bitti"))
+        XCTAssertEqual(dismissButtons.count, 1)
+        capture("source-limit-pro-single-close", app: app)
+        close.tap()
+        XCTAssertTrue(app.buttons["add-source"].waitForExistence(timeout: 5))
+        XCTAssertFalse(close.exists)
+    }
+
     private func openSourceEditor(in app: XCUIApplication) -> Bool {
         let library = app.buttons["page-library"]
         library.tap()
@@ -152,6 +295,110 @@ final class ProductUITests: XCTestCase {
             return false
         }
         return true
+    }
+
+    func testIPTVExpiryFromProviderAppearsInSourceAndChannelList() {
+        let laterLabels = ["Sonra", "Not Now", "Later"]
+        let monitor = addUIInterruptionMonitor(withDescription: "Dismiss test password save prompt") { alert in
+            let later = alert.buttons.matching(NSPredicate(format: "label IN %@", laterLabels)).firstMatch
+            guard later.exists else { return false }
+            later.tap(); return true
+        }
+        defer { removeUIInterruptionMonitor(monitor) }
+        let scenarios = [
+            ("active", false, "IPTV bitişi:", "2100"),
+            ("expired", true, "IPTV süresi doldu:", "2023"),
+            ("unknown", false, "Bitiş tarihi paylaşılmıyor", ""),
+            ("error", false, "Bitiş tarihi alınamadı", "")
+        ]
+        for (scenario, xtream, prefix, year) in scenarios {
+            let app = launch()
+            guard openSourceEditor(in: app) else { app.terminate(); return }
+            if xtream {
+                app.buttons["source-kind"].tap()
+                app.buttons["Xtream Codes"].tap()
+                XCTAssertTrue(app.textFields["source-username"].waitForExistence(timeout: 5))
+            }
+            app.textFields["source-name"].tap()
+            app.textFields["source-name"].typeText("IPTV QA")
+            app.textFields["source-url"].tap()
+            app.textFields["source-url"].typeText(xtream ? "http://127.0.0.1:8769/expiry/player_api.php" : "http://127.0.0.1:8769/expiry/get.php?username=expiry-\(scenario)&password=fixture&type=m3u_plus&output=ts")
+            if xtream {
+                app.textFields["source-username"].tap()
+                app.textFields["source-username"].typeText("expiry-\(scenario)\n")
+                let password = app.secureTextFields["source-password"]
+                reveal(password, in: app)
+                password.tap(); password.typeText("fixture")
+            }
+            app.buttons["Ekle"].tap()
+            if xtream {
+                let later = app.alerts.buttons.matching(NSPredicate(format: "label IN %@", laterLabels)).firstMatch
+                if later.waitForExistence(timeout: 5) { later.tap() }
+                else {
+                    let systemLater = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons.matching(NSPredicate(format: "label IN %@", laterLabels)).firstMatch
+                    if systemLater.exists { systemLater.tap() }
+                    else {
+                        // iOS 26.5 sometimes omits the password prompt from the AX tree.
+                        // In this fixed portrait fixture, this is the visible Later button;
+                        // without the prompt it is empty space below the source card.
+                        app.coordinate(withNormalizedOffset: CGVector(dx: 0.33, dy: 0.63)).tap()
+                    }
+                }
+            }
+            let expiry = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", prefix)).firstMatch
+            XCTAssertTrue(expiry.waitForExistence(timeout: 15), app.debugDescription)
+            if year.isEmpty { XCTAssertEqual(expiry.label, prefix) }
+            else { XCTAssertTrue(expiry.label.contains(year)) }
+            capture("iptv-expiry-\(scenario)-source", app: app)
+            let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "IPTV QA", xtream ? "IPTV sunucusu" : "Oynatma listesi")).firstMatch
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            let channels = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Tüm kanallar")).firstMatch
+            if !channels.waitForExistence(timeout: 3), source.isHittable {
+                source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            }
+            XCTAssertTrue(channels.waitForExistence(timeout: 10), "Expiry metadata must not block channel loading")
+            XCTAssertTrue(expiry.exists)
+            capture("iptv-expiry-\(scenario)-channels", app: app)
+            app.terminate()
+        }
+    }
+
+    func testDirectSourcePlaysAndLocalFileMethodOpensPicker() {
+        let app = launch()
+        guard openSourceEditor(in: app) else { return }
+        app.buttons["source-kind"].tap()
+        app.buttons["Yayın bağlantısı"].tap()
+        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Direct QA")
+        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.mp4")
+        app.buttons["Ekle"].tap()
+        let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Direct QA", "Yayın bağlantısı")).firstMatch
+        XCTAssertTrue(source.waitForExistence(timeout: 10))
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        let channel = app.buttons["Direct QA"].firstMatch
+        if !channel.waitForExistence(timeout: 3), source.isHittable {
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        }
+        XCTAssertTrue(channel.waitForExistence(timeout: 10))
+        channel.tap()
+        XCTAssertTrue(app.buttons["Duraklat"].firstMatch.waitForExistence(timeout: 15))
+        capture("direct-source-playing", app: app)
+        app.terminate()
+
+        let files = launch()
+        guard openSourceEditor(in: files) else { return }
+        files.buttons["source-kind"].tap()
+        XCTAssertTrue(files.buttons["Dosyadan oynatma listesi"].waitForExistence(timeout: 5))
+        files.buttons["Dosyadan oynatma listesi"].tap()
+        XCTAssertFalse(files.textFields["source-url"].exists)
+        XCTAssertFalse(files.buttons["Ekle"].isEnabled)
+        capture("file-source-editor", app: files)
+        files.buttons["source-file"].tap()
+        let cancel = files.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "Vazgeç", "İptal"])).firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10), files.debugDescription)
+        capture("file-source-picker", app: files)
+        cancel.tap()
+        XCTAssertTrue(files.buttons["source-file"].waitForExistence(timeout: 5))
+        files.terminate()
     }
     private func launch(language: String = "tr", large: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
@@ -397,10 +644,10 @@ final class ProductUITests: XCTestCase {
             app.swipeUp()
         }
     }
-    private func capture(_ name: String, app: XCUIApplication) {
+    private func capture(_ name: String, app: XCUIApplication, waitForTransition: Bool = true) {
         // Capture the display: application-only cropping is unreliable after rotation.
         // Allow the compositor to finish sheet transitions before saving a visual reference.
-        Thread.sleep(forTimeInterval: 0.4)
+        if waitForTransition { Thread.sleep(forTimeInterval: 0.4) }
         let screenshot = XCUIScreen.main.screenshot()
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("mirivo-\(name).png")
         try? screenshot.pngRepresentation.write(to: file)

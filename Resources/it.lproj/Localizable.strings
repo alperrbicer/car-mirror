@@ -297,3 +297,18 @@
 "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Invia un solo promemoria sul telefono quando viene rilevata una nuova sessione CarPlay. Le informazioni sulla connessione all’auto non vengono inviate a un server.";
 "Mirivo araç bağlantısına hazır" = "Mirivo è pronto a connettersi alla tua auto";
 "Bildirim izni alınamadı. Yeniden dene." = "Impossibile ottenere il permesso per le notifiche. Riprova.";
+
+// IPTV account expiry
+"IPTV bitişi: %@" = "Scadenza IPTV: %@";
+"IPTV süresi doldu: %@" = "IPTV scaduto: %@";
+"IPTV süresi doldu" = "IPTV scaduto";
+"Bitiş tarihi paylaşılmıyor" = "Data di scadenza non fornita";
+"Bitiş tarihi alınamadı" = "Impossibile ottenere la data di scadenza";
+"Bitiş tarihi alınıyor…" = "Recupero della data di scadenza…";
+"Son kontrol: %@" = "Ultima verifica: %@";
+"Bilgileri yenile" = "Aggiorna informazioni";
+
+// Local playlist import
+"Dosyadan oynatma listesi" = "Playlist da file";
+"Dosya seç" = "Scegli file";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Impossibile aprire la playlist. Scegli un file M3U o M3U8.";

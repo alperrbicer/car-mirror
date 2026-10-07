@@ -32,3 +32,7 @@ Güncel kaynakta her dilde 207 uygulama metni ve yerel ağ izin açıklaması bu
 2 Ekim’deki önceki 16 dil koşuları ve son belge gezinme kontrolünün açık durumu `docs/IMPLEMENTATION_STATUS.md` içinde tarihsel kayıt olarak korunur. Bu sonuçlar yeni altı dilin doğrulaması olarak kullanılmaz.
 
 5 Ekim 2026: Yerel belge görüntüleyicisi kaldırıldı. Arapça/İbranice gizlilik bağlantıları Safari’de İngilizce Netlify sayfasını açtı (`testRightToLeftWebsiteFallback`, `build/netlify-links-ui-verified-20261005.log`, test bazında geçti). Eski çevrimdışı belge testleri tarihsel kayıttır.
+
+7 Ekim 2026: IPTV hesap bitiş tarihi için sekiz metin 22 dile eklendi. Güncel kataloglarda 277 anahtar var. `build/iptv-expiry-localization-20261007.log` içindeki anahtar, biçim parametresi ve Apple strings kontrolleri geçti. Tarih, seçili uygulama dilinde biçimlendirilir. Davranış ve test kapsamı: [IPTV hesap bitiş tarihi](IPTV_ACCOUNT_EXPIRY.md).
+
+Dosyadan oynatma listesi ekleme ile 3 anahtar daha eklendi; güncel toplam 22 dilde 280 anahtar ve 6160 çevrilmiş değerdir. `build/source-methods-localization-20261007.log` doğrulaması başarılıdır.

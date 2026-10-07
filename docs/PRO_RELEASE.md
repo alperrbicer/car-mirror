@@ -1,5 +1,7 @@
 # Mirivo Pro — 5 Ekim 2026
 
+7 Ekim yerel takip: araç modu ücretsiz günlük izleme bütçesi içindedir. Destek sitesi kaynak metinleri bu davranışla ve dosyadan kaynak/hesap bitiş bilgisinin yerel saklanmasıyla güncellendi; yeniden üretilen ZIP yayımlanmadı. Güncel yerelleştirme doğrulaması 22 dil × 280 anahtar, 6160 çeviri, 0 hata. [Kaynak yöntemleri ve doğrulama](SOURCE_METHODS_2026-10-07.md).
+
 Mirivo henüz yayımlanmadı ve eski satın alma yok. Satış modeli yalnız yıllık ve ömür boyu Pro; aynı özellikleri açar. Haftalık plan koddan, StoreKit dosyasından ve aktif RevenueCat teklifinden çıkarıldı. Ücretsiz kullanım korunur; her iki sürüm reklamsızdır.
 
 | Erişim | Ücretsiz | Pro |
@@ -7,7 +9,8 @@ Mirivo henüz yayımlanmadı ve eski satın alma yok. Satış modeli yalnız yı
 | Günlük izleme | 2 saat, cihaz yerel bütçesi | Sınırsız |
 | Kayıtlı kaynak | 1 | Sınırsız |
 | Ekran yayını | Oturum başına 10 dakika | Mirivo süre sınırı yok |
-| Araç modu ve cihaz içi canlı altyazı | Pro ekranı | Desteklenen cihazlarda açık |
+| Araç modu | Günlük 2 saatlik izleme bütçesi içinde açık | Sınırsız izleme |
+| Cihaz içi canlı altyazı | Pro ekranı | Desteklenen cihazlarda açık |
 
 Pro içerik, IPTV hesabı, CarPlay Video yetkisi, araç uyumluluğu veya DRM erişimi sağlamaz.
 

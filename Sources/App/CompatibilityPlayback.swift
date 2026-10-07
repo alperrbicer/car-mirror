@@ -17,6 +17,9 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     var onTime: ((Double, Double) -> Void)?
     var onFinished: (() -> Void)?
     var onRestore: (() -> Void)?
+    var onPiPReady: (() -> Void)?
+    var onPiPStarted: (() -> Void)?
+    var onPiPStopped: (() -> Void)?
     private var active = false
     private var stoppingRetention: CompatibilityPlayback?
     private var hasPlayed = false
@@ -90,13 +93,19 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             return
         }
         if videoView.superview !== selected {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
             videoView.removeFromSuperview()
             videoView.translatesAutoresizingMaskIntoConstraints = true
             videoView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             videoView.frame = selected.bounds
             selected.addSubview(videoView)
+            CATransaction.commit()
         } else if videoView.frame != selected.bounds {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
             videoView.frame = selected.bounds
+            CATransaction.commit()
         }
         setVideoFill(selected.fillsFrame)
     }
@@ -167,12 +176,15 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             Task { @MainActor in
                 guard let self else { return }
                 self.pipActive = started
+                if started { self.onPiPStarted?() }
                 if !started {
+                    self.onPiPStopped?()
                     self.videoView.restoreAfterPictureInPicture()
                     if self.active { self.onRestore?() }
                 }
             }
         }
+        onPiPReady?()
     }
     func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
         // Delegate callbacks can already be queued when a channel is replaced.
@@ -249,21 +261,37 @@ final class CompatibilityVideoHost: UIView {
 @MainActor
 final class CompatibilityVideoSurface: UIView, @preconcurrency VLCPictureInPictureDrawable {
     weak var owner: CompatibilityPlayback?
+    // Temporarily allow capture at the user's request to diagnose PiP corner
+    // transitions. Re-enable protection after the device examples are reviewed.
+    var captureProtectionEnabled = false {
+        didSet { protectVideoLayers(in: layer) }
+    }
     override func didAddSubview(_ subview: UIView) {
         super.didAddSubview(subview)
         // VLC may create its renderer while this drawable still belongs to the
         // 88x50 preview (or has no bounds yet). Keep it sized to the current host.
         subview.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         subview.frame = bounds
+        protectVideoLayers(in: subview.layer)
     }
     override func layoutSubviews() {
         super.layoutSubviews()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         for subview in subviews where subview.frame != bounds { subview.frame = bounds }
+        protectVideoLayers(in: layer)
+        CATransaction.commit()
+    }
+    // Public AVFoundation protection applies to decoded video, including PiP.
+    // UIKit chrome and unprotected AVPlayerLayer content remain capturable.
+    func protectVideoLayers(in layer: CALayer) {
+        if let video = layer as? AVSampleBufferDisplayLayer { video.preventsCapture = captureProtectionEnabled }
+        for child in layer.sublayers ?? [] { protectVideoLayers(in: child) }
     }
     func restoreAfterPictureInPicture() {
         // PiP can leave its temporary clipping on VLC's sample-buffer layer.
         // Clear it only after didStop, so the system's return animation finishes.
-        // The surrounding player card owns the four matching rounded corners.
+        // The surrounding player surface keeps a fixed rectangular clip.
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         restoreVideoClipping(in: layer)

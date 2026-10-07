@@ -297,3 +297,18 @@
 "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Gửi một lời nhắc trên điện thoại khi phát hiện phiên CarPlay mới. Thông tin kết nối với xe không được gửi đến máy chủ.";
 "Mirivo araç bağlantısına hazır" = "Mirivo đã sẵn sàng kết nối với xe của bạn";
 "Bildirim izni alınamadı. Yeniden dene." = "Không thể xin quyền thông báo. Hãy thử lại.";
+
+// IPTV account expiry
+"IPTV bitişi: %@" = "IPTV hết hạn: %@";
+"IPTV süresi doldu: %@" = "IPTV đã hết hạn: %@";
+"IPTV süresi doldu" = "IPTV đã hết hạn";
+"Bitiş tarihi paylaşılmıyor" = "Không cung cấp ngày hết hạn";
+"Bitiş tarihi alınamadı" = "Không thể lấy ngày hết hạn";
+"Bitiş tarihi alınıyor…" = "Đang lấy ngày hết hạn…";
+"Son kontrol: %@" = "Kiểm tra lần cuối: %@";
+"Bilgileri yenile" = "Làm mới thông tin";
+
+// Local playlist import
+"Dosyadan oynatma listesi" = "Danh sách phát từ tệp";
+"Dosya seç" = "Chọn tệp";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Không thể mở tệp danh sách phát. Hãy chọn tệp M3U hoặc M3U8.";

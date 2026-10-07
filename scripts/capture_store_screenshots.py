@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Serve the original demo fixture for ProductUITests/testAppStoreScreenshots.
+"""Serve original demo media and synthetic IPTV accounts for ProductUITests.
 
 Run this while taking screenshots, then stop it. No provider data is used and
 the fixture is never added to the shipping application.
 """
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
+import json
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +19,10 @@ VIDEO = (ROOT / "Resources/ConnectionProbe.mp4").read_bytes()
 
 
 class Handler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        # Request URLs may contain synthetic account credentials; do not log them.
+        pass
+
     def do_HEAD(self):
         self.serve(False)
 
@@ -25,8 +30,28 @@ class Handler(BaseHTTPRequestHandler):
         self.serve(True)
 
     def serve(self, body):
-        path = urlsplit(self.path).path
-        if path == "/demo.m3u":
+        request = urlsplit(self.path)
+        path = request.path
+        if path == "/sources/get.php":
+            query = parse_qs(request.query)
+            if query.get("username") != ["source+user"] or query.get("password") != ["source+p&ss"]:
+                self.send_error(401)
+                return
+            data, mime = PLAYLIST, "application/vnd.apple.mpegurl"
+        elif path == "/sources/invalid/get.php":
+            data, mime = b'{"user_info":{"auth":0}}', "application/json"
+        elif path == "/expiry/player_api.php":
+            user = parse_qs(request.query).get("username", [""])[0]
+            if user == "expiry-error":
+                self.send_error(503)
+                return
+            info = {"auth": 1, "status": "Active", "exp_date": "4102488000"}
+            if user == "expiry-expired":
+                info.update(status="Expired", exp_date=1700000000)
+            elif user == "expiry-unknown":
+                info["exp_date"] = None
+            data, mime = json.dumps({"user_info": info}).encode(), "application/json"
+        elif path in ["/demo.m3u", "/expiry/get.php"]:
             data, mime = PLAYLIST, "application/vnd.apple.mpegurl"
         elif path == "/demo.mp4":
             data, mime = VIDEO, "video/mp4"

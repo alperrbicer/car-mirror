@@ -9,7 +9,9 @@
     "Keychain source URLs and credentials",
     "language and playback preferences",
     "bounded technical logs",
-    "verified StoreKit entitlements"
+    "verified StoreKit entitlements",
+    "protected copies of user-imported playlist files",
+    "provider-reported account expiry and last check time"
   ],
   "transient": [
     "screen frames",

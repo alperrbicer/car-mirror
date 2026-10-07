@@ -41,7 +41,7 @@ struct MirivoRootView: View {
             .safeAreaInset(edge: .bottom) { NowPlayingBar { showingPlayer = true } }
             .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
         }
-        .sheet(isPresented: $model.presentingPlayer) {
+        .fullScreenCover(isPresented: $model.presentingPlayer) {
             NavigationStack { MediaPlayerScreen(model: model) }
         }
         .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
