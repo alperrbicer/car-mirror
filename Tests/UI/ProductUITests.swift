@@ -280,7 +280,11 @@ final class ProductUITests: XCTestCase {
         }
         guard allChannels.waitForExistence(timeout: 20) else { XCTFail(app.debugDescription); return }
         allChannels.tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch.waitForExistence(timeout: 10))
+        let firstChannel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch
+        if !firstChannel.waitForExistence(timeout: 3), allChannels.exists && allChannels.isHittable {
+            allChannels.tap()
+        }
+        guard firstChannel.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
         if !playerOnly { capture("store-\(language)-02-channels", app: app) }
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch.tap()
         let pause = app.buttons[labels[3]].firstMatch
@@ -307,6 +311,7 @@ final class ProductUITests: XCTestCase {
 
         let editor = launch(language: language)
         guard openSourceEditor(in: editor) else { editor.terminate(); return }
+        Thread.sleep(forTimeInterval: 0.8)
         editor.buttons["source-kind"].tap()
         let xtream = editor.buttons[labels[4]].firstMatch
         XCTAssertTrue(xtream.waitForExistence(timeout: 5))

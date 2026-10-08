@@ -1,0 +1,45 @@
+{
+  "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+  "testCase": "testProAnnualAndLifetimePlans",
+  "testCasePassed": true,
+  "edited": false,
+  "localStoreKitTesting": true,
+  "files": [
+    {
+      "file": "Release/AppStore/screenshots/pro-plans-20261008/pro-lifetime-en.png",
+      "attachment": "179CE130-1C11-4D30-A70D-53B0ADAAE65F.png",
+      "sha256": "402b8e97d767357fc04e9fa73de455e04f8b3250b263677dbff673562eccdb60",
+      "dimensions": [
+        1320,
+        2868
+      ]
+    },
+    {
+      "file": "Release/AppStore/screenshots/pro-plans-20261008/pro-plans-en.png",
+      "attachment": "8F186E03-82A9-41FE-A67A-AA5E60C04C80.png",
+      "sha256": "4c3a88716cb1341f918a95056d17a98c6492190e267cdc4218d4309fc743b969",
+      "dimensions": [
+        1320,
+        2868
+      ]
+    },
+    {
+      "file": "Release/AppStore/screenshots/pro-plans-20261008/pro-lifetime-tr.png",
+      "attachment": "54F7F3FC-20BE-4C89-9B42-1D208B480054.png",
+      "sha256": "2e858475f0a3f133cb70f89bf23ddd13419c82ffa0be69ef81449f0fe9be5200",
+      "dimensions": [
+        1320,
+        2868
+      ]
+    },
+    {
+      "file": "Release/AppStore/screenshots/pro-plans-20261008/pro-plans-tr.png",
+      "attachment": "20DC052A-A2A5-48C3-84F2-16507AA47CAB.png",
+      "sha256": "899efdf38b845e8f3fa7c069c15c136ab1d11084325b4c046734feeb7797453f",
+      "dimensions": [
+        1320,
+        2868
+      ]
+    }
+  ]
+}

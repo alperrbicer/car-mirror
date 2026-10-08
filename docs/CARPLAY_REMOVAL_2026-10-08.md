@@ -15,14 +15,14 @@ CarPlay entegrasyonunun kaldırılması `87329eb` olarak kaydedildi. Başlangı�
 
 ## Doğrulama ve canlı durum
 
-- 25 dağıtım betiği testi geçti.
-- 48 Swift çekirdek/medya testi geçti.
-- iOS uygulama ve test hedefleri tam derlendi (`TEST BUILD SUCCEEDED`).
-- İlk 51 oynatıcı testinde 3 isteğe bağlı sağlayıcı testi atlandı; yalnız tam ekran geometrisi testindeki eski VLC drawable = viewport varsayımı başarısızdı. Artık dış hostun viewport’u doldurması ve iç görüntünün en-boy oranını koruması ayrı doğrulanıyor; hedefli tekrar geçti. Son arayüzle tam oynatıcı tekrar kontrolü devam ediyor.
-- Netlify production deploy `6ac73c81094257ab2cd32242` Published; canlı İngilizce yardımda Google Cast/AirPlay akışı doğrulandı.
-- App Store Connect sürüm 1.0 hâlâ Prepare for Submission; build 12 eski CarPlay Audio adayıdır. Yeni CarPlay’siz build seçilmeden Review’a gönderilmemelidir.
-- Canlı 22 dil açıklaması, tanıtım/anahtar sözcükler ve alt başlıklar kaydedildi; eski Pro araç modu iddiası da 22 dilden kaldırıldı.
-- Build 13 arşivi ve App Store IPA’sı üretildi; uygulama/uzantı imzaları, App Group/APNs/App Attest ve CarPlay yokluğu doğrulandı. Apple hesabıyla yükleme devam ediyor. Kanıt: `build/deploy/standalone-13`.
-- Yeni ekran görüntüleri ve son Review kontrolleri devam ediyor.
+- 25 dağıtım betiği ve 48 Swift çekirdek/medya testi geçti; uygulama/test hedefleri tam derlendi.
+- Son 51 oynatıcı testi geçti; 3 isteğe bağlı sağlayıcı testi atlandı. Hedefli geometri, büyük kontroller ve Pro plan testleri geçti.
+- 22 dil için 132 gerçek iPhone ekran görüntüsü üretildi ve App Store Connect'e yüklendi. Her dilin altı görsel sırası ve küçük ekranlara devralınması tekrar açılarak doğrulandı; SHA256/boyut/test kökeni kontrol edildi. İlk toplu UI koşularında geçiş zamanlaması hataları vardı; yalnız başarılı testlerin görselleri kullanıldı ve eksik Basitleştirilmiş Çince oynatıcı çekimi hedefli tekrar geçti.
+- CarPlay’siz 1.0 (13) arşivi ve IPA üretildi; uygulama ve yayın uzantısının imza/profilleri, App Group/APNs/App Attest, CarPlay entitlement ve sahne yokluğu doğrulandı. Apple yüklemesi tamamlandı; işlenen build 13 sürüm 1.0'a seçildi ve tekrar açılarak doğrulandı. Manuel yayın korunuyor.
+- Yükleme başarılı; FirebaseAnalytics/GoogleAppMeasurement/GoogleCast satıcı dSYM uyarıları mevcut. Arşiv/IPA ve yükleme kayıtları `build/deploy/standalone-13` altında korunuyor.
+- Canlı 22 dil mağaza metni doğrulandı. Yıllık ve Ömür Boyu Pro inceleme notları ve gerçek ödeme ekranı görselleri yenilendi; iki ürün ve 22 yerelleştirmeli abonelik grubu aynı inceleme taslağında. Haftalık eski ürün eklenmedi.
+- Netlify production `6ac76de66c37abc79edcdf26` Published. Sekiz Türkçe/İngilizce canlı sayfa HTTP, tarih, CarPlay ve eski Araç modu adının yokluğu bakımından doğrulandı.
+- Statik yayın kontrolü: 12 HTML, 22 dil, 272 anahtar, 5984 çeviri değeri; sıfır hata.
+- **Son gönderim yapılmadı.** Apple'ın Add for Review kontrolü üç eksik bildiriyor: App Privacy yayımlama beyanı, yaş derecelendirmesi yanıtları, Content Rights. Uygulama sürümü bu üç beyan tamamlanmadan taslağa eklenemiyor. Ayrıntılar: `Release/AppStore/owner-decisions-20261008.md`; canlı kanıt `portal-proof-20261008-review-blockers.jpg`.
 
-Yerel testler fiziksel Google Cast/AirPlay/PiP/sandbox satın alma veya Apple kabulü kanıtı değildir. Önceki tarihli belgeler tarihsel kayıt olarak korunur.
+Yerel/simülatör testleri fiziksel Google Cast/AirPlay, gerçek sandbox satın alma/geri yükleme veya Apple kabulü kanıtı değildir. Önceki tarihli belgeler tarihsel kayıt olarak korunur. DSA/tacir statüsü ve gerekiyorsa sözleşme/banka/vergi işlemleri hesap sahibine bırakıldı.

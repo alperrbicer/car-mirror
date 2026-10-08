@@ -1,0 +1,1725 @@
+{
+  "device": "iPhone 16 Pro Max",
+  "runtime": "iOS 26.5",
+  "edited": false,
+  "content": "Original Resources/ConnectionProbe.mp4 via temporary local M3U",
+  "files": [
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ar/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ar-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ef2f9d7753bba30c0eaeb502b2f13b6aac54ff46a7899c409e4dd14a1e9bd11b",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ar",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ar/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ar-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "18b4d6fdb562e4ab82caf8746f1408724b01762fd444c6af389ef5d6b02439ae",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ar",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ar/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ar-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ba034a65a84882de037e78af3a7eed6efcabc1d7f381096c39ada2cfe3ef2891",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_ar",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ar/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ar-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "130e19632d8312e3570dbf905b5923acda9e93f5ea173ce8400cb78e58b8b8f5",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ar",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ar/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ar-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "828120ac4bfdee3e6baaa6ffb972abcf638940e0892c93d069946811ffa66ba1",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ar",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ar/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ar-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "1d564e58d54153db40a3e86b4645195d2ffff0560bc99de909abff82e06bdfc4",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ar",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/de/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-de-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a70045751fc9d1e36ad9f3c66b48db5166fa001ef9195de5ac3f79fe1cd8921f",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_de",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/de/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-de-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "c673d11a0cae7e7e677f13005b0c392d8dbc0a986a740a3e02f89b8bdd7a0eb4",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_de",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/de/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-de-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ca1051335cd43b82a85e407df56e355cbb45a813aeefb563801e8e283a7b250d",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_de",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/de/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-de-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "f67fc83ee207531824aaed48401cba94b0a993a3c5cacc9f1434d2c1cd32a937",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_de",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/de/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-de-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "cc5ddaa410fccd8b234b21e5e2236320cca39f881e36cdc6a3d387b29dff1e39",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_de",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/de/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-de-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "5fd5fbc4eaafc06000e1d7152121428a9b2afa3ec9bb2a63ceea058579db4319",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_de",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/en/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-en-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e82f565c53a325eac2b14bc2b8e20f505e352218cf0143f9842f0f6296599eb9",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/en/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-en-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "b8a6edc052c60b4c9aa6adc741898ff46de8b487032e4f1fad6f3ffcc2043edb",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/en/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-en-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "f546cc255661224b6776a87a217b3f0ef6d0781223a3bc7bb37da77f0a3ddc4c",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_en",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/en/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-en-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7418f8220bc1d2de8341c20501d1d0c66b8ec8b2fff1b4a1601cbb2d2f1d28af",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/en/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-en-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e8c9bcc701b6e1329f08c12e4e19a35c8d156e0a8343ba4809c2f2b024d3f3e1",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/en/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-en-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "26fa4c2c317f3614ed602c1ccb7b3aa47c666c5c8c2e3ce075adb853602aefb6",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/es/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-es-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "b8de713f7c63a0c4717bec9adbe5667be85b6affbc20404b643fac0f7e7b1764",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_es",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/es/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-es-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "1dd29a8ddc6b0a26ddaa97b8e0de577ce96313618181351ea059263e1cd0d0ef",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_es",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/es/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-es-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "b8bb3c4a681386597a3e54e98ec2697b80f3d9b105f6a95a9dced9a2ab4c29b1",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_es",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/es/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-es-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "1c56acbbfd44d0ecb8ea8f039bed014be9b159dde0704fe57127d16e9cef3e9f",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_es",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/es/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-es-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "bbbd7336f947edc4ac86158489c79eef9da4e6d800bbb3e485da8dfd39dbdb0f",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_es",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/es/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-es-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e4d9930abb9b053dfb10d1af3dcc9df486e448b3b7c22bd370110e6fed7c4878",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_es",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/fr/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-fr-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "46f09c96dc97ef9e4ed7b42719b86e211d5075b8069ca159cfed80f8f334e657",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_fr",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/fr/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-fr-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a7136108fd2184896e946bba20f0d0ce7896e98f99ca1a748ccc391ac2b67aa9",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_fr",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/fr/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-fr-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e9f08238e75ed4ede35c521c2561c334a4660018afce2e67ec794d7f5a72cae4",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_fr",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/fr/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-fr-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "388ed086bd634853d6aeca8d1074b8e3bae7b31b7f8059f743f48082623a4f6b",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_fr",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/fr/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-fr-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "519a7031acbf9c9af36a4267ca7717a52f9782a071f083e4cfcaeddd02851d23",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_fr",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/fr/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-fr-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ba4412b5000d4f04796c740b6785fd82afc6ec7dc3942692b2147eb72d93a8a8",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_fr",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/he/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-he-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "1ab6254bb0e39410bfaf1d065315d931a4a7b420584cb20f12d08ddf72b2ed10",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_he",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/he/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-he-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ca4901bfd927ff246fec851a6351c69b5d3dd5a29a172e47e331934970afcdd1",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_he",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/he/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-he-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "47b8f9d7d3176295bf4362805a8a714f323d8b07ef727e61830b0d95cd3e7f0d",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_he",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/he/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-he-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "bd5112c8557dadce1bd59a6f63e1076f6f23b5827ce035c21274135d5dedee78",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_he",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/he/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-he-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "fc47796c81ee592fd7451f67391b38d0a4f5db4c14ac6d3024c873052a277677",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_he",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/he/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-he-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "d532a9a25fefd696321afefa9e9e4e3084e3e777867648797dbcbb376d3b4330",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_he",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/hi/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-hi-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7032521bca5212da65ef57934c1bcd8ffcf3a7efccfd79cadf5a0c4e71c56303",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_hi",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/hi/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-hi-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "48177525f2596d740ae5af826b66962c2c02e21749f50126be328eeab67df404",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_hi",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/hi/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-hi-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e051524db9a5784df637c1fc22da45018138c22fe6783857cb68efbd7c53d029",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_hi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/hi/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-hi-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "377369b16d9b82ac5fe8d6d6005e9ad6a4fa6a90bfe88ae4535fb00c20108670",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_hi",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/hi/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-hi-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "fde042fe1682466a4ba403686facf66f8bc0453c5c933bd15052ec9006cc0218",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_hi",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/hi/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-hi-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "efef9234b463566cfdffea557bdb02b805732d1bb40d7d5151b6299a336c47dd",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_hi",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/id/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-id-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "4fe252a2e38e3496f4e0e8095a66d9230d6bc67ff010aa349a9a405f3c65441f",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_id",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/id/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-id-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "0078808722a1741e65a0d87cbfd1ec74f3c80c5c52313444a8a78d591391b8b6",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_id",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/id/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-id-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a24ab991cd5c853fc94683c4678cc736f974097aad1d14a77b3fa65124fda387",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_id",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/id/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-id-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ff30f36d6d9d9973d6a7588a8ab21c0778a56d1995deae353716cf7ec2bb0a7a",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_id",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/id/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-id-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "97c876a9bd044f2ee462d4bb1bad4b19fea32939b7c8619f3e7690f84c59e748",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_id",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/id/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-id-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "eae7506b3931cd4af3a36f414e4afe2dd4fffc45afb8381f3c7cdca6118abf87",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_id",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/it/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-it-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "2f43ad3aa7336b4da934f1014dfe2aecbc60000ed638bb52d9046b350f98cfc5",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_it",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/it/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-it-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7c19847ff670533272dfc0ffe360a40181b794c9360d35f38a2cf37acf686050",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_it",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/it/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-it-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "69844a3d5b0e98d1f6a8699b27e1017a150a9ee79fe0dab8a1d15ac4fa4394f7",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_it",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/it/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-it-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "08199bf5a182ac0c58b49014b0a3aae3c4dc3ed2ab00a6736cd6512f468e6f89",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_it",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/it/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-it-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "87d55755904e2b2e8e9eeccdb28dd98dfa6cd428a54a0e6b73ea3bdccd2ad113",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_it",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/it/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-it-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a81105cf7de1a54c88d5d172e41ee70e58dd9d769305b5bd29b5d3f071a9dba1",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_it",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ja/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ja-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "cc509a0f19b3d07f1c85a29923732194ba2c56007ad59714128360b23d8c8194",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ja",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ja/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ja-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "8906ec46bb0448ce04fee1f1a38f22c4260e6b6922bbae554f506553856dedb3",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ja",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ja/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ja-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "3c6351b8e54e22b5e0c53370e0da1fea10874ce7adb69c45d9a9e64cefca5db1",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ja",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ja/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ja-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "6f6afc26edaaa9c93c17b84c23e4ee2aefe0de02d34f7afb8f767bc93fc42dde",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ja",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ja/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ja-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "f58a582427d60a93962437b137277f27d146521fc609a26e93891cd79a27810f",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ja",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ja/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ja-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ce53dd8ff9196bdc6b635d634581cbe292add17ec44378199dcd61969576f1cb",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ja",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ko/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ko-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "6da654da46d1e162f137a55ed15a47799016ed090b09544956816311d5a39833",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ko",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ko/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ko-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "d46163f43e3db2784c48286f42e8108872a50116c116f15b1b40e876e4be23e0",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ko",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ko/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ko-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "5d384482d397984fd288cb72e4d35469c548b3c85c07dc517693ec3f6d9462d5",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_ko",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ko/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ko-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "586de8815f7fc7beba4b831d465f92df352b0d16946fe9bd4a022cbd5a355d40",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ko",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ko/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ko-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "868ee916f5093285ce165b1dfa6e41e78954f0104147a5ae59cd7d3dd76c85b2",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ko",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ko/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ko-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "c4e3b98184a5696e68e81926e6fc14fe5cd1f4a89c3c3e6383d62ee407a7b232",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ko",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/nl/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-nl-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "73a5a50dbc3fa6b42c297acfc8eeb46f6b8ef56fdf7d484251d14638e4bdbde2",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_nl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/nl/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-nl-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "f4d0c9809ae3f4fb6c46089c00f0f6bd235ff84d8fc2445d45347e8491911287",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_nl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/nl/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-nl-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a5e6620166305dcaec2c50c2dc415ac981c693efbd7ea6629407bddbd3742408",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_nl",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/nl/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-nl-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "eb3d5c7bce0917cf979c7dd4a56b77effd039b0e5ff9da2508c7cce293bb2917",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_nl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/nl/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-nl-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "d51dbb6a8ecfc51c577e734101372157f27f4659ca9f94e0e5d4173fde2d390d",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_nl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/nl/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-nl-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "c0437afdeecaccdef321cfc59965155ad95d77c682d124a24ad3755943854202",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_nl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pl/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pl-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "acda81c4ebc0163267086986d3fb2978b02546a2eed8b55d0379a1640f55c69b",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pl/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pl-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7987c30b35e02c5603ef3de1032911b86df54a4ac8a45a244a00a994e47e38e6",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pl/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-pl-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "f480801ba55acd251c890fa70e9a749e80e66da699efb8e95c3a1b84f0191aff",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_pl",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pl/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pl-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e7b9b7e7faca15b27baf741c39c35aafcba0b23a5142decc60ab1ebaebb1b070",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pl/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pl-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "988c0e1b0ea1dbb527f867cd598e281829feb32451ddb10014d7c46fbc574a4e",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pl/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pl-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e5e81a61f03f94d35931ac4ce050c310026ae2701f05bde97fa66f1d4b8143ec",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pl",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pt-BR/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pt-BR-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "920354ad969a79b5fd37a9e7902f8d12707037b293d80f88506466b53e0a3665",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pt_BR",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pt-BR/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pt-BR-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "9c49e56244a05b54a14e0f417e885775859fc0bab78af395c61a85a381862e72",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pt_BR",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pt-BR/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-pt-BR-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "2f4883b04da0824ad69f6b789eff354134ce3415c80ed82c3f5e66dff33a1323",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_pt_BR",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pt-BR/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pt-BR-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a90a603f9876ea398e27175728bfac074cd2118d2dad2b4714e52ad987b231a9",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pt_BR",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pt-BR/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pt-BR-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "9df5b898ef6de32d454b3984008e9e5c44d0e3b624f930cbcf4ce1a6da3036c4",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pt_BR",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/pt-BR/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-pt-BR-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "5815626065eb1054efb091baab40b81cc0b87f3753359c9bb06c618e0f6ae7b2",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_pt_BR",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ru/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ru-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "89259c878bddec4173de64b44549dda53ed721af4197e34e45744ba96bf9dfcf",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ru",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ru/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ru-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "05e0c4201db7dc4a95c7b6304c43a2831a362ab957fc498f5f10a3d053155665",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ru",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ru/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-ru-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "50417e43cb66ef3ba5e1640fafbadf3fabf6eada2de668b360bded21632eec96",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_ru",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ru/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ru-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ffcb20d556b8efb16d64e52ef05aca2b628c735cbd8f8f4ab5024c2a6b5ed751",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ru",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ru/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ru-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7af42ce6877627d067689a5485ab647d660c71838f529a4447a8ee40725abb1e",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ru",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/ru/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-ru-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "74e67c63c66972ff0a14ced5d5c285bcb8a068b54d3921b828d70e90aaeab38c",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_ru",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/sv/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-sv-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "695ecf0c8d8ffc0115b6b77b2672633861addc2b288be4c8537c3fdd44623cb9",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_sv",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/sv/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-sv-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e24c0bd4a69427b17d6a82943beab882501f1beb6c542a0b8c1fa4b4fa2c1467",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_sv",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/sv/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-sv-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "994751ae50b4da73dd25171c90465f0b00c81c84dd5e6884bc7a4fb64fed7d40",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_sv",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/sv/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-sv-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "2ee78fd8bfd2df037cbbb9ca57b8e8cd7d824ffc1692e0a87c23797a301beed5",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_sv",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/sv/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-sv-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "78e2238afc326ddde29bbaf22354960cd719e4f6003d1f122d097d4bdbe37c21",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_sv",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/sv/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-sv-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "1834cbc4dfb6bd85fb07a577df2f85b56d16c12acd7c30c622d851493a74cd37",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_sv",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/th/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-th-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ba56affe0b02f6dda8766174b7b2d058f9bf3adc5b1adc9042b4a3fce634350e",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_th",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/th/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-th-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "06cbf3fbf68454b0b11a87801e88f0d2d9b6327d5d362f1ed749dfe3e59c1fe3",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_th",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/th/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-th-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a9a45eb226098e45355a86744079e482349c974ca5fd83a0dbb6de8f31368ce4",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_th",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/th/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-th-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "70b2719d688678edaa4f1f2c5adc7791aa252d5b25347c66e7bbc2a16722b073",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_th",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/th/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-th-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "42842e68749736dea3c1241614c53db187aef56dfdad476962c2314ac650bfa1",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_th",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/th/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-th-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "006816545d6e79fb5a6faba2b9c89831b5eba218ecd9f62b68ca266e3e4ae4f4",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_th",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/tr/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-tr-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "b217e4406783c498efa973cf1902381e2a5756e6dc18016b2acc870ebe401194",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/tr/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-tr-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7e3942eeb827cf4477415c25f26517935b7625bd3fa27d4274305309e9b444d8",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/tr/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-tr-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "0dc00ac0a0d9d76d586c2cb2168be76c4d4f9e868625322bf41a36f85d5de3d3",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_tr",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/tr/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-tr-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "aced4bb04c31c4da5740a691a4ec1995d6b75ec857b9c2a80ebcb9ba43dd8343",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/tr/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-tr-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "12c85f60221de2cf941ea194ff9ee417497986f4771a71eda826cd47e43523a0",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/tr/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-tr-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "565bc87e3788e23a0dc844490903f035a076fdd8096f0a91474751dcfe8f873b",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/uk/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-uk-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "bc06313b824f447b395e4de27c4818afd01031c0dc688c7dde6731f136afab34",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_uk",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/uk/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-uk-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7d35252fa1deca17d810c0fda1e5a3f82f5b6f44955b71f2b4c489931b12aab0",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_uk",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/uk/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-uk-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "7aae61cf4a55dbae308111c6bf934ac1f62b9050e616666682a1f0f18de9e6aa",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStorePlayer_uk",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/uk/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-uk-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "54856a3f43fe047125ba732e6de944fd88418c45bcb5dfcd8434d9bf7dd266fd",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_uk",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/uk/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-uk-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "1231aa0faa38da1d5f56d2dff5f3deadf061af8109a04d522e6d7380a5a245bb",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_uk",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/uk/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-uk-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "dd7d439ada881e60a72ec74534b5f16649aaba8d5ead5b16bd99fad204d5359e",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_uk",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/vi/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-vi-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a6a385079c149abcf14309d465fb48346f032bcf199b2e762b1490c56941a9f2",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_vi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/vi/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-vi-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "c143598ceaa922844e68baaab62052f5ae1310d980f3dce939087f88aa26bee2",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_vi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/vi/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-vi-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "39775eff37a45b3acb7b7060f6a9c7f76c86b818dfc910d4487fcd9b0553a28e",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_vi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/vi/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-vi-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "a071e295fb836c9f2572a0009668a5db3760e7cef21661f457e344bd6ce9ee9e",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_vi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/vi/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-vi-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "62cb7a6f89a72fb687289a02e35a9cb42a6a237c3879b387d56722aa42f254ac",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_vi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/vi/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-vi-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "26b3413c24dbfe4bd06592a0f7af7aca6d0069200cdd665e96636642c08efbb5",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_vi",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hans/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-zh-Hans-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "9667820a0e9307f855347234bedfe96ee4a76737dbab07975fd83d88d6e1716b",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hans",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hans/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-zh-Hans-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "53ca5865117d234c01bd0d0a774ed54627f109451fccd231e7359ff37401f5ed",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hans",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hans/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/F41DDC49-D329-431A-B309-00693701ACC9/tmp/mirivo-store-zh-Hans-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "765cac602fa43ebb9780ca7de14a6057aa031ca3b5381dab952d859fcdb12035",
+      "resultBundle": "build/no-carplay-zh-hans-final-20261008.xcresult",
+      "testCase": "testAppStorePlayer_zh_Hans",
+      "testCasePassed": true,
+      "resultSuitePassed": true
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hans/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-zh-Hans-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "ea9a6fdc0ed9b7701f10aded57c029780b8fb62d6dd44ff1948e3ca09f771568",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hans",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hans/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-zh-Hans-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "5646afde6c74aa80364eb1fe99f1af74e296e710f51c78d45fd51cac86c9b793",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hans",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hans/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/B154A224-86FE-4126-A8C1-C2F24966284B/tmp/mirivo-store-zh-Hans-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "e5302c78b88f5ae6af498cef467e9f007c46024030a19cb8f8e10c845c93dcf4",
+      "resultBundle": "build/no-carplay-store-r2-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hans",
+      "testCasePassed": true,
+      "resultSuitePassed": null
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hant/01-iptv.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-zh-Hant-01-iptv.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "90e04a5ae48e05556fb0253a8aff03e126f2b5badc478cc29a4d2000e8004e1d",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hant",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hant/02-channels.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-zh-Hant-02-channels.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "d3bedcc4f44ffb62c110fe0107e65f712e574698eee30ed0a7ca4a93a8a6be84",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hant",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hant/03-player.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-zh-Hant-03-player.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "fa818999aa7a43b5ac4f9912850c33a65acd2d93e3b247a9c25d755c3ee9e69d",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hant",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hant/04-sharing.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-zh-Hant-04-sharing.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "2d5a813f01f6570afdde7a2c8cd64185aaffaacbae1b174b69352f97e04e6ed8",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hant",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hant/05-xtream.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-zh-Hant-05-xtream.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "865a8230359cea2a6cc455322e936227780d7ed42e3a9889d039b861c5095672",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hant",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    },
+    {
+      "file": "Release/AppStore/screenshots/store-20261008/iphone/zh-Hant/06-airplay.png",
+      "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/B952AA0F-C81F-49A2-83F3-CEBE9D048739/data/Containers/Data/Application/65B38EB7-3415-4643-B2D6-9B403893DC80/tmp/mirivo-store-zh-Hant-06-airplay.png",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "sha256": "cbf87a48f21b1aa4a60bce433b265913e2b3c836b3864f89faa39d227c415e5a",
+      "resultBundle": "build/no-carplay-final-ui-20261008.xcresult",
+      "testCase": "testAppStoreScreenshots_zh_Hant",
+      "testCasePassed": true,
+      "resultSuitePassed": false
+    }
+  ],
+  "additionalCaptureEvidence": "Per-file resultBundle/testCase records; failed cases are excluded."
+}

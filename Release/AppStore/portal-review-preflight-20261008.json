@@ -1,0 +1,21 @@
+{
+  "appId": "6818560405",
+  "version": "1.0",
+  "selectedBuild": 13,
+  "manualRelease": true,
+  "draftItems": [
+    "Mirivo Pro Yearly",
+    "Mirivo Pro Lifetime",
+    "Mirivo Pro subscription group (22 localizations)"
+  ],
+  "weeklyAdded": false,
+  "appVersionAdded": false,
+  "finalSubmitted": false,
+  "appleAddForReviewBlockers": [
+    "An Admin must provide App Privacy information",
+    "Required age ratings questions",
+    "Content Rights Information"
+  ],
+  "annualReviewImage": "screenshots/pro-plans-20261008/pro-plans-en.png",
+  "lifetimeReviewImage": "screenshots/pro-plans-20261008/pro-lifetime-en.png"
+}

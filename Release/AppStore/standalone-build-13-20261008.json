@@ -1,0 +1,28 @@
+{
+  "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/standalone-13/CarMirror.xcarchive",
+  "ipa": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/standalone-13/ipa/CarMirror.ipa",
+  "version": "1.0",
+  "build": "13",
+  "team": "3T2VY64864",
+  "carPlayIncluded": false,
+  "uploaded": true,
+  "method": "Xcode account upload",
+  "log": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/standalone-13/upload.log",
+  "archiveVerification": "build/deploy/standalone-13/archive-verification.json",
+  "distributionVerification": "build/deploy/standalone-13/distribution-verification.json",
+  "privacyManifests": "Release/AppStore/privacy-manifests-build-13.json",
+  "sourceCommit": "d75f2b4",
+  "processingVerified": true,
+  "selectedForVersion": true,
+  "symbolUploadWarnings": [
+    "FirebaseAnalytics vendor dSYM missing",
+    "GoogleAppMeasurement vendor dSYM missing",
+    "GoogleCast vendor dSYM missing"
+  ],
+  "published": false,
+  "appleProcessingState": "Ready to Submit",
+  "selectionVerifiedAfterReload": true,
+  "appStoreConnectBuildId": "f50e56d3-4b51-4ec6-8a90-eaf25ce3f1ee",
+  "manualRelease": true,
+  "proof": "Release/AppStore/portal-proof-20261008-build13.jpg"
+}
