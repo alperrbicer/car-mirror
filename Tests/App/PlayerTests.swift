@@ -486,8 +486,8 @@ final class PlayerTests: XCTestCase {
         let engine = model.playback.compatibility
         let nativeItem = model.playback.player.currentItem
         XCTAssertEqual(engine != nil, useCompatibility)
-        for vehicleMode in [false, true] {
-            let host = UIHostingController(rootView: VehicleModeView(vehicleMode: vehicleMode, model: model, close: {}))
+        for largeControls in [false, true] {
+            let host = UIHostingController(rootView: FullscreenPlayerView(largeControls: largeControls, model: model, close: {}))
             window.rootViewController = host
             window.makeKeyAndVisible()
             for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeLeft, .landscapeRight, .portrait] {
@@ -532,9 +532,9 @@ final class PlayerTests: XCTestCase {
                 XCTAssertTrue(model.playback.compatibility === engine)
                 XCTAssertTrue(model.playback.player.currentItem === nativeItem, "Rotation must not restart playback")
                 if orientation == .landscapeLeft {
-                    let name = "\(useCompatibility ? "mkv" : "native")-\(vehicleMode ? "vehicle" : "fullscreen")-landscape"
+                    let name = "\(useCompatibility ? "mkv" : "native")-\(largeControls ? "vehicle" : "fullscreen")-landscape"
                     capturePlayer(host.view, name: name)
-                    if !vehicleMode {
+                    if !largeControls {
                         model.playback.resume()
                         for _ in 0..<40 {
                             if model.playback.isPlaying { break }

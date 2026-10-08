@@ -897,7 +897,7 @@ struct MediaPlayerScreen: View {
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback: PlaybackController
     @ObservedObject private var purchases = PurchaseStore.shared
-    @State private var vehicleMode = false
+    @State private var largeControls = false
     @State private var fullscreen = false
     @State private var fillsFrame = false
     init(model: MirrorModel) { self.model = model; playback = model.playback }
@@ -919,7 +919,7 @@ struct MediaPlayerScreen: View {
                             } else {
                                 MediaVideoView(playback: playback, role: .inline, fillsFrame: fillsFrame)
                             }
-                            PlayerChrome(model: model, fullscreen: $fullscreen, vehicleMode: $vehicleMode,
+                            PlayerChrome(model: model, fullscreen: $fullscreen, largeControls: $largeControls,
                                          fillsFrame: $fillsFrame, changeFullscreen: setFullscreen)
                         }
                         .frame(height: fullscreen ? geometry.size.height : max(0, min(geometry.size.width - 40, 720)) * 9 / 16)
@@ -1006,15 +1006,15 @@ struct MediaPlayerScreen: View {
 }
 
 /// Standalone host used by external previews and rotation regression tests.
-struct VehicleModeView: View {
-    var vehicleMode: Bool = true
+struct FullscreenPlayerView: View {
+    var largeControls: Bool = true
     @ObservedObject var model: MirrorModel
     let close: () -> Void
     @State private var fillsFrame = false
     var body: some View {
         MediaVideoView(playback: model.playback, role: .fullscreen, fillsFrame: fillsFrame)
             .overlay {
-                PlayerChrome(model: model, fullscreen: .constant(true), vehicleMode: .constant(vehicleMode),
+                PlayerChrome(model: model, fullscreen: .constant(true), largeControls: .constant(largeControls),
                              fillsFrame: $fillsFrame, changeFullscreen: { if !$0 { close() } })
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity).background(.black).ignoresSafeArea().statusBarHidden(true)
@@ -1026,7 +1026,7 @@ private struct PlayerChrome: View {
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback: PlaybackController
     @Binding var fullscreen: Bool
-    @Binding var vehicleMode: Bool
+    @Binding var largeControls: Bool
     @Binding var fillsFrame: Bool
     let changeFullscreen: (Bool) -> Void
     @State private var controlsVisible = true
@@ -1043,10 +1043,10 @@ private struct PlayerChrome: View {
     @State private var feedbackTask: Task<Void, Never>?
     @State private var optionsTask: Task<Void, Never>?
 
-    init(model: MirrorModel, fullscreen: Binding<Bool>, vehicleMode: Binding<Bool>, fillsFrame: Binding<Bool>,
+    init(model: MirrorModel, fullscreen: Binding<Bool>, largeControls: Binding<Bool>, fillsFrame: Binding<Bool>,
          changeFullscreen: @escaping (Bool) -> Void) {
         self.model = model; playback = model.playback
-        _fullscreen = fullscreen; _vehicleMode = vehicleMode; _fillsFrame = fillsFrame
+        _fullscreen = fullscreen; _largeControls = largeControls; _fillsFrame = fillsFrame
         self.changeFullscreen = changeFullscreen
     }
     var body: some View {
@@ -1063,7 +1063,7 @@ private struct PlayerChrome: View {
                     if playback.state != .loading { transportControls }
                 }
                 if let seekFeedback {
-                    let transportWidth: CGFloat = fullscreen ? (vehicleMode ? 224 : 204) : 180
+                    let transportWidth: CGFloat = fullscreen ? (largeControls ? 224 : 204) : 180
                     let edgeSpace = max(0, (geometry.size.width - transportWidth) / 2)
                     let diameter = min(56, max(30, edgeSpace - 16))
                     let inset = max(diameter / 2 + 8, min(geometry.size.width * 0.18, edgeSpace / 2))
@@ -1134,7 +1134,7 @@ private struct PlayerChrome: View {
         HStack(spacing: 4) {
             if fullscreen {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(L10n.tr(vehicleMode ? "Araç modu" : "Tam ekran")).font(.caption).foregroundStyle(MirrorStyle.accent)
+                    Text(L10n.tr(largeControls ? "Büyük kontroller" : "Tam ekran")).font(.caption).foregroundStyle(MirrorStyle.accent)
                     Text(model.mediaTitle ?? BrandIdentity.name).font(.subheadline.weight(.semibold)).lineLimit(1)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             } else { Spacer(minLength: 0) }
@@ -1153,7 +1153,7 @@ private struct PlayerChrome: View {
                     iconButton("chevron.down", label: "Kapat", id: "close-fullscreen") { changeFullscreen(false) }
                 } else {
                     iconButton("arrow.up.left.and.arrow.down.right", label: "Tam ekran", id: "player-fullscreen") {
-                        vehicleMode = false; changeFullscreen(true)
+                        largeControls = false; changeFullscreen(true)
                     }
                 }
             }
@@ -1186,7 +1186,7 @@ private struct PlayerChrome: View {
     }
     private var transportControls: some View {
         HStack(spacing: fullscreen ? 28 : 20) {
-            if playback.canSeek && (!fullscreen || !vehicleMode) {
+            if playback.canSeek && (!fullscreen || !largeControls) {
                 iconButton("gobackward.10", label: "10 saniye geri", id: "skip-backward") { skip(-10) }
             } else if model.playbackQueue.count > 1 {
                 iconButton("backward.end.fill", label: "Önceki", id: "previous-channel") { model.switchChannel(-1) }
@@ -1194,14 +1194,14 @@ private struct PlayerChrome: View {
             }
             Button { playback.togglePlayPause(); revealControls() } label: {
                 Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill")
-                    .font(.system(size: fullscreen ? (vehicleMode ? 34 : 26) : 24, weight: .semibold))
-                    .frame(width: fullscreen ? (vehicleMode ? 80 : 60) : 52,
-                           height: fullscreen ? (vehicleMode ? 80 : 60) : 52)
+                    .font(.system(size: fullscreen ? (largeControls ? 34 : 26) : 24, weight: .semibold))
+                    .frame(width: fullscreen ? (largeControls ? 80 : 60) : 52,
+                           height: fullscreen ? (largeControls ? 80 : 60) : 52)
                     .background(.black.opacity(0.25), in: Circle()).foregroundStyle(.white)
                     .overlay { Circle().strokeBorder(.white.opacity(0.18)) }
             }.accessibilityLabel(L10n.tr(playback.isPlaying ? "Duraklat" : "Oynat"))
                 .accessibilityIdentifier("player-play-pause")
-            if playback.canSeek && (!fullscreen || !vehicleMode) {
+            if playback.canSeek && (!fullscreen || !largeControls) {
                 iconButton("goforward.10", label: "10 saniye ileri", id: "skip-forward") { skip(10) }
             } else if model.playbackQueue.count > 1 {
                 iconButton("forward.end.fill", label: "Sonraki", id: "next-channel") { model.switchChannel(1) }
@@ -1211,15 +1211,15 @@ private struct PlayerChrome: View {
     }
     private func modeActions(compact: Bool) -> some View {
         HStack(spacing: 8) {
-            modeButton("Araç modu", icon: "car.side", id: "player-vehicle-mode", compact: compact,
-                       selected: fullscreen && vehicleMode) {
-                vehicleMode = true; changeFullscreen(true); revealControls()
+            modeButton("Büyük kontroller", icon: "hand.tap", id: "player-large-controls", compact: compact,
+                       selected: fullscreen && largeControls) {
+                largeControls = true; changeFullscreen(true); revealControls()
             }
             if fullscreen {
-                modeButton("Tam ekran", icon: !vehicleMode ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
-                           id: "player-fullscreen", compact: compact, selected: !vehicleMode) {
-                    if !vehicleMode { changeFullscreen(false) }
-                    else { vehicleMode = false; changeFullscreen(true) }
+                modeButton("Tam ekran", icon: !largeControls ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
+                           id: "player-fullscreen", compact: compact, selected: !largeControls) {
+                    if !largeControls { changeFullscreen(false) }
+                    else { largeControls = false; changeFullscreen(true) }
                     revealControls()
                 }
             } else {
@@ -1227,7 +1227,7 @@ private struct PlayerChrome: View {
                     playback.startPictureInPicture(); revealControls()
                 }.disabled(!playback.canStartPictureInPicture)
             }
-            modeButton("Oynatma listesi", icon: "list.bullet", id: "vehicle-channel-picker", compact: compact, selected: false) {
+            modeButton("Oynatma listesi", icon: "list.bullet", id: "player-channel-picker", compact: compact, selected: false) {
                 showingChannels = true
             }.disabled(model.playbackQueue.isEmpty)
         }
@@ -1245,7 +1245,7 @@ private struct PlayerChrome: View {
     }
     private func iconButton(_ icon: String, label: String, id: String, action: @escaping () -> Void) -> some View {
         Button { action(); revealControls() } label: {
-            Image(systemName: icon).font(.system(size: fullscreen && vehicleMode ? 23 : 20, weight: .semibold))
+            Image(systemName: icon).font(.system(size: fullscreen && largeControls ? 23 : 20, weight: .semibold))
                 .frame(width: 44, height: 44).background(.black.opacity(0.35), in: Circle())
         }.accessibilityLabel(L10n.tr(label)).accessibilityIdentifier(id)
     }

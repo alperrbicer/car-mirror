@@ -207,6 +207,14 @@ final class ProductUITests: XCTestCase {
     func testAppStoreScreenshots_id() { captureStoreLanguage("id") }
     func testAppStoreScreenshots_hi() { captureStoreLanguage("hi") }
 
+    func testAppStorePlayer_tr() { captureStoreLanguage("tr", playerOnly: true) }
+    func testAppStorePlayer_en() { captureStoreLanguage("en", playerOnly: true) }
+    func testAppStorePlayer_ar() { captureStoreLanguage("ar", playerOnly: true) }
+    func testAppStorePlayer_he() { captureStoreLanguage("he", playerOnly: true) }
+    func testAppStorePlayer_hi() { captureStoreLanguage("hi", playerOnly: true) }
+    func testAppStorePlayer_id() { captureStoreLanguage("id", playerOnly: true) }
+    func testAppStorePlayer_th() { captureStoreLanguage("th", playerOnly: true) }
+    func testAppStorePlayer_vi() { captureStoreLanguage("vi", playerOnly: true) }
     func testAppStorePlayer_de() { captureStoreLanguage("de", playerOnly: true) }
     func testAppStorePlayer_fr() { captureStoreLanguage("fr", playerOnly: true) }
     func testAppStorePlayer_es() { captureStoreLanguage("es", playerOnly: true) }
@@ -342,10 +350,10 @@ final class ProductUITests: XCTestCase {
         }
         guard pause.waitForExistence(timeout: 3) else { XCTFail(app.debugDescription); return }
         XCTAssertEqual(pause.label, "Duraklat"); pause.tap()
-        let vehicle = app.buttons["player-vehicle-mode"]
+        let vehicle = app.buttons["player-large-controls"]
         let fullscreen = app.buttons["player-fullscreen"]
         let pip = app.buttons["player-pip"]
-        let playlist = app.buttons["vehicle-channel-picker"]
+        let playlist = app.buttons["player-channel-picker"]
         for button in [vehicle, fullscreen, pip, playlist] {
             XCTAssertTrue(button.exists)
             XCTAssertGreaterThanOrEqual(button.frame.height, 44)
@@ -372,8 +380,8 @@ final class ProductUITests: XCTestCase {
         vehicle.tap()
         let close = app.buttons["close-fullscreen"]
         XCTAssertTrue(close.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["pro-close"].exists, "Free viewing must include vehicle mode")
-        capture("player-free-vehicle-mode", app: app)
+        XCTAssertFalse(app.buttons["pro-close"].exists, "Free viewing must include large controls")
+        capture("player-free-large-controls", app: app)
         close.tap()
         XCTAssertTrue(fullscreen.waitForExistence(timeout: 5)); fullscreen.tap()
         XCTAssertTrue(close.waitForExistence(timeout: 5))

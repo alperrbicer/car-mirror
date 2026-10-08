@@ -69,11 +69,11 @@
       "localizations": {
         "tr": {
           "name": "Mirivo Pro Yıllık",
-          "description": "Sınırsız izleme ve kaynak, araç modu ve canlı altyazı."
+          "description": "Sınırsız izleme, kaynak ve canlı altyazı."
         },
         "en-US": {
           "name": "Mirivo Pro Yearly",
-          "description": "Unlimited viewing, sources, vehicle mode and captions."
+          "description": "Unlimited viewing, sources and captions."
         },
         "zh-Hans": {
           "name": "Mirivo Pro 每年",
@@ -201,11 +201,11 @@
       "localizations": {
         "tr": {
           "name": "Mirivo Pro Ömür Boyu",
-          "description": "Tek ödeme ile sınırsız izleme, kaynak ve Pro erişimi."
+          "description": "Sınırsız izleme, kaynak ve canlı altyazı."
         },
         "en-US": {
           "name": "Mirivo Pro Lifetime",
-          "description": "One payment for unlimited viewing, sources and Pro."
+          "description": "Unlimited viewing, sources and captions."
         },
         "zh-Hans": {
           "name": "Mirivo Pro 终身",
@@ -354,8 +354,7 @@
   "releaseMode": "manual",
   "remainingTechnical": [
     "Run physical Apple sandbox/TestFlight purchase/restore/refund/expiry acceptance on build 12 and verify RevenueCat event/server notification delivery.",
-    "After owner approval, publish pending privacy/billing site update and verify live documents.",
-    "For the CarPlay Video release objective, obtain Apple approval, prepare a Video-entitled distribution candidate and verify playback in a supported parked vehicle."
+    "After owner approval, publish pending privacy/billing site update and verify live documents."
   ],
   "ownerApprovalRequired": [
     "tax and banking details / legally binding agreements",
@@ -947,5 +946,11 @@
     "wasSelectedInVersion": true,
     "replacedByBuild": "12",
     "replacedAt": "2026-10-05T21:47:11.060620+00:00"
+  },
+  "standaloneRelease": {
+    "date": "2026-10-08",
+    "carPlayIncluded": false,
+    "status": "preparing",
+    "historicalArtifacts": "Build 11 and 12 records below predate CarPlay removal."
   }
 }
