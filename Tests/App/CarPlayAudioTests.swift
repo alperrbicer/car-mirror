@@ -766,6 +766,94 @@ final class CarPlayAudioTests: XCTestCase {
         surface.prepareForPictureInPicture()
     }
 
+    func testPiPReturnWaitsForSettledNativeAndCompatibilityTargetsInBothSizes() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        window.rootViewController = root
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+
+        // Live and native VOD share AVPlayerLayer; MKV VOD uses the sample-buffer
+        // path. Each must wait for the same settled inline/full-screen target.
+        for compatibility in [false, true] {
+            for fullscreen in [false, true] {
+                let container = UIView(frame: root.view.bounds)
+                root.view.addSubview(container)
+                let frame = fullscreen ? container.bounds : CGRect(x: 20, y: 120, width: 320, height: 180)
+                let native = NativeVideoController(player: AVPlayer(), playback: nil, primary: false)
+                let engine = CompatibilityPlayback()
+                let host = CompatibilityVideoHost(frame: frame)
+                let prepare: (@escaping (Bool) -> Void) -> Void
+                if compatibility {
+                    host.configure(engine: engine, role: fullscreen ? .fullscreen : .inline, fillsFrame: false)
+                    container.addSubview(host)
+                    prepare = engine.preparePictureInPictureReturn
+                } else {
+                    root.addChild(native)
+                    native.view.frame = frame
+                    container.addSubview(native.view)
+                    native.didMove(toParent: root)
+                    prepare = native.preparePictureInPictureReturn
+                }
+                container.transform = CGAffineTransform(translationX: 0, y: 60)
+                try await Task.sleep(for: .milliseconds(50))
+                UIView.animate(withDuration: 0.3, delay: 0, options: .curveLinear) { container.transform = .identity }
+                var restored: Bool?
+                var completionCount = 0
+                prepare { restored = $0; completionCount += 1 }
+                try await Task.sleep(for: .milliseconds(60))
+                XCTAssertNil(restored, "Do not give AVKit an inline or full-screen target still moving with navigation")
+                for _ in 0..<50 {
+                    if restored != nil { break }
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                XCTAssertEqual(restored, true)
+                XCTAssertEqual(completionCount, 1)
+                XCTAssertEqual(container.layer.presentation()?.position, container.layer.position)
+                host.detach()
+                native.willMove(toParent: nil); native.view.removeFromSuperview(); native.removeFromParent()
+                container.removeFromSuperview()
+            }
+        }
+    }
+
+    func testPiPReturnWaitsForAttachmentAndRejectsHiddenAncestors() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = UIViewController()
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+        let container = UIView(frame: CGRect(x: 20, y: 100, width: 320, height: 180))
+        let source = UIView(frame: container.bounds)
+        container.addSubview(source)
+        var restored: Bool?
+        PlayerVideoReturnLayout.prepare(source) { restored = $0 }
+        try await Task.sleep(for: .milliseconds(60))
+        XCTAssertNil(restored, "A newly restored player may not have its window at onAppear")
+        window.rootViewController?.view.addSubview(container)
+        for _ in 0..<50 {
+            if restored != nil { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertEqual(restored, true)
+
+        container.isHidden = true
+        restored = nil
+        var completionCount = 0
+        PlayerVideoReturnLayout.prepare(source) { restored = $0; completionCount += 1 }
+        for _ in 0..<70 {
+            if restored != nil { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertEqual(restored, false, "A source inside a hidden ancestor is not a return destination")
+        container.isHidden = false
+        try await Task.sleep(for: .milliseconds(80))
+        XCTAssertEqual(completionCount, 1, "A timed-out restoration must not complete again on a later frame")
+    }
+
     func testPiPButtonReturnWaitsForLayoutAndAvoidsASecondStop() async throws {
         let playback = PlaybackController()
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))

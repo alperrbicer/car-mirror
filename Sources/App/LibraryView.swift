@@ -731,8 +731,9 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         super.viewDidLayoutSubviews()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        videoLayer.frame = PlayerVideoGeometry.frame(size: videoLayer.player?.currentItem?.presentationSize ?? .zero,
+        let frame = PlayerVideoGeometry.frame(size: videoLayer.player?.currentItem?.presentationSize ?? .zero,
             in: view.bounds, fillsFrame: videoLayer.videoGravity == .resizeAspectFill)
+        if videoLayer.frame != frame { videoLayer.frame = frame }
         videoClipping.repairIfRestored()
         CATransaction.commit()
     }
@@ -784,7 +785,7 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
     }
     func prepareForPictureInPicture() { videoClipping.suspend() }
     func preparePictureInPictureReturn(completion: @escaping (Bool) -> Void) {
-        PlayerVideoReturnLayout.prepare(view, completion: completion)
+        PlayerVideoReturnLayout.prepare(view, sourceLayer: videoLayer, completion: completion)
     }
     func layoutVideoForPictureInPictureReturn() {
         view.window?.layoutIfNeeded()

@@ -494,30 +494,88 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
     }
 }
 
-/// SwiftUI's onAppear can precede the source view's layout. Complete restoration
-/// only after the existing source has a window and its layout has been committed.
+/// Both renderers return to a settled source rectangle. onAppear and a single
+/// CATransaction completion can precede navigation/safe-area layout, especially
+/// for an inline player. Giving AVKit that intermediate rectangle can make it
+/// retarget the returning picture while its corner animation is still running.
 @MainActor
 enum PlayerVideoReturnLayout {
-    static func prepare(_ view: UIView, completion: @escaping (Bool) -> Void) {
-        DispatchQueue.main.async { [weak view] in
-            guard let view, let window = view.window else { completion(false); return }
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            CATransaction.setCompletionBlock { [weak view, weak window] in
-                DispatchQueue.main.async {
-                    guard let view, let window, view.window === window,
-                          !view.isHidden, view.bounds.width > 0, view.bounds.height > 0 else {
-                        completion(false); return
-                    }
-                    completion(true)
-                }
-            }
+    static func prepare(_ view: UIView, sourceLayer: CALayer? = nil, completion: @escaping (Bool) -> Void) {
+        Preparation(view: view, sourceLayer: sourceLayer ?? view.layer, completion: completion).start()
+    }
+
+    @MainActor
+    private final class Preparation: NSObject {
+        private weak var view: UIView?
+        private weak var sourceLayer: CALayer?
+        private var completion: ((Bool) -> Void)?
+        private var displayLink: CADisplayLink?
+        private var previous: Geometry?
+        private var stableFrames = 0
+
+        private struct Geometry: Equatable {
+            let window: ObjectIdentifier
+            let sourceBounds: CGRect
+            let sourceFrame: CGRect
+            let hostBounds: CGRect
+        }
+
+        init(view: UIView, sourceLayer: CALayer, completion: @escaping (Bool) -> Void) {
+            self.view = view
+            self.sourceLayer = sourceLayer
+            self.completion = completion
+        }
+        func start() {
+            // The link retains this short-lived request until finish(). A
+            // separate deadline also completes it if the app backgrounds again.
+            let link = CADisplayLink(target: self, selector: #selector(tick))
+            displayLink = link
+            link.add(to: .main, forMode: .common)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.finish(false) }
+        }
+        @objc private func tick() {
+            guard let view, let sourceLayer else { finish(false); return }
+            guard let window = view.window else { reset(); return }
             UIView.performWithoutAnimation {
                 window.layoutIfNeeded()
                 view.setNeedsLayout()
                 view.layoutIfNeeded()
             }
-            CATransaction.commit()
+
+            // Inspect the app's host hierarchy, not the PiP video layer's
+            // presentation: AVKit owns that layer's in-flight animation.
+            var ancestor: UIView? = view
+            while let current = ancestor {
+                guard !current.isHidden, current.alpha > 0, geometryIsSettled(current.layer) else { reset(); return }
+                ancestor = current.superview
+            }
+            var layer: CALayer? = sourceLayer
+            while let current = layer, current !== view.layer { layer = current.superlayer }
+            guard layer === view.layer else { reset(); return }
+            let frame = sourceLayer.convert(sourceLayer.bounds, to: window.layer)
+            guard !frame.isEmpty, !frame.isInfinite, !frame.isNull,
+                  window.bounds.intersects(frame) else { reset(); return }
+            let geometry = Geometry(window: ObjectIdentifier(window), sourceBounds: sourceLayer.bounds,
+                                    sourceFrame: frame, hostBounds: view.bounds)
+            stableFrames = previous == geometry ? stableFrames + 1 : 1
+            previous = geometry
+            // Observe committed layout over successive display refreshes, not
+            // just multiple blocks drained within the same run-loop iteration.
+            if stableFrames >= 3 { finish(true) }
+        }
+        private func geometryIsSettled(_ layer: CALayer) -> Bool {
+            guard let visible = layer.presentation() else { return true }
+            return visible.bounds == layer.bounds && visible.position == layer.position &&
+                CATransform3DEqualToTransform(visible.transform, layer.transform) &&
+                CATransform3DEqualToTransform(visible.sublayerTransform, layer.sublayerTransform)
+        }
+        private func reset() { previous = nil; stableFrames = 0 }
+        private func finish(_ restored: Bool) {
+            guard let completion else { return }
+            self.completion = nil
+            displayLink?.invalidate()
+            displayLink = nil
+            completion(restored)
         }
     }
 }

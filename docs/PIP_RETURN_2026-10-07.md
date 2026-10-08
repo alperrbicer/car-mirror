@@ -65,3 +65,14 @@ Kod incelemesinde iki eksik görüldü: kullanılan VideoLAN PiP arayüzü uygul
 - Oynatıcı ekranının yeniden açılması gerekirse ek SwiftUI sunum animasyonu kapatılıyor. Eşzamanlı arayüz geri yükleme isteklerinin completion'ları kaybedilmiyor.
 
 Bu değişiklikte cihaz/simülatör açılmadı, kurulum yapılmadı ve test çalıştırılmadı. Uygulama hedefinin 49 Swift kaynak dosyası mevcut SDK ve önceden derlenmiş bağımlılıklarla `swiftc -typecheck` kontrolünden geçti (`build/pip-return-typecheck-20261007.log`); bu bir tam Xcode derleme/link veya çalışma zamanı testi değildir. Mevcut PiP regresyon testleri yeni tamamlanma sırasına uyarlandı ancak çalıştırılmadı. Dört görüntüdeki ara karelerin görsel kabulü kullanıcının aynı cihaz akışındaki kontrolüne bırakıldı.
+
+## Canlı tam ekranı referans alan dört geçiş
+
+Kullanıcının son karşılaştırmasında canlı yayının tam ekran dönüşü düzgün; canlı yayının küçük oynatıcısı ile dizi/filmin iki boyutu hatalı. Canlı/tam ekran için ayrı bir köşe animasyonu yok: native HLS ve native VOD aynı AVPlayer yolunu, MKV içerik VideoLAN yolunu kullanıyor. Her ikisi de `PlayerVideoReturnLayout` üzerinden dönüyor. Ortak dönüşteki eksik, bir UIKit transaction tamamlanınca gezinme ve güvenli alan yerleşiminin de sabitlendiğinin varsayılmasıydı.
+
+- İki motorda da dönüş hedefi artık görünür pencereye bağlı olmalı ve üç ardışık ekran yenilemesinde aynı konum/boyutta kalmalı. Üst görünümlerin devam eden yerleşim animasyonları da beklenir. Bu, canlı tam ekrandaki sabit hedef koşulunu diğer boyutlara uygular; küçük oynatıcıyı geçici tam ekrana çıkarmaz.
+- Native yolda yalnız dış host değil, PiP'nin gerçek `AVPlayerLayer` dikdörtgeni de kontrol edilir. Değişmeyen video çerçevesi tekrar yazılmaz. VideoLAN'ın mevcut drawable/decoder sahipliği korunur.
+- Henüz pencereye bağlanmamış görünümün bağlanması beklenir. Gizli bir üst görünümün içindeki video dönüşe hazır sayılmaz. Hazırlık bir saniye içinde tamamlanmazsa başarısızlık bir kez bildirilir; görünmeyen hedef için başarı verilmez.
+- Hazırlık AVKit'in video katmanındaki geçiş animasyonunu veya köşelerini değiştirmez. Önceki `didStop` sonrası maske temizliği korunur. Bu değişiklikte fiziksel cihaza kurulum yapılmadı; kullanıcının üç hatalı senaryosundaki görsel sonuç henüz cihazda doğrulanmadı.
+
+Son kodla uygulama ve test hedefleri derlendi; iOS 26.5 / iPhone 17 Pro Max simülatöründe sekiz odaklı testin tamamı geçti (`TEST SUCCEEDED`). Yeni kontroller iki motorda küçük/tam ekran dönüşünün hareket eden üst görünümü beklediğini, geç pencereye bağlanmayı ve gizli hedefin reddedilmesini doğruluyor. Mevcut kontroller de ikinci PiP durdurma isteğini, geç başlangıcı, duraklatma/decoder durumunu, görüntü oranını ve dönüş sonrası maske temizliğini kapsıyor. Bunlar fiziksel cihazdaki sistem animasyonunun görsel kanıtı değildir. Kayıtlar: `build/pip-transition-layout-20261007.log` ve `build/pip-transition-layout-20261007.xcresult`.
