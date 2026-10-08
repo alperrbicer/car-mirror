@@ -173,6 +173,5 @@
     "/tr/privacy.html",
     "/en/privacy.html"
   ],
-  "permanentAdPromisesAbsentInCheckedPages": true,
-  "proof": "Release/AppStore/portal-proof-20261005-ad-copy.jpg"
+  "permanentAdPromisesAbsentInCheckedPages": true
 }

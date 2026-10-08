@@ -387,8 +387,7 @@
     "compiledAppIncludesThirdPartyNotices": true,
     "screenshotsUploadScope": "Yearly/Lifetime product review images and 132 public iPhone screenshots across all 22 store locales; identical order and same-locale size inheritance verified after page reload.",
     "artifactConsistencyAudit": "Release/AppStore/preparation-validation-20261005.json",
-    "localArtifactConsistencyPassed": true,
-    "latestReviewScreenshotUploadRecord": "Release/AppStore/portal-completion-20261006.json"
+    "localArtifactConsistencyPassed": true
   },
   "approvedPricingDate": "2026-10-05",
   "weeklyAvailabilityRemoved": true,
@@ -435,7 +434,6 @@
     "minimumIOSVersion": "18.0",
     "appleBuildLocalizations": 22,
     "uploadedAt": "2026-10-05T23:21:00+03:00",
-    "portalCompletionRecord": "Release/AppStore/portal-completion-20261006.json",
     "checkedAt": "2026-10-05T21:47:11.060620+00:00"
   },
   "reviewContactSaved": true,
@@ -605,8 +603,7 @@
   "appIconHeader": {
     "visibleInPortal": true,
     "checkedAt": "2026-10-05",
-    "evidence": "Correct mint Mirivo app icon visible in the Media Manager header after page reload; earlier placeholder cause not established.",
-    "proofScreenshot": "Release/AppStore/portal-proof-20261005-logo.jpg"
+    "evidence": "Correct mint Mirivo app icon visible in the Media Manager header after page reload; earlier placeholder cause not established."
   },
   "previousReleaseArtifact10": {
     "version": "1.0",
@@ -900,7 +897,6 @@
     "minimumIOSVersion": "18.0",
     "appleBuildLocalizations": 22,
     "uploadedAt": "2026-10-05T23:21:00+03:00",
-    "portalCompletionRecord": "Release/AppStore/portal-completion-20261006.json",
     "checkedAt": "2026-10-05T21:47:11.060620+00:00"
   },
   "appStoreConnectSessionExpired": false,

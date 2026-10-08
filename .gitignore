@@ -20,3 +20,9 @@ Config/GoogleService-Info.plist
 Firebase/functions/.env*
 Firebase/functions/*service-account*.json
 *-debug.log
+
+# Account portal screenshots and support/approval records are not source assets.
+/Release/AppStore/portal-*
+/Release/AppStore/owner-*-20*
+/Release/AppStore/apple-content-rights-*
+/Release/AppStore/live-web-verification-*

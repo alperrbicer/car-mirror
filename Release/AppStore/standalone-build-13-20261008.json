@@ -23,6 +23,5 @@
   "appleProcessingState": "Ready to Submit",
   "selectionVerifiedAfterReload": true,
   "appStoreConnectBuildId": "f50e56d3-4b51-4ec6-8a90-eaf25ce3f1ee",
-  "manualRelease": true,
-  "proof": "Release/AppStore/portal-proof-20261008-build13.jpg"
+  "manualRelease": true
 }

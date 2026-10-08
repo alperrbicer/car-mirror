@@ -6,7 +6,7 @@
 
 RevenueCat girişi tamamlandı; Mirivo projesinin teklifi, anonim kimlikleri ve entegrasyon ekranları incelendi. Yeni reklam metni uygulamanın 22 dilinde kaldırıldı ve 1.0 (12) arşivi Apple'a yüklendi. Destek sitesindeki aynı değişiklik 5 Ekim 23:06'da yayımlandı.
 
-App Store Connect erişimi yenilendi. Build 12'nin Validated bilgisi, sürüm 1.0 seçimi, iki yeni Pro görseli ve kendi internal TestFlight Testing kaydı tamamlandı. Türkçe/İngilizce test notları kaydedilip yenilemeyle doğrulandı. Kanıt: `Release/AppStore/portal-completion-20261006.json`.
+App Store Connect erişimi yenilendi. Build 12'nin Validated bilgisi, sürüm 1.0 seçimi, iki yeni Pro görseli ve kendi internal TestFlight Testing kaydı tamamlandı. Türkçe/İngilizce test notları kaydedilip yenilemeyle doğrulandı.
 
 Aşağıdaki yaş/içerik hakları ve Business alanlarını kendi gerçek bilgilerinle tamamla. Son gizlilik yayını, bekleyen site gizlilik/koşul metinleri, cihazdaki ödeme kabulü ve Submit for Review hesap sahibine ait.
 

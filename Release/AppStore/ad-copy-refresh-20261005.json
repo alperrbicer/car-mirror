@@ -108,6 +108,5 @@
   "proReviewScreenshotsUploaded": true,
   "proReviewScreenshotProvenance": "Release/AppStore/screenshots/pro-plans/provenance.json",
   "proUICapturePassed": true,
-  "proReviewScreenshotsVerifiedAfterReload": true,
-  "portalCompletionRecord": "Release/AppStore/portal-completion-20261006.json"
+  "proReviewScreenshotsVerifiedAfterReload": true
 }

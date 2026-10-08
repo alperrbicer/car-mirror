@@ -23,6 +23,6 @@ CarPlay entegrasyonunun kaldırılması `87329eb` olarak kaydedildi. Başlangı�
 - Canlı 22 dil mağaza metni doğrulandı. Yıllık ve Ömür Boyu Pro inceleme notları ve gerçek ödeme ekranı görselleri yenilendi; iki ürün ve 22 yerelleştirmeli abonelik grubu aynı inceleme taslağında. Haftalık eski ürün eklenmedi.
 - Netlify production `6ac76de66c37abc79edcdf26` Published. Sekiz Türkçe/İngilizce canlı sayfa HTTP, tarih, CarPlay ve eski Araç modu adının yokluğu bakımından doğrulandı.
 - Statik yayın kontrolü: 12 HTML, 22 dil, 272 anahtar, 5984 çeviri değeri; sıfır hata.
-- **Son gönderim yapılmadı.** Apple'ın Add for Review kontrolü üç eksik bildiriyor: App Privacy yayımlama beyanı, yaş derecelendirmesi yanıtları, Content Rights. Uygulama sürümü bu üç beyan tamamlanmadan taslağa eklenemiyor. Ayrıntılar: `Release/AppStore/owner-decisions-20261008.md`; canlı kanıt `portal-proof-20261008-review-blockers.jpg`.
+- **Son gönderim yapılmadı.** Gizlilik bilgileri yayımlandı ve 18+ yaş derecelendirmesi kaydedildi. Kalan Content Rights seçimi için Apple Developer Support’a soruldu; başvuru numarası 102990442848. Yanıt bekleniyor.
 
 Yerel/simülatör testleri fiziksel Google Cast/AirPlay, gerçek sandbox satın alma/geri yükleme veya Apple kabulü kanıtı değildir. Önceki tarihli belgeler tarihsel kayıt olarak korunur. DSA/tacir statüsü ve gerekiyorsa sözleşme/banka/vergi işlemleri hesap sahibine bırakıldı.
