@@ -10,5 +10,5 @@ enum BrandIdentity {
         websiteURL.appendingPathComponent(L10n.language == "tr" ? "tr" : "en")
             .appendingPathComponent("\(page).html")
     }
-    static var tagline: String { L10n.tr("Telefonundan, aracına.") }
+    static var tagline: String { L10n.tr("Büyük ekranda daha fazlası.") }
 }

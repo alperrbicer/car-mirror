@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "Aboneliği yönet";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "App Store’a bağlanılamadı. Yeniden deneyebilirsin.";
-"Aracına bağlan" = "Aracına bağlan";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer.";
-"Araç görüntüsü için bağlantı bekleniyor." = "Araç görüntüsü için bağlantı bekleniyor.";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "Araç görüntüsü kurulamadı. Yeniden deneyebilirsin.";
-"Araç için yayın bağlantısı kurulamadı." = "Araç için yayın bağlantısı kurulamadı.";
 "Araç modu" = "Araç modu";
-"Araç video desteği" = "Araç video desteği";
 "Ayarlar" = "Ayarlar";
 "Açık" = "Açık";
 "Bağlantı testi" = "Bağlantı testi";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "Bu Apple hesabında etkin Pro satın alımı bulunamadı.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin.";
 "Bu sürümde tüm özellikler açık." = "Bu sürümde tüm özellikler açık.";
-"CARPLAY BAĞLI" = "CARPLAY BAĞLI";
-"CARPLAY BEKLENİYOR" = "CARPLAY BEKLENİYOR";
 "Canlı altyazılar" = "Canlı altyazılar";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "Canlı altyazılar bu cihazda kullanılamıyor.";
 "Canlı altyazılar · Pro" = "Canlı altyazılar · Pro";
-"CarPlay bağlı" = "CarPlay bağlı";
-"CarPlay sahnesi" = "CarPlay sahnesi";
-"CarPlay video testini başlat" = "CarPlay video testini başlat";
-"CarPlay video çıkışı kullanılamıyor." = "CarPlay video çıkışı kullanılamıyor.";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlay’e bağlanıp araç ekranında uygulamayı aç.";
 "Dengeli" = "Dengeli";
 "Destek" = "Destek";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle.";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "Tanılama raporunu paylaş";
 "Tek seferlik ödeme" = "Tek seferlik ödeme";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok.";
-"Telefonunda ve aracında daha fazlası." = "Kaynakların ve ekran paylaşımın bir arada.";
-"Telefonundan, aracına." = "Telefonundan, aracına.";
 "Tercihler" = "Tercihler";
 "Testi durdur" = "Testi durdur";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla.";
 "Google Cast araması kullanılamıyor." = "Google Cast araması kullanılamıyor.";
 "Ayarları aç" = "Ayarları aç";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır.";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir.";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut.";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Yılda bir tahsil edilir; otomatik yenilenir.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin.";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "Genel duyurular";
-"Araç bağlantısında hatırlat" = "Araç bağlantısında hatırlat";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez.";
 "Mirivo araç bağlantısına hazır" = "Mirivo araç bağlantısına hazır";
 "Bildirim izni alınamadı. Yeniden dene." = "Bildirim izni alınamadı. Yeniden dene.";
 

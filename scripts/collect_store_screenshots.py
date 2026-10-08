@@ -10,7 +10,7 @@ import struct
 
 ROOT = Path(__file__).resolve().parents[1]
 ORDER = ["01-iptv.png", "02-channels.png", "03-player.png",
-         "04-sharing.png", "05-xtream.png", "06-carplay.png"]
+         "04-sharing.png", "05-xtream.png", "06-airplay.png"]
 
 
 def collect(log, result_bundle):
@@ -26,9 +26,14 @@ def collect(log, result_bundle):
             completed.extend((case, p) for p in pending)
             pending = []
 
-    out = ROOT / "Release/AppStore/screenshots/store-20261005"
+    out = ROOT / "Release/AppStore/screenshots/store-20261008"
     evidence_path = out / "iphone-provenance.json"
-    evidence = json.loads(evidence_path.read_text())
+    out.mkdir(parents=True, exist_ok=True)
+    evidence = json.loads(evidence_path.read_text()) if evidence_path.exists() else {
+        "device": "iPhone 16 Pro Max", "runtime": "iOS 26.5", "edited": False,
+        "content": "Original Resources/ConnectionProbe.mp4 via temporary local M3U",
+        "files": [],
+    }
     files = {item["file"]: item for item in evidence["files"]}
     locales = set()
     for case, source in completed:

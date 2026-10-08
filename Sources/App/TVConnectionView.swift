@@ -138,28 +138,23 @@ struct ConnectionGuideView: View {
 }
 
 struct ConnectionGuideContent: View {
-    private enum Route: String, CaseIterable { case cast = "Google Cast", airplay = "AirPlay", carplay = "CarPlay" }
+    private enum Route: String, CaseIterable { case cast = "Google Cast", airplay = "AirPlay" }
     @State private var route: Route = .cast
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Image(systemName: route == .carplay ? "car.side" : route == .airplay ? "airplay.video" : "tv")
+                Image(systemName: route == .airplay ? "airplay.video" : "tv")
                     .font(.system(size: 40, weight: .light)).foregroundStyle(MirrorStyle.accent).padding(.top, 10)
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: 8) { routeButtons }
                     VStack(alignment: .leading, spacing: 8) { routeButtons }
                 }
                 VStack(alignment: .leading, spacing: 24) {
-                    if route == .carplay {
-                        step(1, text: "CarPlay’e bağlanıp araç ekranında uygulamayı aç.")
-                        step(2, text: "CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır.")
-                    } else {
                         step(1, text: "iPhone ve TV aynı Wi-Fi ağına bağlı olmalı.")
                         step(2, text: route == .cast
                              ? "TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et."
                              : "Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç.")
                         step(3, text: "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin.")
-                    }
                 }
                 VStack(alignment: .leading, spacing: 12) {
                     Label(L10n.tr("TV bulunamadı"), systemImage: "wifi.exclamationmark").font(.headline)

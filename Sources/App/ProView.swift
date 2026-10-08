@@ -24,7 +24,7 @@ struct ProView: View {
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L10n.tr("Mirivo Pro")).font(.system(.largeTitle, design: .default, weight: .bold))
-                    Text(L10n.tr(store.verifiedPro ? "Tüm özellikler seninle." : "Telefonunda ve aracında daha fazlası."))
+                    Text(L10n.tr(store.verifiedPro ? "Tüm özellikler seninle." : "Büyük ekranda daha fazlası."))
                         .font(.title3).foregroundStyle(MirrorStyle.secondary)
                 }
                 VStack(spacing: 24) {

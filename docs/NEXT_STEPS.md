@@ -1,3 +1,5 @@
+> 8 Ekim 2026 güncellemesi: CarPlay kaldırılmıştır. Aşağıdaki CarPlay/build 12 kayıtları tarihsel kanıttır; güncel dağıtım için DEPLOYMENT.md ve CARPLAY_REMOVAL_2026-10-08.md esas alınmalıdır.
+
 # Mirivo — kaldığımız yer
 
 Son kayıt: 3 Ekim 2026. Proje: `/Users/alperbicer/Documents/projects/private/car-mirror`.

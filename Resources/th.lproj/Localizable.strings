@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "จัดการการสมัครสมาชิก";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "เชื่อมต่อกับ App Store ไม่ได้ ลองอีกครั้ง";
-"Aracına bağlan" = "เชื่อมต่อกับรถของคุณ";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "ตรวจสอบว่าตัวนับบนหน้าจอรถเปลี่ยนไป การทดสอบนี้ตรวจสอบการเชื่อมต่อหน้าจอ";
-"Araç görüntüsü için bağlantı bekleniyor." = "กำลังรอการเชื่อมต่อกับหน้าจอรถ";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "เชื่อมต่อกับหน้าจอรถไม่ได้ ลองอีกครั้ง";
-"Araç için yayın bağlantısı kurulamadı." = "สร้างการเชื่อมต่อสตรีมสำหรับรถไม่ได้";
 "Araç modu" = "โหมดรถ";
-"Araç video desteği" = "การรองรับวิดีโอของรถ";
 "Ayarlar" = "การตั้งค่า";
 "Açık" = "เชื่อมต่อแล้ว";
 "Bağlantı testi" = "ทดสอบการเชื่อมต่อ";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "ไม่พบการซื้อ Pro ที่ใช้งานอยู่ในบัญชี Apple นี้";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "ภาษานี้ยังไม่รองรับคำบรรยายบนอุปกรณ์ ลองเลือกภาษาอื่น";
 "Bu sürümde tüm özellikler açık." = "เวอร์ชันนี้ใช้งานได้ทุกฟีเจอร์";
-"CARPLAY BAĞLI" = "เชื่อมต่อ CARPLAY แล้ว";
-"CARPLAY BEKLENİYOR" = "กำลังรอ CARPLAY";
 "Canlı altyazılar" = "คำบรรยายสด";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "อุปกรณ์นี้ใช้คำบรรยายสดไม่ได้";
 "Canlı altyazılar · Pro" = "คำบรรยายสด · Pro";
-"CarPlay bağlı" = "เชื่อมต่อ CarPlay แล้ว";
-"CarPlay sahnesi" = "หน้าจอ CarPlay";
-"CarPlay video testini başlat" = "เริ่มทดสอบวิดีโอ CarPlay";
-"CarPlay video çıkışı kullanılamıyor." = "ใช้เอาต์พุตวิดีโอ CarPlay ไม่ได้";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "เชื่อมต่อกับ CarPlay แล้วเปิดแอปบนหน้าจอรถ";
 "Dengeli" = "สมดุล";
 "Destek" = "การสนับสนุน";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "เพิ่มคำบรรยายบนอุปกรณ์ให้การแชร์หน้าจอในภาษาที่รองรับ";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "แชร์รายงานการวินิจฉัย";
 "Tek seferlik ödeme" = "ชำระครั้งเดียว";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "ชำระครั้งเดียวเพื่อใช้ฟีเจอร์ Mirivo Pro ได้ถาวร ไม่มีการสมัครสมาชิกหรือต่ออายุอัตโนมัติ";
-"Telefonunda ve aracında daha fazlası." = "แหล่งสัญญาณและการแชร์หน้าจอในที่เดียว";
-"Telefonundan, aracına." = "จากโทรศัพท์ของคุณ สู่รถของคุณ";
 "Tercihler" = "การตั้งค่าที่ต้องการ";
 "Testi durdur" = "หยุดทดสอบ";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "ลบแหล่งสัญญาณและข้อมูลเข้าสู่ระบบที่บันทึกไว้ทั้งหมดหรือไม่?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "ความทรงจำ วิดีโอ และเพลงของคุณ เลือกหน้าจอแล้วเริ่มแชร์";
 "Google Cast araması kullanılamıyor." = "ไม่สามารถค้นหา Google Cast ได้";
 "Ayarları aç" = "เปิดการตั้งค่า";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay รองรับเสียง ส่วนวิดีโอขึ้นอยู่กับการรองรับของรถและสิทธิ์วิดีโอ";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "เลือกเนื้อหา คุณหยุดชั่วคราวหรือเปลี่ยนการเชื่อมต่อทีวีจากเครื่องเล่นได้";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN หรือเครือข่ายผู้มาเยือนอาจทำให้อุปกรณ์หากันไม่พบ";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "กำลังส่งจาก iPhone เครื่องนี้ไปยังทีวี เปิด Mirivo ค้างไว้";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "เรียกเก็บเงินปีละครั้งและต่ออายุอัตโนมัติ";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "การซื้อแบบตลอดชีพจะไม่ยกเลิกการสมัครสมาชิกปัจจุบันโดยอัตโนมัติ คุณสามารถยกเลิกได้ในบัญชี Apple ของคุณ";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "ประกาศทั่วไป";
-"Araç bağlantısında hatırlat" = "เตือนเมื่อเชื่อมต่อกับรถ";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "ส่งการเตือนบนโทรศัพท์หนึ่งครั้งเมื่อตรวจพบเซสชัน CarPlay ใหม่ ข้อมูลการเชื่อมต่อกับรถจะไม่ถูกส่งไปยังเซิร์ฟเวอร์";
 "Mirivo araç bağlantısına hazır" = "Mirivo พร้อมเชื่อมต่อกับรถของคุณแล้ว";
 "Bildirim izni alınamadı. Yeniden dene." = "ไม่สามารถขอสิทธิ์การแจ้งเตือนได้ โปรดลองอีกครั้ง";
 

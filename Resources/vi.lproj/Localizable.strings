@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "Quản lý gói đăng ký";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Không thể kết nối với App Store. Hãy thử lại.";
-"Aracına bağlan" = "Kết nối với xe của bạn";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "Kiểm tra xem bộ đếm có thay đổi trên màn hình xe không. Phép thử này kiểm tra kết nối màn hình.";
-"Araç görüntüsü için bağlantı bekleniyor." = "Đang chờ kết nối với màn hình xe.";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "Không thể kết nối với màn hình xe. Hãy thử lại.";
-"Araç için yayın bağlantısı kurulamadı." = "Không thể tạo kết nối phát cho xe.";
 "Araç modu" = "Chế độ xe";
-"Araç video desteği" = "Hỗ trợ video trên xe";
 "Ayarlar" = "Cài đặt";
 "Açık" = "Đã kết nối";
 "Bağlantı testi" = "Kiểm tra kết nối";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "Không tìm thấy giao dịch mua Pro đang có hiệu lực cho tài khoản Apple này.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "Ngôn ngữ này chưa hỗ trợ phụ đề trên thiết bị. Hãy chọn ngôn ngữ khác.";
 "Bu sürümde tüm özellikler açık." = "Mọi tính năng đều có sẵn trong phiên bản này.";
-"CARPLAY BAĞLI" = "ĐÃ KẾT NỐI CARPLAY";
-"CARPLAY BEKLENİYOR" = "ĐANG CHỜ CARPLAY";
 "Canlı altyazılar" = "Phụ đề trực tiếp";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "Thiết bị này không hỗ trợ phụ đề trực tiếp.";
 "Canlı altyazılar · Pro" = "Phụ đề trực tiếp · Pro";
-"CarPlay bağlı" = "Đã kết nối CarPlay";
-"CarPlay sahnesi" = "Giao diện CarPlay";
-"CarPlay video testini başlat" = "Bắt đầu kiểm tra video CarPlay";
-"CarPlay video çıkışı kullanılamıyor." = "Đầu ra video CarPlay không khả dụng.";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Kết nối với CarPlay rồi mở ứng dụng trên màn hình xe.";
 "Dengeli" = "Cân bằng";
 "Destek" = "Hỗ trợ";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "Thêm phụ đề trên thiết bị khi chia sẻ màn hình bằng các ngôn ngữ được hỗ trợ.";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "Chia sẻ báo cáo chẩn đoán";
 "Tek seferlik ödeme" = "Thanh toán một lần";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Thanh toán một lần để sử dụng vĩnh viễn các tính năng Mirivo Pro. Không đăng ký hay tự động gia hạn.";
-"Telefonunda ve aracında daha fazlası." = "Nguồn và chia sẻ màn hình ở cùng một nơi.";
-"Telefonundan, aracına." = "Từ điện thoại đến xe của bạn.";
 "Tercihler" = "Tùy chọn";
 "Testi durdur" = "Dừng kiểm tra";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Xóa tất cả nguồn và thông tin đăng nhập đã lưu?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Kỷ niệm, video và âm nhạc của bạn. Chọn màn hình và bắt đầu chia sẻ.";
 "Google Cast araması kullanılamıyor." = "Không thể tìm thiết bị Google Cast.";
 "Ayarları aç" = "Mở Cài đặt";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay hỗ trợ âm thanh. Video tùy thuộc vào xe và quyền phát video.";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Chọn nội dung. Bạn có thể tạm dừng hoặc đổi kết nối TV từ trình phát.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN hoặc mạng khách có thể khiến các thiết bị không tìm thấy nhau.";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Đang truyền từ iPhone này đến TV. Hãy giữ Mirivo mở.";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Thanh toán một lần mỗi năm; tự động gia hạn.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Mua trọn đời không tự động hủy gói đăng ký hiện tại. Bạn có thể hủy trong tài khoản Apple của mình.";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "Thông báo chung";
-"Araç bağlantısında hatırlat" = "Nhắc khi kết nối với xe";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Gửi một lời nhắc trên điện thoại khi phát hiện phiên CarPlay mới. Thông tin kết nối với xe không được gửi đến máy chủ.";
 "Mirivo araç bağlantısına hazır" = "Mirivo đã sẵn sàng kết nối với xe của bạn";
 "Bildirim izni alınamadı. Yeniden dene." = "Không thể xin quyền thông báo. Hãy thử lại.";
 

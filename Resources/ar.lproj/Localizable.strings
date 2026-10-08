@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "إدارة الاشتراك";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "تعذّر الاتصال بـ App Store. حاول مرة أخرى.";
-"Aracına bağlan" = "اتصل بسيارتك";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "تأكد من تغيّر العداد على شاشة السيارة. يتحقق هذا الاختبار من اتصال الشاشة.";
-"Araç görüntüsü için bağlantı bekleniyor." = "بانتظار الاتصال بشاشة السيارة.";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "تعذّر الاتصال بشاشة السيارة. حاول مرة أخرى.";
-"Araç için yayın bağlantısı kurulamadı." = "تعذّر إنشاء اتصال بث للسيارة.";
 "Araç modu" = "وضع السيارة";
-"Araç video desteği" = "دعم الفيديو في السيارة";
 "Ayarlar" = "الإعدادات";
 "Açık" = "متصل";
 "Bağlantı testi" = "اختبار الاتصال";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "لم يتم العثور على عملية شراء Pro فعّالة لحساب Apple هذا.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "هذه اللغة غير مدعومة بعد للترجمة النصية على الجهاز. اختر لغة أخرى.";
 "Bu sürümde tüm özellikler açık." = "جميع الميزات متاحة في هذا الإصدار.";
-"CARPLAY BAĞLI" = "CARPLAY متصل";
-"CARPLAY BEKLENİYOR" = "بانتظار CARPLAY";
 "Canlı altyazılar" = "الترجمة النصية المباشرة";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "الترجمة النصية المباشرة غير متاحة على هذا الجهاز.";
 "Canlı altyazılar · Pro" = "الترجمة النصية المباشرة · Pro";
-"CarPlay bağlı" = "CarPlay متصل";
-"CarPlay sahnesi" = "واجهة CarPlay";
-"CarPlay video testini başlat" = "بدء اختبار فيديو CarPlay";
-"CarPlay video çıkışı kullanılamıyor." = "إخراج فيديو CarPlay غير متاح.";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "اتصل بـ CarPlay وافتح التطبيق على شاشة سيارتك.";
 "Dengeli" = "متوازن";
 "Destek" = "الدعم";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "أضف ترجمة نصية على الجهاز إلى مشاركة الشاشة باللغات المدعومة.";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "مشاركة تقرير التشخيص";
 "Tek seferlik ödeme" = "دفع لمرة واحدة";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "دفعة واحدة للوصول الدائم إلى ميزات Mirivo Pro. دون اشتراك أو تجديد تلقائي.";
-"Telefonunda ve aracında daha fazlası." = "مصادرك ومشاركة الشاشة في مكان واحد.";
-"Telefonundan, aracına." = "من هاتفك إلى سيارتك.";
 "Tercihler" = "التفضيلات";
 "Testi durdur" = "إيقاف الاختبار";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "هل تريد حذف جميع المصادر وبيانات الدخول المحفوظة؟";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "ذكرياتك وفيديوهاتك وموسيقاك. اختر شاشة وابدأ المشاركة.";
 "Google Cast araması kullanılamıyor." = "البحث عن Google Cast غير متاح.";
 "Ayarları aç" = "فتح الإعدادات";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "يدعم CarPlay الصوت. يعتمد الفيديو على دعم السيارة وصلاحية الفيديو.";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "اختر محتوى. يمكنك الإيقاف المؤقت أو تغيير اتصال التلفاز من المشغّل.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "قد تمنع شبكة VPN أو شبكة الضيوف الأجهزة من العثور على بعضها.";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "جارٍ البث من هذا iPhone إلى التلفاز. أبقِ Mirivo مفتوحًا.";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "تُحصَّل الرسوم مرة سنويًا؛ يتجدد تلقائيًا.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "لا يؤدي الشراء مدى الحياة إلى إلغاء اشتراكك الحالي تلقائيًا. يمكنك إلغاؤه من حساب Apple الخاص بك.";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "إعلانات عامة";
-"Araç bağlantısında hatırlat" = "ذكّرني عند الاتصال بالسيارة";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "يرسل تذكيرًا واحدًا على هاتفك عند اكتشاف جلسة CarPlay جديدة. لا تُرسل معلومات الاتصال بالسيارة إلى أي خادم.";
 "Mirivo araç bağlantısına hazır" = "Mirivo جاهز للاتصال بسيارتك";
 "Bildirim izni alınamadı. Yeniden dene." = "تعذّر الحصول على إذن الإشعارات. حاول مجددًا.";
 

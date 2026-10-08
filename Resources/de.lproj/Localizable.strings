@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "Abo verwalten";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Keine Verbindung zum App Store. Versuche es erneut.";
-"Aracına bağlan" = "Mit dem Auto verbinden";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "Prüfe, ob sich der Zähler auf dem Autodisplay ändert. So wird die Bildschirmverbindung getestet.";
-"Araç görüntüsü için bağlantı bekleniyor." = "Warten auf die Verbindung zum Autodisplay.";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "Das Autodisplay konnte nicht verbunden werden. Versuche es erneut.";
-"Araç için yayın bağlantısı kurulamadı." = "Die Streaming-Verbindung zum Auto konnte nicht hergestellt werden.";
 "Araç modu" = "Fahrzeugmodus";
-"Araç video desteği" = "Videounterstützung im Fahrzeug";
 "Ayarlar" = "Einstellungen";
 "Açık" = "Verbunden";
 "Bağlantı testi" = "Verbindungstest";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "Für diesen Apple Account wurde kein aktiver Pro-Kauf gefunden.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "Diese Sprache wird für Untertitel auf dem Gerät noch nicht unterstützt. Wähle eine andere Sprache.";
 "Bu sürümde tüm özellikler açık." = "In dieser Version sind alle Funktionen verfügbar.";
-"CARPLAY BAĞLI" = "CARPLAY VERBUNDEN";
-"CARPLAY BEKLENİYOR" = "WARTEN AUF CARPLAY";
 "Canlı altyazılar" = "Live-Untertitel";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "Live-Untertitel sind auf diesem Gerät nicht verfügbar.";
 "Canlı altyazılar · Pro" = "Live-Untertitel · Pro";
-"CarPlay bağlı" = "CarPlay verbunden";
-"CarPlay sahnesi" = "CarPlay-Szene";
-"CarPlay video testini başlat" = "CarPlay-Videotest starten";
-"CarPlay video çıkışı kullanılamıyor." = "Die CarPlay-Videoausgabe ist nicht verfügbar.";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Verbinde dich mit CarPlay und öffne die App auf dem Autodisplay.";
 "Dengeli" = "Ausgewogen";
 "Destek" = "Support";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "Ergänze die Bildschirmübertragung um lokal erstellte Untertitel in unterstützten Sprachen.";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "Diagnosebericht teilen";
 "Tek seferlik ödeme" = "Einmalzahlung";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Einmal zahlen und die Funktionen von Mirivo Pro dauerhaft nutzen. Kein Abo und keine automatische Verlängerung.";
-"Telefonunda ve aracında daha fazlası." = "Deine Quellen und Bildschirmübertragung an einem Ort.";
-"Telefonundan, aracına." = "Vom Handy ins Auto.";
 "Tercihler" = "Voreinstellungen";
 "Testi durdur" = "Test stoppen";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Alle Quellen und gespeicherten Zugangsdaten löschen?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Deine Erinnerungen, Videos und Musik. Wähle einen Bildschirm und teile sie.";
 "Google Cast araması kullanılamıyor." = "Google Cast-Suche ist nicht verfügbar.";
 "Ayarları aç" = "Einstellungen öffnen";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay unterstützt Audio. Video hängt von Fahrzeugunterstützung und Videoberechtigung ab.";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Wähle einen Inhalt. Im Player kannst du pausieren oder die TV-Verbindung ändern.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "Ein VPN oder Gastnetzwerk kann verhindern, dass sich Geräte finden.";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Übertragung von diesem iPhone zum TV. Lass Mirivo geöffnet.";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Einmal jährlich abgerechnet; verlängert sich automatisch.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ein Kauf auf Lebenszeit kündigt dein bestehendes Abonnement nicht automatisch. Du kannst es in deinem Apple-Account kündigen.";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "Allgemeine Mitteilungen";
-"Araç bağlantısında hatırlat" = "Bei Fahrzeugverbindung erinnern";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Sendet bei Erkennung einer neuen CarPlay-Sitzung einmalig eine Erinnerung auf dein Telefon. Informationen zur Fahrzeugverbindung werden nicht an einen Server gesendet.";
 "Mirivo araç bağlantısına hazır" = "Mirivo ist bereit für die Verbindung mit deinem Fahrzeug";
 "Bildirim izni alınamadı. Yeniden dene." = "Die Berechtigung für Mitteilungen konnte nicht eingeholt werden. Versuche es erneut.";
 

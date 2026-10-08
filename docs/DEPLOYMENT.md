@@ -1,231 +1,33 @@
-# CarMirror: cihaz kurulumu ve App Store komutları
+# Mirivo iPhone derleme ve dağıtım
 
-Bu komutlar CarMirror'ın Swift/Xcode projesi içindir. Ana uygulama ve ReplayKit
-yayın uzantısı birlikte derlenir. Scan Tools'taki komut düzeni örnek alınmıştır;
-CarMirror için Capacitor, CocoaPods veya Android adımı yoktur.
+8 Ekim 2026: CarPlay Audio/Video uygulamadan kaldırıldı. Tek scheme `CarMirror`, yapılandırmalar `Debug` ve `Release`. Eski CarPlay arşivleri yeniden yüklenemez; yeni arşiv oluşturulmalıdır. `--carplay-video` artık geçersizdir.
 
-## Başlangıç
+macOS, Xcode 27, Node.js 22.12+ ve proje üretimi için Ruby xcodeproj gerekir. Yerel takım ayarı `Config/Local.xcconfig` içindeki `DEVELOPMENT_TEAM` ile belirlenir. Var olan dosyayı koru. Gizli anahtarları Git'e ekleme.
 
-macOS, Xcode 27, Xcode Command Line Tools ve Node.js 22.12+ gerekir. Bun yalnızca
-komut kısayolları içindir; `bun install` gerekmez. Node komutları Bun olmadan da
-çalışır. Xcode'da Apple hesabını ve imzalama sertifikalarını ayarla.
+Kimlikler: `com.alperbicer.carmirror`, `com.alperbicer.carmirror.broadcast`, `group.com.alperbicer.carmirror`.
+
+Ana uygulama `Config/App.entitlements` ile App Group, APNs ve üretim App Attest kullanır. Uzantı `Config/Broadcast.entitlements` ile yalnız App Group kullanır. İmza doğrulaması yetkileri, profili, kimlikleri, takım ve süreyi denetler. Dağıtımda production APNs ve App Store profili zorunludur. Profil daha geniş yetkilere sahip olabilir; uygulama imzasında CarPlay bulunamaz.
 
 ```sh
-cd /Users/alperbicer/Documents/projects/private/car-mirror
-
-# Var olan yerel ayarları koruyarak örnek dosyaları oluştur:
-test -f Config/Local.xcconfig || cp Config/Local.xcconfig.example Config/Local.xcconfig
-test -f .env.deploy || cp .env.deploy.example .env.deploy
-```
-
-`Config/Local.xcconfig` içinde `DEVELOPMENT_TEAM = TAKIM_KIMLIGIN` ayarını yap.
-Gerekirse `MIRROR_BUNDLE_ID` değerini de bu dosyada değiştir. `.env.deploy`
-içindeki `MIRROR_TEAM_ID`, Xcode takım ayarını yalnızca bu komutlar için ezer.
-Kabuk ortamındaki değişkenler `.env.deploy` değerlerinden önceliklidir.
-
-Varsayılan kimlikler:
-
-| Bileşen | Kimlik |
-| --- | --- |
-| Ana uygulama | `com.alperbicer.carmirror` |
-| Yayın uzantısı | `com.alperbicer.carmirror.broadcast` |
-| Ortak App Group | `group.com.alperbicer.carmirror` |
-
-Kullanıcının paylaştığı Apple e-postası **CarPlay Audio App (CarPlay framework)**
-yetkisinin hesaba tanımlandığını doğruluyor. Video yetkisi için yeni bir onay
-kanıtı yok. Varsayılan derleme Audio ve App Group ister; `--carplay-video`
-seçilirse Audio + Video istenir. İki uygulama kimliği de aynı App Group'u kullanır.
-
-Audio sürümünde CarPlay kaynakları ve Şu An Çalıyor ekranı kullanılır. Ekran
-yansıtma için Video yetkisi ve aracın video desteği ayrıca gerekir. Yetkinin
-hesaba tanımlanması, uygulamanın App ID/profilinin yenilendiğini tek başına
-göstermez. `mobile:doctor` yerel profilleri kontrol eder; Apple portalını sorgulamaz.
-
-Komutlar `CarMirror` scheme'ini ve mevcut `.xcodeproj` dosyasını kullanır.
-Proje üreticisini çalıştırmaz, kaynak sürüm/build numarasını veya entitlement
-dosyalarını değiştirmez. Audio varsayılan ve açık bir ürün yapılandırmasıdır;
-başarısız Video derlemesinden Audio veya önizleme sürümüne otomatik geçiş yapılmaz.
-
-| Yapılandırma | Scheme / config | Ana uygulama yetkileri |
-| --- | --- | --- |
-| Audio (varsayılan) | `CarMirror` / `Debug`, `Release` | `Config/CarPlayAudio.entitlements`: Audio + App Group |
-| Audio + Video | `CarMirror CarPlay` / `Debug-CarPlay`, `Release-CarPlay` | `Config/CarPlay.entitlements`: Audio + Video + App Group |
-| iPhone önizlemesi | yalnız `install --preview` | `Config/App.entitlements`: App Group |
-
-Yeni yetkiyi kullanmak için Xcode otomatik imzalama ve
-`--allow-provisioning-updates` ile profil yenilemesi denenebilir. Gerekirse Apple
-Developer → Identifiers → `com.alperbicer.carmirror` → Capabilities bölümünde
-onaylı CarPlay Audio yetkisi etkinleştirilip profil yeniden oluşturulur.
-[Apple'ın yönetilen yetki kılavuzu](https://developer.apple.com/help/account/reference/provisioning-with-managed-capabilities/).
-
-## Komutlar
-
-| Komut | Yaptığı işlem |
-| --- | --- |
-| `bun run mobile:doctor` | Xcode, takım, yerel sertifika/profil ve API anahtarı ayarını kontrol eder |
-| `bun run mobile:devices` | Eşlenmiş iPhone'ları ve kullanılabilir iPhone simülatörlerini listeler |
-| `bun run check` | Script testleri + Swift testleri + imzasız simülatör derlemesi |
-| `bun run mobile:ios:prepare` | `check` ile aynı; kurulum yapmaz |
-| `bun run mobile:ios:install` | Debug derlemesi, imza/profil kontrolü, iPhone'a kurulum ve açılış |
-| `bun run mobile:ios:preview` | CarPlay yetkilerini istemeden iPhone ekranlarını önizlemek için imzalı Debug kurulumu |
-| `bun run mobile:ios:simulator` | Simülatörde derleme, kurulum ve açılış |
-| `bun run mobile:ios:archive` | Testler, yeni build numarası ve imzalı Release arşivi |
-| `bun run mobile:ios:export` | Son başarılı arşivi App Store IPA olarak dışarı aktarır |
-| `bun run mobile:ios:upload` | Yeni arşiv + IPA doğrulaması + App Store Connect yüklemesi |
-| `bun run mobile:ios:testflight` | `upload` ile aynı |
-| `bun run test:scripts` | Yalnızca kurulum/yayın araçlarının testleri |
-
-Her komutun `--help` ve **işlem yapmayan** `--dry-run` seçeneği vardır:
-
-```sh
-bun run mobile:ios:install --help
-bun run mobile:ios:testflight --dry-run
-# Bun yoksa (başka bir dizinden de çalışır):
-node /Users/alperbicer/Documents/projects/private/car-mirror/scripts/ios.mjs doctor
-```
-
-`--dry-run` komut planını gösterir; sertifika, profil veya cihaz hazır olduğu
-anlamına gelmez. Dosya yazmaz, build numarası tüketmez, Apple'a bağlanmaz.
-
-## iPhone ve simülatör kurulumu
-
-```sh
+ruby scripts/generate_project.rb --replace
+node --test Tests/Scripts/deployment.test.mjs
+swift test --jobs 2
+bun run mobile:doctor
 bun run mobile:devices
-bun run mobile:ios:preview
-bun run mobile:ios:install --device 'IPHONE_UDID' --allow-provisioning-updates
-bun run mobile:ios:simulator --device 'SIMULATOR_UDID'
-# Video onayı/profili tamamlandıktan sonra:
-bun run mobile:doctor --carplay-video
-bun run mobile:ios:install --carplay-video --device 'IPHONE_UDID' --allow-provisioning-updates
+bun run check --keep-cache
+bun run mobile:ios:simulator --device SIMULATOR_UDID --keep-cache
+bun run mobile:ios:install --device IPHONE_UDID --allow-provisioning-updates
+bun run mobile:ios:archive --allow-provisioning-updates --keep-cache
+bun run mobile:ios:export --archive ARCHIVE_PATH --allow-provisioning-updates
+bun run mobile:ios:upload --archive ARCHIVE_PATH --allow-provisioning-updates
 ```
 
-`mobile:ios:preview`, `mobile:ios:install --preview --allow-provisioning-updates`
-kısayoludur; profil yenileme izni komuta dahildir. Tek eşleşen iPhone otomatik
-seçilir, birden fazla cihaz varsa `--device` ile seçim yapılır. Apple CarPlay
-onayı beklenirken iPhone'da tasarım ve ekranlar bu sürümle incelenebilir. Yalnızca
-bu Debug derlemesine `CODE_SIGN_ENTITLEMENTS=Config/App.entitlements` verilir;
-kaynak entitlement dosyaları ve normal derlemenin CarPlay gereksinimi korunur.
-App Group, uygulama/uzantı imzaları, profil tarihi ve cihaz kaydı yine doğrulanır.
-Aynı bundle ID kullanıldığı için mevcut CarMirror uygulaması güncellenir; ayrı
-bir simge oluşmaz. Bu sürüm CarPlay'de görünmez ve araç yansıtmasını test etmez.
-`--preview` yalnızca iPhone kurulumu içindir; arşiv, dışa aktarma ve yükleme
-komutları bu seçeneği reddeder. `mobile:doctor` seçilen CarPlay modunun imzalamasını denetler;
-önizleme kurulumu mümkünken CarPlay profili eksikliğini bildirmesi normaldir.
+`--preview` yalnız eski kurulum komutlarıyla uyumlu bir takma addır; standart kurulum da CarPlay içermez. Dağıtımda kullanılmaz. `--keep-cache` kullanılmazsa geçici derleme/bağımlılık önbelleği temizlenir; arşivler, IPA, sonuç kayıtları ve build sayacı korunur. Native komutlar tek kilidi paylaşır. Çalışan komut varken projeyi yeniden üretme veya kilidi silme.
 
-Simülatör kurulumu App Group erişimi için ad hoc imzalanır; Apple profili istemez.
-`check` komutunun imzasız derlemesi yalnızca derlenebilirliği doğrular.
-Simülatör penceresi Xcode 27'de Device Hub üzerinden açılır; eski Xcode için
-Simulator denenir. Pencere açılamazsa `simctl` kurulum/açılış sonucu korunur.
+Arşivleme testleri çalıştırır ve build numarasını `build/deploy/last-build.json` üzerinden artırır. `--build` kullanmadan önce App Store Connect'teki en son build'i kontrol et. Var olan `--archive` ile build/sürüm değiştirilemez.
 
-Cihaz adı da kullanılabilir. Birden fazla iPhone eşleşirse komut UDID ister;
-rastgele bir cihaz seçmez. Simülatörde tek açık iPhone varsa varsayılan odur.
-iPhone'u Xcode ile eşleştir, kilidini aç ve Geliştirici Modu'nu etkinleştir.
-Cihazın geliştirme profillerinde kayıtlı olması gerekir; script cihazı Apple
-Developer'a otomatik kaydetmez.
+CLI yüklemesi için `.env.deploy` içinde APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID ve APP_STORE_CONNECT_PRIVATE_KEY_PATH gerekir. Anahtar yoksa Xcode Organizer'dan mevcut Apple hesabıyla yükleme yapılabilir. Apple'a yükleme App Review'a gönderim veya yayınlama değildir.
 
-`--allow-provisioning-updates`, Xcode'un Apple'daki profilleri oluşturmasına veya
-güncellemesine izin verir. Bu seçenek olmadan yerel imzalama kaynakları
-kullanılır. `mobile:ios:preview` bu seçeneği varsayılan olarak ekler.
-CarPlay başvuru/onay adımını tamamlamaz. API anahtarı ayarlıysa onu,
-yoksa Xcode'daki Apple hesabını kullanır.
+Ekran görüntüleri sentetik demo verisiyle gerçek iPhone arayüzünden alınır. Test sunucusu `python3 scripts/capture_store_screenshots.py`; yalnız 127.0.0.1:8769 dinler. 22 dilde aynı altı ekranın sırası: kaynaklar, kanallar, oynatıcı, paylaşım, Xtream, AirPlay rehberi. Demo uygulamaya paketlenmez.
 
-Her derleme ayrı DerivedData dizini kullanır. Kurulumdan önce ana uygulama ve
-uzantının bundle ID, sürüm/build, App Group, imza, profil tarihi ve cihaz kaydı
-kontrol edilir. Varsayılanda Audio; `--carplay-video` ile Audio + Video aranır.
-Paketin çalışma zamanı bayrakları da imzayla eşleşmelidir. Audio imzasında Video
-bulunması veya Video paketinde Video yetkisinin eksik olması reddedilir. Derleme/kurulum
-başarısız olursa sonraki adım çalışmaz. Kurulum mevcut uygulamayı silmez.
-Açılış komutunun başarısı, görünür ekran veya araçta çalışan görüntü kanıtı değildir.
-
-## Arşiv, IPA ve TestFlight
-
-App Store Connect'te uygulama kaydını aynı bundle ID ile oluştur. Yükleme için
-App Store Connect takım API anahtarının gerekli uygulama/yükleme erişimi olmalı.
-`.env.deploy` dosyasındaki alanlar:
-
-```dotenv
-APP_STORE_CONNECT_KEY_ID=ANAHTAR_ID
-APP_STORE_CONNECT_ISSUER_ID=ISSUER_UUID
-APP_STORE_CONNECT_PRIVATE_KEY_PATH=/tam/yol/AuthKey_ANAHTAR_ID.p8
-```
-
-Anahtar yolu boşsa `~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8` aranır.
-`.env.deploy`, `Config/Local.xcconfig` ve `.p8` dosyaları Git tarafından yok sayılır.
-
-```sh
-# Tek komutta yeni arşiv, doğrulanmış IPA ve Apple'a yükleme:
-bun run mobile:ios:testflight --allow-provisioning-updates
-
-# Adımları ayrı çalıştırmak için:
-bun run mobile:ios:archive --version 0.1.0 --allow-provisioning-updates
-bun run mobile:ios:export --allow-provisioning-updates
-
-# Aynı arşivin yüklemesini tekrar denemek için:
-bun run mobile:ios:upload --archive '/tam/yol/CarMirror.xcarchive' --allow-provisioning-updates
-```
-
-Arşiv sırasında build numarası, kaynak değeri ve `build/deploy/last-build.json`
-sayacının büyüğünden bir artırılır. Kaynak dosyalar değişmez; başarısız arşiv
-denemeleri numara tüketebilir. Bu sayaç Apple'daki en son build'i sorgulamaz ve
-`build/` silinirse sıfırlanır. Başka makineden yükleme yaptıysan veya sayacı
-sildiysen App Store Connect'i kontrol ederek `--build 15` gibi daha yüksek bir
-numara ver. Ana uygulama ve uzantı aynı sürüm/build ile üretilir; Xcode'un
-yükleme sırasında numarayı değiştirmesi kapalıdır.
-
-`export` en son **başarıyla doğrulanmış** arşivi seçer. `--archive` ile açık bir
-yol da verebilirsin. Mevcut arşiv kullanılırken `--version`/`--build`/`--carplay-video`
-verilmez; Audio/Video modu arşivdeki uygulamanın Info.plist dosyasından okunur ve
-gerçek imza/profille doğrulanır. Mod bayrakları olmayan eski arşiv yeniden üretilmelidir.
-IPA dışarı aktarıldıktan sonra dağıtım profilleri ve yetkiler yeniden kontrol
-edilir. Yükleme, doğrulanan aynı arşivden Xcode'un `destination=upload` yolu ile
-yapılır. Çıktılar ve başarılı işlem kayıtları `build/deploy/` altında saklanır:
-`.xcarchive`, `.ipa`, export seçenekleri ve JSON işlem kayıtları.
-
-Kurulum, kontrol, arşiv ve uygulama testleri `build/cache/DerivedData` derleme
-önbelleğini ve `build/cache/SourcePackages` bağımlılıklarını ortak kullanır.
-Bu önbellekler komut tamamlandığında veya hata verdiğinde varsayılan olarak
-silinir; `.build` ve modül önbellekleri de temizlenir. Art arda geliştirme
-derlemelerinde önbelleği tutmak için `--keep-cache` ver; bu seçenek gigabaytlarca
-dosyayı yerelde bırakabilir. Varsayılan temizlik sonraki derlemede bağımlılıkların
-yeniden indirilmesini ve derlenmesini gerektirebilir. Derleme sürerken geçici
-disk kullanımı yine yüksek olabilir. Kurulum/önizleme/simülatör
-JSON kayıtları `build/deploy/runs/` altında son çalıştırmayla yenilenir;
-`test:app` yalnızca son `build/app-tests.xcresult` raporunu tutar. Ortak önbelleği
-kullanan komutlar aynı anda çalıştırılamaz. Bir komut zorla kapatıldıysa ve başka
-derleme çalışmıyorsa `build/.native-build.lock` dosyasını silerek tekrar dene.
-
-`bun run clean` yeniden üretilebilir önbellekleri ve `build/` altındaki test raporlarını
-siler; yayın arşivlerini, IPA dosyalarını, yükleme kayıtlarını ve build sayacını
-korur. Sonraki derlemede önbellekler yeniden oluşturulur. Başarılı yayın çıktıları
-otomatik silinmez; saklama ihtiyacı bittiğinde ayrıca temizlenebilir.
-Bu politika `scripts/ios.mjs`, `test:app` ve `test:core` komutlarında uygulanır;
-doğrudan `xcodebuild` veya `swift test` çağrıları bu temizliği çalıştırmaz.
-
-Başarılı upload sonrasında Apple'ın build'i işlemesini bekle. TestFlight test
-grupları, ihracat uyumu soruları, mağaza bilgileri, ekran görüntüleri ve App Review
-gönderimi App Store Connect'te tamamlanır. Bu komutlar incelemeye göndermez veya
-uygulamayı herkese açık yayımlamaz. Bkz.
-[Apple'ın build yükleme belgesi](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/).
-
-## Bir adım başarısız olursa
-
-Kullanıcının eklediği HTTP M3U/Xtream adresleri `URLSession` ile indirilir.
-`Config/App-Info.plist` içindeki `NSAllowsArbitraryLoads` bu adresleri ve HTTP
-yayınlarını destekler. `NSAllowsArbitraryLoadsForMedia`, `NSAllowsLocalNetworking`
-ve `NSAllowsArbitraryLoadsInWebContent` aynı sözlüğe eklenmemelidir; desteklenen
-iOS sürümlerinde genel izni geçersiz kılarlar. HTTPS adresleri HTTPS üzerinden
-yüklenmeye devam eder; HTTP bağlantılar şifrelenmez. App Review ATS gerekçesi:
-kullanıcıların sağladığı, alan adı önceden bilinmeyen HTTP medya listeleri ve
-yayınlarıyla uyumluluk. `release:check` bu ayarın korunmasını denetler.
-
-- **CarPlay yetkisi/profili eksik:** Apple onayı ve ilgili App ID yetkilerini
-  kontrol et; ardından profilleri yenile. Yalnızca iPhone ekranlarını görmek için
-  `mobile:ios:preview` kullan. Normal kurulum otomatik olarak önizlemeye geçmez.
-- **Sertifika yok:** Xcode → Settings → Accounts üzerinden doğru takımı ve
-  Apple Development/Distribution sertifikalarını ayarla.
-- **CoreDevice/cihaz bulunamadı:** Xcode'da Devices and Simulators ekranını aç,
-  iPhone bağlantısı, kilidi, eşleşmesi ve Geliştirici Modu'nu kontrol et.
-- **Build zaten yüklenmiş:** Yeni arşive daha yüksek `--build` ver. Aynı build'in
-  tekrar yüklenmesine Apple karar verir; yerel sayaç bunu doğrulayamaz.
-- **API anahtarı veya erişim hatası:** `.env.deploy` alanlarını, anahtar yolunu ve
-  App Store Connect rol/uygulama erişimini kontrol et.
+Netlify paketi `python3 scripts/build_site.py` ile hazırlanır; `python3 scripts/verify_release.py` kaynak/metin/ZIP tutarlılığını denetler. Canlı yayın ayrıca doğrulanır.

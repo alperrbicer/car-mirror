@@ -1,3 +1,5 @@
+> 8 Ekim 2026 güncellemesi: CarPlay kaldırılmıştır. Aşağıdaki CarPlay/build 12 kayıtları tarihsel kanıttır; güncel dağıtım için DEPLOYMENT.md ve CARPLAY_REMOVAL_2026-10-08.md esas alınmalıdır.
+
 # Mirivo ürün ve uygulama planı
 
 Bu planın amacı, ilk sürümden itibaren App Store'da yayımlanacak; iPhone ekranını CarPlay'e yansıtan, sesiyle birlikte kullanılabilir ve görsel açıdan tamamlanmış bir ürün teslim etmektir. İlk fiziksel kabul ortamı kullanıcının iPhone 16 Pro telefonu ve 2024 Kia EV6 aracının orijinal ekranıdır. Bitmiş ürün ölçütü gerçek araçtaki sonuç ve mağazada yayımlanmış sürümdür. Derlenmesi, telefona kurulması veya ekran yakalamanın başlaması tek başına tamamlanma sayılmaz.

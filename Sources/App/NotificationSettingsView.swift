@@ -3,7 +3,6 @@ import UIKit
 
 struct NotificationSettingsView: View {
     @ObservedObject private var notifications = NotificationStore.shared
-    @ObservedObject private var carReminder = CarConnectionReminderStore.shared
 
     var body: some View {
         Form {
@@ -32,32 +31,11 @@ struct NotificationSettingsView: View {
                 Text(L10n.tr("Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez."))
             }
             .listRowBackground(MirrorStyle.surface)
-            Section {
-                Toggle(L10n.tr("Araç bağlantısında hatırlat"), isOn: Binding(get: { carReminder.enabled }, set: { value in
-                    Task { await carReminder.setEnabled(value) }
-                }))
-                .accessibilityIdentifier("car-connection-reminder-enabled")
-                if carReminder.enabled && carReminder.authorization == .denied {
-                    Text(L10n.tr("Bildirim izni iOS Ayarları’ndan açılmalı."))
-                        .foregroundStyle(MirrorStyle.secondary)
-                    Button(L10n.tr("iOS Ayarlarını aç")) {
-                        if let url = URL(string: UIApplication.openNotificationSettingsURLString) { UIApplication.shared.open(url) }
-                    }
-                } else if carReminder.enabled && !carReminder.requestingPermission &&
-                            (carReminder.permissionFailed || carReminder.authorization == .notDetermined) {
-                    Text(L10n.tr(carReminder.permissionFailed ? "Bildirim izni alınamadı. Yeniden dene." : "Bildirim izni bekleniyor."))
-                        .foregroundStyle(MirrorStyle.secondary)
-                    Button(L10n.tr("Yeniden dene")) { Task { await carReminder.setEnabled(true) } }
-                }
-            } footer: {
-                Text(L10n.tr("Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez."))
-            }
-            .listRowBackground(MirrorStyle.surface)
         }
         .navigationTitle(L10n.tr("Bildirimler"))
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
-        .task { await notifications.refresh(); await carReminder.refreshAuthorization() }
+        .task { await notifications.refresh() }
         .onAppear { FirebaseServices.recordScreen(.notifications) }
     }
 

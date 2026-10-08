@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "管理訂閱";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "無法連接 App Store，請再試一次。";
-"Aracına bağlan" = "連接車輛";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "請檢查車載螢幕上的計數器是否變動。此測試用於檢查螢幕連線。";
-"Araç görüntüsü için bağlantı bekleniyor." = "正在等待車載螢幕連線。";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "無法連接車載螢幕，請再試一次。";
-"Araç için yayın bağlantısı kurulamadı." = "無法建立與車輛的串流連線。";
 "Araç modu" = "車用模式";
-"Araç video desteği" = "車輛影片支援";
 "Ayarlar" = "設定";
 "Açık" = "已連線";
 "Bağlantı testi" = "連線測試";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "此 Apple 帳號沒有有效的 Pro 購買紀錄。";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "此語言尚不支援裝置端字幕，請選擇其他語言。";
 "Bu sürümde tüm özellikler açık." = "此版本的所有功能皆可使用。";
-"CARPLAY BAĞLI" = "CARPLAY 已連線";
-"CARPLAY BEKLENİYOR" = "正在等待 CARPLAY";
 "Canlı altyazılar" = "即時字幕";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "此裝置無法使用即時字幕。";
 "Canlı altyazılar · Pro" = "即時字幕 · Pro";
-"CarPlay bağlı" = "CarPlay 已連線";
-"CarPlay sahnesi" = "CarPlay 場景";
-"CarPlay video testini başlat" = "開始 CarPlay 影片測試";
-"CarPlay video çıkışı kullanılamıyor." = "CarPlay 影片輸出無法使用。";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "連接 CarPlay，然後在車載螢幕上開啟 App。";
 "Dengeli" = "均衡";
 "Destek" = "支援";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "以支援的語言為螢幕共享加入裝置端產生的字幕。";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "分享診斷報告";
 "Tek seferlik ödeme" = "一次性付款";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "付款一次即可永久使用 Mirivo Pro 功能，無須訂閱，不會自動續費。";
-"Telefonunda ve aracında daha fazlası." = "來源與螢幕共享，盡在一處。";
-"Telefonundan, aracına." = "從手機到車載螢幕。";
 "Tercihler" = "偏好設定";
 "Testi durdur" = "停止測試";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "刪除所有來源和已儲存的登入資訊？";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "你的回憶、影片與音樂。選擇螢幕，開始分享。";
 "Google Cast araması kullanılamıyor." = "Google Cast 搜尋無法使用。";
 "Ayarları aç" = "開啟設定";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay 支援音訊。影片取決於車輛支援和影片權限。";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "選擇內容，即可在播放器中暫停或變更電視連線。";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN 或訪客網路可能導致裝置無法互相探索。";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "正在從此 iPhone 傳輸到電視。請保持 Mirivo 開啟。";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "每年收費一次；自動續訂。";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "購買終身使用權不會自動取消現有訂閱。你可以在 Apple 帳號中取消訂閱。";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "一般公告";
-"Araç bağlantısında hatırlat" = "連接車輛時提醒我";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "偵測到新的 CarPlay 工作階段時，在手機上提醒一次。車輛連線資訊不會傳送至伺服器。";
 "Mirivo araç bağlantısına hazır" = "Mirivo 已準備好連接車輛";
 "Bildirim izni alınamadı. Yeniden dene." = "無法取得通知權限。請重試。";
 

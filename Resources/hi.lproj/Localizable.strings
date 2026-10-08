@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "सदस्यता प्रबंधित करें";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "App Store से कनेक्ट नहीं हो पाया। फिर कोशिश करें।";
-"Aracına bağlan" = "अपनी कार से कनेक्ट करें";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "देखें कि कार की स्क्रीन पर काउंटर बदल रहा है। यह टेस्ट स्क्रीन का कनेक्शन जाँचता है।";
-"Araç görüntüsü için bağlantı bekleniyor." = "कार की स्क्रीन से कनेक्शन का इंतज़ार है।";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "कार की स्क्रीन से कनेक्ट नहीं हो पाया। फिर कोशिश करें।";
-"Araç için yayın bağlantısı kurulamadı." = "कार के लिए स्ट्रीम कनेक्शन नहीं बन पाया।";
 "Araç modu" = "कार मोड";
-"Araç video desteği" = "कार में वीडियो की सुविधा";
 "Ayarlar" = "सेटिंग्स";
 "Açık" = "कनेक्ट है";
 "Bağlantı testi" = "कनेक्शन टेस्ट";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "इस Apple खाते में कोई सक्रिय Pro खरीदारी नहीं मिली।";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "इस भाषा में डिवाइस पर कैप्शन की सुविधा अभी उपलब्ध नहीं है। दूसरी भाषा चुनें।";
 "Bu sürümde tüm özellikler açık." = "इस संस्करण में सभी सुविधाएँ उपलब्ध हैं।";
-"CARPLAY BAĞLI" = "CARPLAY कनेक्ट है";
-"CARPLAY BEKLENİYOR" = "CARPLAY का इंतज़ार है";
 "Canlı altyazılar" = "लाइव कैप्शन";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "इस डिवाइस पर लाइव कैप्शन उपलब्ध नहीं हैं।";
 "Canlı altyazılar · Pro" = "लाइव कैप्शन · Pro";
-"CarPlay bağlı" = "CarPlay कनेक्ट है";
-"CarPlay sahnesi" = "CarPlay स्क्रीन";
-"CarPlay video testini başlat" = "CarPlay वीडियो टेस्ट शुरू करें";
-"CarPlay video çıkışı kullanılamıyor." = "CarPlay वीडियो आउटपुट उपलब्ध नहीं है।";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlay से कनेक्ट करें और कार की स्क्रीन पर ऐप खोलें।";
 "Dengeli" = "संतुलित";
 "Destek" = "सहायता";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "समर्थित भाषाओं में स्क्रीन शेयरिंग के लिए डिवाइस पर कैप्शन जोड़ें।";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "डायग्नोस्टिक रिपोर्ट शेयर करें";
 "Tek seferlik ödeme" = "एक बार भुगतान";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "एक भुगतान से Mirivo Pro सुविधाओं का स्थायी उपयोग। कोई सदस्यता या अपने आप नवीनीकरण नहीं।";
-"Telefonunda ve aracında daha fazlası." = "आपके स्रोत और स्क्रीन शेयरिंग एक जगह।";
-"Telefonundan, aracına." = "आपके फ़ोन से आपकी कार तक।";
 "Tercihler" = "प्राथमिकताएँ";
 "Testi durdur" = "टेस्ट रोकें";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "सभी स्रोत और सहेजी गई लॉगिन जानकारी मिटाएँ?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "आपकी यादें, वीडियो और संगीत। स्क्रीन चुनें और शेयर करना शुरू करें।";
 "Google Cast araması kullanılamıyor." = "Google Cast खोज उपलब्ध नहीं है।";
 "Ayarları aç" = "सेटिंग्स खोलें";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay ऑडियो का समर्थन करता है। वीडियो कार के समर्थन और वीडियो अनुमति पर निर्भर है।";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "कंटेंट चुनें। प्लेयर से रोकें या TV कनेक्शन बदलें।";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN या गेस्ट नेटवर्क डिवाइसों को एक-दूसरे को खोजने से रोक सकता है।";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "इस iPhone से TV पर स्ट्रीम हो रहा है। Mirivo खुला रखें।";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "साल में एक बार शुल्क लिया जाता है; अपने आप नवीनीकृत होता है।";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "आजीवन खरीदारी से आपकी मौजूदा सदस्यता अपने आप रद्द नहीं होती। आप इसे अपने Apple खाते में रद्द कर सकते हैं।";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "सामान्य घोषणाएँ";
-"Araç bağlantısında hatırlat" = "कार से कनेक्ट होने पर याद दिलाएँ";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "नया CarPlay सत्र मिलने पर फ़ोन पर एक बार याद दिलाता है। कार कनेक्शन की जानकारी सर्वर पर नहीं भेजी जाती।";
 "Mirivo araç bağlantısına hazır" = "Mirivo आपकी कार से कनेक्ट होने के लिए तैयार है";
 "Bildirim izni alınamadı. Yeniden dene." = "सूचनाओं की अनुमति नहीं मिल सकी। फिर से कोशिश करें।";
 

@@ -138,7 +138,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         }, onFailure: { [weak self] error in
             self?.stateQueue.async { [weak self] in
                 guard self?.status.sessionID == sessionID else { return }
-                self?.fail(L10n.tr("Araç için yayın bağlantısı kurulamadı."), error: error)
+                self?.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), error: error)
             }
         })
         encoder.start()

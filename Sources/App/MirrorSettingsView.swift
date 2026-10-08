@@ -185,19 +185,15 @@ private struct ConnectionTestView: View {
     var body: some View {
         List {
             Section(L10n.tr("iOS bağlantısı")) {
-                LabeledContent(L10n.tr("CarPlay sahnesi"), value: L10n.tr(model.carPlayConnected ? "Açık" : "Kapalı"))
-                LabeledContent(L10n.tr("Araç video desteği"), value: L10n.tr(model.supportsVideo.map { $0 ? "Var" : "Yok" } ?? "Henüz okunmadı"))
                 LabeledContent(L10n.tr("Harici ekran sayısı"), value: "\(model.externalScreenCount)")
             }
             Section {
-                Button(L10n.tr("CarPlay video testini başlat")) { model.startVideoProbe() }
-                    .disabled(model.broadcasting || !model.carPlayConnected || model.supportsVideo != true)
                 Button(L10n.tr("Harici ekran desenini başlat")) { model.startExternalProbe() }
                     .disabled(model.broadcasting || model.externalScreenCount == 0)
                 Button(L10n.tr("Testi durdur"), role: .destructive) { model.stopProbe() }
                     .disabled(model.probeStartedAt == nil)
             } footer: {
-                Text(L10n.tr("Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer."))
+                Text(L10n.tr("Hareketli ekran bağlantı testi"))
             }
             if model.probeStartedAt != nil {
                 VideoPlayer(player: model.playback.player).frame(height: 180)

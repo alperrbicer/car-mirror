@@ -5,22 +5,21 @@ import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSy
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  argumentsFor, carPlayModeFromInfo, configurationFromSettings, exportPlist, parsePlist, parseProfile,
+  argumentsFor, assertNoCarPlay, configurationFromSettings, exportPlist, parsePlist, parseProfile,
   physicalPhones, reserveBuild, root, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock,
 } from '../../scripts/deployment-lib.mjs'
 
 const team = 'TEAM123456'
 const bundleId = 'com.example.carmirror'
 const appGroup = `group.${bundleId}`
-const config = { bundleId, appGroup, team, mainApp: true, carPlayMode: 'video', now: Date.UTC(2026, 0, 1) }
+const config = { bundleId, appGroup, team, mainApp: true, now: Date.UTC(2026, 0, 1) }
 const settings = { PRODUCT_BUNDLE_IDENTIFIER: bundleId, APP_GROUP_IDENTIFIER: appGroup,
-  DEVELOPMENT_TEAM: team, MARKETING_VERSION: '0.1.0', CURRENT_PROJECT_VERSION: '3', CODE_SIGN_ENTITLEMENTS: 'Config/CarPlayAudio.entitlements',
-  MIRIVO_CARPLAY_AUDIO_ENABLED: 'YES', MIRIVO_CARPLAY_VIDEO_ENABLED: 'NO' }
+  DEVELOPMENT_TEAM: team, MARKETING_VERSION: '0.1.0', CURRENT_PROJECT_VERSION: '3', CODE_SIGN_ENTITLEMENTS: 'Config/App.entitlements' }
 
 function signing() {
   const entitlements = { 'application-identifier': `${team}.${bundleId}`, 'com.apple.developer.team-identifier': team,
     'aps-environment': 'production', 'com.apple.developer.devicecheck.appattest-environment': 'production',
-    'com.apple.security.application-groups': [appGroup], 'com.apple.developer.carplay-audio': true, 'com.apple.developer.carplay-video': true }
+    'com.apple.security.application-groups': [appGroup] }
   return { entitlements, profile: { Entitlements: structuredClone(entitlements), TeamIdentifier: [team],
     ApplicationIdentifierPrefix: [team], ExpirationDate: '2027-01-01T00:00:00Z' } }
 }
@@ -89,35 +88,6 @@ test('CLI rejects ambiguous or incompatible arguments before doing work', () => 
   }
 })
 
-test('audio-only profiles work without Video and cannot silently satisfy a video build', () => {
-  const fixture = signing()
-  delete fixture.entitlements['com.apple.developer.carplay-video']
-  delete fixture.profile.Entitlements['com.apple.developer.carplay-video']
-  const audio = { ...config, carPlayMode: 'audio' }
-  validateProfile(fixture.entitlements, fixture.profile, audio)
-  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /carplay-video/)
-  // A broader profile is allowed, but the audio app signature must not ask for Video.
-  fixture.profile.Entitlements['com.apple.developer.carplay-video'] = true
-  validateProfile(fixture.entitlements, fixture.profile, audio)
-  fixture.entitlements['com.apple.developer.carplay-video'] = true
-  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, audio), /unexpected/)
-  delete fixture.entitlements['com.apple.developer.carplay-video']
-  delete fixture.profile.Entitlements['com.apple.developer.carplay-audio']
-  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, audio), /carplay-audio/)
-})
-
-test('archived mode and runtime flags determine the exact entitlement requirement', () => {
-  assert.equal(carPlayModeFromInfo({ CMCarPlayAudioEnabled: 'YES', CMCarPlayVideoEnabled: 'NO' }), 'audio')
-  assert.equal(carPlayModeFromInfo({ CMCarPlayAudioEnabled: true, CMCarPlayVideoEnabled: true }), 'video')
-  assert.throws(() => carPlayModeFromInfo({ CMCarPlayAudioEnabled: 'NO', CMCarPlayVideoEnabled: 'NO' }), /preview/)
-  assert.equal(configurationFromSettings([{ target: 'CarMirror', buildSettings: settings }]).carPlayMode, 'audio')
-  const videoSettings = { ...settings, CODE_SIGN_ENTITLEMENTS: 'Config/CarPlay.entitlements', MIRIVO_CARPLAY_VIDEO_ENABLED: 'YES' }
-  assert.equal(configurationFromSettings([{ target: 'CarMirror', buildSettings: videoSettings }]).carPlayMode, 'video')
-  for (const invalid of [{ ...settings, MIRIVO_CARPLAY_VIDEO_ENABLED: 'YES' }, { ...videoSettings, MIRIVO_CARPLAY_VIDEO_ENABLED: 'NO' }]) {
-    assert.throws(() => configurationFromSettings([{ target: 'CarMirror', buildSettings: invalid }]), /runtime flags/)
-  }
-})
-
 test('device discovery handles both schemas and never selects a Watch or an ambiguous iPhone', () => {
   const newer = { identifier: 'second-core-id', properties: { hardware: { reality: 'physical', deviceType: 'iPhone', udid: 'second-udid' },
     connection: { pairingState: 'paired' }, state: { name: 'Second iPhone' } } }
@@ -132,11 +102,10 @@ test('device discovery handles both schemas and never selects a Watch or an ambi
   assert.throws(() => selectDevice([]), /No matching/)
 })
 
-test('signed app and profile must both retain CarPlay Audio, Video, App Group and identity', () => {
+test('signed app and profile must both retain App Group and identity', () => {
   const good = signing()
   validateProfile(good.entitlements, good.profile, config)
-  for (const source of ['entitlements', 'profile']) for (const key of ['com.apple.developer.carplay-audio', 'com.apple.developer.carplay-video',
-    'com.apple.security.application-groups', 'application-identifier']) {
+  for (const source of ['entitlements', 'profile']) for (const key of ['com.apple.security.application-groups', 'application-identifier']) {
     const fixture = signing()
     delete (source === 'profile' ? fixture.profile.Entitlements : fixture.entitlements)[key]
     assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), undefined, `${source}: ${key}`)
@@ -170,7 +139,6 @@ test('explicit iPhone preview accepts profiles without CarPlay while retaining s
   fixture.profile.ProvisionedDevices = ['my-udid']
   const preview = { ...config, preview: true, device: 'my-udid' }
   validateProfile(fixture.entitlements, fixture.profile, preview)
-  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /carplay/)
   assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, { ...preview, distribution: true }), /App Store/)
   assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, { ...preview, device: 'another-device' }), /selected iPhone/)
   for (const change of [
@@ -203,7 +171,7 @@ test('Xcode settings with a zero-exit error or unresolved/missing signing fields
   assert.equal(configurationFromSettings([{ target: 'CarMirror', buildSettings: settings }]).team, team)
   assert.throws(() => configurationFromSettings([{ target: 'CarMirror', buildSettings: {}, error: 'PIFCache failed' }]), /PIFCache/)
   assert.throws(() => configurationFromSettings([{ target: 'CarMirror', buildSettings: { ...settings, APP_GROUP_IDENTIFIER: 'group.$(MIRROR_BUNDLE_ID)' } }]), /resolve/)
-  assert.throws(() => configurationFromSettings([{ target: 'CarMirror', buildSettings: { ...settings, CODE_SIGN_ENTITLEMENTS: 'Config/App.entitlements' } }]), /CarPlay/)
+  assert.throws(() => configurationFromSettings([{ target: 'CarMirror', buildSettings: { ...settings, CODE_SIGN_ENTITLEMENTS: 'Config/CarPlayAudio.entitlements' } }]), /CarPlay/)
 })
 
 test('build reservations increase across runs without changing source and refuse corrupt/locked state', t => {
@@ -410,9 +378,8 @@ test('preview overrides only the install entitlements and preserves device signi
   const env = { ...fixture.env, PATH: '/nonexistent' }
   const result = spawnSync(process.execPath, [fixture.script, 'install', '--preview', '--allow-provisioning-updates', '--dry-run'], { env, encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /MIRIVO_MAIN_APP_ENTITLEMENTS=Config\/App.entitlements/)
-  assert.match(result.stdout, /CarPlay is disabled/)
-  assert.match(result.stdout, /App Groups and iPhone preview profiles/)
+  assert.match(result.stdout, /no CarPlay integration/)
+  assert.match(result.stdout, /App Groups and standalone iPhone profiles/)
   assert.match(result.stdout, /-allowProvisioningUpdates/)
   assert.ok(!result.stdout.includes('CODE_SIGNING_ALLOWED=NO'))
   assert.ok(result.stdout.indexOf('Verify signature') < result.stdout.indexOf('"install" "app"'))
@@ -421,24 +388,8 @@ test('preview overrides only the install entitlements and preserves device signi
   const standard = spawnSync(process.execPath, [fixture.script, 'install', '--dry-run'], { env, encoding: 'utf8' })
   assert.equal(standard.status, 0, standard.stderr)
   assert.ok(!standard.stdout.includes('CODE_SIGN_ENTITLEMENTS='))
-  assert.match(standard.stdout, /App Groups and CarPlay audio profiles/)
-  assert.match(result.stdout, /MIRIVO_CARPLAY_AUDIO_ENABLED=NO/)
-  assert.match(result.stdout, /MIRIVO_CARPLAY_VIDEO_ENABLED=NO/)
-})
-
-test('video mode is explicit, preserves product paths and is incompatible with preview or an existing archive', t => {
-  assert.throws(() => argumentsFor(['install', '--preview', '--carplay-video']), /cannot be combined/)
-  assert.throws(() => argumentsFor(['upload', '--archive', '/a', '--carplay-video']), /cannot be combined/)
-  const fixture = isolatedCLI(t)
-  for (const command of ['install', 'simulator', 'archive', 'check']) {
-    const result = spawnSync(process.execPath, [fixture.script, command, '--carplay-video', '--dry-run'], {
-      env: { ...fixture.env, PATH: '/nonexistent' }, encoding: 'utf8',
-    })
-    assert.equal(result.status, 0, result.stderr)
-    assert.match(result.stdout, /(?:Debug|Release)-CarPlay/)
-    if (command === 'simulator') assert.match(result.stdout, /Debug-CarPlay-iphonesimulator\/CarMirror.app/)
-    if (command === 'install') assert.match(result.stdout, /CarPlay video profiles/)
-  }
+  assert.match(standard.stdout, /standalone iPhone profiles/)
+  assert.ok(!result.stdout.includes('MIRIVO_CARPLAY_'))
 })
 
 test('a failed native build or ambiguous device never reaches installation or launch', { skip: process.platform !== 'darwin' }, t => {
@@ -471,7 +422,7 @@ else if (command === 'xcrun' && args.includes('list') && args.includes('devices'
     calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
     const build = calls.find(call => call.command === 'xcodebuild' && call.args.includes('build'))
     assert.ok(build)
-    assert.equal(build.args.includes('MIRIVO_MAIN_APP_ENTITLEMENTS=Config/App.entitlements'), flags.includes('--preview'))
+    assert.equal(build.args.includes('MIRIVO_MAIN_APP_ENTITLEMENTS=Config/App.entitlements'), false)
     assert.ok(!calls.some(call => call.args.includes('install') || call.args.includes('launch')))
   }
   writeFileSync(log, '')
@@ -480,4 +431,23 @@ else if (command === 'xcrun' && args.includes('list') && args.includes('devices'
   assert.match(ambiguous.stderr, /Multiple devices/)
   calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
   assert.ok(!calls.some(call => call.args.includes('build') || call.args.includes('install') || call.args.includes('launch')))
+})
+
+test('standalone release rejects legacy scenes, enabled runtime flags and signed CarPlay entitlements', () => {
+  assertNoCarPlay({})
+  for (const info of [{ CMCarPlayAudioEnabled: 'YES' }, { CMCarPlayVideoEnabled: true },
+    { UIApplicationSceneManifest: { UISceneConfigurations: { CPTemplateApplicationSceneSessionRoleApplication: [] } } }]) {
+    assert.throws(() => assertNoCarPlay(info), /CarPlay/)
+  }
+  for (const key of ['com.apple.developer.carplay-audio', 'com.apple.developer.carplay-video']) {
+    const fixture = signing()
+    fixture.entitlements[key] = true
+    assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /unexpected/)
+    delete fixture.entitlements[key]
+    fixture.profile.Entitlements[key] = true
+    validateProfile(fixture.entitlements, fixture.profile, config)
+  }
+  for (const command of ['install', 'archive', 'upload', 'check']) {
+    assert.throws(() => argumentsFor([command, '--carplay-video']), /Unknown option/)
+  }
 })

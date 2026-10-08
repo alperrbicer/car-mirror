@@ -13,7 +13,7 @@ final class MirrorSessionStateTests: XCTestCase {
 
     private func state(_ capture: CaptureStatus?, car: Bool = true, session: UUID? = nil,
                        external: Bool = false, playing: Bool = false, stopping: Bool = false, failed: Bool = false) -> MirrorSessionState {
-        .resolve(capture: capture, carConnected: car, playbackSessionID: session, externalPlayback: external,
+        .resolve(capture: capture, displayConnected: car, playbackSessionID: session, externalPlayback: external,
                  playing: playing, stopRequested: stopping, playbackFailed: failed, now: now)
     }
 
@@ -46,7 +46,7 @@ final class MirrorSessionStateTests: XCTestCase {
         XCTAssertEqual(state(capture), .failed)
         capture.phase = .stopped
         XCTAssertEqual(state(capture), .ready)
-        XCTAssertEqual(state(capture, car: false), .waitingForCar)
-        XCTAssertEqual(state(nil, car: false), .waitingForCar)
+        XCTAssertEqual(state(capture, car: false), .waitingForDisplay)
+        XCTAssertEqual(state(nil, car: false), .waitingForDisplay)
     }
 }

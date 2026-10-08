@@ -1,3 +1,5 @@
+> 8 Ekim 2026 güncellemesi: CarPlay kaldırılmıştır. Aşağıdaki CarPlay/build 12 kayıtları tarihsel kanıttır; güncel dağıtım için DEPLOYMENT.md ve CARPLAY_REMOVAL_2026-10-08.md esas alınmalıdır.
+
 # Mirivo Pro — 5 Ekim 2026
 
 7 Ekim yerel takip: araç modu ücretsiz günlük izleme bütçesi içindedir. Destek sitesi kaynak metinleri bu davranışla ve dosyadan kaynak/hesap bitiş bilgisinin yerel saklanmasıyla güncellendi; yeniden üretilen ZIP yayımlanmadı. Güncel yerelleştirme doğrulaması 22 dil × 280 anahtar, 6160 çeviri, 0 hata. [Kaynak yöntemleri ve doğrulama](SOURCE_METHODS_2026-10-07.md).

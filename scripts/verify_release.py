@@ -31,17 +31,18 @@ for path in web.rglob('*.html'):
 if (ROOT/'Resources/Legal').exists():errors.append('Product documents must only be served from Netlify, not bundled locally')
 for name in ['VLCKit-COPYING.txt','GoogleCast-COPYING.txt']:
  if not (ROOT/'Resources/Notices'/name).is_file():errors.append(f'Missing third-party notice: {name}')
-for path in ['Config/App-Info.plist','Config/Broadcast-Info.plist','Config/App.entitlements','Config/CarPlayAudio.entitlements','Config/CarPlay.entitlements','Resources/PrivacyInfo.xcprivacy']:
+for path in ['Config/App-Info.plist','Config/Broadcast-Info.plist','Config/App.entitlements','Resources/PrivacyInfo.xcprivacy']:
  with (ROOT/path).open('rb') as f:plistlib.load(f)
 with (ROOT/'Config/App-Info.plist').open('rb') as f:app_info=plistlib.load(f)
 ats=app_info.get('NSAppTransportSecurity',{})
 if ats.get('NSAllowsArbitraryLoads') is not True:errors.append('User-provided HTTP playlists require URLSession ATS access')
 if any(key in ats for key in ['NSAllowsLocalNetworking','NSAllowsArbitraryLoadsForMedia','NSAllowsArbitraryLoadsInWebContent']):
  errors.append('Fine-grained ATS keys override arbitrary HTTP playlist access on supported iOS versions')
-for name,video in [('CarPlayAudio',False),('CarPlay',True)]:
- with (ROOT/f'Config/{name}.entitlements').open('rb') as f:entitlements=plistlib.load(f)
- if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append(f'{name}: Audio entitlement missing')
- if (entitlements.get('com.apple.developer.carplay-video') is True)!=video:errors.append(f'{name}: Video entitlement does not match build mode')
+with (ROOT/'Config/App.entitlements').open('rb') as f:entitlements=plistlib.load(f)
+if any('carplay' in key.lower() for key in entitlements):errors.append('CarPlay entitlement must be absent')
+scenes=app_info.get('UIApplicationSceneManifest',{}).get('UISceneConfigurations',{})
+if any(key.startswith('CP') for key in scenes):errors.append('CarPlay scene must be absent')
+if any('CarPlay' in key for key in app_info):errors.append('CarPlay runtime flags must be absent')
 base=(ROOT/'Config/Base.xcconfig').read_text()
 if not re.search(r'^MIRIVO_PRO_SALES_ENABLED = YES$',base,re.M):errors.append('Pro release must enable sales')
 if not re.search(r'^MARKETING_VERSION = 1.0$',base,re.M):errors.append('Version must match App Store Connect 1.0')

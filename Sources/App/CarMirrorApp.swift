@@ -66,7 +66,6 @@ struct CarMirrorApp: App {
                     #endif
                     await updates.refresh()
                     await NotificationStore.shared.refresh()
-                    await CarConnectionReminderStore.shared.refreshAuthorization()
                 }
                 .onChange(of: updates.requiredURL) { _, url in
                     if url != nil { model.stopBroadcast(); model.stopProbe(); model.stopPlayback() }
@@ -77,7 +76,6 @@ struct CarMirrorApp: App {
                         Task {
                             await updates.refresh()
                             await NotificationStore.shared.refresh()
-                            await CarConnectionReminderStore.shared.refreshAuthorization()
                         }
                     }
                 }

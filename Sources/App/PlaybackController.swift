@@ -556,7 +556,7 @@ final class PlaybackController: ObservableObject {
             do { try await Task.sleep(for: .seconds(15)) } catch { return }
             guard let self, let item, self.player.currentItem === item,
                   (requiresExternalPlayback && presentation == .video ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
-            self.fail(L10n.tr(requiresExternalPlayback && presentation == .video ? "Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable)
+            self.fail(L10n.tr(requiresExternalPlayback && presentation == .video ? "TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable)
         }
     }
 

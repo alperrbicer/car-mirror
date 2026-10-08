@@ -19,7 +19,7 @@ struct MirrorHomeView: View {
                     Image(systemName: "sparkles.tv").font(.title2).foregroundStyle(MirrorStyle.accent)
                     VStack(alignment: .leading, spacing: 5) {
                         Text(L10n.tr("Nasıl bağlanırım?")).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
-                        Text("Google Cast · AirPlay · CarPlay").font(.caption).foregroundStyle(MirrorStyle.secondary)
+                        Text("Google Cast · AirPlay").font(.caption).foregroundStyle(MirrorStyle.secondary)
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right").font(.caption).foregroundStyle(MirrorStyle.secondary)
@@ -45,13 +45,13 @@ struct MirrorHomeView: View {
     private var connectionCard: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Circle().fill(model.carPlayConnected || playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
-                Text(playback.tvName ?? (model.carPlayConnected ? L10n.tr("CARPLAY BAĞLI") : "TV · AIRPLAY · CARPLAY"))
+                Circle().fill(playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
+                Text(playback.tvName ?? "TV · AIRPLAY")
                     .font(.system(.caption2, design: .monospaced, weight: .medium))
                     .tracking(L10n.appLanguage.allowsLetterSpacing ? 1.2 : 0)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(model.carPlayConnected || playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary)
+            .foregroundStyle(playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary)
             .padding(.bottom, 18)
             Text(model.broadcasting ? model.captureTitle : L10n.tr("Büyük ekranda daha fazlası."))
                 .font(.system(.largeTitle, design: .default, weight: .semibold))
@@ -84,8 +84,8 @@ struct MirrorHomeView: View {
     private var actions: some View {
         if model.broadcasting {
             VStack(spacing: 12) {
-                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (model.supportsVideo == true || playback.tvDevice != nil || model.externalScreenCount > 0) {
-                    Button { model.playInCar() } label: {
+                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (playback.tvDevice != nil || model.externalScreenCount > 0) {
+                    Button { model.playOnDisplay() } label: {
                         Label(L10n.tr("Görüntüyü yeniden bağla"), systemImage: "arrow.clockwise")
                     }.buttonStyle(MirivoButtonStyle(prominent: true))
                 }
@@ -161,10 +161,10 @@ struct MirrorHomeView: View {
             }
         }
         switch model.sessionState {
-        case .waitingForCar: return L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç.")
+        case .waitingForDisplay: return L10n.tr("TV’ye bağlan")
         case .ready: return L10n.tr("Hazır olduğunda ekranını paylaş.")
         case .preparing: return L10n.tr("Ekran paylaşımı başlatılıyor.")
-        case .captureReady, .connecting: return L10n.tr("Araç görüntüsü için bağlantı bekleniyor.")
+        case .captureReady, .connecting: return L10n.tr("TV bağlantısı")
         case .presenting: return L10n.tr("İzlemek istediğin uygulamaya geçebilirsin.")
         case .paused: return L10n.tr("Hazır olduğunda paylaşıma devam edebilirsin.")
         case .stopping: return L10n.tr("Yayın sonlandırılıyor.")

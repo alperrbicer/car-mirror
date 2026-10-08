@@ -7,7 +7,7 @@ import Glibc
 
 public enum DiagnosticProcess: String, Codable, Sendable { case app, broadcast }
 public enum DiagnosticKind: String, Codable, Sendable {
-    case appOpened, appForegrounded, carConnected, carDisconnected, externalScreenConnected, externalScreenDisconnected
+    case appOpened, appForegrounded, externalScreenConnected, externalScreenDisconnected
     case captureStarted, capturePaused, captureResumed, captureStopped, captureStale, firstFrame, streamReady, streamStatistics
     case playbackRequested, playbackState, externalPlaybackChanged, audioRouteChanged, audioInterrupted
     case stopRequested, failure, probeStarted, probeStopped, capturePhaseChanged
@@ -39,13 +39,12 @@ public struct DiagnosticFailure: Codable, Equatable, Sendable {
 
 /// Typed fields prevent media URLs, account names, tokens and device names entering reports.
 public struct DiagnosticValues: Codable, Equatable, Sendable {
-    public enum Screen: String, Codable, Sendable { case carPlay, externalInteractive, externalNonInteractive, other }
+    public enum Screen: String, Codable, Sendable { case externalInteractive, externalNonInteractive, other }
     public enum Playback: String, Codable, Sendable { case stopped, waiting, playing }
     public enum AudioRoute: String, Codable, Sendable { case car, airPlay, bluetooth, speaker, headphones, other }
     public var reason: DiagnosticReason?
     public var capturePhase: CapturePhase?
     public var screen: Screen?
-    public var supportsVideo: Bool?
     public var externalPlayback: Bool?
     public var playback: Playback?
     public var audioRoutes: [AudioRoute]?

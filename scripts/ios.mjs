@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, wri
 import { homedir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 import {
-  argumentsFor, carPlayKeys, carPlayEntitlementFiles, carPlayModeFromInfo, requiredCarPlayKeys, configurationFromSettings, exportPlist, filePath, loadEnvironment,
+  argumentsFor, carPlayKeys, assertNoCarPlay, configurationFromSettings, exportPlist, filePath, loadEnvironment,
   outputRoot, derivedDataRoot, packageCacheRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
   reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock, writeJson,
 } from './deployment-lib.mjs'
@@ -36,15 +36,13 @@ testflight  mobile:ios:testflight     Alias for upload
 --version 0.1.0            install/simulator/archive/upload/testflight
 --build 4                  same commands; archive otherwise increments a local counter
 --archive PATH             export/upload/testflight; reuse an existing archive
---preview                  install only; preview iPhone screens without CarPlay
---carplay-video            Explicit Audio + Video build; requires both Apple capabilities
+--preview                  install only; compatibility alias for an iPhone install
 --allow-provisioning-updates  Allow Xcode to update signing profiles using Apple
 --dry-run                  Print the plan without running commands or writing files
 --keep-cache               Keep build caches for repeated development builds
 
 Setup and examples: ${join(root, 'docs/DEPLOYMENT.md')}
-The default build requires CarPlay Audio. --carplay-video additionally requires Video.
-Only explicit install --preview removes CarPlay; App Groups and signing remain required.
+All builds omit CarPlay. App Groups, push notifications and App Attest signing remain required.
 Upload does not submit App Review or publish the app.`)
 }
 
@@ -59,7 +57,7 @@ function settings(configuration = 'Release') {
   if (dryRun) {
     console.log('Dry run: signing/team/device placeholders are not a readiness check.')
     return { bundleId: '<resolved bundle ID>', appGroup: '<resolved App Group>',
-      team: process.env.MIRROR_TEAM_ID || '<DEVELOPMENT_TEAM>', version: options.version || '<MARKETING_VERSION>', build: options.build || '<CURRENT_PROJECT_VERSION>', carPlayMode: options['carplay-video'] ? 'video' : 'audio' }
+      team: process.env.MIRROR_TEAM_ID || '<DEVELOPMENT_TEAM>', version: options.version || '<MARKETING_VERSION>', build: options.build || '<CURRENT_PROJECT_VERSION>' }
   }
   mkdirSync(outputRoot, { recursive: true })
   const rows = JSON.parse(run('xcodebuild', ['-showBuildSettings', '-json', ...project,
@@ -129,12 +127,11 @@ function buildArguments(configuration, destination, config, signing = 'device') 
   return ['-quiet', ...project, '-configuration', selectedConfiguration(configuration), '-destination', destination,
     '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, ...teamArguments(),
     ...(config ? [`CURRENT_PROJECT_VERSION=${config.build}`, `MARKETING_VERSION=${config.version}`] : []),
-    ...(config?.preview ? ['MIRIVO_MAIN_APP_ENTITLEMENTS=Config/App.entitlements', 'MIRIVO_CARPLAY_AUDIO_ENABLED=NO', 'MIRIVO_CARPLAY_VIDEO_ENABLED=NO'] : []),
     ...(signing === 'device' ? provisioning() : signing === 'simulator'
       ? ['CODE_SIGNING_ALLOWED=YES', 'CODE_SIGN_IDENTITY=-'] : ['CODE_SIGNING_ALLOWED=NO'])]
 }
 
-function selectedConfiguration(configuration) { return options['carplay-video'] ? `${configuration}-CarPlay` : configuration }
+function selectedConfiguration(configuration) { return configuration }
 
 function check() {
   suites()
@@ -143,15 +140,11 @@ function check() {
 }
 
 function verifyBundle(app, config, { device, distribution = false } = {}) {
-  if (dryRun) { console.log(`Verify signature, both bundle IDs/versions, App Groups and ${config.preview ? 'iPhone preview profiles (without CarPlay)' : `CarPlay ${config.carPlayMode} profiles`}: ${app}`); return }
+  if (dryRun) { console.log(`Verify signature, both bundle IDs/versions, App Groups and standalone iPhone profiles: ${app}`); return }
   run('codesign', ['--verify', '--deep', '--strict', requireFile(app)], { capture: true, quiet: true })
   for (const [path, bundleId, mainApp] of [[app, config.bundleId, true], [join(app, 'PlugIns/CarMirrorBroadcast.appex'), `${config.bundleId}.broadcast`, false]]) {
     const info = readPlist(join(path, 'Info.plist'))
-    if (mainApp) {
-      if (config.preview) {
-        if (info.CMCarPlayAudioEnabled !== 'NO' || info.CMCarPlayVideoEnabled !== 'NO') throw new Error('Preview bundle must disable both CarPlay runtime flags.')
-      } else if (carPlayModeFromInfo(info) !== config.carPlayMode) throw new Error('Bundle CarPlay mode differs from the requested signing mode.')
-    }
+    assertNoCarPlay(info)
     if (info.CFBundleIdentifier !== bundleId || String(info.CFBundleVersion) !== config.build || info.CFBundleShortVersionString !== config.version) {
       throw new Error(`Bundle ID/version mismatch in ${path}. Rebuild both the app and extension.`)
     }
@@ -170,7 +163,7 @@ function install(simulator = false) {
   config.preview = Boolean(options.preview)
   config.version = options.version || config.version
   config.build = options.build || config.build
-  if (config.preview) console.log('iPhone preview: CarPlay is disabled. This updates the existing CarMirror app for viewing its screens.')
+  if (config.preview) console.log('iPhone install compatibility alias; the app has no CarPlay integration.')
   if (!simulator) requireTeam(config)
   let device = { id: '<device identifier>', udid: options.device || '<device UDID>', name: '<iPhone>', state: 'Shutdown' }
   if (!dryRun) {
@@ -201,7 +194,7 @@ function install(simulator = false) {
     execute('xcrun', ['devicectl', '--timeout', '60', 'device', 'process', 'launch', '--device', device.id, config.bundleId,
       '--json-output', join(directory, 'launch.json')], { timeout: 70_000 })
   }
-  console.log(dryRun ? 'Installation plan complete; no device was changed.' : `Install and launch commands succeeded: ${device.name}. ${config.preview ? 'iPhone preview only; CarPlay is disabled.' : 'Verify the visible screen and CarPlay separately.'}`)
+  console.log(dryRun ? 'Installation plan complete; no device was changed.' : `Install and launch commands succeeded: ${device.name}. Verify the visible screen on the device.`)
 }
 
 function archive() {
@@ -241,7 +234,7 @@ function existingArchive() {
     const info = readPlist(join(app, 'Info.plist'))
     config.version = info.CFBundleShortVersionString
     config.build = String(info.CFBundleVersion)
-    config.carPlayMode = carPlayModeFromInfo(info)
+    assertNoCarPlay(info)
     verifyBundle(app, config)
   }
   return { archive: path, ...config }
@@ -291,10 +284,8 @@ function doctor() {
   const config = settings()
   requireTeam(config)
   console.log(`App: ${config.bundleId}\nExtension: ${config.bundleId}.broadcast\nApp Group: ${config.appGroup}\nTeam: ${config.team}\nVersion: ${config.version} (${config.build})`)
-  const source = readPlist(join(root, carPlayEntitlementFiles[config.carPlayMode]))
-  const required = requiredCarPlayKeys(config.carPlayMode)
-  if (carPlayKeys.some(key => (source[key] === true) !== required.includes(key))) throw new Error('CarPlay entitlement file does not match the selected mode.')
-  console.log(`CarPlay mode: ${config.carPlayMode}. Required: ${required.join(', ')}`)
+  const source = readPlist(join(root, 'Config/App.entitlements'))
+  if (carPlayKeys.some(key => Object.hasOwn(source, key))) throw new Error('CarPlay must be absent from the app entitlements.')
   const identities = run('security', ['find-identity', '-v', '-p', 'codesigning'], { capture: true, quiet: true })
   const hasIdentity = /[1-9]\d* valid identities found/.test(identities)
   console.log(hasIdentity ? 'Signing identity: available in the current keychain.' : 'Signing identity: not available. Configure your Apple account/certificate in Xcode.')
@@ -313,7 +304,7 @@ function doctor() {
     const bundleId = `${config.bundleId}${mainApp ? '' : '.broadcast'}`
     const matching = profiles.filter(profile => {
       const requested = { ...profile.Entitlements }
-      for (const key of carPlayKeys) if (!mainApp || !required.includes(key)) delete requested[key]
+      for (const key of carPlayKeys) delete requested[key]
       try { validateProfile(requested, profile, { ...config, bundleId, mainApp }); return true } catch { return false }
     })
     console.log(`${bundleId}: ${matching.length} local, unexpired profile(s) with the required capabilities.`)
@@ -322,7 +313,7 @@ function doctor() {
   try { authentication(true); console.log('Upload API key: configured (Apple permissions not checked).') }
   catch (error) { console.log(`Upload API key: ${error.message}`) }
   console.log('Local profiles do not prove device eligibility or Apple portal approval. Install/export validate the actual signed app and extension.')
-  if (missingProfile || !hasIdentity) throw new Error('Local signing prerequisites are incomplete. Enable the approved CarPlay capability for this App ID, check its App Group and Xcode signing, then refresh profiles with --allow-provisioning-updates.')
+  if (missingProfile || !hasIdentity) throw new Error('Local signing prerequisites are incomplete. Check the App Group, Push Notifications, App Attest and Xcode signing, then refresh profiles with --allow-provisioning-updates.')
 }
 
 try {

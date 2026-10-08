@@ -8,7 +8,7 @@ import Security
 @testable import CarMirror
 
 @MainActor
-final class CarPlayAudioTests: XCTestCase {
+final class PlayerTests: XCTestCase {
     func testContinueWatchingGroupsSeriesKeepsMoviesAndCleansCompletedAndSources() throws {
         let account = "continue-test-\(UUID())"
         let store = LastPlaybackStore(account: account)
@@ -514,13 +514,21 @@ final class CarPlayAudioTests: XCTestCase {
                 let compatibilityView: UIView? = engine?.videoView
                 let video = try XCTUnwrap(compatibilityView ?? nativeVideoController(in: host)?.view)
                 XCTAssertTrue(video.window === window)
-                XCTAssertEqual(video.bounds.width, window.bounds.width, accuracy: 1)
-                XCTAssertEqual(video.bounds.height, window.bounds.height, accuracy: 1,
-                               "Player chrome must overlay the video, without reducing its height")
+                // The fullscreen host fills the viewport; the VLC drawable fits
+                // the media aspect ratio so PiP returns to the actual picture.
+                let viewport = try XCTUnwrap(useCompatibility ? video.superview : video)
+                XCTAssertEqual(viewport.bounds.width, window.bounds.width, accuracy: 1)
+                XCTAssertEqual(viewport.bounds.height, window.bounds.height, accuracy: 1,
+                               "Player chrome must overlay the video host without reducing its height")
+                let fitted = useCompatibility ? PlayerVideoGeometry.frame(size: engine!.mediaPlayer.videoSize,
+                    in: viewport.bounds, fillsFrame: false) : viewport.bounds
+                XCTAssertEqual(video.bounds.width, fitted.width, accuracy: 1)
+                XCTAssertEqual(video.bounds.height, fitted.height, accuracy: 1)
                 for renderer in engine?.videoView.subviews ?? [] {
-                    XCTAssertEqual(renderer.bounds.width, window.bounds.width, accuracy: 1)
-                    XCTAssertEqual(renderer.bounds.height, window.bounds.height, accuracy: 1)
+                    XCTAssertEqual(renderer.bounds.width, video.bounds.width, accuracy: 1)
+                    XCTAssertEqual(renderer.bounds.height, video.bounds.height, accuracy: 1)
                 }
+                let pictureSize = video.bounds.size
                 XCTAssertTrue(model.playback.compatibility === engine)
                 XCTAssertTrue(model.playback.player.currentItem === nativeItem, "Rotation must not restart playback")
                 if orientation == .landscapeLeft {
@@ -534,7 +542,7 @@ final class CarPlayAudioTests: XCTestCase {
                         }
                         try await Task.sleep(for: .milliseconds(4700))
                         XCTAssertTrue(model.playback.isPlaying)
-                        XCTAssertEqual(video.bounds.size, window.bounds.size, "Hiding controls must not resize video")
+                        XCTAssertEqual(video.bounds.size, pictureSize, "Hiding controls must not resize the fitted picture")
                         capturePlayer(host.view, name: "\(name)-unobstructed")
                         model.playback.togglePlayPause()
                     }
@@ -1333,11 +1341,10 @@ final class CarPlayAudioTests: XCTestCase {
         XCTAssertEqual(AVAudioSession.sharedInstance().routeSharingPolicy, .longFormAudio)
     }
 
-    func testVideoPlaysOnPhoneWithoutCarConnection() async throws {
+    func testVideoPlaysOnPhoneWithoutExternalDisplay() async throws {
         let model = MirrorModel.shared
         model.stopPlayback()
         defer { model.stopPlayback() }
-        XCTAssertFalse(model.carPlayConnected)
         let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
         XCTAssertTrue(model.playMedia(MediaChannel(title: "Local video", url: url)))
         XCTAssertEqual(model.playback.state, .loading)

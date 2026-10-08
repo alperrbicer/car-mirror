@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "Керування підпискою";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Не вдалося підключитися до App Store. Спробуйте ще раз.";
-"Aracına bağlan" = "Підключіться до автомобіля";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "Перевірте, чи змінюється лічильник на екрані автомобіля. Цей тест перевіряє підключення екрана.";
-"Araç görüntüsü için bağlantı bekleniyor." = "Очікування підключення екрана автомобіля.";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "Не вдалося підключити екран автомобіля. Спробуйте ще раз.";
-"Araç için yayın bağlantısı kurulamadı." = "Не вдалося створити з’єднання для трансляції в автомобіль.";
 "Araç modu" = "Режим автомобіля";
-"Araç video desteği" = "Підтримка відео в автомобілі";
 "Ayarlar" = "Параметри";
 "Açık" = "Підключено";
 "Bağlantı testi" = "Перевірка з’єднання";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "Для цього Облікового запису Apple не знайдено активної покупки Pro.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "Ця мова поки не підтримує субтитри на пристрої. Виберіть іншу мову.";
 "Bu sürümde tüm özellikler açık." = "У цій версії доступні всі функції.";
-"CARPLAY BAĞLI" = "CARPLAY ПІДКЛЮЧЕНО";
-"CARPLAY BEKLENİYOR" = "ОЧІКУВАННЯ CARPLAY";
 "Canlı altyazılar" = "Субтитри наживо";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "На цьому пристрої субтитри наживо недоступні.";
 "Canlı altyazılar · Pro" = "Субтитри наживо · Pro";
-"CarPlay bağlı" = "CarPlay підключено";
-"CarPlay sahnesi" = "Сцена CarPlay";
-"CarPlay video testini başlat" = "Почати перевірку відео CarPlay";
-"CarPlay video çıkışı kullanılamıyor." = "Відеовихід CarPlay недоступний.";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Підключіться до CarPlay та відкрийте програму на екрані автомобіля.";
 "Dengeli" = "Збалансована";
 "Destek" = "Підтримка";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "Додавайте до трансляції екрана субтитри, створені на пристрої, підтримуваними мовами.";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "Поділитися діагностичним звітом";
 "Tek seferlik ödeme" = "Разова оплата";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Один платіж за постійний доступ до функцій Mirivo Pro. Без підписки й автоматичного поновлення.";
-"Telefonunda ve aracında daha fazlası." = "Ваші джерела та трансляція екрана в одному місці.";
-"Telefonundan, aracına." = "З телефона в автомобіль.";
 "Tercihler" = "Уподобання";
 "Testi durdur" = "Зупинити перевірку";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Видалити всі джерела та збережені дані для входу?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Твої спогади, відео та музика. Вибери екран і почни ділитися.";
 "Google Cast araması kullanılamıyor." = "Пошук Google Cast недоступний.";
 "Ayarları aç" = "Відкрити параметри";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay підтримує звук. Відео залежить від автомобіля та дозволу на відеовивід.";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Вибери вміст. У плеєрі можна призупинити відтворення або змінити підключення до ТБ.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN або гостьова мережа можуть заважати пристроям знаходити один одного.";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Трансляція з цього iPhone на ТБ. Залиш Mirivo відкритим.";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Оплата раз на рік; автоматичне поновлення.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Довічна покупка не скасовує поточну підписку автоматично. Ви можете скасувати її у своєму обліковому записі Apple.";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "Загальні оголошення";
-"Araç bağlantısında hatırlat" = "Нагадувати при підключенні до авто";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Надсилає одне нагадування на телефон, коли виявлено новий сеанс CarPlay. Дані про підключення до автомобіля не передаються на сервер.";
 "Mirivo araç bağlantısına hazır" = "Mirivo готовий до підключення до автомобіля";
 "Bildirim izni alınamadı. Yeniden dene." = "Не вдалося отримати дозвіл на сповіщення. Спробуйте ще раз.";
 

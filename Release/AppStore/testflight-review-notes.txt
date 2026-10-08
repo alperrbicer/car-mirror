@@ -1,5 +1,4 @@
-Mirivo 1.0 — CarPlay Audio beta
-
+Mirivo 1.0 — iPhone media player
 No Mirivo account or sign-in is required. This beta is ad-free. Pro purchases and restores should be tested using Apple sandbox; TestFlight purchases do not incur real charges. Settings > Mirivo Pro offers yearly and lifetime plans. Mirivo does not provide IPTV subscriptions, channel packages or service credentials.
 
 iPhone review steps:
@@ -9,10 +8,8 @@ iPhone review steps:
 4. For playlist testing, add an authorized M3U URL as Playlist. Xtream sources require the tester's own authorized server credentials; these are optional and are not needed for the direct-stream test above.
 5. Settings contains language selection and links to current Netlify Privacy, Terms and Help pages. VideoLAN and Google Cast license notices remain bundled. The app ships 22 interface languages.
 
-CarPlay review steps:
-Connect to a compatible CarPlay system, open Mirivo, choose Sources and select the source added on iPhone. Test audio and system Now Playing controls. This binary requests CarPlay Audio and App Groups, without CarPlay Video. Vehicle screen mirroring is not part of this beta's CarPlay feature set. Physical vehicle acceptance remains to be tested; no EV6 validation is claimed.
 
-User-provided media may use HTTP endpoints whose domains are not known in advance. NSAllowsArbitraryLoads supports URLSession playlist retrieval and these streams. Source credentials stay in device-only Keychain; source lists and diagnostics stay local. There is no advertising or analytics SDK and no developer media backend.
+User-provided media may use HTTP endpoints whose domains are not known in advance. NSAllowsArbitraryLoads supports URLSession playlist retrieval and these streams. Source credentials stay in device-only Keychain; source lists and diagnostics stay local. There is no advertising SDK or developer media backend. Usage analytics is optional and off by default.
 
 HLS/MP4 playback uses AVPlayer. MKV/WebM/AVI/TS compatibility uses VideoLAN VLCKit; LGPL notices and source links are available in Settings. Background audio and supported picture-in-picture behavior are beta test targets, with physical-device verification still pending.
 

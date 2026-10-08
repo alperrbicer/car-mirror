@@ -21,8 +21,7 @@ final class MediaSharingUITests: XCTestCase {
         app.buttons["guide-AirPlay"].tap()
         XCTAssertTrue(app.buttons["guide-AirPlay"].isSelected)
         capture("sharing-airplay-guide", app: app)
-        app.buttons["guide-CarPlay"].tap()
-        XCTAssertTrue(app.staticTexts["CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır."].exists)
+        XCTAssertFalse(app.buttons["guide-CarPlay"].exists)
     }
 
     func testPhotoPickerCancelReturnsToHub() {

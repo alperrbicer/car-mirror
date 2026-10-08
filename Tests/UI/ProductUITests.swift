@@ -276,6 +276,10 @@ final class ProductUITests: XCTestCase {
         if !playerOnly { capture("store-\(language)-02-channels", app: app) }
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch.tap()
         let pause = app.buttons[labels[3]].firstMatch
+        if !pause.waitForExistence(timeout: 3) {
+            let channel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch
+            if channel.exists && channel.isHittable { channel.tap() }
+        }
         guard pause.waitForExistence(timeout: 20) else { XCTFail(app.debugDescription); return }
         pause.tap()
         capture("store-\(language)-03-player", app: app)
@@ -288,9 +292,9 @@ final class ProductUITests: XCTestCase {
         capture("store-\(language)-04-sharing", app: home)
         reveal(home.buttons["connection-guide"], in: home)
         home.buttons["connection-guide"].tap()
-        XCTAssertTrue(home.buttons["guide-CarPlay"].waitForExistence(timeout: 10))
-        home.buttons["guide-CarPlay"].tap()
-        capture("store-\(language)-06-carplay", app: home)
+        XCTAssertTrue(home.buttons["guide-AirPlay"].waitForExistence(timeout: 10))
+        home.buttons["guide-AirPlay"].tap()
+        capture("store-\(language)-06-airplay", app: home)
         home.terminate()
 
         let editor = launch(language: language)

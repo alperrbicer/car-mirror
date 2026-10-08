@@ -137,18 +137,6 @@ final class NotificationStore: ObservableObject {
         guard enabled, let value = userInfo["route"] as? String, let route = NotificationRoute(rawValue: value) else { return }
         pendingNavigation = Navigation(route: route)
     }
-    func navigate(request: UNNotificationRequest, carReminderEnabled: Bool) {
-        if CarConnectionReminderStore.isReminder(request) {
-            guard carReminderEnabled else { return }
-            pendingNavigation = Navigation(route: .home)
-        } else {
-            navigate(userInfo: request.content.userInfo)
-        }
-    }
-    func presentationOptions(for request: UNNotificationRequest, carReminderEnabled: Bool) -> UNNotificationPresentationOptions {
-        let allowed = CarConnectionReminderStore.isReminder(request) ? carReminderEnabled : enabled
-        return allowed ? [.banner, .list, .sound] : []
-    }
     func consumedNavigation() { pendingNavigation = nil }
     static func allowsNotifications(_ value: UNAuthorizationStatus) -> Bool { [.authorized, .provisional, .ephemeral].contains(value) }
 
@@ -185,6 +173,14 @@ final class NotificationStore: ObservableObject {
 
 final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        let defaults = UserDefaults.standard
+        if let identifier = defaults.string(forKey: "notifications.carConnectionReminder.request") {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [identifier])
+        }
+        for key in ["notifications.carConnectionReminder.request", "notifications.carConnectionReminder.enabled", "notifications.carConnectionReminder.handledSession"] {
+            defaults.removeObject(forKey: key)
+        }
         UNUserNotificationCenter.current().delegate = self
         if FirebaseServices.configured { Messaging.messaging().delegate = self }
         return true
@@ -210,16 +206,14 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         Task { @MainActor in
-            completionHandler(NotificationStore.shared.presentationOptions(for: notification.request,
-                carReminderEnabled: CarConnectionReminderStore.shared.enabled))
+            completionHandler(NotificationStore.shared.enabled && notification.request.trigger is UNPushNotificationTrigger ? [.banner, .list, .sound] : [])
         }
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         Task { @MainActor in
             if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-                NotificationStore.shared.navigate(request: response.notification.request,
-                    carReminderEnabled: CarConnectionReminderStore.shared.enabled)
+                NotificationStore.shared.navigate(userInfo: response.notification.request.content.userInfo)
             }
             completionHandler()
         }

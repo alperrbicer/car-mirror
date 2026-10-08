@@ -2,7 +2,7 @@ import UIKit
 import SwiftUI
 import AVKit
 
-/// Only handles screens that iOS actually supplies. A CarPlay template is not a UIWindowScene.
+/// Only handles screens that iOS actually supplies.
 @MainActor
 final class ExternalDisplaySceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?

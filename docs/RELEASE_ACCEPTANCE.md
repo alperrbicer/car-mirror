@@ -1,3 +1,5 @@
+> 8 Ekim 2026 güncellemesi: CarPlay kaldırılmıştır. Aşağıdaki CarPlay/build 12 kayıtları tarihsel kanıttır; güncel dağıtım için DEPLOYMENT.md ve CARPLAY_REMOVAL_2026-10-08.md esas alınmalıdır.
+
 # Mirivo 1.0 kabul kaydı
 
 Bu dosya testlerin yerine geçmez. Tamamlanmış yerel doğrulamaların çıktıları IMPLEMENTATION_STATUS.md içinde listelenir. Aşağıdaki fiziksel ölçümler şu anda elde edilmedi.

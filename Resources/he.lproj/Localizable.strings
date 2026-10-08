@@ -1,12 +1,6 @@
 "Aboneliği yönet" = "ניהול המינוי";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "לא ניתן להתחבר ל-App Store. אפשר לנסות שוב.";
-"Aracına bağlan" = "התחברות לרכב";
-"Araç ekranındaki sayacın değiştiğini kontrol et. Bu test bağlantı yolunu ölçer." = "יש לוודא שהמונה משתנה במסך הרכב. הבדיקה בודקת את החיבור למסך.";
-"Araç görüntüsü için bağlantı bekleniyor." = "ממתין לחיבור למסך הרכב.";
-"Araç görüntüsü kurulamadı. Yeniden deneyebilirsin." = "לא ניתן להתחבר למסך הרכב. אפשר לנסות שוב.";
-"Araç için yayın bağlantısı kurulamadı." = "לא ניתן ליצור חיבור לשידור ברכב.";
 "Araç modu" = "מצב רכב";
-"Araç video desteği" = "תמיכה בווידאו ברכב";
 "Ayarlar" = "הגדרות";
 "Açık" = "מחובר";
 "Bağlantı testi" = "בדיקת חיבור";
@@ -18,16 +12,9 @@
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "לא נמצאה רכישת Pro פעילה בחשבון Apple הזה.";
 "Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "השפה הזו עדיין אינה נתמכת בכתוביות במכשיר. יש לבחור שפה אחרת.";
 "Bu sürümde tüm özellikler açık." = "כל התכונות זמינות בגרסה הזו.";
-"CARPLAY BAĞLI" = "CARPLAY מחובר";
-"CARPLAY BEKLENİYOR" = "ממתין ל-CARPLAY";
 "Canlı altyazılar" = "כתוביות בזמן אמת";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "כתוביות בזמן אמת אינן זמינות במכשיר הזה.";
 "Canlı altyazılar · Pro" = "כתוביות בזמן אמת · Pro";
-"CarPlay bağlı" = "CarPlay מחובר";
-"CarPlay sahnesi" = "ממשק CarPlay";
-"CarPlay video testini başlat" = "התחלת בדיקת וידאו ב-CarPlay";
-"CarPlay video çıkışı kullanılamıyor." = "פלט הווידאו של CarPlay אינו זמין.";
-"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "יש להתחבר ל-CarPlay ולפתוח את האפליקציה במסך הרכב.";
 "Dengeli" = "מאוזנת";
 "Destek" = "תמיכה";
 "Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "הוספת כתוביות במכשיר לשיתוף המסך בשפות נתמכות.";
@@ -132,8 +119,6 @@
 "Tanılama raporunu paylaş" = "שיתוף דוח אבחון";
 "Tek seferlik ödeme" = "תשלום חד-פעמי";
 "Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "תשלום אחד לגישה קבועה לתכונות Mirivo Pro. ללא מינוי או חידוש אוטומטי.";
-"Telefonunda ve aracında daha fazlası." = "המקורות ושיתוף המסך במקום אחד.";
-"Telefonundan, aracına." = "מהטלפון שלך לרכב שלך.";
 "Tercihler" = "העדפות";
 "Testi durdur" = "עצירת הבדיקה";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "למחוק את כל המקורות ופרטי הכניסה השמורים?";
@@ -259,7 +244,6 @@
 "Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "הזיכרונות, הסרטונים והמוזיקה שלך. בחר מסך והתחל לשתף.";
 "Google Cast araması kullanılamıyor." = "חיפוש Google Cast אינו זמין.";
 "Ayarları aç" = "פתיחת הגדרות";
-"CarPlay’de ses desteklenir. Görüntü, araç desteği ve video yetkisine bağlıdır." = "CarPlay תומך באודיו. וידאו תלוי בתמיכת הרכב ובהרשאת וידאו.";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "בחר תוכן. אפשר להשהות או לשנות את חיבור הטלוויזיה דרך הנגן.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN או רשת אורחים עלולים למנוע מהמכשירים למצוא זה את זה.";
 "TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "משדר מ-iPhone זה לטלוויזיה. השאר את Mirivo פתוח.";
@@ -291,10 +275,7 @@
 "Yılda bir tahsil edilir; otomatik yenilenir." = "החיוב מתבצע פעם בשנה; מתחדש אוטומטית.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "רכישה לכל החיים אינה מבטלת אוטומטית את המינוי הקיים שלך. ניתן לבטל אותו בחשבון Apple שלך.";
 
-// Local CarPlay connection reminder
 "Genel duyurular" = "הודעות כלליות";
-"Araç bağlantısında hatırlat" = "תזכורת בעת חיבור לרכב";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "נשלחת תזכורת אחת בטלפון כאשר מזוהה הפעלת CarPlay חדשה. מידע על החיבור לרכב אינו נשלח לשרת.";
 "Mirivo araç bağlantısına hazır" = "Mirivo מוכן להתחבר לרכב שלך";
 "Bildirim izni alınamadı. Yeniden dene." = "לא ניתן היה לקבל הרשאה להתראות. יש לנסות שוב.";
 

@@ -8,7 +8,6 @@ languages = JSON.parse(File.read(File.join(root, 'Config/Localizations.json')))
 project_path = File.join(root, 'CarMirror.xcodeproj')
 abort 'Project exists. Pass --replace to regenerate only CarMirror.xcodeproj.' if File.exist?(project_path) && !ARGV.include?('--replace')
 project = Xcodeproj::Project.new(project_path)
-%w[Debug-CarPlay Release-CarPlay].each { |name| project.add_build_configuration(name, name.start_with?('Debug') ? :debug : :release) }
 base = project.main_group.new_file('Config/Base.xcconfig')
 app = project.new_target(:application, 'CarMirror', :ios, '18.0')
 broadcast = project.new_target(:app_extension, 'CarMirrorBroadcast', :ios, '18.0')
@@ -59,7 +58,6 @@ if File.file?(File.join(root, 'Config/GoogleService-Info.plist'))
 end
 
 [app, broadcast].each do |target|
-  %w[Debug-CarPlay Release-CarPlay].each { |name| target.add_build_configuration(name, name.start_with?('Debug') ? :debug : :release) }
   target.build_configurations.each do |config|
     config.base_configuration_reference = base
     settings = config.build_settings
@@ -84,10 +82,7 @@ app.build_configurations.each do |config|
   config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = '$(MIRROR_BUNDLE_ID)'
   config.build_settings['INFOPLIST_FILE'] = 'Config/App-Info.plist'
   config.build_settings['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
-  video = config.name.end_with?('-CarPlay')
-  config.build_settings['MIRIVO_MAIN_APP_ENTITLEMENTS'] = video ? 'Config/CarPlay.entitlements' : 'Config/CarPlayAudio.entitlements'
-  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = '$(MIRIVO_MAIN_APP_ENTITLEMENTS)'
-  config.build_settings['MIRIVO_CARPLAY_VIDEO_ENABLED'] = video ? 'YES' : 'NO'
+  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Config/App.entitlements'
 end
 broadcast.build_configurations.each do |config|
   config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Config/Broadcast.entitlements'
@@ -169,7 +164,7 @@ tests.resources_build_phase.add_file_reference(video_fixture)
 add_google_cast(project, app)
 project.save
 
-{ 'CarMirror' => ['Debug', 'Release'], 'CarMirror CarPlay' => ['Debug-CarPlay', 'Release-CarPlay'] }.each do |name, configurations|
+{ 'CarMirror' => ['Debug', 'Release'] }.each do |name, configurations|
   scheme = Xcodeproj::XCScheme.new
   scheme.add_build_target(app)
   scheme.set_launch_target(app)
