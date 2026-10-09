@@ -52,15 +52,18 @@ struct CarMirrorApp: App {
                 .preferredColorScheme(.dark)
                 .task {
                     #if DEBUG
-                    // Device-only QA opens a copied local video without clearing
-                    // sources, changing preferences or writing watch history.
+                    // Device-only QA uses local fixtures or an explicitly supplied
+                    // live test feed without changing the user's library.
                     let arguments = ProcessInfo.processInfo.arguments
                     if !startedPiPProbe, let index = arguments.firstIndex(of: "-mirivo-pip-probe"),
-                       arguments.indices.contains(index + 1), ["mp4", "mkv"].contains(arguments[index + 1]) {
+                       arguments.indices.contains(index + 1), ["mp4", "mkv", "hls"].contains(arguments[index + 1]) {
                         startedPiPProbe = true
-                        let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-                            .appendingPathComponent("MirivoPiPProbe/options." + arguments[index + 1])
-                        if FileManager.default.fileExists(atPath: url.path),
+                        let kind = arguments[index + 1]
+                        let url = kind == "hls"
+                            ? ProcessInfo.processInfo.environment["MIRIVO_PIP_QA_LIVE_URL"].flatMap { try? MediaURL.validate($0) }
+                            : FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                                .appendingPathComponent("MirivoPiPProbe/options." + kind)
+                        if let url, (!url.isFileURL || FileManager.default.fileExists(atPath: url.path)),
                            model.playMedia(MediaChannel(title: "PiP QA", url: url)) { model.presentingPlayer = true }
                     }
                     #endif

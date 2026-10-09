@@ -67,16 +67,29 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         let completions = activeSeekCompletions + (queuedSeek?.completions ?? [])
         activeSeekCompletions = []; queuedSeek = nil
         completions.forEach { $0() }
-        if mediaPlayer.state != .stopped && mediaPlayer.state != .nothingSpecial { stoppingRetention = self }
+        if (mediaPlayer.state != .stopped && mediaPlayer.state != .nothingSpecial) || pipActive || pipStarting {
+            stoppingRetention = self
+        }
         pip?.stopPictureInPicture()
         mediaPlayer.stop()
+        finishStoppingIfReady()
+    }
+    private func finishStoppingIfReady() {
+        guard !active, mediaPlayer.state == .stopped || mediaPlayer.state == .nothingSpecial,
+              !pipActive, !pipStarting, (pip as? CompatibilityPictureInPicture)?.stopping != true else { return }
+        mediaPlayer.drawable = nil
+        pip = nil
+        stoppingRetention = nil
     }
     func play() { guard active else { return }; mediaPlayer.play() }
     func pause() { mediaPlayer.pause() }
-    func startPictureInPicture() {
-        guard pipPossible, !pipActive, !pipStarting else { return }
+    @discardableResult
+    func startPictureInPicture() -> Bool {
+        guard active, pipPossible, !pipActive, !pipStarting,
+              (pip as? CompatibilityPictureInPicture)?.stopping != true else { return false }
         videoView.prepareForPictureInPicture()
         pip?.startPictureInPicture()
+        return true
     }
     fileprivate func preparePictureInPicture(with layer: AVSampleBufferDisplayLayer) {
         guard active else { return }
@@ -89,7 +102,15 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     }
     func preparePictureInPictureReturn(completion: @escaping (Bool) -> Void) {
         refreshVideoHost()
-        PlayerVideoReturnLayout.prepare(videoView, completion: completion)
+        PlayerVideoReturnLayout.prepare(videoView, sourceLayer: { [weak self] in
+            guard let self else { return nil }
+            // A replacement renderer must not stand in for the layer AVKit is
+            // currently returning from PiP.
+            if let pip = self.pip as? CompatibilityPictureInPicture {
+                return pip.controller.contentSource?.sampleBufferDisplayLayer
+            }
+            return self.videoView.pictureInPictureLayer
+        }, completion: completion)
     }
     func layoutVideoForPictureInPictureReturn() {
         refreshVideoHost()
@@ -251,6 +272,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         } else {
             if active { videoView.restoreAfterPictureInPicture() }
             onPiPStopped?()
+            finishStoppingIfReady()
         }
     }
     func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
@@ -258,8 +280,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         Task { @MainActor [weak self] in
             guard let self else { return }
             if self.mediaPlayer.state == .stopped {
-                self.stoppingRetention = nil
-                if !self.active { self.mediaPlayer.drawable = nil; self.pip = nil; return }
+                if !self.active { self.finishStoppingIfReady(); return }
             }
             guard self.active else { return }
             self.refreshVideoHost()
@@ -349,10 +370,8 @@ final class CompatibilityVideoSurface: UIView {
     }
     override func didAddSubview(_ subview: UIView) {
         super.didAddSubview(subview)
-        // VLC may create its renderer while this drawable still belongs to the
-        // 88x50 preview (or has no bounds yet). Keep it sized to the current host.
-        subview.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        subview.frame = bounds
+        // VLC owns the renderer's placement (including crop and pixel aspect).
+        // Resizing it here races VLC's queued placement and AVKit's PiP return.
         protectVideoLayers(in: subview.layer)
         videoClipping.repairIfRestored()
         // VLC finishes configuring the renderer after addSubview returns.
@@ -363,7 +382,6 @@ final class CompatibilityVideoSurface: UIView {
         super.layoutSubviews()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        for subview in subviews where subview.frame != bounds { subview.frame = bounds }
         protectVideoLayers(in: layer)
         videoClipping.repairIfRestored()
         CATransaction.commit()
@@ -381,12 +399,15 @@ final class CompatibilityVideoSurface: UIView {
         layoutIfNeeded()
     }
     func prepareForPictureInPicture() { videoClipping.suspend() }
-    private func preparePictureInPictureSource() {
+    var pictureInPictureLayer: AVSampleBufferDisplayLayer? {
         func videoLayer(in layer: CALayer) -> AVSampleBufferDisplayLayer? {
             if let video = layer as? AVSampleBufferDisplayLayer { return video }
             return (layer.sublayers ?? []).reversed().lazy.compactMap { videoLayer(in: $0) }.first
         }
-        if let video = videoLayer(in: layer) { owner?.preparePictureInPicture(with: video) }
+        return videoLayer(in: layer)
+    }
+    private func preparePictureInPictureSource() {
+        if let video = pictureInPictureLayer { owner?.preparePictureInPicture(with: video) }
     }
 }
 
@@ -404,7 +425,7 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
     private weak var engine: CompatibilityPlayback?
     private var possibleObservation: NSKeyValueObservation?
     private(set) var starting = false
-    private var stopping = false
+    private(set) var stopping = false
 
     init?(engine: CompatibilityPlayback, layer: AVSampleBufferDisplayLayer) {
         guard AVPictureInPictureController.isPictureInPictureSupported() else { return nil }
@@ -420,6 +441,7 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
     }
     func startPictureInPicture() {
         guard controller.isPictureInPicturePossible, !controller.isPictureInPictureActive, !starting, !stopping else { return }
+        starting = true
         controller.startPictureInPicture()
     }
     func stopPictureInPicture() {
@@ -441,11 +463,17 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
         stateChangeEventHandler?(true)
     }
     func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        #if DEBUG
+        PiPReturnTrace.begin(layer, label: "sample")
+        #endif
         stopping = true
         engine?.onPiPWillStop?()
         engine?.layoutVideoForPictureInPictureReturn()
     }
     func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        #if DEBUG
+        PiPReturnTrace.mark("didStop")
+        #endif
         starting = false
         stopping = false
         stateChangeEventHandler?(false)
@@ -501,13 +529,17 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
 @MainActor
 enum PlayerVideoReturnLayout {
     static func prepare(_ view: UIView, sourceLayer: CALayer? = nil, completion: @escaping (Bool) -> Void) {
-        Preparation(view: view, sourceLayer: sourceLayer ?? view.layer, completion: completion).start()
+        let layer = sourceLayer ?? view.layer
+        prepare(view, sourceLayer: { [weak layer] in layer }, completion: completion)
+    }
+    static func prepare(_ view: UIView, sourceLayer: @escaping () -> CALayer?, completion: @escaping (Bool) -> Void) {
+        Preparation(view: view, sourceLayer: sourceLayer, completion: completion).start()
     }
 
     @MainActor
     private final class Preparation: NSObject {
         private weak var view: UIView?
-        private weak var sourceLayer: CALayer?
+        private let sourceLayer: () -> CALayer?
         private var completion: ((Bool) -> Void)?
         private var displayLink: CADisplayLink?
         private var previous: Geometry?
@@ -515,12 +547,13 @@ enum PlayerVideoReturnLayout {
 
         private struct Geometry: Equatable {
             let window: ObjectIdentifier
+            let source: ObjectIdentifier
             let sourceBounds: CGRect
             let sourceFrame: CGRect
             let hostBounds: CGRect
         }
 
-        init(view: UIView, sourceLayer: CALayer, completion: @escaping (Bool) -> Void) {
+        init(view: UIView, sourceLayer: @escaping () -> CALayer?, completion: @escaping (Bool) -> Void) {
             self.view = view
             self.sourceLayer = sourceLayer
             self.completion = completion
@@ -534,13 +567,16 @@ enum PlayerVideoReturnLayout {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.finish(false) }
         }
         @objc private func tick() {
-            guard let view, let sourceLayer else { finish(false); return }
+            guard let view else { finish(false); return }
             guard let window = view.window else { reset(); return }
             UIView.performWithoutAnimation {
                 window.layoutIfNeeded()
                 view.setNeedsLayout()
                 view.layoutIfNeeded()
             }
+            // A drawable can be ready before VLC attaches or places its actual
+            // sample-buffer layer. Never substitute the outer host for it.
+            guard let sourceLayer = sourceLayer() else { reset(); return }
 
             // Inspect the app's host hierarchy, not the PiP video layer's
             // presentation: AVKit owns that layer's in-flight animation.
@@ -550,13 +586,20 @@ enum PlayerVideoReturnLayout {
                 ancestor = current.superview
             }
             var layer: CALayer? = sourceLayer
-            while let current = layer, current !== view.layer { layer = current.superlayer }
+            while let current = layer, current !== view.layer {
+                // AVKit can hide the inline source while it is in PiP. Only
+                // its enclosing views must already be visibly settled.
+                if current !== sourceLayer {
+                    guard !current.isHidden, current.opacity > 0, geometryIsSettled(current) else { reset(); return }
+                }
+                layer = current.superlayer
+            }
             guard layer === view.layer else { reset(); return }
             let frame = sourceLayer.convert(sourceLayer.bounds, to: window.layer)
             guard !frame.isEmpty, !frame.isInfinite, !frame.isNull,
                   window.bounds.intersects(frame) else { reset(); return }
-            let geometry = Geometry(window: ObjectIdentifier(window), sourceBounds: sourceLayer.bounds,
-                                    sourceFrame: frame, hostBounds: view.bounds)
+            let geometry = Geometry(window: ObjectIdentifier(window), source: ObjectIdentifier(sourceLayer),
+                                    sourceBounds: sourceLayer.bounds, sourceFrame: frame, hostBounds: view.bounds)
             stableFrames = previous == geometry ? stableFrames + 1 : 1
             previous = geometry
             // Observe committed layout over successive display refreshes, not
@@ -685,3 +728,66 @@ final class PlayerVideoClipping {
         @objc func tick() { owner?.tick() }
     }
 }
+
+// Temporary device-only diagnosis, removed after the recorded handoff is verified.
+#if DEBUG
+@MainActor
+private final class PiPTraceTarget: NSObject {
+    @objc func tick() { PiPReturnTrace.tick() }
+}
+@MainActor
+enum PiPReturnTrace {
+    private static var source: CALayer?
+    private static var link: CADisplayLink?
+    private static let target = PiPTraceTarget()
+    private static var start: CFTimeInterval = 0
+    private static var rows: [[String: Any]] = []
+    private static var label = ""
+    static func begin(_ layer: CALayer, label: String) {
+        guard ProcessInfo.processInfo.arguments.contains("-mirivo-pip-trace") else { return }
+        link?.invalidate(); source = layer; start = CACurrentMediaTime(); rows = []; self.label = label
+        let next = CADisplayLink(target: target, selector: #selector(PiPTraceTarget.tick))
+        link = next; next.add(to: .main, forMode: .common); mark("willStop"); tick()
+    }
+    static func mark(_ value: String) {
+        guard link != nil else { return }
+        rows.append(["t": CACurrentMediaTime() - start, "event": value])
+    }
+    static func tick() {
+        guard let source else { return }
+        var layers: [CALayer] = []
+        var parent: CALayer? = source
+        while let layer = parent { layers.append(layer); parent = layer.superlayer }
+        func children(_ layer: CALayer, depth: Int) {
+            guard depth < 4 else { return }
+            for child in layer.sublayers ?? [] { layers.append(child); children(child, depth: depth + 1) }
+        }
+        children(source, depth: 0)
+        let states: [[String: Any]] = layers.map { layer in
+            func state(_ layer: CALayer) -> [String: Any] {
+                let t = layer.transform
+                return ["frame": [layer.frame.minX,layer.frame.minY,layer.frame.width,layer.frame.height], "bounds": [layer.bounds.minX,layer.bounds.minY,layer.bounds.width,layer.bounds.height],
+                        "hidden": layer.isHidden, "opacity": layer.opacity, "radius": layer.cornerRadius,
+                        "mask": layer.mask.map { String(describing: type(of: $0)) } ?? "nil",
+                        "corners": layer.maskedCorners.rawValue, "clips": layer.masksToBounds,
+                        "transform": [t.m11,t.m12,t.m21,t.m22,t.m41,t.m42]]
+            }
+            var result: [String: Any] = ["class": String(describing: type(of: layer)), "id": String(describing: ObjectIdentifier(layer)), "model": state(layer)]
+            if let presentation = layer.presentation() { result["presentation"] = state(presentation) }
+            result["animations"] = (layer.animationKeys() ?? []).map { key in
+                "\(key): \(String(describing: layer.animation(forKey: key)))"
+            }
+            if let sample = layer as? AVSampleBufferDisplayLayer { result["gravity"] = sample.videoGravity.rawValue }
+            return result
+        }
+        rows.append(["t": CACurrentMediaTime() - start, "layers": states])
+        if CACurrentMediaTime() - start > 2.5 {
+            link?.invalidate(); link = nil
+            let folder = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("MirivoPiPProbe")
+            let file = folder.appendingPathComponent("trace-\(label)-\(Int(Date().timeIntervalSince1970)).json")
+            if let data = try? JSONSerialization.data(withJSONObject: rows, options: [.prettyPrinted, .sortedKeys]) { try? data.write(to: file) }
+            self.source = nil; rows = []
+        }
+    }
+}
+#endif

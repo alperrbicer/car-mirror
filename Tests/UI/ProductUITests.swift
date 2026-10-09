@@ -5,21 +5,44 @@ final class ProductUITests: XCTestCase {
     func testPhysicalNativePiPReturnFullscreen() throws { try physicalPiPReturn(kind: "mp4", fullscreen: true) }
     func testPhysicalCompatibilityPiPReturnInline() throws { try physicalPiPReturn(kind: "mkv", fullscreen: false) }
     func testPhysicalCompatibilityPiPReturnFullscreen() throws { try physicalPiPReturn(kind: "mkv", fullscreen: true) }
+    func testPhysicalLivePiPReturnInline() throws { try physicalPiPReturn(kind: "hls", fullscreen: false) }
+    func testPhysicalLivePiPReturnFullscreen() throws { try physicalPiPReturn(kind: "hls", fullscreen: true) }
+    func testPhysicalLastWatchedPiPReturnInline() throws { try physicalPiPReturn(kind: "last-watched", fullscreen: false) }
+    func testPhysicalLastWatchedPiPReturnFullscreen() throws { try physicalPiPReturn(kind: "last-watched", fullscreen: true) }
 
     private func physicalPiPReturn(kind: String, fullscreen: Bool) throws {
         guard ProcessInfo.processInfo.environment["MIRIVO_PHYSICAL_PIP_QA"] == "1" else {
             throw XCTSkip("Opt-in physical iPhone test; copy the local PiP fixture into the app cache first")
         }
+        continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-pip-probe", kind, "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        app.launchArguments = ["-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR", "-mirivo-pip-trace"]
+        if kind != "last-watched" { app.launchArguments += ["-mirivo-pip-probe", kind] }
+        if kind == "hls" {
+            guard let url = ProcessInfo.processInfo.environment["MIRIVO_PIP_QA_LIVE_URL"] else {
+                throw XCTSkip("Supply the local live HLS fixture URL to run this case")
+            }
+            app.launchEnvironment["MIRIVO_PIP_QA_LIVE_URL"] = url
+        }
         XCUIDevice.shared.orientation = .portrait
         app.launch()
         defer { app.terminate() }
+        if kind == "last-watched" {
+            let resume = app.buttons["last-watched-open"]
+            XCTAssertTrue(resume.waitForExistence(timeout: 10))
+            resume.tap()
+        }
         let video = app.otherElements["player-video"]
         XCTAssertTrue(video.waitForExistence(timeout: 15))
-        Thread.sleep(forTimeInterval: 2)
-        video.tap()
-        if !app.buttons["player-fullscreen"].isHittable { video.tap() }
+        // Never tap the center to reveal chrome: that is also Play/Pause.
+        let ready = NSPredicate { _, _ in
+            app.buttons["player-pip"].exists && app.buttons["player-pip"].isEnabled &&
+                app.buttons["player-play-pause"].exists && app.buttons["player-play-pause"].label == "Duraklat"
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: app)], timeout: 30), .completed)
+        if !app.buttons["player-fullscreen"].isHittable {
+            video.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.22)).tap()
+        }
         if fullscreen { app.buttons["player-fullscreen"].tap() }
         let expected = video.frame
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -36,7 +59,7 @@ final class ProductUITests: XCTestCase {
                 pipWindow.buttons["Tam ekrana dön"].tap()
             } else { app.activate() }
             XCTAssertTrue(video.waitForExistence(timeout: 10))
-            Thread.sleep(forTimeInterval: 0.5)
+            Thread.sleep(forTimeInterval: 3)
             XCTAssertEqual(video.frame.width, expected.width, accuracy: 1)
             XCTAssertEqual(video.frame.height, expected.height, accuracy: 1)
             capture("physical-return-\(kind)-\(fullscreen ? "fullscreen" : "inline")-\(route)", app: app)

@@ -774,6 +774,85 @@ final class PlayerTests: XCTestCase {
         surface.prepareForPictureInPicture()
     }
 
+    func testCompatibilityLayoutPreservesRendererPlacementDuringPiP() {
+        let surface = CompatibilityVideoSurface(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        surface.prepareForPictureInPicture()
+        // VLC can place a widescreen picture or a cropped fill rectangle inside
+        // the drawable. App layout must not replace that with the host bounds.
+        for frame in [CGRect(x: 0, y: 340, width: 390, height: 164),
+                      CGRect(x: -120, y: 0, width: 630, height: 844)] {
+            let renderer = UIView(frame: frame)
+            let video = AVSampleBufferDisplayLayer()
+            video.frame = renderer.bounds
+            video.cornerRadius = 32
+            renderer.layer.addSublayer(video)
+            surface.addSubview(renderer)
+            let subtitles = UIView(frame: CGRect(x: 8, y: 700, width: 374, height: 70))
+            surface.addSubview(subtitles)
+            for height: CGFloat in [844, 220, 844] {
+                surface.bounds.size.height = height
+                surface.setNeedsLayout(); surface.layoutIfNeeded()
+                XCTAssertEqual(renderer.frame, frame, "Only VLC may place its renderer, including during a PiP return")
+                XCTAssertEqual(renderer.autoresizingMask, [], "Do not opt VLC's renderer into a second resizing policy")
+                XCTAssertEqual(subtitles.frame, CGRect(x: 8, y: 700, width: 374, height: 70))
+                XCTAssertEqual(video.cornerRadius, 32, "Active PiP still owns the system corner animation")
+            }
+            renderer.removeFromSuperview(); subtitles.removeFromSuperview()
+        }
+    }
+
+    func testCompatibilityPiPReturnWaitsForVisibleRendererAndItsMovingWrapper() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        let root = UIViewController()
+        window.rootViewController = root
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible() }
+
+        for fullscreen in [false, true] {
+            let engine = CompatibilityPlayback()
+            let host = CompatibilityVideoHost(frame: fullscreen ? root.view.bounds : CGRect(x: 20, y: 120, width: 350, height: 197))
+            root.view.addSubview(host)
+            host.configure(engine: engine, role: fullscreen ? .fullscreen : .inline, fillsFrame: false)
+            window.layoutIfNeeded()
+            var restored: Bool?
+            var completions = 0
+            engine.preparePictureInPictureReturn { restored = $0; completions += 1 }
+            try await Task.sleep(for: .milliseconds(80))
+            XCTAssertNil(restored, "A stable drawable without the PiP video layer is not a return target")
+
+            let wrapper = UIView(frame: engine.videoView.bounds)
+            let video = AVSampleBufferDisplayLayer()
+            wrapper.layer.addSublayer(video)
+            engine.videoView.addSubview(wrapper)
+            try await Task.sleep(for: .milliseconds(60))
+            XCTAssertNil(restored, "Wait for VLC to place the newly attached renderer")
+            wrapper.isHidden = true
+            video.frame = AVMakeRect(aspectRatio: CGSize(width: 239, height: 100), insideRect: wrapper.bounds)
+            video.cornerRadius = 32
+            try await Task.sleep(for: .milliseconds(60))
+            XCTAssertNil(restored, "A hidden renderer wrapper cannot be replaced with its visible outer host")
+
+            wrapper.transform = CGAffineTransform(translationX: 0, y: 60)
+            try await Task.sleep(for: .milliseconds(50))
+            wrapper.isHidden = false
+            video.isHidden = true
+            UIView.animate(withDuration: 0.25, delay: 0, options: .curveLinear) { wrapper.transform = .identity }
+            try await Task.sleep(for: .milliseconds(60))
+            XCTAssertNil(restored, "The video wrapper can still be moving inside an already settled host")
+            for _ in 0..<40 {
+                if restored != nil { break }
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            XCTAssertEqual(restored, true)
+            XCTAssertEqual(completions, 1)
+            XCTAssertTrue(video.isHidden, "AVKit may keep the inline source hidden until its return animation starts")
+            XCTAssertEqual(video.cornerRadius, 32, "Preparing the return must preserve AVKit's corner animation")
+            host.detach(); host.removeFromSuperview()
+        }
+    }
+
     func testPiPReturnWaitsForSettledNativeAndCompatibilityTargetsInBothSizes() async throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
         let previousWindow = scene.windows.first(where: \.isKeyWindow)
@@ -797,6 +876,9 @@ final class PlayerTests: XCTestCase {
                 if compatibility {
                     host.configure(engine: engine, role: fullscreen ? .fullscreen : .inline, fillsFrame: false)
                     container.addSubview(host)
+                    let video = AVSampleBufferDisplayLayer()
+                    video.frame = engine.videoView.bounds
+                    engine.videoView.layer.addSublayer(video)
                     prepare = engine.preparePictureInPictureReturn
                 } else {
                     root.addChild(native)
@@ -872,6 +954,7 @@ final class PlayerTests: XCTestCase {
         let window = try mountCompatibilityPiPSource(engine)
         defer { window.isHidden = true; window.rootViewController = nil }
         let video = AVSampleBufferDisplayLayer()
+        video.frame = engine.videoView.bounds
         engine.videoView.layer.addSublayer(video)
         let pip = PictureInPictureStub()
         engine.configurePiP(pip)
@@ -913,6 +996,13 @@ final class PlayerTests: XCTestCase {
         root.view.addSubview(host)
         host.configure(engine: engine, role: .inline, fillsFrame: false)
         window.layoutIfNeeded()
+        // These lifecycle tests use a stub PiP controller. Give that controller
+        // a concrete source even if VLC has not attached its renderer yet.
+        if engine.videoView.pictureInPictureLayer == nil {
+            let video = AVSampleBufferDisplayLayer()
+            video.frame = engine.videoView.bounds
+            engine.videoView.layer.addSublayer(video)
+        }
         return window
     }
 
@@ -1079,6 +1169,99 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(pip.stopCount, stopsBeforeLateRestore, "An old restoration must not act after playback stops")
     }
 
+    func testMovieReplacementClearsRetainedPiPSource() throws {
+        let playback = PlaybackController()
+        let url = try audioFixture()
+        defer { playback.stop(); try? FileManager.default.removeItem(at: url) }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        let firstPlaybackID = playback.playbackID
+        let oldSource = UIViewController()
+        playback.retainedPiPController = oldSource
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        XCTAssertNil(playback.retainedPiPController, "The next film must not use the previous PiP source")
+        XCTAssertNil(playback.nativePiP, "The mounted source must register again for the new film")
+        XCTAssertNotEqual(playback.playbackID, firstPlaybackID)
+        XCTAssertNotNil(playback.player.currentItem)
+    }
+
+    func testPiPRequestDuringReturnDoesNotBlockTheNextStart() throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false, useCompatibility: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        let pip = PictureInPictureStub()
+        pip.completesStartImmediately = false
+        engine.configurePiP(pip)
+        playback.pictureInPictureWillStop()
+        playback.startPictureInPicture()
+        XCTAssertEqual(pip.startCount, 0, "Do not send a start while the return animation owns PiP")
+        playback.pictureInPictureStopped()
+        playback.startPictureInPicture()
+        XCTAssertEqual(pip.startCount, 1, "A rejected request must not leave the start flag latched")
+    }
+
+    func testReplacedCompatibilityMovieKeepsPiPSourceUntilStopFinishes() async throws {
+        let engine = CompatibilityPlayback()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let pip = PictureInPictureStub()
+        pip.completesStopImmediately = false
+        defer { pip.stateChangeEventHandler?(false); engine.stop() }
+        engine.open(url)
+        for _ in 0..<150 {
+            if engine.isMediaPlaying() { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertTrue(engine.isMediaPlaying())
+        engine.configurePiP(pip)
+        XCTAssertTrue(engine.startPictureInPicture())
+        engine.stop()
+        for _ in 0..<150 {
+            if engine.mediaPlayer.state == .stopped { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertEqual(engine.mediaPlayer.state, .stopped)
+        engine.mediaPlayerStateChanged(.stopped)
+        await Task.yield()
+        XCTAssertTrue(engine.pip === pip, "Decoder shutdown must not destroy AVKit's unfinished PiP source")
+        XCTAssertNotNil(engine.mediaPlayer.drawable)
+        pip.stateChangeEventHandler?(false)
+        XCTAssertNil(engine.pip, "Release the source when both decoder and PiP have stopped")
+        XCTAssertNil(engine.mediaPlayer.drawable)
+    }
+
+    func testReplacedMoviePiPCallbacksDoNotBlockNewMovie() throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false, useCompatibility: true)
+        let firstEngine = try XCTUnwrap(playback.compatibility)
+        let firstPiP = PictureInPictureStub()
+        firstEngine.configurePiP(firstPiP)
+        playback.startPictureInPicture()
+        XCTAssertTrue(firstEngine.pipActive)
+
+        try playback.play(url: url, requiresExternalPlayback: false, live: false, useCompatibility: true)
+        let nextEngine = try XCTUnwrap(playback.compatibility)
+        let nextPiP = PictureInPictureStub()
+        nextPiP.completesStartImmediately = false
+        nextEngine.configurePiP(nextPiP)
+        playback.startPictureInPicture()
+        XCTAssertEqual(nextPiP.startCount, 1)
+        firstEngine.onPiPWillStop?()
+        firstEngine.onPiPStopped?()
+        firstPiP.stateChangeEventHandler?(true)
+        playback.startPictureInPicture()
+        XCTAssertEqual(nextPiP.startCount, 1, "Late events from the old movie must not reset the new start")
+        nextPiP.stateChangeEventHandler?(true)
+        XCTAssertTrue(nextEngine.pipActive)
+        playback.pictureInPictureStopped()
+        nextPiP.stateChangeEventHandler?(false)
+        playback.startPictureInPicture()
+        XCTAssertEqual(nextPiP.startCount, 2)
+        XCTAssertFalse(firstEngine.startPictureInPicture(), "A stopped decoder must not start another PiP session")
+    }
+
     func testCompatibilityCaptureProtectionIncludesNestedAndLateVideoLayers() {
         let surface = CompatibilityVideoSurface()
         surface.captureProtectionEnabled = true
@@ -1123,11 +1306,15 @@ final class PlayerTests: XCTestCase {
         private(set) var startCount = 0
         private(set) var stopCount = 0
         var completesStartImmediately = true
+        var completesStopImmediately = true
         func startPictureInPicture() {
             startCount += 1
             if completesStartImmediately { stateChangeEventHandler?(true) }
         }
-        func stopPictureInPicture() { stopCount += 1; stateChangeEventHandler?(false) }
+        func stopPictureInPicture() {
+            stopCount += 1
+            if completesStopImmediately { stateChangeEventHandler?(false) }
+        }
         func invalidatePlaybackState() {}
     }
 
@@ -1153,6 +1340,10 @@ final class PlayerTests: XCTestCase {
         }
         XCTAssertTrue(controller.videoLayer.isReadyForDisplay)
         controller.view.setNeedsLayout(); controller.view.layoutIfNeeded()
+        let sourceView = try XCTUnwrap(controller.videoLayer.delegate as? UIView)
+        XCTAssertTrue(sourceView.layer === controller.videoLayer, "The PiP layer must back its own fitted UIView")
+        XCTAssertTrue(sourceView.superview === controller.view)
+        XCTAssertEqual(sourceView.frame, controller.videoLayer.frame)
         XCTAssertGreaterThan(controller.videoLayer.frame.minY, 0)
         XCTAssertLessThan(controller.videoLayer.frame.height, controller.view.bounds.height)
         XCTAssertEqual(controller.videoLayer.videoRect.width, controller.videoLayer.bounds.width, accuracy: 1)

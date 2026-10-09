@@ -319,6 +319,9 @@ final class MirrorModel: ObservableObject {
     }
 
     private func saveLastPlayback(force: Bool = false) {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-mirivo-pip-probe") { return }
+        #endif
         guard resumeRecordingEnabled, let channel = selectedMediaChannel, !channel.isAudio, !channel.url.isFileURL,
               mediaTitle != nil, playback.state == .playing || playback.state == .paused else { return }
         let now = Date()

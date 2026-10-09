@@ -698,18 +698,30 @@ struct NativeVideoView: UIViewControllerRepresentable {
     }
 }
 
+/// AVKit's source layer and its UIView must describe the same picture rectangle.
+/// Keep letterboxing in the outer host, outside this fitted backing layer.
+@MainActor
+private final class NativeVideoSurface: UIView {
+    override class var layerClass: AnyClass { AVPlayerLayer.self }
+    var videoLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+}
+
 @MainActor
 final class NativeVideoController: UIViewController, @preconcurrency AVPictureInPictureControllerDelegate {
-    let videoLayer: AVPlayerLayer
-    private lazy var videoClipping = PlayerVideoClipping(root: view.layer)
+    private let videoSurface = NativeVideoSurface()
+    var videoLayer: AVPlayerLayer { videoSurface.videoLayer }
+    private lazy var videoClipping = PlayerVideoClipping(root: videoSurface.layer)
     private(set) var pip: AVPictureInPictureController?
     private(set) var startingPiP = false
     private weak var playback: PlaybackController?
     private var possibleObservation: NSKeyValueObservation?
+    private var pipPlaybackID: UUID?
+    private var stoppingRetention: NativeVideoController?
+    var stoppingForPlaybackReplacement: Bool { stoppingRetention != nil }
     init(player: AVPlayer, playback: PlaybackController?, primary: Bool) {
-        videoLayer = AVPlayerLayer(player: player)
         self.playback = playback
         super.init(nibName: nil, bundle: nil)
+        videoLayer.player = player
         if AVPictureInPictureController.isPictureInPictureSupported(), playback != nil {
             pip = AVPictureInPictureController(playerLayer: videoLayer)
             pip?.delegate = self
@@ -724,7 +736,7 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         let surface = UIView()
         surface.backgroundColor = .black
         surface.clipsToBounds = true
-        surface.layer.addSublayer(videoLayer)
+        surface.addSubview(videoSurface)
         view = surface
     }
     override func viewDidLayoutSubviews() {
@@ -733,55 +745,87 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         CATransaction.setDisableActions(true)
         let frame = PlayerVideoGeometry.frame(size: videoLayer.player?.currentItem?.presentationSize ?? .zero,
             in: view.bounds, fillsFrame: videoLayer.videoGravity == .resizeAspectFill)
-        if videoLayer.frame != frame { videoLayer.frame = frame }
+        if videoSurface.frame != frame { videoSurface.frame = frame }
         videoClipping.repairIfRestored()
         CATransaction.commit()
     }
     func setPrimary(_ primary: Bool) {
-        if pip?.canStartPictureInPictureAutomaticallyFromInline != primary {
-            pip?.canStartPictureInPictureAutomaticallyFromInline = primary
+        let automatic = primary && !stoppingForPlaybackReplacement
+        if pip?.canStartPictureInPictureAutomaticallyFromInline != automatic {
+            pip?.canStartPictureInPictureAutomaticallyFromInline = automatic
         }
         if primary, let pip { playback?.nativePiP = pip }
     }
     func pictureInPictureControllerWillStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        guard !stoppingForPlaybackReplacement, let playback, playback.hasActivePlayback, playback.compatibility == nil,
+              playback.nativePiP === controller else { controller.stopPictureInPicture(); return }
+        pipPlaybackID = playback.playbackID
         prepareForPictureInPicture()
         startingPiP = true
-        playback?.retainedPiPController = self
+        playback.retainedPiPController = self
     }
     func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
         startingPiP = false
-        if playback?.retainedPiPController === self || playback?.nativePiP === controller {
+        if ownsPlayback(controller) {
             playback?.pictureInPictureStarted()
-        }
+        } else { controller.stopPictureInPicture() }
     }
     func pictureInPictureControllerWillStopPictureInPicture(_ controller: AVPictureInPictureController) {
-        if playback?.retainedPiPController === self || playback?.nativePiP === controller {
+        #if DEBUG
+        PiPReturnTrace.begin(videoLayer, label: "native")
+        #endif
+        if ownsPlayback(controller) {
             playback?.pictureInPictureWillStop()
         }
         layoutVideoForPictureInPictureReturn()
     }
     func pictureInPictureControllerDidStopPictureInPicture(_ controller: AVPictureInPictureController) {
+        #if DEBUG
+        PiPReturnTrace.mark("didStop")
+        #endif
         startingPiP = false
         restoreVideoClipping()
-        if playback?.retainedPiPController === self {
-            playback?.retainedPiPController = nil
+        if ownsPlayback(controller) {
+            if playback?.retainedPiPController === self { playback?.retainedPiPController = nil }
             playback?.pictureInPictureStopped()
         }
+        pipPlaybackID = nil
+        stoppingRetention = nil
+        if playback?.nativePiP === controller { setPrimary(true); playback?.startPendingPictureInPicture() }
     }
     func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
         startingPiP = false
         restoreVideoClipping()
-        if playback?.retainedPiPController === self || playback?.nativePiP === controller {
-            playback?.retainedPiPController = nil
+        if ownsPlayback(controller) {
+            if playback?.retainedPiPController === self { playback?.retainedPiPController = nil }
             playback?.pictureInPictureStopped()
         }
+        pipPlaybackID = nil
+        stoppingRetention = nil
+        if playback?.nativePiP === controller { setPrimary(true) }
     }
     func pictureInPictureController(_ controller: AVPictureInPictureController,
         restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        guard let playback, playback.retainedPiPController === self || playback.nativePiP === controller else {
+        guard let playback, ownsPlayback(controller) else {
             completionHandler(false); return
         }
         playback.restoreUserInterfaceForPictureInPictureStop(completion: completionHandler)
+    }
+    private func ownsPlayback(_ controller: AVPictureInPictureController) -> Bool {
+        guard let playback, pipPlaybackID == playback.playbackID else { return false }
+        return playback.retainedPiPController === self || playback.nativePiP === controller
+    }
+    func preparePictureInPictureRequest() {
+        pipPlaybackID = playback?.playbackID
+        startingPiP = true
+        playback?.retainedPiPController = self
+    }
+    func stopForPlaybackReplacement() {
+        // AVKit finishes asynchronously; keep its source/delegate alive without
+        // leaving the old source registered on the new playback session.
+        pip?.canStartPictureInPictureAutomaticallyFromInline = false
+        if pip != nil, startingPiP || pip?.isPictureInPictureActive == true { stoppingRetention = self }
+        pip?.stopPictureInPicture()
     }
     func prepareForPictureInPicture() { videoClipping.suspend() }
     func preparePictureInPictureReturn(completion: @escaping (Bool) -> Void) {
@@ -831,7 +875,7 @@ struct MediaVideoView: View {
             CompatibilityVideoView(engine: engine, role: role, fillsFrame: fillsFrame)
                 .overlay(alignment: .bottomTrailing) {
                     if showsControls && role != .fullscreen && role != .external {
-                        Button { engine.pip?.startPictureInPicture() } label: {
+                        Button { playback.startPictureInPicture() } label: {
                             Image(systemName: "pip.enter").font(.headline)
                                 .frame(width: 44, height: 44)
                                 .background(.ultraThinMaterial, in: Circle())

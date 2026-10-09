@@ -76,3 +76,37 @@ Kullanıcının son karşılaştırmasında canlı yayının tam ekran dönüş�
 - Hazırlık AVKit'in video katmanındaki geçiş animasyonunu veya köşelerini değiştirmez. Önceki `didStop` sonrası maske temizliği korunur. Bu değişiklikte fiziksel cihaza kurulum yapılmadı; kullanıcının üç hatalı senaryosundaki görsel sonuç henüz cihazda doğrulanmadı.
 
 Son kodla uygulama ve test hedefleri derlendi; iOS 26.5 / iPhone 17 Pro Max simülatöründe sekiz odaklı testin tamamı geçti (`TEST SUCCEEDED`). Yeni kontroller iki motorda küçük/tam ekran dönüşünün hareket eden üst görünümü beklediğini, geç pencereye bağlanmayı ve gizli hedefin reddedilmesini doğruluyor. Mevcut kontroller de ikinci PiP durdurma isteğini, geç başlangıcı, duraklatma/decoder durumunu, görüntü oranını ve dönüş sonrası maske temizliğini kapsıyor. Bunlar fiziksel cihazdaki sistem animasyonunun görsel kanıtı değildir. Kayıtlar: `build/pip-transition-layout-20261007.log` ve `build/pip-transition-layout-20261007.xcresult`.
+
+## 9 Ekim: canlı yayın ve film kayıtlarının karşılaştırılması
+
+Kullanıcının `00-21-12` canlı yayın kaydı, tam ekran → PiP → tam ekran için düzgün referanstır. `00-21-51` film kaydında yaklaşık 8,82–9,30 saniye arasında dönüşün son bölümünde görüntü ölçeği değişiyor ve üst köşeler yeniden ovalleşiyor; ardından dikdörtgen görüntüye sıçrıyor. Önceki test sonuçları bu ara karelerdeki sorunu çözmüş sayılmaz. Ekran kaydı filmin hangi decoder ile açıldığını göstermiyor.
+
+Kodda giderilen farklar:
+
+- `CompatibilityVideoSurface`, VideoLAN'ın oluşturduğu renderer ve altyazı görünümlerinin `frame` / `autoresizingMask` değerlerini artık değiştirmiyor. Uygulama kendi drawable'ını yerleştiriyor; VideoLAN kendi video yerleşimini yönetiyor. Önceki müdahale, VideoLAN'ın ana kuyruğa bıraktığı yerleşimle aynı görüntü katmanını tekrar boyutlandırıyordu. [VideoLAN renderer kaynağı](https://github.com/videolan/vlc/blob/master/modules/video_output/apple/VLCSampleBufferDisplay.m), `prepareDisplay` ve `placeVideo` içinde bu yerleşimi yapıyor.
+- Uyumluluk oynatıcısının dönüş hazırlığı dış drawable yerine PiP controller'ın gerçek `AVSampleBufferDisplayLayer` katmanını izliyor. Katmanın bağlanması, geçerli boyut alması ve iç sarmalayıcıların yerleşiminin bitmesi bekleniyor. Yeni bir renderer, devam eden PiP oturumunun eski kaynak katmanı yerine kabul edilmiyor.
+- Native oynatıcıda `AVPlayerLayer` artık görüntü oranına göre yerleştirilen bir `UIView`'ın backing layer'ı. PiP kaynak katmanı ile onu temsil eden görünüm aynı dikdörtgene sahip; siyah bantlar dış kapsayıcıda kalıyor.
+- Aktif PiP'nin kaynak katmanına ait görünürlük/köşe animasyonlarına müdahale edilmiyor. Decoder, oynatma konumu, duraklatma durumu ve mevcut küçük/tam ekran tercihi korunuyor.
+
+Yeni regresyonlar, geniş film ve kırpılmış doldur geometrisinde renderer yerleşiminin korunmasını; küçük/tam ekran dönüşlerinde gerçek katman eksikken, sıfır boyuttayken veya sarmalayıcısı hareket ederken erken tamamlanmamasını kontrol ediyor. Native kontrolü, kaynağın kendi görünümünün backing layer'ı olduğunu da doğruluyor.
+
+Son kaynakla uygulama ve test hedefleri iOS 26.5 simülatörü için derlendi; 12 odaklı testin tamamı sıfır hatayla geçti (`TEST SUCCEEDED`). Kayıtlar: `build/pip-film-return-r2-20261009.log` ve `build/pip-film-return-r2-20261009.xcresult`. `git diff --check` temiz. Bu sonuç, simülatörün üretmediği gerçek iOS PiP animasyonunun görsel onayı değildir.
+
+Kullanıcının cihaz testi ve kurulum izni sonrasında 1.0 (14), fiziksel iPhone 16 Pro / iOS 27.0'a kuruldu ve normal uygulama ekranı doğrulandı (`build/pip-film-device-install-20261009.log`). MP4/MKV × küçük/tam ekran için iki dönüş yolunu (uygulamayı açma ve PiP düğmesi) kapsayan dört cihaz testi geçti (`build/physical-pip-film-r1-20261009.xcresult`). Ancak dışa aktarılan ekran kayıtlarında, özellikle uygulamayı yeniden açma sırasında iki motorda da geçici köşe yuvarlanması ve görüntü ölçeği değişimi hâlâ görüldü. **Bu koşu görsel kabulü sağlamadı; sorun çözülmüş sayılmaz.**
+
+Kayıttaki gerçek film, mevcut “İzlemeye devam et” kartından açıldı. İlk otomasyon merkezdeki oynat/duraklat düğmesine yanlışlıkla basınca PiP başlamadı; bu koşu uygulamanın PiP sonucunu kanıtlamaz (`physical-pip-actual-film-r1`). Test artık oynatma ve PiP hazırlığını bekliyor, kontrolleri merkez dışındaki alandan açıyor ve başarısız başlangıçtan sonra devam etmiyor. Canlı HLS ile aynı geçişleri karşılaştıran opt-in testler ve DEBUG ile sınırlı geçici katman ölçümü hazırlandı. Test kaynakları kullanıcının izleme geçmişine kaydedilmiyor.
+
+Yeni cihaz koşusu, iPhone'un yeniden istediği “XCTest / Enable UI Automation” parola doğrulamasında durdu; testler başlamadı (`build/physical-pip-actual-film-r2-20261009.xcresult`). Bu cihaz sahibi doğrulaması tamamlanmadan geçici ölçüm kaydı alınamadı. Son görsel kabul ve bu ölçüme dayalı nihai düzeltme hâlâ açık; canlı/küçük, canlı/tam ekran, film/küçük ve film/tam ekran için tamamlandı iddiası yok.
+
+## 9 Ekim: film geçişinden sonra PiP'nin yeniden başlayamaması
+
+Yeni bildirimin hangi geçiş adımında oluştuğu henüz netleşmedi. Kod incelemesinde film değiştirme ve PiP dönüşünden sonra yeniden başlatmayı etkileyebilen yaşam döngüsü açıkları düzeltildi:
+
+- Oynatma değişirken tutulan native PiP kaynağı ve kayıtlı controller temizleniyor. Yeni kaynak görünümü kendini yeniden kaydediyor; önceki oynatma kimliğine ait gecikmiş native bildirimleri yeni filmin PiP durumunu değiştiremiyor.
+- Kapanış animasyonu sürerken başlangıç isteği gönderilmiyor. VideoLAN başlangıcı reddederse ortak başlangıç bayrağı açık bırakılmıyor. Uyumluluk oynatıcısındaki PiP düğmesi de ortak başlangıç yordamını kullanıyor.
+- Native kaynak ve delegate, asenkron kapanış tamamlanana kadar tutuluyor. Yeniden kullanılan native kaynakta önceki kapanış tamamlanmadan otomatik PiP tekrar etkinleştirilmiyor.
+- VideoLAN decoder'ın durması, devam eden PiP'nin kaynak katmanını/controller'ını erken bırakmıyor. Kaynak, decoder ve PiP birlikte durduktan sonra serbest bırakılıyor. Bu sıra [Apple'ın PiP kapanış bildirimiyle](https://developer.apple.com/documentation/avkit/avpictureinpicturecontrollerdelegate/pictureinpicturecontrollerdidstoppictureinpicture%28_%3A%29) tamamlanıyor.
+
+Son kodla uygulama ve test hedefleri derlendi; sekiz odaklı simülatör kontrolü sıfır hatayla geçti (`TEST SUCCEEDED`). Dört yeni regresyon; film değiştirmede eski kaynak kaydının temizlenmesini, dönüş sırasında reddedilen isteğin sonraki başlangıcı kilitlememesini, eski filmin geç bildirimlerini ve decoder durduktan sonra PiP kapanışı bitene kadar kaynağın korunmasını kapsıyor. Mevcut arka plan/ön plan, PiP dönüş düğmesi ve kaynak geometrisi kontrolleri de geçti. Kayıtlar: `build/pip-movie-lifecycle-r2-20261009.log` ve `build/pip-movie-lifecycle-r2-20261009.xcresult`; `git diff --check` temiz.
+
+Bu çalışmada fiziksel iPhone'a yeni sürüm kurulmadı. PiP sistem animasyonu ve kullanıcının bildirdiği gerçek geçiş akışı cihazda doğrulanmadı; önceki köşe/ölçek sorununun görsel kabulü de açık kalır.

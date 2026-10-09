@@ -56,6 +56,7 @@ final class PlaybackController: ObservableObject {
     // Keep the source layer and its delegate alive while PiP owns the video.
     var retainedPiPController: UIViewController?
     weak var nativePiP: AVPictureInPictureController?
+    private(set) var playbackID = UUID()
     private(set) var pendingAutomaticPiP = false
     private var startingPiP = false
     private var stoppingPiP = false
@@ -67,19 +68,26 @@ final class PlaybackController: ObservableObject {
     }
     var canStartPictureInPicture: Bool {
         hasActivePlayback && request?.presentation == .video && tvDevice == nil && !externalPlaybackActive && !externalDisplayConnected &&
-        (compatibility?.pipPossible == true || currentNativePiP?.isPictureInPicturePossible == true)
+        (compatibility?.pipPossible == true || (currentNativePiP?.isPictureInPicturePossible == true &&
+        (currentNativePiP?.delegate as? NativeVideoController)?.stoppingForPlaybackReplacement != true))
     }
     func startPictureInPicture() {
-        guard canStartPictureInPicture else { return }
+        // A request during the return animation is rejected by AVKit. Do not
+        // latch startingPiP for a request that was never sent.
+        guard canStartPictureInPicture, !stoppingPiP else { return }
         if let compatibility {
             if compatibility.pipActive { pictureInPictureStarted() }
             else if !startingPiP {
                 startingPiP = true
-                compatibility.startPictureInPicture()
+                if !compatibility.startPictureInPicture() { startingPiP = false }
             }
         } else if let pip = currentNativePiP {
             if pip.isPictureInPictureActive || (retainedPiPController as? NativeVideoController)?.startingPiP == true { pictureInPictureStarted() }
-            else if !startingPiP { startingPiP = true; pip.startPictureInPicture() }
+            else if !startingPiP {
+                startingPiP = true
+                (pip.delegate as? NativeVideoController)?.preparePictureInPictureRequest()
+                pip.startPictureInPicture()
+            }
         }
     }
     func startPendingPictureInPicture() {
@@ -561,6 +569,11 @@ final class PlaybackController: ObservableObject {
     }
 
     func stop() {
+        playbackID = UUID()
+        let previousNativeController = retainedPiPController as? NativeVideoController
+        let previousNativePiP = currentNativePiP
+        retainedPiPController = nil
+        nativePiP = nil
         trackLoadingTask?.cancel(); trackLoadingTask = nil
         audioGroup = nil; subtitleGroup = nil
         nativeAudioOptions = []; nativeSubtitleOptions = []
@@ -571,7 +584,8 @@ final class PlaybackController: ObservableObject {
         enteredBackgroundWithVideo = false
         restorePiPOnStart = false
         foregroundPiPRestoreID = nil
-        currentNativePiP?.stopPictureInPicture()
+        if let previousNativeController { previousNativeController.stopForPlaybackReplacement() }
+        else { previousNativePiP?.stopPictureInPicture() }
         personalMediaServer?.stop(); personalMediaServer = nil
         MediaScreenAwake.release(localCastAwakeLease); localCastAwakeLease = nil
         request = nil
@@ -582,8 +596,9 @@ final class PlaybackController: ObservableObject {
         durationObservation = nil
         pendingSeek = nil
         casting?.stop(); casting = nil
-        compatibility?.stop()
+        let previousCompatibility = compatibility
         compatibility = nil
+        previousCompatibility?.stop()
         currentTime = 0; duration = 0
         canSeek = false; isLive = false; requestedLive = false
         startupTask?.cancel()
