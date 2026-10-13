@@ -27,6 +27,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     private var active = false
     private var stoppingRetention: CompatibilityPlayback?
     private var hasPlayed = false
+    private var errorConfirmationTask: Task<Void, Never>?
     private var videoHosts: [WeakVideoHost] = []
     private struct SeekRequest {
         var target: Double
@@ -60,6 +61,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     }
     func stop() {
         active = false
+        errorConfirmationTask?.cancel(); errorConfirmationTask = nil
         videoView.prepareForPictureInPicture()
         seekTask?.cancel(); seekTask = nil
         seekTimeoutTask?.cancel(); seekTimeoutTask = nil
@@ -283,6 +285,26 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
                 if !self.active { self.finishStoppingIfReady(); return }
             }
             guard self.active else { return }
+            if self.mediaPlayer.state == .error {
+                // VLC can report a transient error while a network stream is
+                // changing state. Confirm it remains failed before stopping
+                // the current playback session.
+                guard self.errorConfirmationTask == nil else { return }
+                self.errorConfirmationTask = Task { @MainActor [weak self] in
+                    // IPTV channel switches can briefly put VLC in `.error`
+                    // while the new transport is negotiated. Only surface a
+                    // failure if that state survives a meaningful recovery
+                    // window; the playback-session identity is checked again
+                    // by PlaybackController before showing the alert.
+                    do { try await Task.sleep(for: .seconds(10)) } catch { return }
+                    guard let self else { return }
+                    self.errorConfirmationTask = nil
+                    guard self.active, self.mediaPlayer.state == .error else { return }
+                    self.onState?(.failed)
+                }
+                return
+            }
+            errorConfirmationTask?.cancel(); errorConfirmationTask = nil
             self.refreshVideoHost()
             self.onTracksChanged?()
             switch self.mediaPlayer.state {
@@ -766,11 +788,14 @@ enum PiPReturnTrace {
         let states: [[String: Any]] = layers.map { layer in
             func state(_ layer: CALayer) -> [String: Any] {
                 let t = layer.transform
+                let st = layer.sublayerTransform
                 return ["frame": [layer.frame.minX,layer.frame.minY,layer.frame.width,layer.frame.height], "bounds": [layer.bounds.minX,layer.bounds.minY,layer.bounds.width,layer.bounds.height],
                         "hidden": layer.isHidden, "opacity": layer.opacity, "radius": layer.cornerRadius,
                         "mask": layer.mask.map { String(describing: type(of: $0)) } ?? "nil",
                         "corners": layer.maskedCorners.rawValue, "clips": layer.masksToBounds,
-                        "transform": [t.m11,t.m12,t.m21,t.m22,t.m41,t.m42]]
+                        "transform": [t.m11,t.m12,t.m21,t.m22,t.m41,t.m42],
+                        "sublayerTransform": [st.m11,st.m12,st.m21,st.m22,st.m41,st.m42],
+                        "contentsRect": [layer.contentsRect.minX,layer.contentsRect.minY,layer.contentsRect.width,layer.contentsRect.height]]
             }
             var result: [String: Any] = ["class": String(describing: type(of: layer)), "id": String(describing: ObjectIdentifier(layer)), "model": state(layer)]
             if let presentation = layer.presentation() { result["presentation"] = state(presentation) }
@@ -778,6 +803,7 @@ enum PiPReturnTrace {
                 "\(key): \(String(describing: layer.animation(forKey: key)))"
             }
             if let sample = layer as? AVSampleBufferDisplayLayer { result["gravity"] = sample.videoGravity.rawValue }
+            if let native = layer as? AVPlayerLayer { result["gravity"] = native.videoGravity.rawValue }
             return result
         }
         rows.append(["t": CACurrentMediaTime() - start, "layers": states])

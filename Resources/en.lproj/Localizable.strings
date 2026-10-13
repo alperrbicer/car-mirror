@@ -87,6 +87,8 @@
 "Oynatma listesi" = "Playlist";
 "Oynatmayı durdur" = "Stop playback";
 "Oynatıcı" = "Player";
+
+"Video seçenekleri" = "Video options";
 "PRO" = "PRO";
 "Parola" = "Password";
 "Paylaşım durdurulamadı. Yeniden deneyebilirsin." = "Unable to stop sharing. Try again.";
@@ -180,6 +182,10 @@
 
 "Bugün kalan: %d dk" = "Remaining today: %d min";
 
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Reset today’s free viewing time?";
+
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Today’s free viewing time has been reset. You can watch for up to 2 hours today.";
+
 "Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
 
 "Ücretsiz izleme günde 2 saat." = "Free viewing includes 2 hours per day.";
@@ -211,6 +217,15 @@
 // TV connection
 "TV’ye bağlan" = "Connect to TV";
 "TV bağlantısı" = "TV connection";
+"TV’den ayrıl" = "Disconnect from TV";
+"Bağlı" = "Connected";
+"AirPlay ekranı" = "AirPlay display";
+"Oynatma durduruldu, TV bağlantısı açık" = "Playback stopped; TV remains connected";
+"TV bağlantısı açık" = "TV is connected";
+"TV bağlantısını kes" = "Disconnect from TV";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Use the system menu below to change the AirPlay destination or return to iPhone.";
+"AirPlay hedefini değiştir" = "Change AirPlay destination";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "To stop screen mirroring, open Screen Mirroring in iOS Control Center and disconnect.";
 "iPhone’da oynat" = "Play on iPhone";
 "iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "Your iPhone and TV must be on the same Wi-Fi network.";
 "TV aranıyor…" = "Searching for TVs…";

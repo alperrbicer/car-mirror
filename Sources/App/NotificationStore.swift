@@ -171,6 +171,22 @@ final class NotificationStore: ObservableObject {
     func waitForSynchronization() async { await worker?.value }
 }
 
+@MainActor
+enum PlayerOrientationPolicy {
+    private(set) static var playerVisible = false
+    private(set) static var allowsLandscape = false
+
+    static var supportedOrientations: UIInterfaceOrientationMask {
+        playerVisible && allowsLandscape ? .allButUpsideDown : .portrait
+    }
+
+    static func update(playerVisible: Bool, allowsLandscape: Bool) {
+        self.playerVisible = playerVisible
+        self.allowsLandscape = allowsLandscape
+        UIViewController.attemptRotationToDeviceOrientation()
+    }
+}
+
 final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         let defaults = UserDefaults.standard
@@ -184,6 +200,9 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
         UNUserNotificationCenter.current().delegate = self
         if FirebaseServices.configured { Messaging.messaging().delegate = self }
         return true
+    }
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        PlayerOrientationPolicy.supportedOrientations
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         guard FirebaseServices.configured else { return }

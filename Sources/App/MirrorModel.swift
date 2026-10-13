@@ -244,7 +244,17 @@ final class MirrorModel: ObservableObject {
             errorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
             return false
         }
-        if selectedMediaChannel == channel, playback.hasActivePlayback { return true }
+        if selectedMediaChannel == channel, playback.hasActivePlayback {
+            // Selecting the already-playing channel from a category must still
+            // replace the playlist queue with that category's filtered items.
+            let nextQueue = queue ?? playbackQueue
+            let releasedFiles = playbackQueue.filter { previous in !nextQueue.contains(where: { $0.id == previous.id }) }.map(\.url)
+            PersonalMediaFiles.remove(releasedFiles)
+            playbackQueue = nextQueue
+            if queue != nil { advancesQueue = advanceAutomatically }
+            if let sourceID { mediaSourceID = sourceID }
+            return true
+        }
         let nextQueue = queue ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? playbackQueue : [channel])
         let nextSourceID = sourceID ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? mediaSourceID : nil)
         let releasedFiles = playbackQueue.filter { previous in !nextQueue.contains(where: { $0.id == previous.id }) }.map(\.url)
@@ -300,6 +310,16 @@ final class MirrorModel: ObservableObject {
             mediaTitle = nil
             mediaErrorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
             errorMessage = mediaErrorMessage
+        }
+    }
+
+    func resetDailyViewingBudget() {
+        let now = Date()
+        viewingBudget = DailyViewingBudget(now: now)
+        viewingCheckpoint = now
+        dailyRemaining = DailyViewingBudget.limit
+        if let data = try? JSONEncoder().encode(viewingBudget) {
+            UserDefaults.standard.set(data, forKey: "dailyViewingBudget")
         }
     }
 

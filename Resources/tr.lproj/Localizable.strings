@@ -87,6 +87,8 @@
 "Oynatma listesi" = "Oynatma listesi";
 "Oynatmayı durdur" = "Oynatmayı durdur";
 "Oynatıcı" = "Oynatıcı";
+
+"Video seçenekleri" = "Video seçenekleri";
 "PRO" = "PRO";
 "Parola" = "Parola";
 "Paylaşım durdurulamadı. Yeniden deneyebilirsin." = "Paylaşım durdurulamadı. Yeniden deneyebilirsin.";
@@ -180,6 +182,10 @@
 
 "Bugün kalan: %d dk" = "Bugün kalan: %d dk";
 
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Bugünkü ücretsiz izleme süresi sıfırlansın mı?";
+
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin.";
+
 "Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.";
 
 "Ücretsiz izleme günde 2 saat." = "Ücretsiz izleme günde 2 saat.";
@@ -211,6 +217,15 @@
 // TV connection
 "TV’ye bağlan" = "TV’ye bağlan";
 "TV bağlantısı" = "TV bağlantısı";
+"TV’den ayrıl" = "TV’den ayrıl";
+"Bağlı" = "Bağlı";
+"AirPlay ekranı" = "AirPlay ekranı";
+"Oynatma durduruldu, TV bağlantısı açık" = "Oynatma durduruldu, TV bağlantısı açık";
+"TV bağlantısı açık" = "TV bağlantısı açık";
+"TV bağlantısını kes" = "TV bağlantısını kes";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan.";
+"AirPlay hedefini değiştir" = "AirPlay hedefini değiştir";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes.";
 "iPhone’da oynat" = "iPhone’da oynat";
 "iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone ve TV aynı Wi-Fi ağına bağlı olmalı.";
 "TV aranıyor…" = "TV aranıyor…";

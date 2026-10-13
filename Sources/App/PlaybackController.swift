@@ -63,8 +63,14 @@ final class PlaybackController: ObservableObject {
     private var enteredBackgroundWithVideo = false
     private var restorePiPOnStart = false
     private var foregroundPiPRestoreID: UUID?
+    private var foregroundPiPRestoreTask: Task<Void, Never>?
     private var currentNativePiP: AVPictureInPictureController? {
         (retainedPiPController as? NativeVideoController)?.pip ?? nativePiP
+    }
+    private var pictureInPictureActiveOrStarting: Bool {
+        compatibility?.pipActive == true || compatibility?.pipStarting == true ||
+        currentNativePiP?.isPictureInPictureActive == true ||
+        (retainedPiPController as? NativeVideoController)?.startingPiP == true
     }
     var canStartPictureInPicture: Bool {
         hasActivePlayback && request?.presentation == .video && tvDevice == nil && !externalPlaybackActive && !externalDisplayConnected &&
@@ -94,6 +100,28 @@ final class PlaybackController: ObservableObject {
         guard pendingAutomaticPiP else { return }
         startPictureInPicture()
     }
+    #if DEBUG
+    // An in-app probe exercises public PiP APIs without driving SpringBoard.
+    // It deliberately keeps the app visible to isolate the video handoff from
+    // the separate system app-opening animation.
+    func runPictureInPictureProbe() async {
+        for _ in 0..<300 {
+            if isPlaying && canStartPictureInPicture { break }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        guard isPlaying, canStartPictureInPicture else { return }
+        for _ in 0..<2 {
+            startPictureInPicture()
+            for _ in 0..<50 {
+                if compatibility?.pipActive == true || currentNativePiP?.isPictureInPictureActive == true { break }
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            try? await Task.sleep(for: .seconds(3))
+            restorePictureInPictureToApp()
+            try? await Task.sleep(for: .seconds(4))
+        }
+    }
+    #endif
     func pictureInPictureStarted() {
         startingPiP = false
         pendingAutomaticPiP = false
@@ -122,19 +150,28 @@ final class PlaybackController: ObservableObject {
         startPendingPictureInPicture()
     }
     func applicationDidBecomeActive() {
-        guard enteredBackgroundWithVideo else { return }
         enteredBackgroundWithVideo = false
         // The PiP return button already owns this stop. Sending another one
         // during activation interrupts the system's return to the inline view.
         guard !stoppingPiP else { return }
-        // AVKit doesn't stop PiP when the user returns via the app icon.
-        // Keep the existing player screen (and its full-screen state), restore
-        // it before stopping PiP, and handle a start that is still in flight.
-        restorePiPOnStart = startingPiP || compatibility?.pipStarting == true || compatibility?.pipActive == true ||
-            currentNativePiP?.isPictureInPictureActive == true ||
-            (retainedPiPController as? NativeVideoController)?.startingPiP == true
+        // AVKit can leave PiP floating when the user reopens the app directly.
+        // Restore the existing player before stopping PiP, including a start
+        // that was still in flight as the app became active.
+        restorePiPOnStart = startingPiP || pictureInPictureActiveOrStarting
         pendingAutomaticPiP = false
-        if restorePiPOnStart { restorePictureInPictureToApp() }
+        foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
+        if restorePiPOnStart {
+            restorePictureInPictureToApp()
+            // AVKit may finish its automatic start after UIApplication becomes
+            // active. Recheck once the activation transition has settled.
+            foregroundPiPRestoreTask = Task { @MainActor [weak self] in
+                do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
+                guard let self, UIApplication.shared.applicationState == .active,
+                      self.pictureInPictureActiveOrStarting else { return }
+                self.restorePiPOnStart = true
+                self.restorePictureInPictureToApp()
+            }
+        }
     }
     func applicationWillEnterForeground() {
         guard enteredBackgroundWithVideo else { return }
@@ -233,11 +270,14 @@ final class PlaybackController: ObservableObject {
             })
         notificationTokens.append(NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification,
             object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.applicationDidEnterBackground() }
+                // PiP must be requested while the app still has an execution
+                // window. Enqueuing a MainActor task here can let iOS suspend
+                // the app before the compatibility renderer receives it.
+                MainActor.assumeIsolated { self?.applicationDidEnterBackground() }
             })
         notificationTokens.append(NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
             object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.applicationDidBecomeActive() }
+                MainActor.assumeIsolated { self?.applicationDidBecomeActive() }
             })
         player.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
         player.allowsExternalPlayback = false
@@ -278,6 +318,10 @@ final class PlaybackController: ObservableObject {
                 if self.isPlaying && !self.waitingForExternalPlayback { self.startupTask?.cancel(); self.startupTask = nil }
                 if self.activatedAudioSession {
                     MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = self.isPlaying ? 1.0 : 0.0
+                }
+                if self.player.timeControlStatus == .playing {
+                    self.stallTask?.cancel()
+                    self.stallTask = nil
                 }
                 var values = DiagnosticValues()
                 switch self.player.timeControlStatus {
@@ -322,7 +366,10 @@ final class PlaybackController: ObservableObject {
                     guard let self, let item, self.player.currentItem === item else { return }
                     self.stallTask?.cancel()
                     self.stallTask = Task { [weak self, weak item] in
-                        try? await Task.sleep(for: .seconds(12))
+                        // Live sources can briefly buffer during a channel
+                        // handoff. Give the current item time to recover before
+                        // turning a stall into a playback failure.
+                        try? await Task.sleep(for: .seconds(30))
                         guard !Task.isCancelled, let self, let item, self.player.currentItem === item,
                               self.player.timeControlStatus == .waitingToPlayAtSpecifiedRate else { return }
                         self.fail(L10n.tr("Yayın bağlantısı kesildi. Yeniden deneyebilirsin."), reason: .interrupted)
@@ -362,7 +409,11 @@ final class PlaybackController: ObservableObject {
               requiresExternalPlayback: Bool = true, title: String? = nil, live: Bool = true,
               presentation: MediaPlaybackPresentation = .video, useCompatibility: Bool = false,
               startAt: Double = 0, startPaused: Bool = false) throws {
+        let resumePiPAfterReplacement = presentation == .video && pictureInPictureActiveOrStarting && tvDevice == nil &&
+            !externalPlaybackActive && !externalDisplayConnected
         stop()
+        pendingAutomaticPiP = resumePiPAfterReplacement
+        let attemptID = playbackID
         request = Request(url: url, preserveSourceAudio: preserveSourceAudio, muted: muted,
                           requiresExternalPlayback: requiresExternalPlayback, title: title, live: live,
                           presentation: presentation, useCompatibility: useCompatibility)
@@ -400,7 +451,7 @@ final class PlaybackController: ObservableObject {
             cast.onState = { [weak self, weak cast] state in
                 guard let self, let cast, self.casting === cast else { return }
                 if state == .failed {
-                    self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .playback)
+                    self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .playback, expectedPlaybackID: attemptID)
                     return
                 }
                 self.state = state
@@ -432,7 +483,7 @@ final class PlaybackController: ObservableObject {
                 }, onFailure: { [weak self, weak cast] in
                     Task { @MainActor in
                         guard let self, let cast, self.casting === cast else { return }
-                        self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .unavailable)
+                        self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
                     }
                 })
             } else {
@@ -443,7 +494,7 @@ final class PlaybackController: ObservableObject {
             startupTask = Task { [weak self, weak cast] in
                 do { try await Task.sleep(for: .seconds(30)) } catch { return }
                 guard let self, let cast, self.casting === cast, self.state == .loading else { return }
-                self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .unavailable)
+                self.fail(L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
             }
             return
         }
@@ -477,9 +528,10 @@ final class PlaybackController: ObservableObject {
             engine.onState = { [weak self, weak engine] state in
                 guard let self, let engine, self.compatibility === engine else { return }
                 if state == .failed {
-                    self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .playback)
+                    self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .playback, expectedPlaybackID: attemptID)
                     return
                 }
+                if state == .playing { self.startPendingPictureInPicture() }
                 if state == .playing, let position = resumePosition {
                     resumePosition = nil
                     self.restoreCompatibilityPosition(position, engine: engine)
@@ -516,7 +568,7 @@ final class PlaybackController: ObservableObject {
             startupTask = Task { [weak self, weak engine] in
                 do { try await Task.sleep(for: .seconds(30)) } catch { return }
                 guard let self, let engine, self.compatibility === engine, !self.isPlaying else { return }
-                self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable)
+                self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
             }
             return
         }
@@ -528,9 +580,10 @@ final class PlaybackController: ObservableObject {
                 guard let self, let item, self.player.currentItem === item else { return }
                 if item.status == .failed {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."),
-                              reason: .playback, failure: item.error.map(DiagnosticFailure.init))
+                              reason: .playback, failure: item.error.map(DiagnosticFailure.init), expectedPlaybackID: attemptID)
                 } else if item.status == .readyToPlay {
                     self.loadNativeTracks(item)
+                    self.startPendingPictureInPicture()
                     guard let position = self.nativeResumePosition else { self.refreshNativeTimeline(item); return }
                     self.nativeResumePosition = nil
                     self.player.seek(to: CMTime(seconds: position, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self, weak item] _ in
@@ -561,15 +614,18 @@ final class PlaybackController: ObservableObject {
         installRemoteCommands()
         recordAudioRoute()
         startupTask = Task { [weak self, weak item] in
-            do { try await Task.sleep(for: .seconds(15)) } catch { return }
+            // Some IPTV endpoints need longer than a few seconds to return
+            // the first playable segment after a channel switch.
+            do { try await Task.sleep(for: .seconds(30)) } catch { return }
             guard let self, let item, self.player.currentItem === item,
                   (requiresExternalPlayback && presentation == .video ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
-            self.fail(L10n.tr(requiresExternalPlayback && presentation == .video ? "TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable)
+            self.fail(L10n.tr(requiresExternalPlayback && presentation == .video ? "TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
         }
     }
 
     func stop() {
         playbackID = UUID()
+        foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
         let previousNativeController = retainedPiPController as? NativeVideoController
         let previousNativePiP = currentNativePiP
         retainedPiPController = nil
@@ -808,7 +864,9 @@ final class PlaybackController: ObservableObject {
         }
     }
 
-    private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil) {
+    private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil,
+                      expectedPlaybackID: UUID? = nil) {
+        guard expectedPlaybackID == nil || expectedPlaybackID == playbackID else { return }
         let retry = request
         let position = currentTime
         let live = isLive

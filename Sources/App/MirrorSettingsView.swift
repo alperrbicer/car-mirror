@@ -12,6 +12,9 @@ struct MirrorSettingsView: View {
     @State private var errorMessage: String?
     @State private var cleared = false
     @State private var clearingLibrary = false
+    @State private var showingDailyBudgetReset = false
+    @State private var hiddenResetSequence: [String] = []
+    @State private var hiddenResetLastTap = Date.distantPast
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
     @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
@@ -23,7 +26,11 @@ struct MirrorSettingsView: View {
             Form {
                 Section {
                     HStack(spacing: 14) {
-                        MirrorMark().frame(width: 48, height: 48)
+                        Button { registerHiddenResetTap("brand") } label: {
+                            MirrorMark().frame(width: 48, height: 48)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L10n.tr("Mirivo"))
                         VStack(alignment: .leading, spacing: 4) {
                             Text(BrandIdentity.name).font(.system(.title2, design: .default, weight: .semibold)).tracking(-0.6)
                             Text(BrandIdentity.tagline).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
@@ -81,7 +88,10 @@ struct MirrorSettingsView: View {
                     Link(L10n.tr("Yardım ve SSS"), destination: BrandIdentity.supportURL)
                         .accessibilityIdentifier("settings-support")
                     Link(L10n.tr("Bize ulaş"), destination: URL(string: "mailto:alperrbicer@gmail.com?subject=Mirivo")!)
-                    LabeledContent(L10n.tr("Sürüm"), value: version)
+                    Button { registerHiddenResetTap("version") } label: {
+                        LabeledContent(L10n.tr("Sürüm"), value: version)
+                    }
+                    .buttonStyle(.plain)
                 }.listRowBackground(MirrorStyle.surface)
                 Section {
                     Button {
@@ -147,11 +157,18 @@ struct MirrorSettingsView: View {
                     do { try SourceLibrary.shared.clear() } catch { errorMessage = L10n.tr("Kaynaklar silinemedi. Yeniden dene.") }
                 }
             }
+            .confirmationDialog(L10n.tr("Bugünkü ücretsiz izleme süresi sıfırlansın mı?"), isPresented: $showingDailyBudgetReset, titleVisibility: .visible) {
+                Button(L10n.tr("Sıfırla"), role: .destructive) {
+                    model.resetDailyViewingBudget()
+                    errorMessage = L10n.tr("Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin.")
+                }
+                Button(L10n.tr("İptal"), role: .cancel) { }
+            }
             .sheet(item: $report) { file in
                 DiagnosticShareSheet(url: file.url)
                     .onDisappear { try? FileManager.default.removeItem(at: file.url) }
             }
-            .alert(L10n.tr("Rapor"), isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
+            .alert(L10n.tr("Mirivo"), isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
                 Button(L10n.tr("Tamam")) { errorMessage = nil }
             } message: { Text(errorMessage ?? "") }
         }
@@ -165,6 +182,26 @@ struct MirrorSettingsView: View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
         return "\(version) (\(build))"
+    }
+
+    // Hidden maintenance shortcut: tap the brand mark three times, then the version row twice.
+    private func registerHiddenResetTap(_ key: String) {
+        let now = Date()
+        if now.timeIntervalSince(hiddenResetLastTap) > 4 { hiddenResetSequence = [] }
+        hiddenResetLastTap = now
+
+        let expected = ["brand", "brand", "brand", "version", "version"]
+        guard hiddenResetSequence.count < expected.count,
+              expected[hiddenResetSequence.count] == key else {
+            hiddenResetSequence = key == expected[0] ? [key] : []
+            return
+        }
+
+        hiddenResetSequence.append(key)
+        if hiddenResetSequence == expected {
+            hiddenResetSequence = []
+            showingDailyBudgetReset = true
+        }
     }
 }
 

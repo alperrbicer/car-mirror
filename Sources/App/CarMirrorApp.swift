@@ -64,7 +64,12 @@ struct CarMirrorApp: App {
                             : FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
                                 .appendingPathComponent("MirivoPiPProbe/options." + kind)
                         if let url, (!url.isFileURL || FileManager.default.fileExists(atPath: url.path)),
-                           model.playMedia(MediaChannel(title: "PiP QA", url: url)) { model.presentingPlayer = true }
+                           model.playMedia(MediaChannel(title: "PiP QA", url: url)) {
+                            model.presentingPlayer = true
+                            if arguments.contains("-mirivo-pip-selftest") {
+                                Task { await model.playback.runPictureInPictureProbe() }
+                            }
+                        }
                     }
                     #endif
                     await updates.refresh()
@@ -80,6 +85,11 @@ struct CarMirrorApp: App {
                             await updates.refresh()
                             await NotificationStore.shared.refresh()
                         }
+                    } else if phase == .background, model.playback.tvDevice != nil {
+                        // Stop receiver playback when Mirivo leaves the active
+                        // app. iOS may not deliver a termination callback if
+                        // the user later force-quits the suspended process.
+                        model.stopPlayback()
                     }
                 }
         }

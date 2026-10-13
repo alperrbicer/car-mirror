@@ -69,6 +69,7 @@ struct MirivoRootView: View {
                 .tracking(-1.1)
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: 8)
+            TVRouteStatusButton(model: model)
             Button { showingSettings = true } label: {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 19, weight: .medium))

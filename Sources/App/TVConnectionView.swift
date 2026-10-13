@@ -10,7 +10,13 @@ struct TVConnectionButton: View {
         self.model = model; self.playback = model.playback; self.compact = compact
     }
     var body: some View {
-        Button { showingTVs = true } label: {
+        Button {
+            if compact, playback.tvDevice != nil {
+                model.disconnectTV()
+            } else {
+                showingTVs = true
+            }
+        } label: {
             if compact {
                 Image(systemName: playback.tvName == nil ? "tv" : "tv.fill").frame(width: 44, height: 44)
             } else {
@@ -25,7 +31,8 @@ struct TVConnectionButton: View {
             }
         }
         .buttonStyle(.plain).foregroundStyle(MirrorStyle.accent)
-        .accessibilityLabel(L10n.tr("TV bağlantısı")).accessibilityValue(playback.tvName ?? "")
+        .accessibilityLabel(L10n.tr(compact && playback.tvDevice != nil ? "TV’den ayrıl" : "TV bağlantısı"))
+        .accessibilityValue(playback.tvName ?? "")
         .accessibilityIdentifier("tv-connection")
         .sheet(isPresented: $showingTVs) { TVConnectionView(model: model) }
     }
@@ -98,6 +105,135 @@ struct TVConnectionView: View {
         }
         .tint(MirrorStyle.accent).preferredColorScheme(.dark).presentationDragIndicator(.visible)
         .onAppear { discovery.start() }.onDisappear { discovery.stop() }
+    }
+}
+
+struct TVRouteStatusButton: View {
+    @ObservedObject var model: MirrorModel
+    @ObservedObject private var playback: PlaybackController
+    @State private var showingStatus = false
+
+    init(model: MirrorModel) {
+        self.model = model
+        playback = model.playback
+    }
+
+    private var hasActiveRoute: Bool {
+        playback.tvDevice != nil || playback.externalDisplayConnected || playback.externalPlaybackActive
+    }
+
+    @ViewBuilder
+    var body: some View {
+        if hasActiveRoute {
+            Button { showingStatus = true } label: {
+                Image(systemName: playback.tvDevice == nil ? "airplayvideo" : "tv.fill")
+                    .font(.system(size: 19, weight: .medium))
+                    .foregroundStyle(MirrorStyle.accent)
+                    .frame(width: 54, height: 54)
+                    .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
+                    .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
+                    .overlay(alignment: .topTrailing) {
+                        Circle().fill(MirrorStyle.accent).frame(width: 8, height: 8).offset(x: -7, y: 7)
+                    }
+                    .contentShape(RoundedRectangle(cornerRadius: 18))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L10n.tr("TV bağlantısı"))
+            .accessibilityValue(playback.tvName ?? L10n.tr("Bağlı"))
+            .accessibilityIdentifier("tv-route-status")
+            .sheet(isPresented: $showingStatus) { TVConnectionStatusView(model: model) }
+        }
+    }
+}
+
+struct TVConnectionStatusView: View {
+    @ObservedObject var model: MirrorModel
+    @ObservedObject private var playback: PlaybackController
+    @Environment(\.dismiss) private var dismiss
+
+    init(model: MirrorModel) {
+        self.model = model
+        playback = model.playback
+    }
+
+    private var isCastConnected: Bool { playback.tvDevice != nil }
+    private var destinationName: String {
+        if let tvName = playback.tvName { return tvName }
+        if let airPlay = AVAudioSession.sharedInstance().currentRoute.outputs.first(where: { $0.portType == .airPlay }) {
+            return airPlay.portName
+        }
+        return L10n.tr("AirPlay ekranı")
+    }
+    private var playbackStatus: String {
+        guard playback.hasActivePlayback else { return L10n.tr("Oynatma durduruldu, TV bağlantısı açık") }
+        switch playback.state {
+        case .loading: return L10n.tr("Görüntü bağlanıyor")
+        case .playing: return L10n.tr("TV’de oynatılıyor")
+        case .paused: return L10n.tr("Yayın duraklatıldı")
+        case .failed: return L10n.tr("Yayın tamamlanamadı")
+        case .idle: return L10n.tr("TV bağlantısı açık")
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 22) {
+                Image(systemName: isCastConnected ? "tv.fill" : "airplayvideo")
+                    .font(.system(size: 34, weight: .medium))
+                    .foregroundStyle(MirrorStyle.accent)
+                    .frame(width: 84, height: 84)
+                    .background(MirrorStyle.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 26))
+                VStack(spacing: 8) {
+                    Text(destinationName).font(.title3.weight(.semibold)).foregroundStyle(.white)
+                    Label(playbackStatus, systemImage: "circle.fill")
+                        .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                        .labelStyle(StatusDotLabelStyle())
+                        .multilineTextAlignment(.center)
+                }
+                if isCastConnected {
+                    Button {
+                        model.disconnectTV()
+                        dismiss()
+                    } label: {
+                        Label(L10n.tr(playback.hasActivePlayback ? "iPhone’da oynat" : "TV bağlantısını kes"),
+                              systemImage: playback.hasActivePlayback ? "iphone" : "tv.slash")
+                            .frame(maxWidth: .infinity, minHeight: 54)
+                    }
+                    .buttonStyle(MirivoButtonStyle(prominent: true))
+                    .accessibilityIdentifier("disconnect-tv-route")
+                } else if playback.externalPlaybackActive || playback.externalDisplayConnected {
+                    Text(L10n.tr(playback.externalPlaybackActive
+                                 ? "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan."
+                                 : "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes."))
+                        .font(.footnote).foregroundStyle(MirrorStyle.secondary).multilineTextAlignment(.center)
+                    TVAirPlayPicker(onOpen: {}).frame(width: 60, height: 60)
+                        .accessibilityLabel(L10n.tr("AirPlay hedefini değiştir"))
+                } else {
+                    Text(L10n.tr("Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes."))
+                        .font(.footnote).foregroundStyle(MirrorStyle.secondary).multilineTextAlignment(.center)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(28)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(MirrorStyle.background)
+            .navigationTitle(L10n.tr("TV bağlantısı"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("Kapat")) { dismiss() } } }
+        }
+        .tint(MirrorStyle.accent)
+        .preferredColorScheme(.dark)
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
+    }
+}
+
+private struct StatusDotLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            configuration.icon.font(.system(size: 7)).foregroundStyle(MirrorStyle.accent)
+            configuration.title
+        }
     }
 }
 

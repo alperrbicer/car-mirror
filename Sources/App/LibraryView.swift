@@ -516,7 +516,8 @@ private struct ChannelListView: View {
                 ContentUnavailableView { Label(message, systemImage: "wifi.exclamationmark") }
                     actions: { Button(L10n.tr("Yeniden dene")) { refreshID = UUID() }.buttonStyle(MirivoButtonStyle()) }
             } else {
-                ChannelBrowserView(channels: channels, title: source.name, sourceID: source.id)
+                ChannelBrowserView(channels: channels, title: source.name, sourceID: source.id,
+                                   playlistChannels: channels)
             }
         }
         .background(MirrorStyle.background)
@@ -551,6 +552,7 @@ private struct ChannelBrowserView: View {
     let title: String
     var sourceID: UUID?
     var showsCategories = true
+    var playlistChannels: [MediaChannel]?
     @State private var query = ""
     @State private var playbackMessage: String?
     @State private var showingPlayer = false
@@ -565,14 +567,16 @@ private struct ChannelBrowserView: View {
         List {
             if showsCategories && searchTerm.isEmpty && categories.contains(where: { !$0.name.isEmpty }) {
                 NavigationLink {
-                    ChannelBrowserView(channels: channels, title: L10n.tr("Tüm kanallar"), sourceID: sourceID, showsCategories: false)
+                    ChannelBrowserView(channels: channels, title: L10n.tr("Tüm kanallar"), sourceID: sourceID,
+                                       showsCategories: false, playlistChannels: playlistChannels ?? channels)
                 } label: {
                     categoryLabel(L10n.tr("Tüm kanallar"), count: channels.count, icon: "list.bullet")
                 }.listRowBackground(MirrorStyle.surface)
                 ForEach(categories) { category in
                     let name = category.name.isEmpty ? L10n.tr("Diğer kanallar") : category.name
                     NavigationLink {
-                        ChannelBrowserView(channels: category.channels, title: name, sourceID: sourceID, showsCategories: false)
+                        ChannelBrowserView(channels: category.channels, title: name, sourceID: sourceID,
+                                           showsCategories: false, playlistChannels: playlistChannels ?? channels)
                     } label: { categoryLabel(name, count: category.channels.count, icon: "folder") }
                         .listRowBackground(MirrorStyle.surface)
                 }
@@ -580,7 +584,7 @@ private struct ChannelBrowserView: View {
                 ForEach(filtered) { channel in
                     Button {
                         let model = MirrorModel.shared
-                        if !model.playMedia(channel, queue: filtered, sourceID: sourceID), model.dailyRemaining == 0 {
+                        if !model.playMedia(channel, queue: playlistChannels ?? channels, sourceID: sourceID), model.dailyRemaining == 0 {
                             playbackMessage = model.errorMessage
                             model.errorMessage = nil
                         } else { showingPlayer = model.selectedMediaChannel != nil }
@@ -602,6 +606,9 @@ private struct ChannelBrowserView: View {
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
         .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) { TVRouteStatusButton(model: .shared) }
+        }
         .searchable(text: $query, prompt: L10n.tr("Kanal veya grup ara"))
         .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: .shared) }
         .safeAreaInset(edge: .bottom) { NowPlayingBar { showingPlayer = true } }
@@ -710,7 +717,9 @@ private final class NativeVideoSurface: UIView {
 final class NativeVideoController: UIViewController, @preconcurrency AVPictureInPictureControllerDelegate {
     private let videoSurface = NativeVideoSurface()
     var videoLayer: AVPlayerLayer { videoSurface.videoLayer }
-    private lazy var videoClipping = PlayerVideoClipping(root: videoSurface.layer)
+    // Include the owned controller wrapper as AVKit may animate clipping on
+    // its parent surface while transitioning back from PiP.
+    private lazy var videoClipping = PlayerVideoClipping(root: view.layer)
     private(set) var pip: AVPictureInPictureController?
     private(set) var startingPiP = false
     private weak var playback: PlaybackController?
@@ -944,6 +953,8 @@ struct MediaPlayerScreen: View {
     @State private var largeControls = false
     @State private var fullscreen = false
     @State private var fillsFrame = false
+    @State private var landscapeLayout = false
+    @State private var orientationTransitionTask: Task<Void, Never>?
     init(model: MirrorModel) { self.model = model; playback = model.playback }
 
     var body: some View {
@@ -981,10 +992,19 @@ struct MediaPlayerScreen: View {
                 .frame(maxWidth: fullscreen ? .infinity : 760).frame(maxWidth: .infinity)
             }
             .scrollDisabled(fullscreen)
+            .onAppear {
+                landscapeLayout = geometry.size.width > geometry.size.height
+                if landscapeLayout && playback.hasActivePlayback { setFullscreen(true) }
+            }
+            .onChange(of: geometry.size) { _, size in
+                scheduleOrientationAdaptation(for: size)
+            }
+            .onDisappear { orientationTransitionTask?.cancel() }
         }
         .ignoresSafeArea(fullscreen ? .all : [])
         .background(fullscreen ? Color.black : MirrorStyle.background)
-        .navigationTitle(L10n.tr("Oynatıcı")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(model.selectedMediaChannel?.title ?? "")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar(fullscreen ? .hidden : .visible, for: .navigationBar)
         .toolbar(fullscreen ? .hidden : .visible, for: .tabBar)
         .statusBarHidden(fullscreen)
@@ -996,14 +1016,36 @@ struct MediaPlayerScreen: View {
                 }
             }
         }
-        .onAppear { model.playerVisibilityChanged(true) }
-        .onDisappear { model.playerVisibilityChanged(false) }
+        .onAppear {
+            PlayerOrientationPolicy.update(playerVisible: true,
+                allowsLandscape: playback.tvName == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive)
+            model.playerVisibilityChanged(true)
+        }
+        .onDisappear {
+            PlayerOrientationPolicy.update(playerVisible: false, allowsLandscape: false)
+            model.playerVisibilityChanged(false)
+        }
+        .onChange(of: playback.tvDevice != nil) { _, connected in
+            updateOrientationPolicy()
+            if connected { setFullscreen(false) }
+        }
+        .onChange(of: playback.externalDisplayConnected) { _, _ in
+            updateOrientationPolicy()
+            if playback.externalDisplayConnected { setFullscreen(false) }
+        }
+        .onChange(of: playback.externalPlaybackActive) { _, _ in
+            updateOrientationPolicy()
+            if playback.externalPlaybackActive { setFullscreen(false) }
+        }
         .onChange(of: model.selectedMediaChannel) { _, channel in
             fillsFrame = false
             if channel == nil { setFullscreen(false); dismiss() }
         }
         .onChange(of: playback.state) { _, state in
             if state == .failed || state == .idle { setFullscreen(false) }
+        }
+        .onChange(of: playback.hasActivePlayback) { _, active in
+            if active && landscapeLayout { setFullscreen(true) }
         }
         .alert(BrandIdentity.name, isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {
             Button(L10n.tr("Tamam")) { model.errorMessage = nil }
@@ -1012,8 +1054,6 @@ struct MediaPlayerScreen: View {
 
     private var playerDetails: some View {
         VStack(spacing: 20) {
-            Text(model.selectedMediaChannel?.title ?? L10n.tr("Oynatıcı"))
-                .font(.title3.weight(.semibold)).lineLimit(2).multilineTextAlignment(.center)
             if let failure = model.mediaErrorMessage, !playback.hasActivePlayback {
                 ContentUnavailableView {
                     Label(L10n.tr("Yayın tamamlanamadı"), systemImage: "exclamationmark.triangle")
@@ -1045,7 +1085,30 @@ struct MediaPlayerScreen: View {
         }.padding(.horizontal, 20)
     }
     private func setFullscreen(_ value: Bool) {
+        guard !value || fullscreenAllowed else { return }
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.24)) { fullscreen = value }
+    }
+
+    private var fullscreenAllowed: Bool {
+        playback.tvName == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive
+    }
+
+    private func updateOrientationPolicy() {
+        PlayerOrientationPolicy.update(playerVisible: true, allowsLandscape: fullscreenAllowed)
+    }
+
+    private func scheduleOrientationAdaptation(for size: CGSize) {
+        orientationTransitionTask?.cancel()
+        orientationTransitionTask = Task { @MainActor in
+            do { try await Task.sleep(for: .milliseconds(120)) }
+            catch { return }
+            let isLandscape = size.width > size.height
+            guard isLandscape != landscapeLayout else { return }
+            landscapeLayout = isLandscape
+            // Landscape rotation enters fullscreen; portrait rotation keeps
+            // the current mode so portrait fullscreen remains available.
+            if isLandscape && playback.hasActivePlayback && fullscreenAllowed { setFullscreen(true) }
+        }
     }
 }
 
@@ -1118,7 +1181,9 @@ private struct PlayerChrome: View {
                         .transition(.opacity)
                         .allowsHitTesting(false)
                 }
-                if playback.state == .loading {
+                // TV output already displays its own connection status in
+                // MediaVideoView; avoid stacking this player-level message on it.
+                if playback.state == .loading && playback.tvName == nil && !playback.externalDisplayConnected {
                     ProgressView(L10n.tr("Yayın hazırlanıyor"))
                         .padding(16).background(.black.opacity(0.7), in: RoundedRectangle(cornerRadius: 16))
                         .allowsHitTesting(false)
@@ -1178,7 +1243,9 @@ private struct PlayerChrome: View {
         HStack(spacing: 4) {
             if fullscreen {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(L10n.tr(largeControls ? "Büyük kontroller" : "Tam ekran")).font(.caption).foregroundStyle(MirrorStyle.accent)
+                    if largeControls {
+                        Text(L10n.tr("Büyük kontroller")).font(.caption).foregroundStyle(MirrorStyle.accent)
+                    }
                     Text(model.mediaTitle ?? BrandIdentity.name).font(.subheadline.weight(.semibold)).lineLimit(1)
                 }.frame(maxWidth: .infinity, alignment: .leading)
             } else { Spacer(minLength: 0) }
@@ -1190,12 +1257,12 @@ private struct PlayerChrome: View {
                 }
                 if fullscreen {
                     TVConnectionButton(model: model, compact: true)
-                    iconButton("ellipsis", label: "Oynatıcı", id: "player-options") { showingOptions.toggle() }
+                    iconButton("ellipsis", label: "Video seçenekleri", id: "player-options") { showingOptions.toggle() }
                         .popover(isPresented: $showingOptions, arrowEdge: .top) {
                             playerOptions.presentationCompactAdaptation(.popover)
                         }
                     iconButton("chevron.down", label: "Kapat", id: "close-fullscreen") { changeFullscreen(false) }
-                } else {
+                } else if playback.tvDevice == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive {
                     iconButton("arrow.up.left.and.arrow.down.right", label: "Tam ekran", id: "player-fullscreen") {
                         largeControls = false; changeFullscreen(true)
                     }
@@ -1261,7 +1328,7 @@ private struct PlayerChrome: View {
             }
             if fullscreen {
                 modeButton("Tam ekran", icon: !largeControls ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
-                           id: "player-fullscreen", compact: compact, selected: !largeControls) {
+                           id: "player-fullscreen", compact: true, selected: !largeControls) {
                     if !largeControls { changeFullscreen(false) }
                     else { largeControls = false; changeFullscreen(true) }
                     revealControls()
@@ -1485,37 +1552,49 @@ private struct PlayerGestureSurface: UIViewRepresentable {
 private struct VehicleChannelPicker: View {
     @ObservedObject var model: MirrorModel
     @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+    private var categories: [MediaChannelCategory] {
+        let search = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let channels = search.isEmpty ? model.playbackQueue : model.playbackQueue.filter {
+            $0.title.localizedCaseInsensitiveContains(search) || $0.group.localizedCaseInsensitiveContains(search)
+        }
+        return MediaChannelCategory.group(channels)
+    }
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 240), spacing: 14)], spacing: 14) {
-                        ForEach(model.playbackQueue) { channel in
-                            let selected = channel.id == model.selectedMediaChannel?.id
-                            Button {
-                                model.playMedia(channel)
-                                dismiss()
-                            } label: {
-                                HStack(spacing: 16) {
-                                    Image(systemName: selected ? "waveform" : "play.fill")
-                                        .font(.title2).foregroundStyle(MirrorStyle.accent).frame(width: 30)
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(channel.title).font(.headline).lineLimit(2)
-                                        if !channel.group.isEmpty {
-                                            Text(channel.group).font(.subheadline).foregroundStyle(MirrorStyle.secondary).lineLimit(1)
+                List {
+                    ForEach(categories) { category in
+                        Section(category.name.isEmpty ? L10n.tr("Diğer kanallar") : category.name) {
+                            ForEach(category.channels) { channel in
+                                let selected = channel.id == model.selectedMediaChannel?.id
+                                Button {
+                                    model.playMedia(channel)
+                                    dismiss()
+                                } label: {
+                                    HStack(spacing: 14) {
+                                        Image(systemName: selected ? "waveform" : "play.fill")
+                                            .foregroundStyle(MirrorStyle.accent).frame(width: 28)
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text(channel.title).font(.subheadline.weight(.semibold))
+                                            if !channel.group.isEmpty {
+                                                Text(channel.group).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                                            }
                                         }
-                                    }
-                                    Spacer(minLength: 0)
-                                }.padding(18).frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
-                                    .background(selected ? MirrorStyle.accent.opacity(0.12) : MirrorStyle.surface,
-                                                in: RoundedRectangle(cornerRadius: 22))
-                                    .overlay { RoundedRectangle(cornerRadius: 22).strokeBorder(selected ? MirrorStyle.accent : .clear) }
-                            }.buttonStyle(.plain).foregroundStyle(.white)
-                                .accessibilityAddTraits(selected ? .isSelected : [])
-                                .id(channel.id)
+                                        Spacer(minLength: 0)
+                                    }.frame(minHeight: 56).contentShape(Rectangle())
+                                }.buttonStyle(.plain).foregroundStyle(.white)
+                                    .accessibilityAddTraits(selected ? .isSelected : [])
+                                    .id(channel.id)
+                                    .listRowBackground(selected ? MirrorStyle.accent.opacity(0.12) : MirrorStyle.surface)
+                            }
                         }
-                    }.padding(20)
-                }.background(MirrorStyle.background)
+                    }
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(MirrorStyle.background)
+                .searchable(text: $query, prompt: L10n.tr("Kanal veya grup ara"))
                     .onAppear {
                         if let id = model.selectedMediaChannel?.id { proxy.scrollTo(id, anchor: .center) }
                     }
