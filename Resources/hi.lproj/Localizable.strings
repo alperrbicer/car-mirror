@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "वीडियो फ़िट करें";
 
 "Ekranı doldur" = "स्क्रीन भरें";
+"Yatay tam ekran hareketleri" = "लैंडस्केप फ़ुल-स्क्रीन जेस्चर";
+"Sağ kenardan yukarı/aşağı: ses" = "वॉल्यूम बदलने के लिए दाएँ किनारे पर ऊपर या नीचे स्वाइप करें";
+"Sol kenardan yukarı/aşağı: parlaklık" = "चमक बदलने के लिए बाएँ किनारे पर ऊपर या नीचे स्वाइप करें";
+"Ses düzeyi" = "वॉल्यूम";
+"Parlaklık" = "चमक";
 
 "Kontrolleri kilitle" = "कंट्रोल लॉक करें";
 
@@ -322,3 +327,5 @@
 "İndir" = "डाउनलोड करें";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "केवल वही कंटेंट डाउनलोड करें जिसे प्रदाता डाउनलोड करने की अनुमति देता है। DRM-सुरक्षित स्ट्रीम समर्थित नहीं हैं।";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "स्क्रीन भरने के लिए उंगलियाँ फैलाएँ";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "सामान्य दृश्य पर लौटने के लिए उंगलियाँ पास लाएँ";

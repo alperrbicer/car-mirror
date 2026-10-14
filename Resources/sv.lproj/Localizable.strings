@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Anpassa video";
 
 "Ekranı doldur" = "Fyll skärmen";
+"Yatay tam ekran hareketleri" = "Gester i liggande helskärmsläge";
+"Sağ kenardan yukarı/aşağı: ses" = "Svep uppåt eller nedåt längs högerkanten för att ändra volymen";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Svep uppåt eller nedåt längs vänsterkanten för att ändra ljusstyrkan";
+"Ses düzeyi" = "Volym";
+"Parlaklık" = "Ljusstyrka";
 
 "Kontrolleri kilitle" = "Lås kontroller";
 
@@ -322,3 +327,5 @@
 "İndir" = "Hämta";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Hämta endast innehåll som leverantören tillåter att du hämtar. DRM-skyddade strömmar stöds inte.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Nyp ut för att fylla skärmen";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Nyp in för att återgå till normal visning";

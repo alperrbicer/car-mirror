@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "ปรับวิดีโอให้พอดี";
 
 "Ekranı doldur" = "เติมเต็มหน้าจอ";
+"Yatay tam ekran hareketleri" = "ท่าทางในโหมดเต็มหน้าจอแนวนอน";
+"Sağ kenardan yukarı/aşağı: ses" = "ปัดขึ้นหรือลงที่ขอบขวาเพื่อปรับระดับเสียง";
+"Sol kenardan yukarı/aşağı: parlaklık" = "ปัดขึ้นหรือลงที่ขอบซ้ายเพื่อปรับความสว่าง";
+"Ses düzeyi" = "ระดับเสียง";
+"Parlaklık" = "ความสว่าง";
 
 "Kontrolleri kilitle" = "ล็อกการควบคุม";
 
@@ -322,3 +327,5 @@
 "İndir" = "ดาวน์โหลด";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "ดาวน์โหลดเฉพาะเนื้อหาที่ผู้ให้บริการอนุญาต ไม่รองรับสตรีมที่มีการป้องกัน DRM";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "กางนิ้วเพื่อให้ภาพเต็มหน้าจอ";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "หุบนิ้วเพื่อกลับไปยังมุมมองปกติ";

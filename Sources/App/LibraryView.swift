@@ -3,13 +3,12 @@ import AVKit
 import MediaPlayer
 import UniformTypeIdentifiers
 
-private enum PlayerVideoDisplayMode: String, CaseIterable, Identifiable {
+enum PlayerVideoDisplayMode: String, CaseIterable, Identifiable {
     case normal
     case fitScreen
     case fillScreen
 
     var id: String { rawValue }
-    var fillsFrame: Bool { self == .fillScreen }
     var title: String {
         switch self {
         case .normal: "Normal"
@@ -24,6 +23,14 @@ private enum PlayerVideoDisplayMode: String, CaseIterable, Identifiable {
         case .fillScreen: "arrow.up.left.and.arrow.down.right"
         }
     }
+}
+
+private enum PlayerGestureAdjustment: Equatable {
+    case volume
+    case brightness
+
+    var title: String { L10n.tr(self == .volume ? "Ses düzeyi" : "Parlaklık") }
+    var icon: String { self == .volume ? "speaker.wave.2.fill" : "sun.max.fill" }
 }
 
 struct LibraryView: View {
@@ -846,14 +853,16 @@ struct NowPlayingBar: View {
 struct NativeVideoView: UIViewControllerRepresentable {
     let player: AVPlayer
     var playback: PlaybackController?
-    var fillsFrame = false
+    var displayMode: PlayerVideoDisplayMode = .normal
     var primary = true
     func makeUIViewController(context: Context) -> NativeVideoController {
-        NativeVideoController(player: player, playback: playback, primary: primary)
+        NativeVideoController(player: player, playback: playback, primary: primary, displayMode: displayMode)
     }
     func updateUIViewController(_ controller: NativeVideoController, context: Context) {
         if controller.videoLayer.player !== player { controller.videoLayer.player = player }
-        let gravity: AVLayerVideoGravity = fillsFrame ? .resizeAspectFill : .resizeAspect
+        controller.displayMode = displayMode
+        let gravity: AVLayerVideoGravity = displayMode == .fitScreen ? .resizeAspectFill :
+            (displayMode == .fillScreen ? .resize : .resizeAspect)
         if controller.videoLayer.videoGravity != gravity { controller.videoLayer.videoGravity = gravity }
         controller.view.setNeedsLayout()
         controller.setPrimary(primary)
@@ -878,12 +887,15 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
     private(set) var pip: AVPictureInPictureController?
     private(set) var startingPiP = false
     private weak var playback: PlaybackController?
+    var displayMode: PlayerVideoDisplayMode = .normal
     private var possibleObservation: NSKeyValueObservation?
     private var pipPlaybackID: UUID?
     private var stoppingRetention: NativeVideoController?
     var stoppingForPlaybackReplacement: Bool { stoppingRetention != nil }
-    init(player: AVPlayer, playback: PlaybackController?, primary: Bool) {
+    init(player: AVPlayer, playback: PlaybackController?, primary: Bool,
+         displayMode: PlayerVideoDisplayMode = .normal) {
         self.playback = playback
+        self.displayMode = displayMode
         super.init(nibName: nil, bundle: nil)
         videoLayer.player = player
         if AVPictureInPictureController.isPictureInPictureSupported(), playback != nil {
@@ -908,7 +920,7 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         let frame = PlayerVideoGeometry.frame(size: videoLayer.player?.currentItem?.presentationSize ?? .zero,
-            in: view.bounds, fillsFrame: videoLayer.videoGravity == .resizeAspectFill)
+            in: view.bounds, mode: displayMode)
         if videoSurface.frame != frame { videoSurface.frame = frame }
         videoClipping.repairIfRestored()
         CATransaction.commit()
@@ -1010,14 +1022,14 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
 struct CompatibilityVideoView: UIViewRepresentable {
     let engine: CompatibilityPlayback
     var role: CompatibilityVideoHost.Role = .inline
-    var fillsFrame = false
+    var displayMode: PlayerVideoDisplayMode = .normal
     func makeUIView(context: Context) -> CompatibilityVideoHost {
         let view = CompatibilityVideoHost()
-        view.configure(engine: engine, role: role, fillsFrame: fillsFrame)
+        view.configure(engine: engine, role: role, displayMode: displayMode)
         return view
     }
     func updateUIView(_ view: CompatibilityVideoHost, context: Context) {
-        view.configure(engine: engine, role: role, fillsFrame: fillsFrame)
+        view.configure(engine: engine, role: role, displayMode: displayMode)
     }
     static func dismantleUIView(_ view: CompatibilityVideoHost, coordinator: ()) { view.detach() }
 }
@@ -1025,7 +1037,7 @@ struct CompatibilityVideoView: UIViewRepresentable {
 struct MediaVideoView: View {
     @ObservedObject var playback: PlaybackController
     var role: CompatibilityVideoHost.Role = .inline
-    var fillsFrame = false
+    var displayMode: PlayerVideoDisplayMode = .normal
     var showsControls = false
     var body: some View {
         if playback.tvName != nil || (playback.externalDisplayConnected && role != .external) {
@@ -1036,7 +1048,7 @@ struct MediaVideoView: View {
                     .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
             }.frame(maxWidth: .infinity, maxHeight: .infinity).background(.black)
         } else if let engine = playback.compatibility {
-            CompatibilityVideoView(engine: engine, role: role, fillsFrame: fillsFrame)
+            CompatibilityVideoView(engine: engine, role: role, displayMode: displayMode)
                 .overlay(alignment: .bottomTrailing) {
                     if showsControls && role != .fullscreen && role != .external {
                         Button { playback.startPictureInPicture() } label: {
@@ -1050,7 +1062,7 @@ struct MediaVideoView: View {
                     }
                 }
         } else {
-            NativeVideoView(player: playback.player, playback: playback, fillsFrame: fillsFrame, primary: role != .external)
+            NativeVideoView(player: playback.player, playback: playback, displayMode: displayMode, primary: role != .external)
         }
     }
 }
@@ -1107,7 +1119,7 @@ struct MediaPlayerScreen: View {
     @ObservedObject private var purchases = PurchaseStore.shared
     @State private var largeControls = false
     @State private var fullscreen = false
-    @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.fitScreen
+    @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.normal
     @State private var portraitRequested = false
     @State private var landscapeLayout = false
     @State private var orientationTransitionTask: Task<Void, Never>?
@@ -1128,7 +1140,7 @@ struct MediaPlayerScreen: View {
                                         .foregroundStyle(MirrorStyle.accent)
                                 }
                             } else {
-                                MediaVideoView(playback: playback, role: .inline, fillsFrame: videoDisplayMode.fillsFrame)
+                                MediaVideoView(playback: playback, role: .inline, displayMode: videoDisplayMode)
                             }
                             PlayerChrome(model: model, fullscreen: $fullscreen, largeControls: $largeControls,
                                          displayMode: $videoDisplayMode, changeFullscreen: setFullscreen,
@@ -1283,9 +1295,9 @@ struct FullscreenPlayerView: View {
     var largeControls: Bool = true
     @ObservedObject var model: MirrorModel
     let close: () -> Void
-    @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.fitScreen
+    @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.normal
     var body: some View {
-        MediaVideoView(playback: model.playback, role: .fullscreen, fillsFrame: videoDisplayMode.fillsFrame)
+        MediaVideoView(playback: model.playback, role: .fullscreen, displayMode: videoDisplayMode)
             .overlay {
                 PlayerChrome(model: model, fullscreen: .constant(true), largeControls: .constant(largeControls),
                              displayMode: $videoDisplayMode, changeFullscreen: { if !$0 { close() } },
@@ -1297,6 +1309,7 @@ struct FullscreenPlayerView: View {
 
 private struct PlayerChrome: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("player.edgeGestureIntroShown") private var edgeGestureIntroShown = false
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback: PlaybackController
     @Binding var fullscreen: Bool
@@ -1317,6 +1330,10 @@ private struct PlayerChrome: View {
     @State private var seekFeedbackPulse = 0
     @State private var feedbackTask: Task<Void, Never>?
     @State private var optionsTask: Task<Void, Never>?
+    @State private var showingEdgeGestureIntro = false
+    @State private var gestureAdjustment: PlayerGestureAdjustment?
+    @State private var gestureAdjustmentValue: CGFloat = 0
+    @State private var adjustmentHideTask: Task<Void, Never>?
 
     init(model: MirrorModel, fullscreen: Binding<Bool>, largeControls: Binding<Bool>, displayMode: Binding<PlayerVideoDisplayMode>,
          changeFullscreen: @escaping (Bool) -> Void, exitToPortrait: @escaping () -> Void) {
@@ -1328,11 +1345,13 @@ private struct PlayerChrome: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                PlayerGestureSurface(locked: controlsLocked,
-                                     fullscreen: fullscreen && geometry.size.width > geometry.size.height,
+                PlayerGestureSurface(locked: controlsLocked || showingEdgeGestureIntro,
+                                     fullscreen: fullscreen,
                                      singleTap: toggleControls, doubleTap: skip,
                                      swipeDown: exitToPortrait,
                                      adjustBrightness: adjustBrightness,
+                                     adjustVolume: { value in showGestureAdjustment(.volume, value: value) },
+                                     pinchEnded: handlePinch,
                                      safeAreaChanged: { if screenInsets != $0 { screenInsets = $0 } })
                     .accessibilityHidden(true)
                 if controlsVisible && !controlsLocked {
@@ -1359,8 +1378,22 @@ private struct PlayerChrome: View {
                         .padding(16).background(.black.opacity(0.7), in: RoundedRectangle(cornerRadius: 16))
                         .allowsHitTesting(false)
                 }
+                if let gestureAdjustment {
+                    gestureAdjustmentHUD(gestureAdjustment, value: gestureAdjustmentValue)
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                        .transition(.opacity)
+                        .zIndex(4)
+                        .allowsHitTesting(false)
+                }
+                if showingEdgeGestureIntro {
+                    EdgeGestureIntro { showingEdgeGestureIntro = false; edgeGestureIntroShown = true }
+                        .padding(16)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(.black.opacity(0.62))
+                        .zIndex(5)
+                }
                 VStack(spacing: 0) {
-                    header
+                    header(isLandscape: geometry.size.width > geometry.size.height)
                     Spacer(minLength: 0)
                     if controlsVisible && !controlsLocked {
                         VStack(spacing: 8) {
@@ -1368,7 +1401,8 @@ private struct PlayerChrome: View {
                                 PlaybackTimelineView(playback: playback) { isScrubbing = $0; revealControls() }
                                     .id(model.selectedMediaChannel?.id)
                             }
-                            modeActions(compact: !fullscreen || geometry.size.width > geometry.size.height)
+                            modeActions(compact: !fullscreen || geometry.size.width > geometry.size.height,
+                                        vertical: geometry.size.height > geometry.size.width)
                         }
                         .padding(.horizontal, fullscreen ? 20 : 8).padding(.bottom, 8)
                     }
@@ -1380,17 +1414,17 @@ private struct PlayerChrome: View {
                 .zIndex(1)
             }
         }
-        .simultaneousGesture(MagnifyGesture().onEnded { value in
-            guard !controlsLocked, !showingOptions else { return }
-            if value.magnification > 1.12 { displayMode = .fitScreen }
-            else if value.magnification < 0.88 { displayMode = .normal }
-            revealControls()
-        })
         .foregroundStyle(.white).buttonStyle(.plain)
         .sheet(isPresented: $showingChannels) { PlaybackQueueSheet(model: model) }
         .sheet(isPresented: $showingMediaChoices) { PlayerMediaChoicesView(playback: playback) }
-        .onAppear { updateAwakeLease(); scheduleHide() }
-        .onDisappear { hideTask?.cancel(); clearSeekFeedback(); optionsTask?.cancel(); MediaScreenAwake.release(awakeLease) }
+        .onAppear {
+            updateAwakeLease(); scheduleHide()
+            if !edgeGestureIntroShown { showingEdgeGestureIntro = true }
+        }
+        .onDisappear {
+            hideTask?.cancel(); clearSeekFeedback(); optionsTask?.cancel(); adjustmentHideTask?.cancel()
+            MediaScreenAwake.release(awakeLease)
+        }
         .onChange(of: fullscreen) { _, _ in showingOptions = false; clearSeekFeedback(); updateAwakeLease(); revealControls() }
         .onChange(of: playback.isPlaying) { _, _ in revealControls() }
         .onChange(of: controlsLocked) { _, _ in clearSeekFeedback(); revealControls() }
@@ -1411,7 +1445,7 @@ private struct PlayerChrome: View {
             showingOptions = false; showingMediaChoices = false; clearSeekFeedback(); revealControls()
         }
     }
-    private var header: some View {
+    private func header(isLandscape: Bool) -> some View {
         HStack(spacing: 4) {
             if fullscreen && controlsVisible && !controlsLocked {
                 VStack(alignment: .leading, spacing: 3) {
@@ -1431,24 +1465,25 @@ private struct PlayerChrome: View {
                     TVConnectionButton(model: model, compact: true)
                     iconButton("ellipsis", label: "Video seçenekleri", id: "player-options") { showingOptions.toggle() }
                         .popover(isPresented: $showingOptions, arrowEdge: .top) {
-                            playerOptions.presentationCompactAdaptation(.popover)
+                        playerOptions(isLandscape: isLandscape).presentationCompactAdaptation(.popover)
                         }
-                    iconButton("rectangle.portrait", label: "Dikey ekrana dön", id: "close-fullscreen", action: exitToPortrait)
                 } else if playback.tvDevice == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive {
                     iconButton("arrow.up.left.and.arrow.down.right", label: "Tam ekran", id: "player-fullscreen") {
-                        largeControls = false; changeFullscreen(true)
+                        largeControls = false; displayMode = .normal; changeFullscreen(true)
                     }
                 }
             }
         }.padding(.horizontal, fullscreen ? 16 : 4)
     }
-    private var playerOptions: some View {
+    private func playerOptions(isLandscape: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             optionButton("Picture in Picture", icon: "pip.enter") { playback.startPictureInPicture() }
                 .disabled(!playback.canStartPictureInPicture)
-            ForEach(PlayerVideoDisplayMode.allCases) { mode in
-                optionButton(mode.title, icon: mode.icon, selected: displayMode == mode) {
-                    displayMode = mode
+            if fullscreen && isLandscape {
+                ForEach(PlayerVideoDisplayMode.allCases) { mode in
+                    optionButton(mode.title, icon: mode.icon, selected: displayMode == mode) {
+                        displayMode = mode
+                    }
                 }
             }
             optionButton("Kontrolleri kilitle", icon: "lock.fill") { controlsLocked = true }
@@ -1497,37 +1532,43 @@ private struct PlayerChrome: View {
             }
         }
     }
-    private func modeActions(compact: Bool) -> some View {
-        HStack(spacing: 8) {
+    private func modeActions(compact: Bool, vertical: Bool) -> some View {
+        HStack(spacing: vertical ? 5 : 8) {
             modeButton("Büyük kontroller", icon: "hand.tap", id: "player-large-controls", compact: compact,
-                       selected: fullscreen && largeControls) {
+                       vertical: vertical, selected: fullscreen && largeControls) {
+                if !fullscreen { displayMode = .normal }
                 largeControls = true; changeFullscreen(true); revealControls()
             }
             if fullscreen {
                 modeButton("Tam ekran", icon: !largeControls ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
-                           id: "player-fullscreen", compact: true, selected: !largeControls) {
+                           id: "player-fullscreen", compact: true, vertical: vertical, selected: !largeControls) {
                     if !largeControls { changeFullscreen(false) }
                     else { largeControls = false; changeFullscreen(true) }
                     revealControls()
                 }
             } else {
-                modeButton("Picture in Picture", icon: "pip.enter", id: "player-pip", compact: compact, selected: false) {
+                modeButton("Picture in Picture", icon: "pip.enter", id: "player-pip", compact: compact, vertical: vertical, selected: false) {
                     playback.startPictureInPicture(); revealControls()
                 }.disabled(!playback.canStartPictureInPicture)
             }
-            modeButton("Oynatma listesi", icon: "list.bullet", id: "player-channel-picker", compact: compact, selected: false) {
+            modeButton("Oynatma listesi", icon: "list.bullet", id: "player-channel-picker", compact: compact, vertical: vertical, selected: false) {
                 showingChannels = true
             }.disabled(model.playbackQueue.isEmpty)
         }
     }
-    private func modeButton(_ label: String, icon: String, id: String, compact: Bool, selected: Bool,
+    private func modeButton(_ label: String, icon: String, id: String, compact: Bool, vertical: Bool = false, selected: Bool,
                             action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: icon).font(.system(size: 17, weight: .semibold))
-                if !compact { Text(L10n.tr(label)).font(.caption.weight(.medium)).lineLimit(1) }
+            HStack(spacing: vertical ? 5 : 8) {
+                Image(systemName: icon).font(.system(size: vertical ? 16 : 17, weight: .semibold))
+                if !compact { Text(L10n.tr(label)).font(.system(size: vertical ? 11 : 12, weight: .medium)).lineLimit(1).minimumScaleFactor(0.78) }
             }.frame(maxWidth: .infinity, minHeight: 44)
-                .background(selected ? MirrorStyle.accent.opacity(0.25) : .black.opacity(0.45), in: RoundedRectangle(cornerRadius: 14))
+                .padding(.horizontal, vertical ? 3 : 8)
+                .background(.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 14))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14)
+                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
+                }
         }.accessibilityLabel(L10n.tr(label)).accessibilityIdentifier(id)
             .accessibilityAddTraits(selected ? .isSelected : [])
     }
@@ -1550,7 +1591,41 @@ private struct PlayerChrome: View {
         revealControls()
     }
     private func adjustBrightness(_ delta: CGFloat) {
-        UIScreen.main.brightness = min(1, max(0, UIScreen.main.brightness + delta))
+        let value = min(1, max(0, UIScreen.main.brightness + delta))
+        UIScreen.main.brightness = value
+        showGestureAdjustment(.brightness, value: value)
+    }
+    private func handlePinch(_ scale: CGFloat) {
+        guard !controlsLocked, !showingOptions, !showingEdgeGestureIntro else { return }
+        if scale > 1.12 { displayMode = .fillScreen }
+        else if scale < 0.88 { displayMode = .normal }
+        revealControls()
+    }
+    private func showGestureAdjustment(_ adjustment: PlayerGestureAdjustment, value: CGFloat) {
+        gestureAdjustment = adjustment
+        gestureAdjustmentValue = min(1, max(0, value))
+        adjustmentHideTask?.cancel()
+        adjustmentHideTask = Task { @MainActor in
+            do { try await Task.sleep(for: .milliseconds(1100)) } catch { return }
+            withAnimation(.easeOut(duration: 0.2)) { gestureAdjustment = nil }
+        }
+    }
+    private func gestureAdjustmentHUD(_ adjustment: PlayerGestureAdjustment, value: CGFloat) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: adjustment.icon).font(.title3).frame(width: 28)
+            VStack(alignment: .leading, spacing: 7) {
+                HStack {
+                    Text(adjustment.title).font(.caption.weight(.semibold))
+                    Spacer(minLength: 12)
+                    Text("\(Int((value * 100).rounded()))%").font(.caption.monospacedDigit())
+                }
+                ProgressView(value: value).tint(.white)
+            }.frame(width: 156)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 14)
+        .background(.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 16))
+        .overlay { RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.16)) }
+        .foregroundStyle(.white)
     }
     private func clearSeekFeedback() {
         feedbackTask?.cancel()
@@ -1634,6 +1709,51 @@ private struct PlayerMediaChoicesView: View {
 }
 
 /// A brief direction cue in the free space beside the transport controls.
+private struct EdgeGestureIntro: View {
+    let dismiss: () -> Void
+
+    var body: some View {
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(spacing: proxy.size.height < 360 ? 10 : 16) {
+                    Image(systemName: "hand.draw.fill").font(.system(size: 28)).foregroundStyle(MirrorStyle.accent)
+                    Text(L10n.tr("Yatay tam ekran hareketleri"))
+                        .font(.headline).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+                    VStack(alignment: .leading, spacing: 10) {
+                        introLine("Sağ kenardan yukarı/aşağı: ses", icon: "speaker.wave.2.fill")
+                        introLine("Sol kenardan yukarı/aşağı: parlaklık", icon: "sun.max.fill")
+                        introLine("Sıkıştırıp yakınlaştır: ekranı doldur", icon: "arrow.up.left.and.arrow.down.right")
+                        introLine("Sıkıştırıp uzaklaştır: normal görünüme dön", icon: "arrow.down.right.and.arrow.up.left")
+                    }
+                    .padding(14)
+                    .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 14))
+                    Button(L10n.tr("Tamam"), action: dismiss)
+                        .buttonStyle(MirivoButtonStyle(prominent: true))
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(18)
+                .frame(maxWidth: 390)
+                .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 22))
+                .overlay { RoundedRectangle(cornerRadius: 22).strokeBorder(MirrorStyle.hairline) }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+            }
+            .scrollIndicators(.hidden)
+            .frame(maxHeight: min(440, proxy.size.height))
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("player-edge-gesture-intro")
+        }
+    }
+
+    private func introLine(_ key: String, icon: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon).frame(width: 20).padding(.top, 2)
+            Text(L10n.tr(key)).fixedSize(horizontal: false, vertical: true)
+        }
+        .font(.subheadline)
+    }
+}
+
 private struct PlayerSeekFeedback: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var animationTrigger = 0
@@ -1680,6 +1800,8 @@ private struct PlayerGestureSurface: UIViewRepresentable {
     var doubleTap: (Int) -> Void
     var swipeDown: () -> Void
     var adjustBrightness: (CGFloat) -> Void
+    var adjustVolume: (CGFloat) -> Void
+    var pinchEnded: (CGFloat) -> Void
     var safeAreaChanged: (EdgeInsets) -> Void
     func makeCoordinator() -> Coordinator { Coordinator(self) }
     func makeUIView(context: Context) -> GestureView {
@@ -1693,13 +1815,24 @@ private struct PlayerGestureSurface: UIViewRepresentable {
         view.addGestureRecognizer(single); view.addGestureRecognizer(double)
         let pan = UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.pan(_:)))
         pan.maximumNumberOfTouches = 1
+        pan.delegate = context.coordinator
+        pan.cancelsTouchesInView = false
+        pan.require(toFail: double)
         view.addGestureRecognizer(pan)
+        let pinch = UIPinchGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.pinch(_:)))
+        pinch.delegate = context.coordinator
+        pinch.cancelsTouchesInView = false
+        pinch.require(toFail: double)
+        view.addGestureRecognizer(pinch)
         return view
     }
     func updateUIView(_ view: GestureView, context: Context) {
         context.coordinator.parent = self
         view.insetsChanged = safeAreaChanged
-        view.gestureRecognizers?.forEach { $0.isEnabled = !locked && (!($0 is UIPanGestureRecognizer) || fullscreen) }
+        view.gestureRecognizers?.forEach { recognizer in
+                    let fullscreenOnly = recognizer is UIPanGestureRecognizer || recognizer is UIPinchGestureRecognizer
+            recognizer.isEnabled = !locked && (!fullscreenOnly || fullscreen)
+        }
     }
     @MainActor final class GestureView: UIView {
         var insetsChanged: ((EdgeInsets) -> Void)?
@@ -1710,10 +1843,19 @@ private struct PlayerGestureSurface: UIViewRepresentable {
             volumeView.alpha = 0.001
             addSubview(volumeView)
         }
-        func adjustVolume(by delta: CGFloat) {
-            guard let slider = volumeView.subviews.compactMap({ $0 as? UISlider }).first else { return }
+        func adjustVolume(by delta: CGFloat) -> CGFloat? {
+            volumeView.layoutIfNeeded()
+            guard let slider = volumeSlider(in: volumeView) else { return nil }
             slider.value = min(1, max(0, slider.value + Float(delta)))
             slider.sendActions(for: .valueChanged)
+            return CGFloat(slider.value)
+        }
+        private func volumeSlider(in view: UIView) -> UISlider? {
+            if let slider = view as? UISlider { return slider }
+            for child in view.subviews {
+                if let slider = volumeSlider(in: child) { return slider }
+            }
+            return nil
         }
         override func didMoveToWindow() { super.didMoveToWindow(); publishInsets() }
         override func safeAreaInsetsDidChange() { super.safeAreaInsetsDidChange(); publishInsets() }
@@ -1726,7 +1868,7 @@ private struct PlayerGestureSurface: UIViewRepresentable {
             Task { @MainActor [weak self] in self?.insetsChanged?(value) }
         }
     }
-    @MainActor final class Coordinator: NSObject {
+    @MainActor final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         var parent: PlayerGestureSurface
         private var panMode: PanMode = .none
         private var lastPanY: CGFloat = 0
@@ -1737,23 +1879,35 @@ private struct PlayerGestureSurface: UIViewRepresentable {
             guard let view = gesture.view else { return }
             parent.doubleTap(gesture.location(in: view).x < view.bounds.midX ? -10 : 10)
         }
+        @objc func pinch(_ gesture: UIPinchGestureRecognizer) {
+            guard parent.fullscreen else { return }
+            if gesture.state == .ended { parent.pinchEnded(gesture.scale) }
+        }
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            (gestureRecognizer is UIPanGestureRecognizer || gestureRecognizer is UIPinchGestureRecognizer) &&
+                (otherGestureRecognizer is UIPanGestureRecognizer || otherGestureRecognizer is UIPinchGestureRecognizer)
+        }
         @objc func pan(_ gesture: UIPanGestureRecognizer) {
             guard parent.fullscreen, let view = gesture.view else { return }
             let point = gesture.location(in: view)
             let translation = gesture.translation(in: view)
             switch gesture.state {
             case .began:
-                let edgeWidth = view.bounds.width * 0.18
-                if point.x >= view.bounds.maxX - edgeWidth { panMode = .volume }
-                else if point.x <= view.bounds.minX + edgeWidth { panMode = .brightness }
-                else { panMode = .exit }
+                if view.bounds.width > view.bounds.height {
+                    let edgeWidth = view.bounds.width * 0.18
+                    if point.x >= view.bounds.maxX - edgeWidth { panMode = .volume }
+                    else if point.x <= view.bounds.minX + edgeWidth { panMode = .brightness }
+                    else { panMode = .exit }
+                } else { panMode = .exit }
                 lastPanY = translation.y
             case .changed:
                 let delta = (lastPanY - translation.y) / max(view.bounds.height, 1)
                 lastPanY = translation.y
                 if delta != 0 {
                     switch panMode {
-                    case .volume: (view as? GestureView)?.adjustVolume(by: delta)
+                    case .volume:
+                        if let value = (view as? GestureView)?.adjustVolume(by: delta) { parent.adjustVolume(value) }
                     case .brightness: parent.adjustBrightness(delta)
                     case .none, .exit: break
                     }

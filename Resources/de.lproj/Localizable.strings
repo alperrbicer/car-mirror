@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Video einpassen";
 
 "Ekranı doldur" = "Bildschirm füllen";
+"Yatay tam ekran hareketleri" = "Gesten im Querformat";
+"Sağ kenardan yukarı/aşağı: ses" = "Am rechten Rand nach oben oder unten wischen, um die Lautstärke zu ändern";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Am linken Rand nach oben oder unten wischen, um die Helligkeit zu ändern";
+"Ses düzeyi" = "Lautstärke";
+"Parlaklık" = "Helligkeit";
 
 "Kontrolleri kilitle" = "Steuerung sperren";
 
@@ -322,3 +327,5 @@
 "İndir" = "Laden";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Lade nur Inhalte herunter, deren Download der Anbieter erlaubt. DRM-geschützte Streams werden nicht unterstützt.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Zum Füllen auseinanderziehen";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Zum Normalbild zusammenziehen";

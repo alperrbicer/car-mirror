@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "התאמת הסרטון";
 
 "Ekranı doldur" = "מילוי המסך";
+"Yatay tam ekran hareketleri" = "מחוות במסך מלא לרוחב";
+"Sağ kenardan yukarı/aşağı: ses" = "החליקו למעלה או למטה בקצה הימני כדי לשנות את עוצמת הקול";
+"Sol kenardan yukarı/aşağı: parlaklık" = "החליקו למעלה או למטה בקצה השמאלי כדי לשנות את הבהירות";
+"Ses düzeyi" = "עוצמת קול";
+"Parlaklık" = "בהירות";
 
 "Kontrolleri kilitle" = "נעילת פקדים";
 
@@ -322,3 +327,5 @@
 "İndir" = "הורדה";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "הורד רק תוכן שהספק מתיר להוריד. שידורים המוגנים ב-DRM אינם נתמכים.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "צבוט להגדלה כדי למלא את המסך";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "צבוט להקטנה כדי לחזור לתצוגה רגילה";

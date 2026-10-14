@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Vừa khung hình";
 
 "Ekranı doldur" = "Lấp đầy màn hình";
+"Yatay tam ekran hareketleri" = "Thao tác trong chế độ toàn màn hình ngang";
+"Sağ kenardan yukarı/aşağı: ses" = "Vuốt lên hoặc xuống ở cạnh phải để chỉnh âm lượng";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Vuốt lên hoặc xuống ở cạnh trái để chỉnh độ sáng";
+"Ses düzeyi" = "Âm lượng";
+"Parlaklık" = "Độ sáng";
 
 "Kontrolleri kilitle" = "Khóa điều khiển";
 
@@ -322,3 +327,5 @@
 "İndir" = "Tải xuống";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Chỉ tải nội dung mà nhà cung cấp cho phép tải. Không hỗ trợ luồng được bảo vệ bằng DRM.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Chụm mở để lấp đầy màn hình";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Chụm vào để trở về chế độ xem bình thường";

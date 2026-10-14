@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Adatta video";
 
 "Ekranı doldur" = "Riempi schermo";
+"Yatay tam ekran hareketleri" = "Gesti a schermo intero orizzontale";
+"Sağ kenardan yukarı/aşağı: ses" = "Scorri in alto o in basso sul bordo destro per regolare il volume";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Scorri in alto o in basso sul bordo sinistro per regolare la luminosità";
+"Ses düzeyi" = "Volume";
+"Parlaklık" = "Luminosità";
 
 "Kontrolleri kilitle" = "Blocca controlli";
 
@@ -322,3 +327,5 @@
 "İndir" = "Scarica";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Scarica solo i contenuti che il provider consente di scaricare. I flussi protetti da DRM non sono supportati.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Allarga le dita per riempire lo schermo";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Avvicina le dita per tornare alla visualizzazione normale";

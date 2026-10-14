@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Dopasuj obraz";
 
 "Ekranı doldur" = "Wypełnij ekran";
+"Yatay tam ekran hareketleri" = "Gesty w poziomym trybie pełnoekranowym";
+"Sağ kenardan yukarı/aşağı: ses" = "Przesuń w górę lub w dół przy prawej krawędzi, aby zmienić głośność";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Przesuń w górę lub w dół przy lewej krawędzi, aby zmienić jasność";
+"Ses düzeyi" = "Głośność";
+"Parlaklık" = "Jasność";
 
 "Kontrolleri kilitle" = "Zablokuj sterowanie";
 
@@ -322,3 +327,5 @@
 "İndir" = "Pobierz";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Pobieraj tylko materiały, na których pobieranie zezwala dostawca. Strumienie chronione DRM nie są obsługiwane.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Rozsuń palce, aby wypełnić ekran";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Zsuń palce, aby wrócić do normalnego widoku";

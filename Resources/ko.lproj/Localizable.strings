@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "영상 맞춤";
 
 "Ekranı doldur" = "화면 채우기";
+"Yatay tam ekran hareketleri" = "가로 전체 화면 제스처";
+"Sağ kenardan yukarı/aşağı: ses" = "오른쪽 가장자리를 위아래로 밀어 음량을 조절하세요";
+"Sol kenardan yukarı/aşağı: parlaklık" = "왼쪽 가장자리를 위아래로 밀어 밝기를 조절하세요";
+"Ses düzeyi" = "음량";
+"Parlaklık" = "밝기";
 
 "Kontrolleri kilitle" = "컨트롤 잠금";
 
@@ -322,3 +327,5 @@
 "İndir" = "다운로드";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "제공업체가 다운로드를 허용한 콘텐츠만 다운로드하세요. DRM 보호 스트림은 지원되지 않습니다.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "손가락을 벌려 화면 채우기";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "손가락을 모아 일반 화면으로 돌아가기";

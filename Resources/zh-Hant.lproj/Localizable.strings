@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "符合畫面";
 
 "Ekranı doldur" = "填滿螢幕";
+"Yatay tam ekran hareketleri" = "橫向全螢幕手勢";
+"Sağ kenardan yukarı/aşağı: ses" = "在右側邊緣上下滑動可調整音量";
+"Sol kenardan yukarı/aşağı: parlaklık" = "在左側邊緣上下滑動可調整亮度";
+"Ses düzeyi" = "音量";
+"Parlaklık" = "亮度";
 
 "Kontrolleri kilitle" = "鎖定控制項";
 
@@ -322,3 +327,5 @@
 "İndir" = "下載";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "僅下載服務提供者允許下載的內容。不支援受 DRM 保護的串流。";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "張開雙指以填滿螢幕";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "捏合雙指以回到正常顯示";

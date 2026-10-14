@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Вписать видео";
 
 "Ekranı doldur" = "Заполнить экран";
+"Yatay tam ekran hareketleri" = "Жесты в полноэкранном альбомном режиме";
+"Sağ kenardan yukarı/aşağı: ses" = "Проведите вверх или вниз у правого края, чтобы изменить громкость";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Проведите вверх или вниз у левого края, чтобы изменить яркость";
+"Ses düzeyi" = "Громкость";
+"Parlaklık" = "Яркость";
 
 "Kontrolleri kilitle" = "Заблокировать управление";
 
@@ -322,3 +327,5 @@
 "İndir" = "Загрузить";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Загружайте только материалы, которые провайдер разрешает скачивать. Потоки с защитой DRM не поддерживаются.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Разведите пальцы, чтобы заполнить экран";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Сведите пальцы, чтобы вернуться к обычному виду";

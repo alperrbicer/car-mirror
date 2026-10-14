@@ -209,6 +209,11 @@
 "Görüntüyü sığdır" = "Görüntüyü sığdır";
 
 "Ekranı doldur" = "Ekranı doldur";
+"Yatay tam ekran hareketleri" = "Yatay tam ekran hareketleri";
+"Sağ kenardan yukarı/aşağı: ses" = "Sağ kenardan yukarı/aşağı kaydır: ses";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Sol kenardan yukarı/aşağı kaydır: parlaklık";
+"Ses düzeyi" = "Ses düzeyi";
+"Parlaklık" = "Parlaklık";
 
 "Kontrolleri kilitle" = "Kontrolleri kilitle";
 
@@ -335,3 +340,5 @@
 "Yeniden indir" = "Yeniden indir";
 "İndir" = "İndir";
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Ekranı doldurmak için parmaklarını aç";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Normal görünüme dönmek için parmaklarını kapat";

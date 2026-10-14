@@ -148,8 +148,16 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             self.onTracksChanged?()
         }
     }
-    func setVideoFill(_ fillsFrame: Bool) {
-        let mode: VLCMediaPlayer.VideoFitMode = fillsFrame ? .larger : .smaller
+    func setVideoDisplayMode(_ displayMode: PlayerVideoDisplayMode, in pictureFrame: CGRect) {
+        let mode: VLCMediaPlayer.VideoFitMode
+        switch displayMode {
+        case .normal: mode = .smaller
+        case .fitScreen: mode = .larger
+        case .fillScreen: mode = .smaller
+        }
+        let aspectRatio = displayMode == .fillScreen && pictureFrame.width > 0 && pictureFrame.height > 0
+            ? "\(Int(pictureFrame.width.rounded())):\(Int(pictureFrame.height.rounded()))" : nil
+        if mediaPlayer.videoAspectRatio != aspectRatio { mediaPlayer.videoAspectRatio = aspectRatio }
         if mediaPlayer.videoFitMode != mode { mediaPlayer.videoFitMode = mode }
     }
     // VLC has one drawable. A retained source-list preview must never take it
@@ -174,7 +182,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             videoView.removeFromSuperview()
             return
         }
-        let frame = PlayerVideoGeometry.frame(size: mediaPlayer.videoSize, in: selected.bounds, fillsFrame: selected.fillsFrame)
+        let frame = PlayerVideoGeometry.frame(size: mediaPlayer.videoSize, in: selected.bounds, mode: selected.displayMode)
         if videoView.superview !== selected {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
@@ -190,7 +198,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             videoView.frame = frame
             CATransaction.commit()
         }
-        setVideoFill(selected.fillsFrame)
+        setVideoDisplayMode(selected.displayMode, in: frame)
     }
     private final class WeakVideoHost {
         weak var value: CompatibilityVideoHost?
@@ -337,10 +345,22 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
 /// Keep the PiP source at the rendered picture's bounds, rather than including
 /// the surrounding letterbox. The host remains black and owns the gestures.
 enum PlayerVideoGeometry {
+    static func frame(size: CGSize, in bounds: CGRect, mode: PlayerVideoDisplayMode) -> CGRect {
+        guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0,
+              bounds.width > 0, bounds.height > 0 else { return bounds }
+        switch mode {
+        case .normal:
+            return AVMakeRect(aspectRatio: size, insideRect: bounds)
+        case .fitScreen:
+            return bounds
+        case .fillScreen:
+            let fitted = AVMakeRect(aspectRatio: size, insideRect: bounds)
+            return CGRect(x: bounds.minX, y: fitted.minY, width: bounds.width, height: fitted.height)
+        }
+    }
+
     static func frame(size: CGSize, in bounds: CGRect, fillsFrame: Bool) -> CGRect {
-        guard !fillsFrame, size.width.isFinite, size.height.isFinite,
-              size.width > 0, size.height > 0, bounds.width > 0, bounds.height > 0 else { return bounds }
-        return AVMakeRect(aspectRatio: size, insideRect: bounds)
+        frame(size: size, in: bounds, mode: fillsFrame ? .fitScreen : .normal)
     }
 }
 
@@ -351,20 +371,24 @@ final class CompatibilityVideoHost: UIView {
     enum Role: Int { case preview, inline, fullscreen, external }
     private var engine: CompatibilityPlayback?
     fileprivate private(set) var role: Role = .inline
-    fileprivate private(set) var fillsFrame = false
+    fileprivate private(set) var displayMode: PlayerVideoDisplayMode = .normal
+    fileprivate var fillsFrame: Bool { displayMode != .normal }
     fileprivate var isReadyForVideo: Bool {
         window != nil && !isHidden && bounds.width > 0 && bounds.height > 0
     }
-    func configure(engine: CompatibilityPlayback, role: Role, fillsFrame: Bool) {
+    func configure(engine: CompatibilityPlayback, role: Role, displayMode: PlayerVideoDisplayMode) {
         if self.engine !== engine {
             self.engine?.removeVideoHost(self)
             self.engine = engine
         }
         self.role = role
-        self.fillsFrame = fillsFrame
+        self.displayMode = displayMode
         backgroundColor = .black
         clipsToBounds = true
         engine.updateVideoHost(self)
+    }
+    func configure(engine: CompatibilityPlayback, role: Role, fillsFrame: Bool) {
+        configure(engine: engine, role: role, displayMode: fillsFrame ? .fitScreen : .normal)
     }
     func detach() {
         engine?.removeVideoHost(self)

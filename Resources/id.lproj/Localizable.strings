@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "Sesuaikan video";
 
 "Ekranı doldur" = "Penuhi layar";
+"Yatay tam ekran hareketleri" = "Gestur layar penuh lanskap";
+"Sağ kenardan yukarı/aşağı: ses" = "Geser ke atas atau bawah di tepi kanan untuk mengatur volume";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Geser ke atas atau bawah di tepi kiri untuk mengatur kecerahan";
+"Ses düzeyi" = "Volume";
+"Parlaklık" = "Kecerahan";
 
 "Kontrolleri kilitle" = "Kunci kontrol";
 
@@ -322,3 +327,5 @@
 "İndir" = "Unduh";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Unduh hanya konten yang diizinkan oleh penyedia. Streaming yang dilindungi DRM tidak didukung.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Cubit keluar untuk memenuhi layar";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Cubit masuk untuk kembali ke tampilan normal";

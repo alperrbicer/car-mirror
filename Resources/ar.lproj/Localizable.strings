@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "ملاءمة الفيديو";
 
 "Ekranı doldur" = "ملء الشاشة";
+"Yatay tam ekran hareketleri" = "إيماءات الشاشة الكاملة الأفقية";
+"Sağ kenardan yukarı/aşağı: ses" = "اسحب لأعلى أو لأسفل عند الحافة اليمنى لضبط الصوت";
+"Sol kenardan yukarı/aşağı: parlaklık" = "اسحب لأعلى أو لأسفل عند الحافة اليسرى لضبط السطوع";
+"Ses düzeyi" = "مستوى الصوت";
+"Parlaklık" = "السطوع";
 
 "Kontrolleri kilitle" = "قفل عناصر التحكم";
 
@@ -322,3 +327,5 @@
 "İndir" = "تنزيل";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "نزّل المحتوى الذي يسمح المزوّد بتنزيله فقط. البث المحمي بـ DRM غير مدعوم.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "اقرص للتكبير: املأ الشاشة";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "اقرص للتصغير: عُد إلى العرض العادي";

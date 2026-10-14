@@ -209,6 +209,11 @@
 "Görüntüyü sığdır" = "Fit video";
 
 "Ekranı doldur" = "Fill screen";
+"Yatay tam ekran hareketleri" = "Landscape full-screen gestures";
+"Sağ kenardan yukarı/aşağı: ses" = "Swipe up or down on the right edge to adjust volume";
+"Sol kenardan yukarı/aşağı: parlaklık" = "Swipe up or down on the left edge to adjust brightness";
+"Ses düzeyi" = "Volume";
+"Parlaklık" = "Brightness";
 
 "Kontrolleri kilitle" = "Lock controls";
 
@@ -335,3 +340,5 @@
 "Yeniden indir" = "Download again";
 "İndir" = "Download";
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Only download content the provider allows you to download. DRM-protected streams are not supported.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Pinch out to fill the screen";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Pinch in to return to normal";

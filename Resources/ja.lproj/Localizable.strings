@@ -203,6 +203,11 @@
 "Görüntüyü sığdır" = "映像を収める";
 
 "Ekranı doldur" = "画面いっぱいに表示";
+"Yatay tam ekran hareketleri" = "横向き全画面でのジェスチャ";
+"Sağ kenardan yukarı/aşağı: ses" = "音量は画面右端を上下にスワイプして調整";
+"Sol kenardan yukarı/aşağı: parlaklık" = "明るさは画面左端を上下にスワイプして調整";
+"Ses düzeyi" = "音量";
+"Parlaklık" = "明るさ";
 
 "Kontrolleri kilitle" = "操作をロック";
 
@@ -322,3 +327,5 @@
 "İndir" = "ダウンロード";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "プロバイダがダウンロードを許可しているコンテンツのみダウンロードしてください。DRMで保護された配信には対応していません。";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "ピンチアウトで画面いっぱいに表示";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "ピンチインで通常表示に戻る";
