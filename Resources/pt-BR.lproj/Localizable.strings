@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Baixe apenas conteúdo que o provedor permita baixar. Transmissões protegidas por DRM não são compatíveis.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Afaste os dedos para preencher a tela";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Junte os dedos para voltar à exibição normal";
+"Hareket tanıtımını yeniden göster" = "Mostrar introdução aos gestos novamente";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Mostre novamente no player os gestos de volume, brilho e tela.";

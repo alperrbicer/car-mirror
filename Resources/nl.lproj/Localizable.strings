@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Download alleen inhoud die de aanbieder laat downloaden. Streams met DRM-beveiliging worden niet ondersteund.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Knijp uit om het scherm te vullen";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Knijp in om terug te keren naar normaal";
+"Hareket tanıtımını yeniden göster" = "Gebarenintro opnieuw tonen";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Toon de gebaren voor volume, helderheid en scherm opnieuw in de speler.";

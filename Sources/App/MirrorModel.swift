@@ -426,8 +426,14 @@ final class MirrorModel: ObservableObject {
         try? LastPlaybackStore.shared.clear(sourceID: sourceID)
     }
 
-    func stopPlayback() {
-        saveLastPlayback(force: true)
+    func stopPlayback(clearLastPlayback: Bool = false) {
+        if clearLastPlayback {
+            let continuationID = activeContinuationID
+            resumeRecordingEnabled = false
+            if let continuationID { try? LastPlaybackStore.shared.remove(id: continuationID) }
+        } else {
+            saveLastPlayback(force: true)
+        }
         finishPlayerRestoration(false)
         presentingPlayer = false
         playback.stop()

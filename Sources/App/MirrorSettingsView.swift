@@ -18,6 +18,7 @@ struct MirrorSettingsView: View {
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
     @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
+    @AppStorage("player.edgeGestureIntroShown") private var edgeGestureIntroShown = false
     @ObservedObject private var purchases = PurchaseStore.shared
     @AppStorage("analytics.enabled") private var analyticsEnabled = false
 
@@ -70,6 +71,7 @@ struct MirrorSettingsView: View {
                         NavigationLink(L10n.tr("Canlı altyazılar · Pro")) { ProView() }
                     }
                 }.listRowBackground(MirrorStyle.surface)
+                playerGestureIntroSection
                 Section {
                     Toggle(L10n.tr("Kullanım analizi"), isOn: $analyticsEnabled)
                         .disabled(!FirebaseServices.configured)
@@ -182,6 +184,20 @@ struct MirrorSettingsView: View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
         return "\(version) (\(build))"
+    }
+
+    private var playerGestureIntroSection: some View {
+        Section {
+            Button { edgeGestureIntroShown = false } label: {
+                Label(L10n.tr("Hareket tanıtımını yeniden göster"), systemImage: "hand.draw")
+            }
+            .accessibilityIdentifier("settings-player-gesture-intro")
+        } header: {
+            Text(L10n.tr("Oynatıcı"))
+        } footer: {
+            Text(L10n.tr("Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster."))
+        }
+        .listRowBackground(MirrorStyle.surface)
     }
 
     // Hidden maintenance shortcut: tap the brand mark three times, then the version row twice.

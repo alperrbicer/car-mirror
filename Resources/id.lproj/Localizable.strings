@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Unduh hanya konten yang diizinkan oleh penyedia. Streaming yang dilindungi DRM tidak didukung.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Cubit keluar untuk memenuhi layar";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Cubit masuk untuk kembali ke tampilan normal";
+"Hareket tanıtımını yeniden göster" = "Tampilkan panduan gestur lagi";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Tampilkan lagi gestur volume, kecerahan, dan layar di pemutar.";

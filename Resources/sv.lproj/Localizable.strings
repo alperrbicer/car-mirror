@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Hämta endast innehåll som leverantören tillåter att du hämtar. DRM-skyddade strömmar stöds inte.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Nyp ut för att fylla skärmen";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Nyp in för att återgå till normal visning";
+"Hareket tanıtımını yeniden göster" = "Visa gestguiden igen";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Visa volym-, ljusstyrke- och skärmgesterna i spelaren igen.";

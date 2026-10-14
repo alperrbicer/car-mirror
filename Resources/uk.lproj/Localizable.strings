@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Завантажуйте лише вміст, який постачальник дозволяє завантажувати. Потоки із захистом DRM не підтримуються.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Розведіть пальці, щоб заповнити екран";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Зведіть пальці, щоб повернутися до звичайного вигляду";
+"Hareket tanıtımını yeniden göster" = "Показати інструкцію жестів знову";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Знову показати в плеєрі жести гучності, яскравості та екрана.";

@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "제공업체가 다운로드를 허용한 콘텐츠만 다운로드하세요. DRM 보호 스트림은 지원되지 않습니다.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "손가락을 벌려 화면 채우기";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "손가락을 모아 일반 화면으로 돌아가기";
+"Hareket tanıtımını yeniden göster" = "동작 안내 다시 보기";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "플레이어에서 음량, 밝기, 화면 동작 안내를 다시 표시합니다.";

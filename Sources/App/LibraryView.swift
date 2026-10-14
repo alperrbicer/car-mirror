@@ -1245,7 +1245,7 @@ struct MediaPlayerScreen: View {
                                 .font(.caption).foregroundStyle(MirrorStyle.secondary)
                         }
                     }
-                    Button(role: .destructive) { model.stopPlayback() } label: {
+                    Button(role: .destructive) { model.stopPlayback(clearLastPlayback: true) } label: {
                         Label(L10n.tr("Oynatmayı durdur"), systemImage: "stop.circle").font(.subheadline).frame(minHeight: 44)
                     }
                 }.padding(20).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
@@ -1426,6 +1426,9 @@ private struct PlayerChrome: View {
             MediaScreenAwake.release(awakeLease)
         }
         .onChange(of: fullscreen) { _, _ in showingOptions = false; clearSeekFeedback(); updateAwakeLease(); revealControls() }
+        .onChange(of: edgeGestureIntroShown) { _, shown in
+            if !shown { showingEdgeGestureIntro = true }
+        }
         .onChange(of: playback.isPlaying) { _, _ in revealControls() }
         .onChange(of: controlsLocked) { _, _ in clearSeekFeedback(); revealControls() }
         .onChange(of: showingChannels) { _, _ in revealControls() }
@@ -1546,6 +1549,7 @@ private struct PlayerChrome: View {
                     else { largeControls = false; changeFullscreen(true) }
                     revealControls()
                 }
+                .frame(width: vertical ? 76 : nil)
             } else {
                 modeButton("Picture in Picture", icon: "pip.enter", id: "player-pip", compact: compact, vertical: vertical, selected: false) {
                     playback.startPictureInPicture(); revealControls()

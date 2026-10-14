@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "仅下载服务提供方允许下载的内容。不支持受 DRM 保护的流媒体。";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "张开双指以铺满屏幕";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "捏合双指以恢复正常显示";
+"Hareket tanıtımını yeniden göster" = "再次显示手势说明";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "在播放器中再次显示音量、亮度和屏幕手势说明。";

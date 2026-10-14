@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "プロバイダがダウンロードを許可しているコンテンツのみダウンロードしてください。DRMで保護された配信には対応していません。";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "ピンチアウトで画面いっぱいに表示";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "ピンチインで通常表示に戻る";
+"Hareket tanıtımını yeniden göster" = "ジェスチャーの案内を再表示";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "音量、明るさ、画面のジェスチャーをプレーヤーに再表示します。";

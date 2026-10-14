@@ -329,3 +329,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "ดาวน์โหลดเฉพาะเนื้อหาที่ผู้ให้บริการอนุญาต ไม่รองรับสตรีมที่มีการป้องกัน DRM";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "กางนิ้วเพื่อให้ภาพเต็มหน้าจอ";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "หุบนิ้วเพื่อกลับไปยังมุมมองปกติ";
+"Hareket tanıtımını yeniden göster" = "แสดงคำแนะนำท่าทางอีกครั้ง";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "แสดงท่าทางควบคุมเสียง ความสว่าง และหน้าจอในเครื่องเล่นอีกครั้ง";

@@ -342,3 +342,5 @@
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Only download content the provider allows you to download. DRM-protected streams are not supported.";
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Pinch out to fill the screen";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Pinch in to return to normal";
+"Hareket tanıtımını yeniden göster" = "Show gesture introduction again";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Show the volume, brightness, and screen gestures in the player again.";
