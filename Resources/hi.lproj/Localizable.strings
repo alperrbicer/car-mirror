@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "कोई सामग्री नहीं मिली";
 "Film veya dizi ara" = "फ़िल्में या सीरीज़ खोजें";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "देखने का रिकॉर्ड हटाया नहीं जा सका। फिर से कोशिश करें।";
+
+"İndirilenler" = "डाउनलोड";
+"Çevrimdışı izlemeye hazır" = "ऑफ़लाइन देखने के लिए तैयार";
+"İndirme başarısız" = "डाउनलोड विफल";
+"İndirmeyi iptal et" = "डाउनलोड रद्द करें";
+"Henüz indirilen içerik yok" = "अभी कोई डाउनलोड नहीं";
+"İçerik kontrol ediliyor…" = "कंटेंट जाँचा जा रहा है…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "केवल HLS, MP4, M4V और MOV फ़िल्में या सीरीज़ डाउनलोड की जा सकती हैं।";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "लाइव स्ट्रीम ऑफ़लाइन देखने के लिए डाउनलोड नहीं की जा सकतीं।";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "प्रदाता की सुरक्षा के कारण यह कंटेंट डाउनलोड नहीं किया जा सकता।";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "यह कंटेंट अभी डाउनलोड नहीं हो सकता। स्ट्रीम URL जाँचें।";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "डाउनलोड सेव नहीं हो सका। डिवाइस में खाली जगह जाँचें।";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "यह कंटेंट पहले से डाउनलोड है या डाउनलोड हो रहा है।";
+"En fazla 50 içerik indirilebilir." = "आप अधिकतम 50 आइटम डाउनलोड कर सकते हैं।";
+"İndirildi" = "डाउनलोड किया गया";
+"Yeniden indir" = "फिर से डाउनलोड करें";
+"İndir" = "डाउनलोड करें";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "केवल वही कंटेंट डाउनलोड करें जिसे प्रदाता डाउनलोड करने की अनुमति देता है। DRM-सुरक्षित स्ट्रीम समर्थित नहीं हैं।";

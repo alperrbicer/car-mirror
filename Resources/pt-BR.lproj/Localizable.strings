@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Nenhum conteúdo encontrado";
 "Film veya dizi ara" = "Buscar filmes ou séries";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Não foi possível remover o registro. Tente novamente.";
+
+"İndirilenler" = "Downloads";
+"Çevrimdışı izlemeye hazır" = "Pronto para assistir off-line";
+"İndirme başarısız" = "Falha no download";
+"İndirmeyi iptal et" = "Cancelar download";
+"Henüz indirilen içerik yok" = "Nenhum download ainda";
+"İçerik kontrol ediliyor…" = "Verificando conteúdo…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Só é possível baixar filmes e séries HLS, MP4, M4V e MOV.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Não é possível baixar transmissões ao vivo para assistir off-line.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Não é possível baixar este conteúdo devido à proteção do provedor.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Não é possível baixar este conteúdo agora. Verifique o URL.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Não foi possível salvar o download. Verifique o espaço disponível.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Este conteúdo já foi baixado ou está sendo baixado.";
+"En fazla 50 içerik indirilebilir." = "Você pode baixar até 50 itens.";
+"İndirildi" = "Baixado";
+"Yeniden indir" = "Baixar novamente";
+"İndir" = "Baixar";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Baixe apenas conteúdo que o provedor permita baixar. Transmissões protegidas por DRM não são compatíveis.";

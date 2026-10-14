@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Aucun contenu trouvé";
 "Film veya dizi ara" = "Rechercher un film ou une série";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Impossible de retirer cet élément. Réessaie.";
+
+"İndirilenler" = "Téléchargements";
+"Çevrimdışı izlemeye hazır" = "Prêt à regarder hors ligne";
+"İndirme başarısız" = "Échec du téléchargement";
+"İndirmeyi iptal et" = "Annuler le téléchargement";
+"Henüz indirilen içerik yok" = "Aucun téléchargement";
+"İçerik kontrol ediliyor…" = "Vérification du contenu…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Seuls les films ou séries HLS, MP4, M4V et MOV peuvent être téléchargés.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Les flux en direct ne peuvent pas être téléchargés pour une lecture hors ligne.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Ce contenu ne peut pas être téléchargé en raison de la protection du fournisseur.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Impossible de télécharger ce contenu pour le moment. Vérifiez l’URL.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Impossible d’enregistrer le téléchargement. Vérifiez l’espace disponible.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Ce contenu est déjà téléchargé ou en cours de téléchargement.";
+"En fazla 50 içerik indirilebilir." = "Vous pouvez télécharger jusqu’à 50 contenus.";
+"İndirildi" = "Téléchargé";
+"Yeniden indir" = "Télécharger à nouveau";
+"İndir" = "Télécharger";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Téléchargez uniquement les contenus autorisés par le fournisseur. Les flux protégés par DRM ne sont pas pris en charge.";

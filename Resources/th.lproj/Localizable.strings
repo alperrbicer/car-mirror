@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "ไม่พบเนื้อหา";
 "Film veya dizi ara" = "ค้นหาภาพยนตร์หรือซีรีส์";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "นำประวัติการรับชมออกไม่ได้ โปรดลองอีกครั้ง";
+
+"İndirilenler" = "ดาวน์โหลด";
+"Çevrimdışı izlemeye hazır" = "พร้อมรับชมแบบออฟไลน์";
+"İndirme başarısız" = "ดาวน์โหลดไม่สำเร็จ";
+"İndirmeyi iptal et" = "ยกเลิกการดาวน์โหลด";
+"Henüz indirilen içerik yok" = "ยังไม่มีรายการดาวน์โหลด";
+"İçerik kontrol ediliyor…" = "กำลังตรวจสอบเนื้อหา…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "ดาวน์โหลดได้เฉพาะภาพยนตร์และซีรีส์รูปแบบ HLS, MP4, M4V และ MOV";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "ดาวน์โหลดการถ่ายทอดสดเพื่อรับชมแบบออฟไลน์ไม่ได้";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "ดาวน์โหลดเนื้อหานี้ไม่ได้เนื่องจากการป้องกันของผู้ให้บริการ";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "ดาวน์โหลดเนื้อหานี้ไม่ได้ในขณะนี้ โปรดตรวจสอบ URL สตรีม";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "บันทึกการดาวน์โหลดไม่ได้ โปรดตรวจสอบพื้นที่ว่างในอุปกรณ์";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "ดาวน์โหลดเนื้อหานี้แล้วหรือกำลังดาวน์โหลด";
+"En fazla 50 içerik indirilebilir." = "ดาวน์โหลดได้สูงสุด 50 รายการ";
+"İndirildi" = "ดาวน์โหลดแล้ว";
+"Yeniden indir" = "ดาวน์โหลดอีกครั้ง";
+"İndir" = "ดาวน์โหลด";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "ดาวน์โหลดเฉพาะเนื้อหาที่ผู้ให้บริการอนุญาต ไม่รองรับสตรีมที่มีการป้องกัน DRM";

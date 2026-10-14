@@ -18,7 +18,9 @@ struct TVConnectionButton: View {
             }
         } label: {
             if compact {
-                Image(systemName: playback.tvName == nil ? "tv" : "tv.fill").frame(width: 44, height: 44)
+                Image(systemName: playback.tvName == nil ? "tv" : "tv.fill")
+                    .frame(width: 54, height: 54)
+                    .contentShape(Rectangle())
             } else {
                 HStack(spacing: 12) {
                     Image(systemName: "tv").font(.title3)
@@ -28,6 +30,7 @@ struct TVConnectionButton: View {
                     Image(systemName: "chevron.right").font(.caption.weight(.semibold))
                 }.padding(16).frame(minHeight: MirrorStyle.controlHeight)
                     .background(MirrorStyle.raised, in: RoundedRectangle(cornerRadius: 18))
+                    .contentShape(RoundedRectangle(cornerRadius: 18))
             }
         }
         .buttonStyle(.plain).foregroundStyle(MirrorStyle.accent)
@@ -35,6 +38,23 @@ struct TVConnectionButton: View {
         .accessibilityValue(playback.tvName ?? "")
         .accessibilityIdentifier("tv-connection")
         .sheet(isPresented: $showingTVs) { TVConnectionView(model: model) }
+    }
+}
+
+struct TVRouteStatusMark: View {
+    let symbol: String
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 19, weight: .medium))
+            .foregroundStyle(MirrorStyle.accent)
+            .frame(width: 54, height: 54)
+            .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
+            .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
+            .overlay(alignment: .topTrailing) {
+                Circle().fill(MirrorStyle.accent).frame(width: 8, height: 8).offset(x: -7, y: 7)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 18))
     }
 }
 
@@ -126,16 +146,7 @@ struct TVRouteStatusButton: View {
     var body: some View {
         if hasActiveRoute {
             Button { showingStatus = true } label: {
-                Image(systemName: playback.tvDevice == nil ? "airplayvideo" : "tv.fill")
-                    .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(MirrorStyle.accent)
-                    .frame(width: 54, height: 54)
-                    .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
-                    .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
-                    .overlay(alignment: .topTrailing) {
-                        Circle().fill(MirrorStyle.accent).frame(width: 8, height: 8).offset(x: -7, y: 7)
-                    }
-                    .contentShape(RoundedRectangle(cornerRadius: 18))
+                TVRouteStatusMark(symbol: playback.tvDevice == nil ? "airplayvideo" : "tv.fill")
             }
             .buttonStyle(.plain)
             .accessibilityLabel(L10n.tr("TV bağlantısı"))

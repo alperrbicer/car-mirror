@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "コンテンツが見つかりません";
 "Film veya dizi ara" = "映画やシリーズを検索";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "視聴記録を削除できませんでした。もう一度お試しください。";
+
+"İndirilenler" = "ダウンロード";
+"Çevrimdışı izlemeye hazır" = "オフライン再生の準備完了";
+"İndirme başarısız" = "ダウンロードに失敗しました";
+"İndirmeyi iptal et" = "ダウンロードをキャンセル";
+"Henüz indirilen içerik yok" = "ダウンロードはありません";
+"İçerik kontrol ediliyor…" = "コンテンツを確認中…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "ダウンロードできるのはHLS、MP4、M4V、MOV形式の映画やシリーズのみです。";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "ライブ配信はオフライン再生用にダウンロードできません。";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "プロバイダの保護により、このコンテンツはダウンロードできません。";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "現在このコンテンツをダウンロードできません。配信URLを確認してください。";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "ダウンロードを保存できませんでした。空き容量を確認してください。";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "このコンテンツはダウンロード済み、またはダウンロード中です。";
+"En fazla 50 içerik indirilebilir." = "最大50件までダウンロードできます。";
+"İndirildi" = "ダウンロード済み";
+"Yeniden indir" = "再ダウンロード";
+"İndir" = "ダウンロード";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "プロバイダがダウンロードを許可しているコンテンツのみダウンロードしてください。DRMで保護された配信には対応していません。";

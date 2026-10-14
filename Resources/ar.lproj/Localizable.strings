@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "لم يتم العثور على محتوى";
 "Film veya dizi ara" = "ابحث عن أفلام أو مسلسلات";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "تعذرت إزالة سجل المشاهدة. حاول مجددًا.";
+
+"İndirilenler" = "التنزيلات";
+"Çevrimdışı izlemeye hazır" = "جاهز للمشاهدة دون اتصال";
+"İndirme başarısız" = "فشل التنزيل";
+"İndirmeyi iptal et" = "إلغاء التنزيل";
+"Henüz indirilen içerik yok" = "لا توجد تنزيلات بعد";
+"İçerik kontrol ediliyor…" = "جارٍ التحقق من المحتوى…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "يمكن تنزيل أفلام ومسلسلات HLS وMP4 وM4V وMOV فقط.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "لا يمكن تنزيل البث المباشر للمشاهدة دون اتصال.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "لا يمكن تنزيل هذا المحتوى بسبب حماية المزوّد.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "تعذّر تنزيل هذا المحتوى الآن. تحقق من رابط البث.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "تعذّر حفظ التنزيل. تحقق من مساحة الجهاز.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "هذا المحتوى مُنزّل بالفعل أو قيد التنزيل.";
+"En fazla 50 içerik indirilebilir." = "يمكنك تنزيل 50 عنصرًا كحد أقصى.";
+"İndirildi" = "تم التنزيل";
+"Yeniden indir" = "تنزيل مرة أخرى";
+"İndir" = "تنزيل";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "نزّل المحتوى الذي يسمح المزوّد بتنزيله فقط. البث المحمي بـ DRM غير مدعوم.";

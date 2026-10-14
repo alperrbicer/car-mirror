@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "未找到内容";
 "Film veya dizi ara" = "搜索电影或剧集";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "无法移除观看记录，请重试。";
+
+"İndirilenler" = "下载";
+"Çevrimdışı izlemeye hazır" = "可离线观看";
+"İndirme başarısız" = "下载失败";
+"İndirmeyi iptal et" = "取消下载";
+"Henüz indirilen içerik yok" = "暂无下载内容";
+"İçerik kontrol ediliyor…" = "正在检查内容…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "仅支持下载 HLS、MP4、M4V 和 MOV 格式的电影或剧集。";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "直播内容无法下载以供离线观看。";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "由于服务提供方的保护，此内容无法下载。";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "目前无法下载此内容。请检查流媒体网址。";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "无法保存下载内容。请检查设备剩余空间。";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "此内容已下载或正在下载。";
+"En fazla 50 içerik indirilebilir." = "最多可下载 50 项内容。";
+"İndirildi" = "已下载";
+"Yeniden indir" = "重新下载";
+"İndir" = "下载";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "仅下载服务提供方允许下载的内容。不支持受 DRM 保护的流媒体。";

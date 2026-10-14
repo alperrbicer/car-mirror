@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Geen inhoud gevonden";
 "Film veya dizi ara" = "Zoek films of series";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Kan het kijkrecord niet verwijderen. Probeer het opnieuw.";
+
+"İndirilenler" = "Downloads";
+"Çevrimdışı izlemeye hazır" = "Klaar om offline te bekijken";
+"İndirme başarısız" = "Download mislukt";
+"İndirmeyi iptal et" = "Download annuleren";
+"Henüz indirilen içerik yok" = "Nog geen downloads";
+"İçerik kontrol ediliyor…" = "Inhoud controleren…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Alleen HLS-, MP4-, M4V- en MOV-films of series kunnen worden gedownload.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Livestreams kunnen niet worden gedownload om offline te bekijken.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Deze inhoud kan niet worden gedownload vanwege de beveiliging van de aanbieder.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Deze inhoud kan nu niet worden gedownload. Controleer de stream-URL.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "De download kon niet worden opgeslagen. Controleer de vrije ruimte.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Dit item is al gedownload of wordt gedownload.";
+"En fazla 50 içerik indirilebilir." = "Je kunt maximaal 50 items downloaden.";
+"İndirildi" = "Gedownload";
+"Yeniden indir" = "Opnieuw downloaden";
+"İndir" = "Downloaden";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Download alleen inhoud die de aanbieder laat downloaden. Streams met DRM-beveiliging worden niet ondersteund.";

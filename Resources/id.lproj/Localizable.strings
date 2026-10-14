@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Konten tidak ditemukan";
 "Film veya dizi ara" = "Cari film atau serial";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Tidak dapat menghapus riwayat tontonan. Coba lagi.";
+
+"İndirilenler" = "Unduhan";
+"Çevrimdışı izlemeye hazır" = "Siap ditonton offline";
+"İndirme başarısız" = "Unduhan gagal";
+"İndirmeyi iptal et" = "Batalkan unduhan";
+"Henüz indirilen içerik yok" = "Belum ada unduhan";
+"İçerik kontrol ediliyor…" = "Memeriksa konten…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Hanya film atau serial HLS, MP4, M4V, dan MOV yang dapat diunduh.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Siaran langsung tidak dapat diunduh untuk ditonton offline.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Konten ini tidak dapat diunduh karena perlindungan penyedia.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Konten ini tidak dapat diunduh sekarang. Periksa URL streaming.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Unduhan tidak dapat disimpan. Periksa ruang penyimpanan perangkat.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Konten ini sudah diunduh atau sedang diunduh.";
+"En fazla 50 içerik indirilebilir." = "Anda dapat mengunduh hingga 50 konten.";
+"İndirildi" = "Diunduh";
+"Yeniden indir" = "Unduh lagi";
+"İndir" = "Unduh";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Unduh hanya konten yang diizinkan oleh penyedia. Streaming yang dilindungi DRM tidak didukung.";

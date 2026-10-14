@@ -188,6 +188,11 @@ enum PlayerOrientationPolicy {
 }
 
 final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        OfflineDownloadStore.shared.handleBackgroundEvents(identifier: identifier, completionHandler: completionHandler)
+    }
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         let defaults = UserDefaults.standard
         if let identifier = defaults.string(forKey: "notifications.carConnectionReminder.request") {

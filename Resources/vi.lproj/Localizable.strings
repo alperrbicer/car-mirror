@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Không tìm thấy nội dung";
 "Film veya dizi ara" = "Tìm phim hoặc phim bộ";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Không thể xóa mục đã xem. Hãy thử lại.";
+
+"İndirilenler" = "Nội dung đã tải";
+"Çevrimdışı izlemeye hazır" = "Sẵn sàng xem ngoại tuyến";
+"İndirme başarısız" = "Tải xuống thất bại";
+"İndirmeyi iptal et" = "Hủy tải xuống";
+"Henüz indirilen içerik yok" = "Chưa có nội dung tải xuống";
+"İçerik kontrol ediliyor…" = "Đang kiểm tra nội dung…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Chỉ có thể tải phim và loạt phim HLS, MP4, M4V và MOV.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Không thể tải luồng trực tiếp để xem ngoại tuyến.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Không thể tải nội dung này do cơ chế bảo vệ của nhà cung cấp.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Hiện không thể tải nội dung này. Hãy kiểm tra URL luồng.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Không thể lưu nội dung tải xuống. Hãy kiểm tra dung lượng trống.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Nội dung này đã được tải hoặc đang tải.";
+"En fazla 50 içerik indirilebilir." = "Bạn có thể tải tối đa 50 mục.";
+"İndirildi" = "Đã tải";
+"Yeniden indir" = "Tải lại";
+"İndir" = "Tải xuống";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Chỉ tải nội dung mà nhà cung cấp cho phép tải. Không hỗ trợ luồng được bảo vệ bằng DRM.";

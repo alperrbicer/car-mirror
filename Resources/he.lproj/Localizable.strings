@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "לא נמצא תוכן";
 "Film veya dizi ara" = "חיפוש סרטים או סדרות";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "לא ניתן להסיר את רשומת הצפייה. כדאי לנסות שוב.";
+
+"İndirilenler" = "הורדות";
+"Çevrimdışı izlemeye hazır" = "מוכן לצפייה במצב לא מקוון";
+"İndirme başarısız" = "ההורדה נכשלה";
+"İndirmeyi iptal et" = "ביטול ההורדה";
+"Henüz indirilen içerik yok" = "עדיין אין הורדות";
+"İçerik kontrol ediliyor…" = "התוכן נבדק…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "אפשר להוריד רק סרטים וסדרות בפורמט HLS, MP4, M4V או MOV.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "אי אפשר להוריד שידורים חיים לצפייה לא מקוונת.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "אי אפשר להוריד את התוכן בגלל הגנת הספק.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "אי אפשר להוריד את התוכן כרגע. בדוק את כתובת השידור.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "שמירת ההורדה נכשלה. בדוק את שטח האחסון במכשיר.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "התוכן כבר הורד או נמצא בתהליך הורדה.";
+"En fazla 50 içerik indirilebilir." = "אפשר להוריד עד 50 פריטים.";
+"İndirildi" = "הורד";
+"Yeniden indir" = "הורד שוב";
+"İndir" = "הורדה";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "הורד רק תוכן שהספק מתיר להוריד. שידורים המוגנים ב-DRM אינם נתמכים.";

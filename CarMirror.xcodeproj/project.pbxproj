@@ -32,6 +32,7 @@
 		2D11F68A3345D4F7FE977F65 /* GoogleCast in Frameworks */ = {isa = PBXBuildFile; productRef = 26017F0CE09C1ECEF5E57F0F /* GoogleCast */; };
 		2F7F047237A9D0B1BADCE6F9 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDFD08F086D71EF7F89670C /* SampleHandler.swift */; };
 		31CEC2509C36DAFD8E2E6858 /* PlaybackController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD0E1EBF50E2E9AB49A64D3 /* PlaybackController.swift */; };
+		6C09A28A6F7B499887EBA04E /* OfflineDownloads.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E3E635B75D4DA1AFD8D933 /* OfflineDownloads.swift */; };
 		34CD342378EC8881A3372D79 /* PushRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FCE71F0743D7DC9135097E /* PushRegistration.swift */; };
 		368488AED34FCCB443AB3466 /* HLSBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065C0CB1578CC200E9B27345 /* HLSBuffer.swift */; };
 		3F0336C934E7FA3902406B79 /* MirrorStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75317F6BE00DF2DABF380FFF /* MirrorStyle.swift */; };
@@ -245,6 +246,7 @@
 		7F0483BFAB45937B9EABFCE4 /* MediaPlaybackPresentation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaPlaybackPresentation.swift; sourceTree = "<group>"; };
 		81822991F9A562367471798A /* GoogleSansRegular.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; name = GoogleSansRegular.bundle; path = GoogleCast.framework/GoogleSansRegular.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		825FD54AE7D3E782CEE7E792 /* LibraryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		65E3E635B75D4DA1AFD8D933 /* OfflineDownloads.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OfflineDownloads.swift; sourceTree = "<group>"; };
 		85E494CD535EF0727A797A4F /* nl */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = nl; path = Resources/nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		87CBD591BD61B512A78650B2 /* MirrorModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MirrorModel.swift; sourceTree = "<group>"; };
 		87D3EAA2AFB239E65065D973 /* MirivoEntryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MirivoEntryView.swift; sourceTree = "<group>"; };
@@ -445,6 +447,7 @@
 				695D18E78587A62A4C757B0A /* FirebaseServices.swift */,
 				E2FED04070E82A8510991F65 /* LanguageSettingsView.swift */,
 				825FD54AE7D3E782CEE7E792 /* LibraryView.swift */,
+				65E3E635B75D4DA1AFD8D933 /* OfflineDownloads.swift */,
 				F14AE7000EADE05CA59E51FB /* MediaSharingView.swift */,
 				87D3EAA2AFB239E65065D973 /* MirivoEntryView.swift */,
 				1BD138F2771677E0266A634A /* MirivoRootView.swift */,
@@ -798,6 +801,7 @@
 				F9604A7873D6EAA75D75F076 /* PersonalMedia.swift in Sources */,
 				84CFB12C01F50BE21DB57063 /* PersonalMediaServer.swift in Sources */,
 				31CEC2509C36DAFD8E2E6858 /* PlaybackController.swift in Sources */,
+				6C09A28A6F7B499887EBA04E /* OfflineDownloads.swift in Sources */,
 				ADF3D5B7A8ECA6C203110E83 /* ProView.swift in Sources */,
 				ADF6437F69538D8DC0FB6E88 /* PurchaseStore.swift in Sources */,
 				34CD342378EC8881A3372D79 /* PushRegistration.swift in Sources */,

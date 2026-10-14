@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Inget innehåll hittades";
 "Film veya dizi ara" = "Sök filmer eller serier";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Kunde inte ta bort visningsposten. Försök igen.";
+
+"İndirilenler" = "Hämtade";
+"Çevrimdışı izlemeye hazır" = "Redo att visas offline";
+"İndirme başarısız" = "Hämtningen misslyckades";
+"İndirmeyi iptal et" = "Avbryt hämtning";
+"Henüz indirilen içerik yok" = "Inga hämtningar än";
+"İçerik kontrol ediliyor…" = "Kontrollerar innehåll…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Endast HLS-, MP4-, M4V- och MOV-filmer eller serier kan hämtas.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Livesändningar kan inte hämtas för offlinevisning.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Det här innehållet kan inte hämtas på grund av leverantörsskydd.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Det går inte att hämta innehållet just nu. Kontrollera strömadressen.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Det gick inte att spara hämtningen. Kontrollera ledigt utrymme.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Innehållet är redan hämtat eller håller på att hämtas.";
+"En fazla 50 içerik indirilebilir." = "Du kan hämta upp till 50 objekt.";
+"İndirildi" = "Hämtad";
+"Yeniden indir" = "Hämta igen";
+"İndir" = "Hämta";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Hämta endast innehåll som leverantören tillåter att du hämtar. DRM-skyddade strömmar stöds inte.";

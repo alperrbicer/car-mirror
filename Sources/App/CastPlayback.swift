@@ -49,7 +49,7 @@ final class CastPlayback: NSObject, @preconcurrency GCKSessionManagerListener,
         }
     }
 
-    func stop() {
+    func stop(stopRemoteMedia: Bool = true) {
         active = false
         timer?.invalidate(); timer = nil
         requests.values.forEach { $0.delegate = nil }; requests.removeAll()
@@ -57,8 +57,8 @@ final class CastPlayback: NSObject, @preconcurrency GCKSessionManagerListener,
         seekCompletions.removeAll()
         client?.remove(self)
         // Another sender may have replaced our media. Never stop its new item.
-        if let status = client?.mediaStatus, status.mediaInformation?.contentID == contentID,
-           mediaSessionID == nil || mediaSessionID == status.mediaSessionID { client?.stop() }
+        if stopRemoteMedia, let status = client?.mediaStatus, status.mediaInformation?.contentID == contentID,
+           (mediaSessionID == nil || mediaSessionID == status.mediaSessionID) { client?.stop() }
         client = nil
         load = nil; loaded = false; loadCompleted = false; loadRequestID = nil; mediaSessionID = nil
         manager.remove(self)

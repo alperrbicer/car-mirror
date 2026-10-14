@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Вміст не знайдено";
 "Film veya dizi ara" = "Пошук фільмів або серіалів";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Не вдалося видалити запис перегляду. Спробуй ще раз.";
+
+"İndirilenler" = "Завантаження";
+"Çevrimdışı izlemeye hazır" = "Готово до перегляду офлайн";
+"İndirme başarısız" = "Не вдалося завантажити";
+"İndirmeyi iptal et" = "Скасувати завантаження";
+"Henüz indirilen içerik yok" = "Завантажень ще немає";
+"İçerik kontrol ediliyor…" = "Перевірка вмісту…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Можна завантажувати лише фільми й серіали HLS, MP4, M4V та MOV.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Прямі трансляції не можна завантажити для перегляду офлайн.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Цей вміст неможливо завантажити через захист постачальника.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Зараз не вдається завантажити вміст. Перевірте URL трансляції.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Не вдалося зберегти завантаження. Перевірте вільне місце.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Цей вміст уже завантажено або завантажується.";
+"En fazla 50 içerik indirilebilir." = "Можна завантажити до 50 елементів.";
+"İndirildi" = "Завантажено";
+"Yeniden indir" = "Завантажити ще раз";
+"İndir" = "Завантажити";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Завантажуйте лише вміст, який постачальник дозволяє завантажувати. Потоки із захистом DRM не підтримуються.";

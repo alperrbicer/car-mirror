@@ -409,9 +409,13 @@ final class PlaybackController: ObservableObject {
               requiresExternalPlayback: Bool = true, title: String? = nil, live: Bool = true,
               presentation: MediaPlaybackPresentation = .video, useCompatibility: Bool = false,
               startAt: Double = 0, startPaused: Bool = false) throws {
+        // A Cast load replaces the receiver's current media by itself. Sending
+        // STOP first adds an avoidable round trip and makes channel changes
+        // visibly stall on the TV.
+        let replacingCastMedia = tvDevice != nil && casting != nil && !url.isFileURL
         let resumePiPAfterReplacement = presentation == .video && pictureInPictureActiveOrStarting && tvDevice == nil &&
             !externalPlaybackActive && !externalDisplayConnected
-        stop()
+        stop(stopRemoteCastMedia: !replacingCastMedia)
         pendingAutomaticPiP = resumePiPAfterReplacement
         let attemptID = playbackID
         request = Request(url: url, preserveSourceAudio: preserveSourceAudio, muted: muted,
@@ -423,17 +427,6 @@ final class PlaybackController: ObservableObject {
         requestedLive = live
         isLive = live
         errorMessage = nil
-        // Mixing avoids deliberately taking over the source application's audio.
-        let session = AVAudioSession.sharedInstance()
-        if presentation == .audio {
-            try session.setCategory(.playback, mode: .default, policy: .longFormAudio, options: [])
-        } else if preserveSourceAudio {
-            try session.setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
-        } else {
-            try session.setCategory(.playback, mode: .moviePlayback, policy: .longFormVideo, options: [])
-        }
-        try session.setActive(true)
-        activatedAudioSession = true
         waitingForExternalPlayback = requiresExternalPlayback && presentation == .video && tvDevice == nil
         player.isMuted = muted
         player.allowsExternalPlayback = presentation == .video
@@ -498,6 +491,19 @@ final class PlaybackController: ObservableObject {
             }
             return
         }
+        // The Cast receiver handles playback audio. Avoid synchronously
+        // reconfiguring the phone's audio session during remote channel swaps.
+        // Mixing avoids deliberately taking over the source application's audio.
+        let session = AVAudioSession.sharedInstance()
+        if presentation == .audio {
+            try session.setCategory(.playback, mode: .default, policy: .longFormAudio, options: [])
+        } else if preserveSourceAudio {
+            try session.setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
+        } else {
+            try session.setCategory(.playback, mode: .moviePlayback, policy: .longFormVideo, options: [])
+        }
+        try session.setActive(true)
+        activatedAudioSession = true
         if useCompatibility {
             let engine = CompatibilityPlayback()
             compatibility = engine
@@ -623,7 +629,7 @@ final class PlaybackController: ObservableObject {
         }
     }
 
-    func stop() {
+    func stop(stopRemoteCastMedia: Bool = true) {
         playbackID = UUID()
         foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
         let previousNativeController = retainedPiPController as? NativeVideoController
@@ -651,7 +657,7 @@ final class PlaybackController: ObservableObject {
         if let timeObserver { player.removeTimeObserver(timeObserver); self.timeObserver = nil }
         durationObservation = nil
         pendingSeek = nil
-        casting?.stop(); casting = nil
+        casting?.stop(stopRemoteMedia: stopRemoteCastMedia); casting = nil
         let previousCompatibility = compatibility
         compatibility = nil
         previousCompatibility?.stop()

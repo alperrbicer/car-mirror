@@ -18,6 +18,11 @@ final class MirrorModel: ObservableObject {
     @Published var presentingPlayer = false
     @Published private(set) var playerScreenVisible = false
     @Published private(set) var playbackQueue: [MediaChannel] = []
+    var playbackSourceID: UUID? { mediaSourceID }
+    var playbackSource: MediaSource? {
+        guard let mediaSourceID else { return nil }
+        return SourceLibrary.shared.sources.first { $0.id == mediaSourceID }
+    }
     private var advancesQueue = false
     @Published private(set) var dailyRemaining: TimeInterval = DailyViewingBudget.limit
     private var viewingBudget = (UserDefaults.standard.data(forKey: "dailyViewingBudget").flatMap { try? JSONDecoder().decode(DailyViewingBudget.self, from: $0) }) ?? DailyViewingBudget(now: Date())
@@ -248,8 +253,9 @@ final class MirrorModel: ObservableObject {
             // Selecting the already-playing channel from a category must still
             // replace the playlist queue with that category's filtered items.
             let nextQueue = queue ?? playbackQueue
-            let releasedFiles = playbackQueue.filter { previous in !nextQueue.contains(where: { $0.id == previous.id }) }.map(\.url)
-            PersonalMediaFiles.remove(releasedFiles)
+            if sourceID == nil || sourceID != mediaSourceID {
+                removeReleasedPersonalMedia(from: playbackQueue, keeping: nextQueue)
+            }
             playbackQueue = nextQueue
             if queue != nil { advancesQueue = advanceAutomatically }
             if let sourceID { mediaSourceID = sourceID }
@@ -257,11 +263,23 @@ final class MirrorModel: ObservableObject {
         }
         let nextQueue = queue ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? playbackQueue : [channel])
         let nextSourceID = sourceID ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? mediaSourceID : nil)
-        let releasedFiles = playbackQueue.filter { previous in !nextQueue.contains(where: { $0.id == previous.id }) }.map(\.url)
+        // IPTV channel selection keeps the same source queue. Personal-media
+        // cleanup only matters when leaving a local-media queue or changing
+        // between unscoped personal-media queues.
+        if sourceID == nil || sourceID != mediaSourceID {
+            removeReleasedPersonalMedia(from: playbackQueue, keeping: nextQueue)
+        }
         let shouldAdvance = queue != nil ? advanceAutomatically : (playbackQueue.contains(where: { $0.id == channel.id }) && advancesQueue)
         let keepPlayerPresented = presentingPlayer
-        stopBroadcast()
-        PersonalMediaFiles.remove(releasedFiles)
+        if playback.tvDevice != nil && playback.hasActivePlayback {
+            // Keep the Cast receiver loaded until PlaybackController submits
+            // the replacement media; stopping playback here forces an extra
+            // STOP/load round trip for every channel selection.
+            stopProbe()
+            stopBroadcastCapture()
+        } else {
+            stopBroadcast()
+        }
         presentingPlayer = keepPlayerPresented
         playbackQueue = nextQueue
         advancesQueue = shouldAdvance
@@ -287,11 +305,37 @@ final class MirrorModel: ObservableObject {
         }
     }
 
+    private func removeReleasedPersonalMedia(from previousQueue: [MediaChannel], keeping nextQueue: [MediaChannel]) {
+        // Channel changes normally keep the same source queue. Detect that in
+        // one linear pass; only build a lookup set when the queue actually
+        // changes. Avoid the former nested `contains` scan on large playlists.
+        if previousQueue.count == nextQueue.count,
+           zip(previousQueue, nextQueue).allSatisfy({ $0.0.id == $0.1.id }) { return }
+        let retainedIDs = Set(nextQueue.map(\.id))
+        let releasedFiles = previousQueue.compactMap { retainedIDs.contains($0.id) ? nil : $0.url }
+        if !releasedFiles.isEmpty { PersonalMediaFiles.remove(releasedFiles) }
+    }
+
     func adjacentChannel(_ offset: Int) -> MediaChannel? {
         guard let current = selectedMediaChannel,
               let index = playbackQueue.firstIndex(where: { $0.id == current.id }),
               playbackQueue.indices.contains(index + offset) else { return nil }
         return playbackQueue[index + offset]
+    }
+    func restorePlaybackQueueFromSource() async {
+        guard let sourceID = mediaSourceID, let selectedMediaChannel,
+              let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) else { return }
+        let selectedChannelID = selectedMediaChannel.id
+        let channels: [MediaChannel]
+        if let cached = SourceLibrary.shared.cachedChannels(for: source) {
+            channels = cached
+        } else {
+            do { channels = try await SourceLibrary.shared.channels(for: source) }
+            catch { return }
+        }
+        guard mediaSourceID == sourceID, self.selectedMediaChannel?.id == selectedChannelID,
+              channels.contains(where: { $0.id == selectedChannelID }) else { return }
+        playbackQueue = channels
     }
     func switchChannel(_ offset: Int) {
         guard let channel = adjacentChannel(offset) else { return }
@@ -400,6 +444,10 @@ final class MirrorModel: ObservableObject {
     func stopBroadcast() {
         stopProbe()
         stopPlayback()
+        stopBroadcastCapture()
+    }
+
+    private func stopBroadcastCapture() {
         guard let capture, broadcasting else { updateSessionState(); return }
         do {
             try store?.requestStop(sessionID: capture.sessionID)

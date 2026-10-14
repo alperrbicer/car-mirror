@@ -86,10 +86,12 @@ struct CarMirrorApp: App {
                             await NotificationStore.shared.refresh()
                         }
                     } else if phase == .background, model.playback.tvDevice != nil {
-                        // Stop receiver playback when Mirivo leaves the active
-                        // app. iOS may not deliver a termination callback if
-                        // the user later force-quits the suspended process.
+                        // Send an explicit Cast session stop before iOS can
+                        // suspend or terminate the sender. Stopping only the
+                        // local playback controller can leave the receiver
+                        // playing independently.
                         model.stopPlayback()
+                        model.disconnectTV()
                     }
                 }
         }

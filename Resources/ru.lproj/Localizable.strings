@@ -303,3 +303,22 @@
 "İçerik bulunamadı" = "Контент не найден";
 "Film veya dizi ara" = "Поиск фильмов или сериалов";
 "İzleme kaydı kaldırılamadı. Yeniden dene." = "Не удалось удалить запись просмотра. Попробуй ещё раз.";
+
+"İndirilenler" = "Загрузки";
+"Çevrimdışı izlemeye hazır" = "Готово для просмотра офлайн";
+"İndirme başarısız" = "Не удалось загрузить";
+"İndirmeyi iptal et" = "Отменить загрузку";
+"Henüz indirilen içerik yok" = "Загрузок пока нет";
+"İçerik kontrol ediliyor…" = "Проверка содержимого…";
+"Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Можно загружать только фильмы и сериалы HLS, MP4, M4V и MOV.";
+"Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Прямые трансляции нельзя загрузить для просмотра офлайн.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "Это содержимое нельзя загрузить из-за защиты провайдера.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "Сейчас не удаётся загрузить содержимое. Проверьте URL трансляции.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Не удалось сохранить загрузку. Проверьте свободное место.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "Это содержимое уже загружено или загружается.";
+"En fazla 50 içerik indirilebilir." = "Можно загрузить не более 50 элементов.";
+"İndirildi" = "Загружено";
+"Yeniden indir" = "Загрузить снова";
+"İndir" = "Загрузить";
+
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Загружайте только материалы, которые провайдер разрешает скачивать. Потоки с защитой DRM не поддерживаются.";
