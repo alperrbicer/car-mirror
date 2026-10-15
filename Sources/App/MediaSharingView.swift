@@ -22,23 +22,37 @@ struct MediaSharingView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            MirivoSectionLabel(title: L10n.tr("Ne paylaşmak istersin?"))
+            Text(L10n.tr("Ne paylaşmak istersin?"))
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
             LazyVGrid(columns: columns, spacing: 12) {
                 PhotosPicker(selection: $photos, maxSelectionCount: PhotoSlideshow.maximumPhotos,
                              selectionBehavior: .ordered, matching: .images, preferredItemEncoding: .current) {
-                    tile("Fotoğraflar", detail: "Slayt gösterisi", symbol: "photo.stack", color: MirrorStyle.accent)
+                    mediaCard("Fotoğraflar", detail: "Slayt gösterisi", artwork: .photos, color: MirrorStyle.accent)
                 }.accessibilityIdentifier("share-photos")
                 PhotosPicker(selection: $video, matching: .videos, preferredItemEncoding: .current) {
-                    tile("Videolar", detail: "Fotoğraf arşivinden", symbol: "play.rectangle", color: Color(red: 0.67, green: 0.74, blue: 1))
+                    mediaCard("Videolar", detail: "Fotoğraf arşivinden", artwork: .video, color: Color(red: 0.62, green: 0.75, blue: 1))
                 }.accessibilityIdentifier("share-videos")
+            }
+            .buttonStyle(MirivoPressButtonStyle()).disabled(loading)
+            VStack(spacing: 0) {
                 Button { pickingFiles = true } label: {
-                    tile("Müzik ve dosyalar", detail: "iPhone veya iCloud Drive", symbol: "music.note.list", color: Color(red: 1, green: 0.78, blue: 0.55))
+                    actionRow("Müzik ve dosyalar", detail: "iPhone veya iCloud Drive", symbol: "waveform",
+                              color: Color(red: 1, green: 0.77, blue: 0.53))
                 }.accessibilityIdentifier("share-files")
+                Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5)
+                    .padding(.leading, 72).padding(.trailing, 18)
+                    .accessibilityHidden(true)
                 Button { openingLink = true } label: {
-                    tile("Bağlantı aç", detail: "Kaydetmeden oynat", symbol: "link", color: Color(red: 0.75, green: 0.67, blue: 1))
+                    actionRow("Bağlantı aç", detail: "Kaydetmeden oynat", symbol: "link",
+                              color: Color(red: 0.76, green: 0.7, blue: 1))
                 }.accessibilityIdentifier("share-link")
             }
-            .buttonStyle(.plain).disabled(loading)
+            .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 24))
+            .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(.white.opacity(0.055)) }
+            .buttonStyle(MirivoPressButtonStyle()).disabled(loading)
             if loading {
                 HStack(spacing: 12) {
                     ProgressView()
@@ -75,26 +89,60 @@ struct MediaSharingView: View {
         .onDisappear { importTask?.cancel(); importTask = nil; loading = false }
     }
 
-    private func tile(_ title: String, detail: String, symbol: String, color: Color) -> some View {
+    private func mediaCard(_ title: String, detail: String, artwork: MediaSharingArtwork.Kind, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack {
-                Image(systemName: symbol).font(.system(size: 24, weight: .medium)).foregroundStyle(color)
-                    .frame(width: 48, height: 48)
-                    .background(color.opacity(0.09), in: RoundedRectangle(cornerRadius: 15))
-                Spacer(minLength: 0)
-                Image(systemName: "arrow.up.right").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
-                    .accessibilityHidden(true)
+            MediaSharingArtwork(kind: artwork, color: color)
+                .frame(height: 76)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(L10n.tr(title)).font(.headline.weight(.semibold)).foregroundStyle(.white)
+                Text(L10n.tr(detail)).font(.caption).foregroundStyle(.white.opacity(0.62))
             }
-            VStack(alignment: .leading, spacing: 6) {
-                Text(L10n.tr(title)).font(.headline).foregroundStyle(.white)
-                Text(L10n.tr(detail)).font(.caption).foregroundStyle(MirrorStyle.secondary)
-            }.fixedSize(horizontal: false, vertical: true)
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(18).frame(maxWidth: .infinity, minHeight: 190, alignment: .topLeading)
-        .background(LinearGradient(colors: [color.opacity(0.045), MirrorStyle.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
-                    in: RoundedRectangle(cornerRadius: 24))
-        .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(color.opacity(0.13)) }
+        .padding(18)
+        .frame(maxWidth: .infinity, minHeight: 174, alignment: .topLeading)
+        .background {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(MirrorStyle.surface)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(LinearGradient(colors: [color.opacity(0.13), color.opacity(0.015)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+                }
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 24)
+                .strokeBorder(LinearGradient(colors: [.white.opacity(0.13), .white.opacity(0.025)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
         .contentShape(RoundedRectangle(cornerRadius: 24))
+        .accessibilityElement(children: .combine)
+    }
+
+    private func actionRow(_ title: String, detail: String, symbol: String, color: Color) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: symbol)
+                .font(.system(size: 23, weight: .medium))
+                .foregroundStyle(color)
+                .frame(width: 40, height: 44)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L10n.tr(title)).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                Text(L10n.tr(detail)).font(.caption).foregroundStyle(MirrorStyle.secondary)
+            }
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.forward")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.3))
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, 18).padding(.vertical, 14)
+        .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
     }
 
@@ -175,6 +223,67 @@ struct MediaSharingView: View {
     private func play(_ channels: [MediaChannel]) {
         guard let first = channels.first else { return }
         if model.playMedia(first, queue: channels, advanceAutomatically: true) { showingPlayer = true }
+    }
+}
+
+/// Small vector compositions keep the media choices distinct without using personal thumbnails.
+private struct MediaSharingArtwork: View {
+    enum Kind { case photos, video }
+    let kind: Kind
+    let color: Color
+
+    var body: some View {
+        ZStack {
+            switch kind {
+            case .photos:
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(color.opacity(0.16))
+                    .overlay { RoundedRectangle(cornerRadius: 10).strokeBorder(color.opacity(0.28)) }
+                    .frame(width: 66, height: 50)
+                    .rotationEffect(.degrees(-13))
+                    .offset(x: -10, y: -5)
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(LinearGradient(colors: [Color(red: 0.8, green: 1, blue: 0.92), color],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .overlay {
+                        Image(systemName: "photo.fill")
+                            .font(.system(size: 38, weight: .regular))
+                            .foregroundStyle(Color(red: 0.08, green: 0.33, blue: 0.28))
+                    }
+                    .frame(width: 70, height: 54)
+                    .shadow(color: .black.opacity(0.22), radius: 8, y: 5)
+                    .rotationEffect(.degrees(7))
+                    .offset(x: 5, y: 5)
+            case .video:
+                RoundedRectangle(cornerRadius: 13)
+                    .fill(LinearGradient(colors: [color.opacity(0.5), color.opacity(0.12)],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .overlay { RoundedRectangle(cornerRadius: 13).strokeBorder(color.opacity(0.45)) }
+                    .overlay(alignment: .bottomLeading) {
+                        HStack(spacing: 3) {
+                            Capsule().fill(color.opacity(0.9)).frame(width: 19, height: 3)
+                            Capsule().fill(color.opacity(0.2)).frame(width: 25, height: 3)
+                        }.padding(10)
+                    }
+                    .frame(width: 82, height: 56)
+                    .rotationEffect(.degrees(-8))
+                    .offset(x: -3, y: -2)
+                Circle()
+                    .fill(LinearGradient(colors: [Color(red: 0.87, green: 0.92, blue: 1), color],
+                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .overlay {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(Color(red: 0.15, green: 0.24, blue: 0.42))
+                            .offset(x: 2)
+                    }
+                    .frame(width: 44, height: 44)
+                    .shadow(color: .black.opacity(0.24), radius: 8, y: 5)
+                    .offset(x: 15, y: 7)
+            }
+        }
+        .frame(width: 100, height: 76)
+        .accessibilityHidden(true)
     }
 }
 

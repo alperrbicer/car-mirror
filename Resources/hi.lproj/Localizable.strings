@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "सदस्यता प्रबंधित करें";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "App Store से कनेक्ट नहीं हो पाया। फिर कोशिश करें।";
-"Büyük kontroller" = "बड़े नियंत्रण";
+"Araç modu" = "कार मोड";
 "Ayarlar" = "सेटिंग्स";
 "Açık" = "कनेक्ट है";
 "Bağlantı testi" = "कनेक्शन टेस्ट";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "सामान्य दृश्य पर लौटने के लिए उंगलियाँ पास लाएँ";
 "Hareket tanıtımını yeniden göster" = "जेस्चर परिचय फिर दिखाएँ";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "प्लेयर में आवाज़, चमक और स्क्रीन के जेस्चर फिर दिखाएँ।";
+
+"Araç video desteği" = "कार में वीडियो की सुविधा";
+"CarPlay bağlı" = "CarPlay कनेक्ट है";
+"CarPlay sahnesi" = "CarPlay स्क्रीन";
+"CarPlay video testini başlat" = "CarPlay वीडियो टेस्ट शुरू करें";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlay से कनेक्ट करें और कार की स्क्रीन पर ऐप खोलें।";
+"Araç bağlantısında hatırlat" = "कार से कनेक्ट होने पर याद दिलाएँ";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "नया CarPlay सत्र मिलने पर फ़ोन पर एक बार याद दिलाता है। कार कनेक्शन की जानकारी सर्वर पर नहीं भेजी जाती।";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay वीडियो समर्थित वाहनों में पार्क किए जाने पर उपलब्ध है।";
+
+"AirPlay ekranı" = "AirPlay स्क्रीन";
+"AirPlay hedefini değiştir" = "AirPlay का गंतव्य बदलें";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "AirPlay का गंतव्य बदलने या iPhone पर वापस जाने के लिए नीचे दिए गए सिस्टम मेनू का उपयोग करें।";
+"Bağlı" = "कनेक्ट है";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "आज का मुफ़्त देखने का समय रीसेट कर दिया गया है। आज आप 2 घंटे तक देख सकते हैं।";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "आज का मुफ़्त देखने का समय रीसेट करें?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "स्क्रीन मिररिंग बंद करने के लिए iOS कंट्रोल सेंटर में स्क्रीन मिररिंग खोलें और कनेक्शन बंद करें।";
+"Oynatma durduruldu, TV bağlantısı açık" = "प्लेबैक रुक गया है; टीवी अभी भी कनेक्ट है";
+"TV bağlantısı açık" = "टीवी कनेक्ट है";
+"TV bağlantısını kes" = "टीवी से कनेक्शन बंद करें";
+"TV’den ayrıl" = "टीवी से डिस्कनेक्ट करें";
+"Video seçenekleri" = "वीडियो विकल्प";
+"Sıfırla" = "रीसेट करें";
+"İptal" = "रद्द करें";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "जेस्चर परिचय रीसेट कर दिया गया है। अगली बार लैंडस्केप फ़ुल स्क्रीन खोलने पर यह दिखाई देगा।";
+"İndiriliyor" = "डाउनलोड हो रहा है";
+"Kontrol" = "जाँच हो रही है";
+"Başarısız" = "विफल";
+"İndirme başarısız. Yeniden dene." = "डाउनलोड विफल रहा। फिर से कोशिश करें।";
+"Bu film/dizi biçimi indirilemiyor." = "इस फ़िल्म या सीरीज़ के फ़ॉर्मैट को डाउनलोड नहीं किया जा सकता।";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "प्रदाता ने डाउनलोड अनुरोध अस्वीकार कर दिया (HTTP %d)। अपने लॉगिन या डाउनलोड अनुमति की जाँच करें।";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "प्रदाता ने डाउनलोड अनुरोध के लिए HTTP %d लौटाया।";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "यह वाहन CarPlay वीडियो प्लेबैक का समर्थन नहीं करता।";
+"Tam ekrandan çık" = "फ़ुल स्क्रीन से बाहर निकलें";
+
+// Display connection status and disconnection
+"Harici ekran" = "बाहरी डिस्प्ले";
+"Araç ekranında oynatılıyor" = "कार के डिस्प्ले पर चल रहा है";
+"Harici ekranda oynatılıyor" = "बाहरी डिस्प्ले पर चल रहा है";
+"Bağlantıyı kesme adımları" = "कनेक्शन कैसे हटाएँ";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "वायर्ड CarPlay के लिए USB केबल निकालें। वायरलेस CarPlay के लिए कार के डिस्प्ले से कनेक्शन हटाएँ। अगर आप CarPlay Simulator का उपयोग करते हैं, तो सिम्युलेटर में कनेक्शन समाप्त करें।";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "AirPlay के लिए कंट्रोल सेंटर → स्क्रीन मिररिंग → मिररिंग रोकें पर जाएँ। वायर्ड डिस्प्ले के लिए HDMI/USB एडैप्टर निकालें।";
+
+"%d içerik" = "%d सामग्री";
+"Kategoriler" = "श्रेणियाँ";
+"Canlı yayın" = "लाइव";
+"Video" = "वीडियो";
+"İçerik hakkında" = "इस सामग्री के बारे में";
+"Daha az göster" = "कम दिखाएँ";
+"Devamını oku" = "आगे पढ़ें";
+"İçerik bilgileri yükleniyor…" = "सामग्री की जानकारी लोड हो रही है…";
+"Bu içerik için açıklama paylaşılmamış." = "इस सामग्री का विवरण उपलब्ध नहीं है।";
+"Tür" = "शैली";
+"Yönetmen" = "निर्देशक";
+"Oyuncular" = "कलाकार";
+"%d dk" = "%d मिनट";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "डिस्प्ले कनेक्शन";
+"Ekran bağlantısı" = "डिस्प्ले कनेक्शन";
+"Ekrana bağlan" = "डिस्प्ले से कनेक्ट करें";
+"Bağlı: %@" = "कनेक्ट किया गया: %@";
+"AirPlay ile oynatılıyor" = "AirPlay के ज़रिए चल रहा है";
+"Başka bir ekrana bağlan" = "किसी अन्य डिस्प्ले से कनेक्ट करें";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "%@ से कनेक्ट नहीं हो सका। अपना कनेक्शन जाँचें और फिर से प्रयास करें।";
+
+// Series library
+"Özel bölümler" = "विशेष एपिसोड";
+"%d. sezon" = "सीज़न %d";
+"%d. bölüm" = "एपिसोड %d";
+"%d sezon" = "%d सीज़न";
+"%d bölüm" = "%d एपिसोड";
+"%d dizi" = "%d सीरीज़";
+"Diğer içerikler" = "अन्य सामग्री";
+"Bölüm ara" = "एपिसोड खोजें";
+"Dizi ara" = "सीरीज़ खोजें";
+"Bu içerik için açıklama bulunamadı." = "इस सामग्री का विवरण नहीं मिला।";
+"İçerik bilgileri yüklenemedi." = "सामग्री की जानकारी लोड नहीं हो सकी।";

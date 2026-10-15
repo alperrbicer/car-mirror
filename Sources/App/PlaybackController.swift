@@ -34,6 +34,25 @@ final class PlaybackController: ObservableObject {
     private var nativeResumePosition: Double?
     private var restoringCompatibilityPosition = false
     @Published var externalDisplayConnected = false
+    @Published private(set) var carPlayConnected = false
+    @Published private(set) var externalTVDisplayConnected = false
+    @Published private(set) var airPlayName = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }?.portName
+    var displayConnection: DisplayConnection {
+        DisplayConnection(routes: ConnectedDisplayRoute.resolve(cast: tvDevice != nil, carPlay: carPlayConnected,
+            externalDisplay: externalTVDisplayConnected || (externalDisplayConnected && !carPlayConnected),
+            externalPlayback: externalPlaybackActive, airPlayAudio: airPlayName != nil),
+            castName: tvName, airPlayName: airPlayName)
+    }
+    var hasRemoteVideoOutput: Bool { tvDevice != nil || externalDisplayConnected || externalPlaybackActive }
+
+    func displayPlaybackStatus(for route: ConnectedDisplayRoute? = nil) -> String {
+        displayConnection.playbackStatus(hasRemoteVideoOutput ? state : .idle, for: route)
+    }
+
+    func updateConnectedDisplays(carPlay: Bool, externalTV: Bool) {
+        carPlayConnected = carPlay
+        externalTVDisplayConnected = externalTV
+    }
     private var pauseOnStart = false
     @Published private(set) var currentTime: Double = 0
     @Published private(set) var duration: Double = 0
@@ -58,8 +77,8 @@ final class PlaybackController: ObservableObject {
     weak var nativePiP: AVPictureInPictureController?
     private(set) var playbackID = UUID()
     private(set) var pendingAutomaticPiP = false
-    private var startingPiP = false
-    private var stoppingPiP = false
+    @Published private var startingPiP = false
+    @Published private var stoppingPiP = false
     private var enteredBackgroundWithVideo = false
     private var restorePiPOnStart = false
     private var foregroundPiPRestoreID: UUID?
@@ -68,32 +87,48 @@ final class PlaybackController: ObservableObject {
         (retainedPiPController as? NativeVideoController)?.pip ?? nativePiP
     }
     private var pictureInPictureActiveOrStarting: Bool {
-        compatibility?.pipActive == true || compatibility?.pipStarting == true ||
-        currentNativePiP?.isPictureInPictureActive == true ||
-        (retainedPiPController as? NativeVideoController)?.startingPiP == true
+        if let compatibility { return compatibility.pipActive || compatibility.pipStarting }
+        return currentNativePiP?.isPictureInPictureActive == true ||
+            (retainedPiPController as? NativeVideoController)?.startingPiP == true
     }
     var canStartPictureInPicture: Bool {
-        hasActivePlayback && request?.presentation == .video && tvDevice == nil && !externalPlaybackActive && !externalDisplayConnected &&
-        (compatibility?.pipPossible == true || (currentNativePiP?.isPictureInPicturePossible == true &&
-        (currentNativePiP?.delegate as? NativeVideoController)?.stoppingForPlaybackReplacement != true))
+        guard hasActivePlayback, request?.presentation == .video, tvDevice == nil,
+              !externalPlaybackActive, !externalDisplayConnected,
+              !startingPiP, !stoppingPiP, !pictureInPictureActiveOrStarting else { return false }
+        // Only the decoder currently rendering the video can supply its PiP source.
+        if let compatibility { return compatibility.pipPossible }
+        return currentNativePiP?.isPictureInPicturePossible == true &&
+            (currentNativePiP?.delegate as? NativeVideoController)?.stoppingForPlaybackReplacement != true
+    }
+    func pictureInPictureAvailabilityChanged() {
+        // AVKit readiness isn't a @Published property. Notify the controls even
+        // when playback is paused and no timeline update will redraw them.
+        objectWillChange.send()
+        startPendingPictureInPicture()
+    }
+    func nativePictureInPictureAvailabilityChanged(_ controller: AVPictureInPictureController) {
+        guard compatibility == nil, currentNativePiP === controller else { return }
+        pictureInPictureAvailabilityChanged()
     }
     func startPictureInPicture() {
         // A request during the return animation is rejected by AVKit. Do not
         // latch startingPiP for a request that was never sent.
-        guard canStartPictureInPicture, !stoppingPiP else { return }
+        guard !stoppingPiP else { return }
+        // An automatic background request can arrive while PiP is already
+        // running. Consume it without launching again or leaving it pending.
+        let alreadyActive = compatibility.map { $0.pipActive } ?? (currentNativePiP?.isPictureInPictureActive == true)
+        if alreadyActive {
+            pictureInPictureStarted()
+            return
+        }
+        guard canStartPictureInPicture else { return }
         if let compatibility {
-            if compatibility.pipActive { pictureInPictureStarted() }
-            else if !startingPiP {
-                startingPiP = true
-                if !compatibility.startPictureInPicture() { startingPiP = false }
-            }
+            startingPiP = true
+            if !compatibility.startPictureInPicture() { startingPiP = false }
         } else if let pip = currentNativePiP {
-            if pip.isPictureInPictureActive || (retainedPiPController as? NativeVideoController)?.startingPiP == true { pictureInPictureStarted() }
-            else if !startingPiP {
-                startingPiP = true
-                (pip.delegate as? NativeVideoController)?.preparePictureInPictureRequest()
-                pip.startPictureInPicture()
-            }
+            startingPiP = true
+            (pip.delegate as? NativeVideoController)?.preparePictureInPictureRequest()
+            pip.startPictureInPicture()
         }
     }
     func startPendingPictureInPicture() {
@@ -515,7 +550,7 @@ final class PlaybackController: ObservableObject {
             }
             engine.onPiPReady = { [weak self, weak engine] in
                 guard let self, self.compatibility === engine else { return }
-                self.startPendingPictureInPicture()
+                self.pictureInPictureAvailabilityChanged()
             }
             engine.onPiPStarted = { [weak self, weak engine] in
                 guard let self, self.compatibility === engine else { return }
@@ -625,7 +660,7 @@ final class PlaybackController: ObservableObject {
             do { try await Task.sleep(for: .seconds(30)) } catch { return }
             guard let self, let item, self.player.currentItem === item,
                   (requiresExternalPlayback && presentation == .video ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
-            self.fail(L10n.tr(requiresExternalPlayback && presentation == .video ? "TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
+            self.fail(requiresExternalPlayback && presentation == .video ? self.displayConnection.failureMessage : L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
         }
     }
 
@@ -892,6 +927,7 @@ final class PlaybackController: ObservableObject {
     }
 
     private func recordAudioRoute() {
+        airPlayName = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }?.portName
         var values = DiagnosticValues()
         values.audioRoutes = AVAudioSession.sharedInstance().currentRoute.outputs.map {
             switch $0.portType {

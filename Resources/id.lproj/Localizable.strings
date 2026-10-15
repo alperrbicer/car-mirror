@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Kelola langganan";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Tidak dapat terhubung ke App Store. Coba lagi.";
-"Büyük kontroller" = "Kontrol besar";
+"Araç modu" = "Mode mobil";
 "Ayarlar" = "Pengaturan";
 "Açık" = "Terhubung";
 "Bağlantı testi" = "Tes koneksi";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Cubit masuk untuk kembali ke tampilan normal";
 "Hareket tanıtımını yeniden göster" = "Tampilkan panduan gestur lagi";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Tampilkan lagi gestur volume, kecerahan, dan layar di pemutar.";
+
+"Araç video desteği" = "Dukungan video mobil";
+"CarPlay bağlı" = "CarPlay terhubung";
+"CarPlay sahnesi" = "Tampilan CarPlay";
+"CarPlay video testini başlat" = "Mulai tes video CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Hubungkan ke CarPlay dan buka aplikasi di layar mobil.";
+"Araç bağlantısında hatırlat" = "Ingatkan saat terhubung ke mobil";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Mengirim satu pengingat di ponsel saat sesi CarPlay baru terdeteksi. Informasi koneksi mobil tidak dikirim ke server.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Video CarPlay tersedia di kendaraan yang didukung saat diparkir.";
+
+"AirPlay ekranı" = "Layar AirPlay";
+"AirPlay hedefini değiştir" = "Ubah tujuan AirPlay";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Gunakan menu sistem di bawah untuk mengubah tujuan AirPlay atau kembali ke iPhone.";
+"Bağlı" = "Terhubung";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Waktu menonton gratis hari ini telah direset. Anda dapat menonton hingga 2 jam hari ini.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Reset waktu menonton gratis hari ini?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Untuk menghentikan pencerminan layar, buka Pencerminan Layar di Pusat Kontrol iOS dan putuskan koneksi.";
+"Oynatma durduruldu, TV bağlantısı açık" = "Pemutaran dihentikan; TV tetap terhubung";
+"TV bağlantısı açık" = "TV terhubung";
+"TV bağlantısını kes" = "Putuskan koneksi TV";
+"TV’den ayrıl" = "Keluar dari TV";
+"Video seçenekleri" = "Opsi video";
+"Sıfırla" = "Reset";
+"İptal" = "Batal";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Panduan gestur telah direset. Panduan akan muncul saat Anda membuka layar penuh dalam posisi lanskap lagi.";
+"İndiriliyor" = "Mengunduh";
+"Kontrol" = "Memeriksa";
+"Başarısız" = "Gagal";
+"İndirme başarısız. Yeniden dene." = "Unduhan gagal. Coba lagi.";
+"Bu film/dizi biçimi indirilemiyor." = "Format film atau serial ini tidak dapat diunduh.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "Penyedia menolak permintaan unduhan (HTTP %d). Periksa login atau izin unduhan Anda.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "Penyedia merespons permintaan unduhan dengan HTTP %d.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "Kendaraan ini tidak mendukung pemutaran video CarPlay.";
+"Tam ekrandan çık" = "Keluar dari layar penuh";
+
+// Display connection status and disconnection
+"Harici ekran" = "Layar eksternal";
+"Araç ekranında oynatılıyor" = "Diputar di layar mobil";
+"Harici ekranda oynatılıyor" = "Diputar di layar eksternal";
+"Bağlantıyı kesme adımları" = "Cara memutuskan koneksi";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "Untuk CarPlay berkabel, cabut kabel USB. Untuk CarPlay nirkabel, putuskan koneksi dari layar mobil. Jika menggunakan CarPlay Simulator, akhiri koneksi di simulator.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "Untuk AirPlay, buka Pusat Kontrol → Pencerminan Layar → Hentikan Pencerminan. Untuk layar berkabel, cabut adaptor HDMI/USB.";
+
+"%d içerik" = "%d konten";
+"Kategoriler" = "Kategori";
+"Canlı yayın" = "Siaran langsung";
+"Video" = "Video";
+"İçerik hakkında" = "Tentang konten ini";
+"Daha az göster" = "Tampilkan lebih sedikit";
+"Devamını oku" = "Baca selengkapnya";
+"İçerik bilgileri yükleniyor…" = "Memuat informasi konten…";
+"Bu içerik için açıklama paylaşılmamış." = "Belum ada deskripsi untuk konten ini.";
+"Tür" = "Genre";
+"Yönetmen" = "Sutradara";
+"Oyuncular" = "Pemeran";
+"%d dk" = "%d mnt";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Koneksi layar";
+"Ekran bağlantısı" = "Koneksi layar";
+"Ekrana bağlan" = "Hubungkan ke layar";
+"Bağlı: %@" = "Terhubung: %@";
+"AirPlay ile oynatılıyor" = "Diputar melalui AirPlay";
+"Başka bir ekrana bağlan" = "Hubungkan ke layar lain";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "Tidak dapat terhubung ke %@. Periksa koneksi Anda dan coba lagi.";
+
+// Series library
+"Özel bölümler" = "Episode spesial";
+"%d. sezon" = "Musim %d";
+"%d. bölüm" = "Episode %d";
+"%d sezon" = "%d musim";
+"%d bölüm" = "%d episode";
+"%d dizi" = "%d serial";
+"Diğer içerikler" = "Konten lainnya";
+"Bölüm ara" = "Cari episode";
+"Dizi ara" = "Cari serial";
+"Bu içerik için açıklama bulunamadı." = "Deskripsi konten ini tidak ditemukan.";
+"İçerik bilgileri yüklenemedi." = "Informasi konten tidak dapat dimuat.";

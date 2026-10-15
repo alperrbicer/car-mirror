@@ -61,6 +61,11 @@
                 <key>UISceneClassName</key><string>UIWindowScene</string>
                 <key>UISceneDelegateClassName</key><string>$(PRODUCT_MODULE_NAME).ExternalDisplaySceneDelegate</string>
             </dict></array>
+            <key>CPTemplateApplicationSceneSessionRoleApplication</key><array><dict>
+                <key>UISceneConfigurationName</key><string>CarPlay Video</string>
+                <key>UISceneClassName</key><string>CPTemplateApplicationScene</string>
+                <key>UISceneDelegateClassName</key><string>$(PRODUCT_MODULE_NAME).CarPlaySceneDelegate</string>
+            </dict></array>
         </dict>
     </dict>
 </dict></plist>

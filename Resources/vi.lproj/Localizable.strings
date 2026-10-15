@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Quản lý gói đăng ký";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Không thể kết nối với App Store. Hãy thử lại.";
-"Büyük kontroller" = "Nút điều khiển lớn";
+"Araç modu" = "Chế độ xe";
 "Ayarlar" = "Cài đặt";
 "Açık" = "Đã kết nối";
 "Bağlantı testi" = "Kiểm tra kết nối";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Chụm vào để trở về chế độ xem bình thường";
 "Hareket tanıtımını yeniden göster" = "Hiện lại hướng dẫn thao tác";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Hiện lại thao tác âm lượng, độ sáng và màn hình trong trình phát.";
+
+"Araç video desteği" = "Hỗ trợ video trên xe";
+"CarPlay bağlı" = "Đã kết nối CarPlay";
+"CarPlay sahnesi" = "Giao diện CarPlay";
+"CarPlay video testini başlat" = "Bắt đầu kiểm tra video CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Kết nối với CarPlay rồi mở ứng dụng trên màn hình xe.";
+"Araç bağlantısında hatırlat" = "Nhắc khi kết nối với xe";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Gửi một lời nhắc trên điện thoại khi phát hiện phiên CarPlay mới. Thông tin kết nối với xe không được gửi đến máy chủ.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Video CarPlay khả dụng trên xe được hỗ trợ khi đang đỗ.";
+
+"AirPlay ekranı" = "Màn hình AirPlay";
+"AirPlay hedefini değiştir" = "Đổi thiết bị AirPlay";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Dùng menu hệ thống bên dưới để đổi thiết bị AirPlay hoặc quay lại iPhone.";
+"Bağlı" = "Đã kết nối";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Thời gian xem miễn phí hôm nay đã được đặt lại. Hôm nay bạn có thể xem tối đa 2 giờ.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Đặt lại thời gian xem miễn phí hôm nay?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Để dừng phản chiếu màn hình, mở Phản chiếu màn hình trong Trung tâm điều khiển iOS rồi ngắt kết nối.";
+"Oynatma durduruldu, TV bağlantısı açık" = "Đã dừng phát; TV vẫn được kết nối";
+"TV bağlantısı açık" = "TV đang được kết nối";
+"TV bağlantısını kes" = "Ngắt kết nối TV";
+"TV’den ayrıl" = "Ngắt khỏi TV";
+"Video seçenekleri" = "Tùy chọn video";
+"Sıfırla" = "Đặt lại";
+"İptal" = "Hủy";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Hướng dẫn cử chỉ đã được đặt lại. Hướng dẫn sẽ xuất hiện vào lần tiếp theo bạn mở toàn màn hình ngang.";
+"İndiriliyor" = "Đang tải xuống";
+"Kontrol" = "Đang kiểm tra";
+"Başarısız" = "Thất bại";
+"İndirme başarısız. Yeniden dene." = "Tải xuống thất bại. Hãy thử lại.";
+"Bu film/dizi biçimi indirilemiyor." = "Không thể tải xuống phim hoặc phim bộ ở định dạng này.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "Nhà cung cấp từ chối yêu cầu tải xuống (HTTP %d). Hãy kiểm tra thông tin đăng nhập hoặc quyền tải xuống.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "Nhà cung cấp trả về HTTP %d cho yêu cầu tải xuống.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "Xe này không hỗ trợ phát video CarPlay.";
+"Tam ekrandan çık" = "Thoát toàn màn hình";
+
+// Display connection status and disconnection
+"Harici ekran" = "Màn hình ngoài";
+"Araç ekranında oynatılıyor" = "Đang phát trên màn hình ô tô";
+"Harici ekranda oynatılıyor" = "Đang phát trên màn hình ngoài";
+"Bağlantıyı kesme adımları" = "Cách ngắt kết nối";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "Với CarPlay có dây, hãy rút cáp USB. Với CarPlay không dây, hãy ngắt kết nối từ màn hình ô tô. Nếu dùng CarPlay Simulator, hãy kết thúc kết nối trong trình mô phỏng.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "Với AirPlay, mở Trung tâm điều khiển → Phản chiếu màn hình → Dừng phản chiếu. Với màn hình có dây, hãy rút bộ chuyển đổi HDMI/USB.";
+
+"%d içerik" = "%d nội dung";
+"Kategoriler" = "Danh mục";
+"Canlı yayın" = "Trực tiếp";
+"Video" = "Video";
+"İçerik hakkında" = "Giới thiệu nội dung";
+"Daha az göster" = "Thu gọn";
+"Devamını oku" = "Đọc thêm";
+"İçerik bilgileri yükleniyor…" = "Đang tải thông tin nội dung…";
+"Bu içerik için açıklama paylaşılmamış." = "Chưa có mô tả cho nội dung này.";
+"Tür" = "Thể loại";
+"Yönetmen" = "Đạo diễn";
+"Oyuncular" = "Diễn viên";
+"%d dk" = "%d phút";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Các kết nối màn hình";
+"Ekran bağlantısı" = "Kết nối màn hình";
+"Ekrana bağlan" = "Kết nối với màn hình";
+"Bağlı: %@" = "Đã kết nối: %@";
+"AirPlay ile oynatılıyor" = "Đang phát qua AirPlay";
+"Başka bir ekrana bağlan" = "Kết nối với màn hình khác";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "Không thể kết nối với %@. Kiểm tra kết nối rồi thử lại.";
+
+// Series library
+"Özel bölümler" = "Tập đặc biệt";
+"%d. sezon" = "Mùa %d";
+"%d. bölüm" = "Tập %d";
+"%d sezon" = "%d mùa";
+"%d bölüm" = "%d tập";
+"%d dizi" = "%d bộ phim";
+"Diğer içerikler" = "Nội dung khác";
+"Bölüm ara" = "Tìm tập phim";
+"Dizi ara" = "Tìm phim bộ";
+"Bu içerik için açıklama bulunamadı." = "Không tìm thấy mô tả cho nội dung này.";
+"İçerik bilgileri yüklenemedi." = "Không thể tải thông tin nội dung.";

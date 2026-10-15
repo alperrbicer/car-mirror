@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Керування підпискою";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Не вдалося підключитися до App Store. Спробуйте ще раз.";
-"Büyük kontroller" = "Великі кнопки";
+"Araç modu" = "Режим автомобіля";
 "Ayarlar" = "Параметри";
 "Açık" = "Підключено";
 "Bağlantı testi" = "Перевірка з’єднання";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Зведіть пальці, щоб повернутися до звичайного вигляду";
 "Hareket tanıtımını yeniden göster" = "Показати інструкцію жестів знову";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Знову показати в плеєрі жести гучності, яскравості та екрана.";
+
+"Araç video desteği" = "Підтримка відео в автомобілі";
+"CarPlay bağlı" = "CarPlay підключено";
+"CarPlay sahnesi" = "Сцена CarPlay";
+"CarPlay video testini başlat" = "Почати перевірку відео CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Підключіться до CarPlay та відкрийте програму на екрані автомобіля.";
+"Araç bağlantısında hatırlat" = "Нагадувати при підключенні до авто";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Надсилає одне нагадування на телефон, коли виявлено новий сеанс CarPlay. Дані про підключення до автомобіля не передаються на сервер.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Відео CarPlay доступне в підтримуваних автомобілях під час стоянки.";
+
+"AirPlay ekranı" = "Екран AirPlay";
+"AirPlay hedefini değiştir" = "Змінити пристрій AirPlay";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Скористайтеся системним меню нижче, щоб змінити пристрій AirPlay або повернутися до iPhone.";
+"Bağlı" = "Підключено";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Безкоштовний час перегляду на сьогодні скинуто. Сьогодні можна дивитися до 2 годин.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Скинути безкоштовний час перегляду на сьогодні?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Щоб зупинити дублювання екрана, відкрийте «Дублювання екрана» в Центрі керування iOS і від’єднайтеся.";
+"Oynatma durduruldu, TV bağlantısı açık" = "Відтворення зупинено; телевізор підключено";
+"TV bağlantısı açık" = "Телевізор підключено";
+"TV bağlantısını kes" = "Від’єднати телевізор";
+"TV’den ayrıl" = "Від’єднатися від телевізора";
+"Video seçenekleri" = "Параметри відео";
+"Sıfırla" = "Скинути";
+"İptal" = "Скасувати";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Навчання жестам скинуто. Воно з’явиться під час наступного відкриття повноекранного режиму в альбомній орієнтації.";
+"İndiriliyor" = "Завантаження";
+"Kontrol" = "Перевірка";
+"Başarısız" = "Помилка";
+"İndirme başarısız. Yeniden dene." = "Не вдалося завантажити. Спробуйте ще раз.";
+"Bu film/dizi biçimi indirilemiyor." = "Цей формат фільму або серіалу не можна завантажити.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "Провайдер відхилив завантаження (HTTP %d). Перевірте дані входу або дозвіл на завантаження.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "Провайдер відповів кодом HTTP %d на запит завантаження.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "Цей автомобіль не підтримує відтворення відео через CarPlay.";
+"Tam ekrandan çık" = "Вийти з повноекранного режиму";
+
+// Display connection status and disconnection
+"Harici ekran" = "Зовнішній екран";
+"Araç ekranında oynatılıyor" = "Відтворення на екрані автомобіля";
+"Harici ekranda oynatılıyor" = "Відтворення на зовнішньому екрані";
+"Bağlantıyı kesme adımları" = "Як від’єднатися";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "Для дротового CarPlay від’єднайте USB-кабель. Для бездротового CarPlay від’єднайтеся з екрана автомобіля. Якщо ви використовуєте CarPlay Simulator, завершіть підключення в симуляторі.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "Для AirPlay відкрийте Центр керування → Повторення екрана → Зупинити повторення. Для дротового екрана від’єднайте адаптер HDMI/USB.";
+
+"%d içerik" = "Матеріалів: %d";
+"Kategoriler" = "Категорії";
+"Canlı yayın" = "Прямий ефір";
+"Video" = "Відео";
+"İçerik hakkında" = "Про цей матеріал";
+"Daha az göster" = "Згорнути";
+"Devamını oku" = "Читати далі";
+"İçerik bilgileri yükleniyor…" = "Завантаження інформації…";
+"Bu içerik için açıklama paylaşılmamış." = "Опис цього матеріалу не надано.";
+"Tür" = "Жанр";
+"Yönetmen" = "Режисер";
+"Oyuncular" = "У ролях";
+"%d dk" = "%d хв";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Підключення екранів";
+"Ekran bağlantısı" = "Підключення екрана";
+"Ekrana bağlan" = "Підключити екран";
+"Bağlı: %@" = "Підключено: %@";
+"AirPlay ile oynatılıyor" = "Відтворення через AirPlay";
+"Başka bir ekrana bağlan" = "Підключити інший екран";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "Не вдалося підключитися до %@. Перевірте підключення та спробуйте ще раз.";
+
+// Series library
+"Özel bölümler" = "Спецвипуски";
+"%d. sezon" = "Сезон %d";
+"%d. bölüm" = "Серія %d";
+"%d sezon" = "Сезонів: %d";
+"%d bölüm" = "Серій: %d";
+"%d dizi" = "Серіалів: %d";
+"Diğer içerikler" = "Інший вміст";
+"Bölüm ara" = "Пошук серій";
+"Dizi ara" = "Пошук серіалів";
+"Bu içerik için açıklama bulunamadı." = "Опис цього вмісту не знайдено.";
+"İçerik bilgileri yüklenemedi." = "Не вдалося завантажити відомості про вміст.";

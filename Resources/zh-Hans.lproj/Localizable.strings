@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "管理订阅";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "无法连接到 App Store，请重试。";
-"Büyük kontroller" = "大号控制按钮";
+"Araç modu" = "车载模式";
 "Ayarlar" = "设置";
 "Açık" = "已连接";
 "Bağlantı testi" = "连接测试";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "捏合双指以恢复正常显示";
 "Hareket tanıtımını yeniden göster" = "再次显示手势说明";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "在播放器中再次显示音量、亮度和屏幕手势说明。";
+
+"Araç video desteği" = "车辆视频支持";
+"CarPlay bağlı" = "CarPlay 已连接";
+"CarPlay sahnesi" = "CarPlay 场景";
+"CarPlay video testini başlat" = "开始 CarPlay 视频测试";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "连接 CarPlay，然后在车载屏幕上打开应用。";
+"Araç bağlantısında hatırlat" = "连接车辆时提醒我";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "检测到新的 CarPlay 会话时，在手机上提醒一次。车辆连接信息不会发送到服务器。";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay 视频可在支持的车辆停放时使用。";
+
+"AirPlay ekranı" = "AirPlay 显示屏";
+"AirPlay hedefini değiştir" = "更改 AirPlay 目标设备";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "使用下方的系统菜单更改 AirPlay 目标设备或返回 iPhone。";
+"Bağlı" = "已连接";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "今天的免费观看时长已重置。今天你最多可以观看 2 小时。";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "重置今天的免费观看时长？";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "要停止屏幕镜像，请在 iOS 控制中心打开“屏幕镜像”并断开连接。";
+"Oynatma durduruldu, TV bağlantısı açık" = "播放已停止，电视仍保持连接";
+"TV bağlantısı açık" = "电视已连接";
+"TV bağlantısını kes" = "断开电视连接";
+"TV’den ayrıl" = "断开与电视的连接";
+"Video seçenekleri" = "视频选项";
+"Sıfırla" = "重置";
+"İptal" = "取消";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "手势介绍已重置。下次打开横屏全屏模式时会再次显示。";
+"İndiriliyor" = "正在下载";
+"Kontrol" = "正在检查";
+"Başarısız" = "失败";
+"İndirme başarısız. Yeniden dene." = "下载失败，请重试。";
+"Bu film/dizi biçimi indirilemiyor." = "无法下载此电影或剧集格式。";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "提供商拒绝了下载请求（HTTP %d）。请检查登录信息或下载权限。";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "提供商对下载请求返回了 HTTP %d。";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "此车辆不支持 CarPlay 视频播放。";
+"Tam ekrandan çık" = "退出全屏";
+
+// Display connection status and disconnection
+"Harici ekran" = "外接显示器";
+"Araç ekranında oynatılıyor" = "正在车载屏幕上播放";
+"Harici ekranda oynatılıyor" = "正在外接显示器上播放";
+"Bağlantıyı kesme adımları" = "如何断开连接";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "有线 CarPlay：拔下 USB 线缆。无线 CarPlay：在车载屏幕上断开连接。如果使用 CarPlay Simulator，请在模拟器中结束连接。";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "AirPlay：打开控制中心 → 屏幕镜像 → 停止镜像。有线显示器：拔下 HDMI/USB 转接器。";
+
+"%d içerik" = "%d 个内容";
+"Kategoriler" = "分类";
+"Canlı yayın" = "直播";
+"Video" = "视频";
+"İçerik hakkında" = "内容简介";
+"Daha az göster" = "收起";
+"Devamını oku" = "阅读更多";
+"İçerik bilgileri yükleniyor…" = "正在加载内容信息…";
+"Bu içerik için açıklama paylaşılmamış." = "此内容暂无简介。";
+"Tür" = "类型";
+"Yönetmen" = "导演";
+"Oyuncular" = "演员";
+"%d dk" = "%d 分钟";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "显示器连接";
+"Ekran bağlantısı" = "显示器连接";
+"Ekrana bağlan" = "连接显示器";
+"Bağlı: %@" = "已连接：%@";
+"AirPlay ile oynatılıyor" = "正在通过 AirPlay 播放";
+"Başka bir ekrana bağlan" = "连接其他显示器";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "无法连接到 %@。请检查连接后重试。";
+
+// Series library
+"Özel bölümler" = "特别篇";
+"%d. sezon" = "第%d季";
+"%d. bölüm" = "第%d集";
+"%d sezon" = "%d季";
+"%d bölüm" = "%d集";
+"%d dizi" = "%d部剧集";
+"Diğer içerikler" = "其他内容";
+"Bölüm ara" = "搜索单集";
+"Dizi ara" = "搜索剧集";
+"Bu içerik için açıklama bulunamadı." = "未找到此内容的简介。";
+"İçerik bilgileri yüklenemedi." = "无法加载内容信息。";

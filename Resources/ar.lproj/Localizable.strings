@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "إدارة الاشتراك";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "تعذّر الاتصال بـ App Store. حاول مرة أخرى.";
-"Büyük kontroller" = "عناصر تحكم كبيرة";
+"Araç modu" = "وضع السيارة";
 "Ayarlar" = "الإعدادات";
 "Açık" = "متصل";
 "Bağlantı testi" = "اختبار الاتصال";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "اقرص للتصغير: عُد إلى العرض العادي";
 "Hareket tanıtımını yeniden göster" = "إعادة عرض شرح الإيماءات";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "اعرض مجددًا في المشغل شرح حركات الصوت والسطوع والشاشة.";
+
+"Araç video desteği" = "دعم الفيديو في السيارة";
+"CarPlay bağlı" = "CarPlay متصل";
+"CarPlay sahnesi" = "واجهة CarPlay";
+"CarPlay video testini başlat" = "بدء اختبار فيديو CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "اتصل بـ CarPlay وافتح التطبيق على شاشة سيارتك.";
+"Araç bağlantısında hatırlat" = "ذكّرني عند الاتصال بالسيارة";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "يرسل تذكيرًا واحدًا على هاتفك عند اكتشاف جلسة CarPlay جديدة. لا تُرسل معلومات الاتصال بالسيارة إلى أي خادم.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "يتوفر فيديو CarPlay في السيارات المدعومة أثناء ركنها.";
+
+"AirPlay ekranı" = "شاشة AirPlay";
+"AirPlay hedefini değiştir" = "تغيير وجهة AirPlay";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "استخدم قائمة النظام أدناه لتغيير وجهة AirPlay أو العودة إلى iPhone.";
+"Bağlı" = "متصل";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "تمت إعادة ضبط وقت المشاهدة المجاني لهذا اليوم. يمكنك المشاهدة لمدة تصل إلى ساعتين اليوم.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "هل تريد إعادة ضبط وقت المشاهدة المجاني لهذا اليوم؟";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "لإيقاف انعكاس الشاشة، افتح «انعكاس الشاشة» في مركز التحكم في iOS واقطع الاتصال.";
+"Oynatma durduruldu, TV bağlantısı açık" = "توقف التشغيل؛ ما زال التلفاز متصلاً";
+"TV bağlantısı açık" = "التلفاز متصل";
+"TV bağlantısını kes" = "قطع الاتصال بالتلفاز";
+"TV’den ayrıl" = "الانفصال عن التلفاز";
+"Video seçenekleri" = "خيارات الفيديو";
+"Sıfırla" = "إعادة ضبط";
+"İptal" = "إلغاء";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "تمت إعادة ضبط شرح الإيماءات. سيظهر عند فتح ملء الشاشة بالوضع الأفقي في المرة القادمة.";
+"İndiriliyor" = "جارٍ التنزيل";
+"Kontrol" = "جارٍ التحقق";
+"Başarısız" = "فشل";
+"İndirme başarısız. Yeniden dene." = "فشل التنزيل. حاول مرة أخرى.";
+"Bu film/dizi biçimi indirilemiyor." = "لا يمكن تنزيل هذا التنسيق من الأفلام أو المسلسلات.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "رفض المزوّد طلب التنزيل (HTTP %d). تحقق من تسجيل الدخول أو إذن التنزيل.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "أجاب المزوّد عن طلب التنزيل بالرمز HTTP %d.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "هذه المركبة لا تدعم تشغيل الفيديو عبر CarPlay.";
+"Tam ekrandan çık" = "الخروج من ملء الشاشة";
+
+// Display connection status and disconnection
+"Harici ekran" = "شاشة خارجية";
+"Araç ekranında oynatılıyor" = "قيد التشغيل على شاشة السيارة";
+"Harici ekranda oynatılıyor" = "قيد التشغيل على الشاشة الخارجية";
+"Bağlantıyı kesme adımları" = "كيفية قطع الاتصال";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "لاتصال CarPlay السلكي، افصل كابل USB. لاتصال CarPlay اللاسلكي، اقطع الاتصال من شاشة السيارة. إذا كنت تستخدم CarPlay Simulator، فأنهِ الاتصال من داخل المحاكي.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "لاستخدام AirPlay، افتح مركز التحكم ← انعكاس الشاشة ← إيقاف الانعكاس. للشاشة السلكية، افصل محول HDMI/USB.";
+
+"%d içerik" = "%d من المحتويات";
+"Kategoriler" = "الفئات";
+"Canlı yayın" = "بث مباشر";
+"Video" = "فيديو";
+"İçerik hakkında" = "حول هذا المحتوى";
+"Daha az göster" = "عرض أقل";
+"Devamını oku" = "قراءة المزيد";
+"İçerik bilgileri yükleniyor…" = "جارٍ تحميل معلومات المحتوى…";
+"Bu içerik için açıklama paylaşılmamış." = "لم يتم توفير وصف لهذا المحتوى.";
+"Tür" = "النوع";
+"Yönetmen" = "الإخراج";
+"Oyuncular" = "طاقم التمثيل";
+"%d dk" = "%d دقيقة";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "اتصالات الشاشات";
+"Ekran bağlantısı" = "اتصال الشاشة";
+"Ekrana bağlan" = "الاتصال بشاشة";
+"Bağlı: %@" = "متصل: %@";
+"AirPlay ile oynatılıyor" = "قيد التشغيل عبر AirPlay";
+"Başka bir ekrana bağlan" = "الاتصال بشاشة أخرى";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "تعذر الاتصال بـ %@. تحقق من اتصالك وحاول مرة أخرى.";
+
+// Series library
+"Özel bölümler" = "حلقات خاصة";
+"%d. sezon" = "الموسم %d";
+"%d. bölüm" = "الحلقة %d";
+"%d sezon" = "%d مواسم";
+"%d bölüm" = "%d حلقات";
+"%d dizi" = "%d مسلسلات";
+"Diğer içerikler" = "محتوى آخر";
+"Bölüm ara" = "البحث عن الحلقات";
+"Dizi ara" = "البحث عن المسلسلات";
+"Bu içerik için açıklama bulunamadı." = "لم يُعثر على وصف لهذا المحتوى.";
+"İçerik bilgileri yüklenemedi." = "تعذّر تحميل معلومات المحتوى.";

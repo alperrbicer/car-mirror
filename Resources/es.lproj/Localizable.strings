@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Gestionar suscripción";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "No se pudo conectar con el App Store. Inténtalo de nuevo.";
-"Büyük kontroller" = "Controles grandes";
+"Araç modu" = "Modo coche";
 "Ayarlar" = "Ajustes";
 "Açık" = "Conectado";
 "Bağlantı testi" = "Prueba de conexión";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Pellizca hacia dentro para volver al modo normal";
 "Hareket tanıtımını yeniden göster" = "Volver a mostrar la guía de gestos";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Vuelve a mostrar en el reproductor los gestos de volumen, brillo y pantalla.";
+
+"Araç video desteği" = "Compatibilidad de vídeo del vehículo";
+"CarPlay bağlı" = "CarPlay conectado";
+"CarPlay sahnesi" = "Escena de CarPlay";
+"CarPlay video testini başlat" = "Iniciar prueba de vídeo de CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Conecta con CarPlay y abre la app en la pantalla del coche.";
+"Araç bağlantısında hatırlat" = "Recordar al conectar con el vehículo";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Envía un único recordatorio al teléfono cuando se detecta una nueva sesión de CarPlay. La información de conexión con el vehículo no se envía a ningún servidor.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "El vídeo de CarPlay está disponible en vehículos compatibles cuando están estacionados.";
+
+"AirPlay ekranı" = "Pantalla AirPlay";
+"AirPlay hedefini değiştir" = "Cambiar destino de AirPlay";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Usa el menú del sistema de abajo para cambiar el destino de AirPlay o volver al iPhone.";
+"Bağlı" = "Conectado";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Se ha restablecido tu tiempo de reproducción gratuito de hoy. Puedes ver hasta 2 horas hoy.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "¿Restablecer el tiempo de reproducción gratuito de hoy?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Para dejar de duplicar la pantalla, abre Duplicar pantalla en el Centro de control de iOS y desconecta.";
+"Oynatma durduruldu, TV bağlantısı açık" = "Reproducción detenida; el televisor sigue conectado";
+"TV bağlantısı açık" = "El televisor está conectado";
+"TV bağlantısını kes" = "Desconectar el televisor";
+"TV’den ayrıl" = "Salir del televisor";
+"Video seçenekleri" = "Opciones de vídeo";
+"Sıfırla" = "Restablecer";
+"İptal" = "Cancelar";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Se ha restablecido la introducción a los gestos. Aparecerá la próxima vez que abras la pantalla completa en horizontal.";
+"İndiriliyor" = "Descargando";
+"Kontrol" = "Comprobando";
+"Başarısız" = "Error";
+"İndirme başarısız. Yeniden dene." = "La descarga ha fallado. Inténtalo de nuevo.";
+"Bu film/dizi biçimi indirilemiyor." = "Este formato de película o serie no se puede descargar.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "El proveedor rechazó la descarga (HTTP %d). Revisa tus credenciales o el permiso de descarga.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "El proveedor respondió HTTP %d a la solicitud de descarga.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "Este vehículo no admite la reproducción de vídeo en CarPlay.";
+"Tam ekrandan çık" = "Salir de pantalla completa";
+
+// Display connection status and disconnection
+"Harici ekran" = "Pantalla externa";
+"Araç ekranında oynatılıyor" = "Reproduciendo en la pantalla del vehículo";
+"Harici ekranda oynatılıyor" = "Reproduciendo en la pantalla externa";
+"Bağlantıyı kesme adımları" = "Cómo desconectarse";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "Para CarPlay por cable, desconecta el cable USB. Para CarPlay inalámbrico, desconéctate desde la pantalla del vehículo. Si usas CarPlay Simulator, finaliza la conexión en el simulador.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "Para AirPlay, ve al Centro de control → Duplicar pantalla → Detener duplicación. Para una pantalla por cable, desconecta el adaptador HDMI/USB.";
+
+"%d içerik" = "%d contenidos";
+"Kategoriler" = "Categorías";
+"Canlı yayın" = "En directo";
+"Video" = "Vídeo";
+"İçerik hakkında" = "Acerca de este contenido";
+"Daha az göster" = "Mostrar menos";
+"Devamını oku" = "Leer más";
+"İçerik bilgileri yükleniyor…" = "Cargando información del contenido…";
+"Bu içerik için açıklama paylaşılmamış." = "No se ha proporcionado una descripción de este contenido.";
+"Tür" = "Género";
+"Yönetmen" = "Dirección";
+"Oyuncular" = "Reparto";
+"%d dk" = "%d min";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Conexiones de pantallas";
+"Ekran bağlantısı" = "Conexión de pantalla";
+"Ekrana bağlan" = "Conectar a una pantalla";
+"Bağlı: %@" = "Conectado: %@";
+"AirPlay ile oynatılıyor" = "Reproduciendo mediante AirPlay";
+"Başka bir ekrana bağlan" = "Conectar a otra pantalla";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "No se pudo conectar a %@. Comprueba la conexión e inténtalo de nuevo.";
+
+// Series library
+"Özel bölümler" = "Especiales";
+"%d. sezon" = "Temporada %d";
+"%d. bölüm" = "Episodio %d";
+"%d sezon" = "%d temporadas";
+"%d bölüm" = "%d episodios";
+"%d dizi" = "%d series";
+"Diğer içerikler" = "Otros contenidos";
+"Bölüm ara" = "Buscar episodios";
+"Dizi ara" = "Buscar series";
+"Bu içerik için açıklama bulunamadı." = "No se encontró una descripción de este contenido.";
+"İçerik bilgileri yüklenemedi." = "No se pudo cargar la información del contenido.";

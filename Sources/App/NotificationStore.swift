@@ -1,4 +1,5 @@
 import UIKit
+import CarPlay
 import UserNotifications
 import FirebaseMessaging
 
@@ -137,6 +138,18 @@ final class NotificationStore: ObservableObject {
         guard enabled, let value = userInfo["route"] as? String, let route = NotificationRoute(rawValue: value) else { return }
         pendingNavigation = Navigation(route: route)
     }
+    func navigate(request: UNNotificationRequest, carReminderEnabled: Bool) {
+        if CarConnectionReminderStore.isReminder(request) {
+            guard carReminderEnabled else { return }
+            pendingNavigation = Navigation(route: .home)
+        } else {
+            navigate(userInfo: request.content.userInfo)
+        }
+    }
+    func presentationOptions(for request: UNNotificationRequest, carReminderEnabled: Bool) -> UNNotificationPresentationOptions {
+        let allowed = CarConnectionReminderStore.isReminder(request) ? carReminderEnabled : enabled
+        return allowed ? [.banner, .list, .sound] : []
+    }
     func consumedNavigation() { pendingNavigation = nil }
     static func allowsNotifications(_ value: UNAuthorizationStatus) -> Bool { [.authorized, .provisional, .ephemeral].contains(value) }
 
@@ -181,6 +194,7 @@ enum PlayerOrientationPolicy {
     }
 
     static func update(playerVisible: Bool, allowsLandscape: Bool) {
+        guard self.playerVisible != playerVisible || self.allowsLandscape != allowsLandscape else { return }
         self.playerVisible = playerVisible
         self.allowsLandscape = allowsLandscape
         UIViewController.attemptRotationToDeviceOrientation()
@@ -194,18 +208,40 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        let defaults = UserDefaults.standard
-        if let identifier = defaults.string(forKey: "notifications.carConnectionReminder.request") {
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [identifier])
-        }
-        for key in ["notifications.carConnectionReminder.request", "notifications.carConnectionReminder.enabled", "notifications.carConnectionReminder.handledSession"] {
-            defaults.removeObject(forKey: key)
-        }
+        CarPlayWindowCoordinator.shared.start()
         UNUserNotificationCenter.current().delegate = self
         if FirebaseServices.configured { Messaging.messaging().delegate = self }
         return true
     }
+    func application(_ application: UIApplication, configurationForConnecting session: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let configuration = Self.configuration(for: session.role)
+        if session.role == .carTemplateApplication {
+            MirrorModel.shared.record(.carSceneRequested)
+        }
+        return configuration
+    }
+
+    // SwiftUI owns the phone scene. Explicitly route accessory scenes instead of
+    // allowing the WindowGroup's default delegate to claim them.
+    static func configuration(for role: UISceneSession.Role) -> UISceneConfiguration {
+        if role == .carTemplateApplication {
+            let result = UISceneConfiguration(name: "CarPlay Video", sessionRole: role)
+            result.sceneClass = CPTemplateApplicationScene.self
+            result.delegateClass = CarPlaySceneDelegate.self
+            return result
+        }
+        if role == .windowExternalDisplay || role == .windowExternalDisplayNonInteractive {
+            let result = UISceneConfiguration(name: "External display", sessionRole: role)
+            result.sceneClass = UIWindowScene.self
+            result.delegateClass = ExternalDisplaySceneDelegate.self
+            return result
+        }
+        // Returning session.configuration here re-wraps SwiftUI's own scene
+        // delegate and causes recursive responds(to:) calls on restoration.
+        return UISceneConfiguration(name: nil, sessionRole: role)
+    }
+
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         PlayerOrientationPolicy.supportedOrientations
     }
@@ -230,14 +266,16 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         Task { @MainActor in
-            completionHandler(NotificationStore.shared.enabled && notification.request.trigger is UNPushNotificationTrigger ? [.banner, .list, .sound] : [])
+            completionHandler(NotificationStore.shared.presentationOptions(for: notification.request,
+                carReminderEnabled: CarConnectionReminderStore.shared.enabled))
         }
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         Task { @MainActor in
             if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-                NotificationStore.shared.navigate(userInfo: response.notification.request.content.userInfo)
+                NotificationStore.shared.navigate(request: response.notification.request,
+                    carReminderEnabled: CarConnectionReminderStore.shared.enabled)
             }
             completionHandler()
         }

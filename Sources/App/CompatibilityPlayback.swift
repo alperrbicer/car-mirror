@@ -41,7 +41,13 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     var pip: (any VLCPictureInPictureWindowControlling)?
     private(set) var pipActive = false
     var pipStarting: Bool { (pip as? CompatibilityPictureInPicture)?.starting == true }
-    var pipPossible: Bool { (pip as? CompatibilityPictureInPicture)?.controller.isPictureInPicturePossible ?? (pip != nil) }
+    var pipPossible: Bool {
+        guard active else { return false }
+        if let pip = pip as? CompatibilityPictureInPicture {
+            return !pip.starting && !pip.stopping && pip.controller.isPictureInPicturePossible
+        }
+        return pip != nil
+    }
 
     override init() {
         super.init()
@@ -480,8 +486,11 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
         super.init()
         controller.delegate = self
         controller.canStartPictureInPictureAutomaticallyFromInline = true
-        possibleObservation = controller.observe(\.isPictureInPicturePossible, options: [.new]) { [weak self] _, _ in
-            Task { @MainActor in self?.engine?.onPiPReady?() }
+        possibleObservation = controller.observe(\.isPictureInPicturePossible, options: [.initial, .new]) { [weak self] _, _ in
+            Task { @MainActor in
+                guard let self, let engine = self.engine, engine.pip === self else { return }
+                engine.onPiPReady?()
+            }
         }
         invalidatePlaybackState()
     }
@@ -503,6 +512,7 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
         stopping = false
         engine?.videoView.prepareForPictureInPicture()
         invalidatePlaybackState()
+        engine?.onPiPReady?()
     }
     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         starting = false

@@ -3,6 +3,7 @@ import StoreKit
 
 struct ProView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var store = PurchaseStore.shared
     @State private var selectedID = ProProduct.yearly.rawValue
     private let benefits: [(String, String, String)] = [
@@ -48,15 +49,20 @@ struct ProView: View {
                     }
                     ForEach(store.products, id: \.id) { product in
                         Button { selectedID = product.id } label: {
-                            HStack(spacing: 14) {
+                            let layout = dynamicTypeSize.isAccessibilitySize
+                                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 14))
+                                : AnyLayout(HStackLayout(spacing: 14))
+                            layout {
                                 Image(systemName: selectedID == product.id ? "checkmark.circle.fill" : "circle")
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(title(product)).font(.headline)
                                     Text(L10n.tr(product.type == .nonConsumable ? "Tek seferlik ödeme" : "Yılda bir tahsil edilir; otomatik yenilenir.")).font(.caption)
                                         .foregroundStyle(MirrorStyle.secondary).fixedSize(horizontal: false, vertical: true)
+                                        .accessibilityIdentifier("pro-description-\(product.id)")
                                 }
-                                Spacer()
-                                Text(product.displayPrice).font(.title3.weight(.semibold)).fixedSize()
+                                if !dynamicTypeSize.isAccessibilitySize { Spacer() }
+                                Text(product.displayPrice).font(.title3.weight(.semibold))
+                                    .fixedSize(horizontal: !dynamicTypeSize.isAccessibilitySize, vertical: true)
                             }.padding(20).frame(maxWidth: .infinity)
                                 .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 22))
                                 .overlay { RoundedRectangle(cornerRadius: 22).stroke(selectedID == product.id ? MirrorStyle.accent : .clear, lineWidth: 1.5) }

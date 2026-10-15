@@ -60,11 +60,11 @@ struct MirrorSettingsView: View {
                     Picker(L10n.tr("Yayın kalitesi"), selection: $quality) {
                         Text(L10n.tr("Dengeli")).tag(StreamQuality.balanced.rawValue)
                         Text(L10n.tr("Yüksek")).tag(StreamQuality.high.rawValue)
-                    }
+                    }.accessibilityIdentifier("settings-quality")
                     Picker(L10n.tr("Ses"), selection: $audioMode) {
                         Text(L10n.tr("Görüntüyle birlikte")).tag(StreamAudioMode.synchronized.rawValue)
                         Text(L10n.tr("Kaynak uygulamadan")).tag(StreamAudioMode.source.rawValue)
-                    }
+                    }.accessibilityIdentifier("settings-audio")
                     if purchases.access.fullAccess {
                         NavigationLink(L10n.tr("Canlı altyazılar")) { CaptionSettingsView() }
                     } else {
@@ -125,15 +125,15 @@ struct MirrorSettingsView: View {
                 }
                 .listRowBackground(MirrorStyle.surface)
                 Section {
-                    NavigationLink("VLCKit · VideoLAN") { ThirdPartyNoticesView() }
-                    NavigationLink("Google Cast") { CastNoticesView() }
+                    NavigationLink("VLCKit · VideoLAN") { ThirdPartyNoticesView() }.accessibilityIdentifier("settings-vlc")
+                    NavigationLink("Google Cast") { CastNoticesView() }.accessibilityIdentifier("settings-cast")
                 }.listRowBackground(MirrorStyle.surface)
                 Section {
                     Button(L10n.tr("Tüm kaynakları sil"), role: .destructive) { clearingLibrary = true }
                 }.listRowBackground(MirrorStyle.surface)
                 #if DEBUG
                 Section(L10n.tr("Geliştirme")) {
-                    NavigationLink(L10n.tr("Ekran bağlantı testi")) { ConnectionTestView(model: model) }
+                    NavigationLink(L10n.tr("Ekran bağlantı testi")) { ConnectionTestView(model: model) }.accessibilityIdentifier("settings-connection-test")
                 }
                 .listRowBackground(MirrorStyle.surface)
                 #endif
@@ -188,7 +188,10 @@ struct MirrorSettingsView: View {
 
     private var playerGestureIntroSection: some View {
         Section {
-            Button { edgeGestureIntroShown = false } label: {
+            Button {
+                edgeGestureIntroShown = false
+                errorMessage = L10n.tr("Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek.")
+            } label: {
                 Label(L10n.tr("Hareket tanıtımını yeniden göster"), systemImage: "hand.draw")
             }
             .accessibilityIdentifier("settings-player-gesture-intro")
@@ -238,9 +241,13 @@ private struct ConnectionTestView: View {
     var body: some View {
         List {
             Section(L10n.tr("iOS bağlantısı")) {
+                LabeledContent(L10n.tr("CarPlay sahnesi"), value: L10n.tr(model.carPlayConnected ? "Açık" : "Kapalı"))
+                LabeledContent(L10n.tr("Araç video desteği"), value: L10n.tr(model.supportsVideo.map { $0 ? "Var" : "Yok" } ?? "Henüz okunmadı"))
                 LabeledContent(L10n.tr("Harici ekran sayısı"), value: "\(model.externalScreenCount)")
             }
             Section {
+                Button(L10n.tr("CarPlay video testini başlat")) { model.startVideoProbe() }
+                    .disabled(model.broadcasting || !model.carPlayConnected || model.supportsVideo != true)
                 Button(L10n.tr("Harici ekran desenini başlat")) { model.startExternalProbe() }
                     .disabled(model.broadcasting || model.externalScreenCount == 0)
                 Button(L10n.tr("Testi durdur"), role: .destructive) { model.stopProbe() }

@@ -39,10 +39,11 @@ if ats.get('NSAllowsArbitraryLoads') is not True:errors.append('User-provided HT
 if any(key in ats for key in ['NSAllowsLocalNetworking','NSAllowsArbitraryLoadsForMedia','NSAllowsArbitraryLoadsInWebContent']):
  errors.append('Fine-grained ATS keys override arbitrary HTTP playlist access on supported iOS versions')
 with (ROOT/'Config/App.entitlements').open('rb') as f:entitlements=plistlib.load(f)
-if any('carplay' in key.lower() for key in entitlements):errors.append('CarPlay entitlement must be absent')
+if entitlements.get('com.apple.developer.carplay-video') is not True:errors.append('CarPlay Video entitlement is required')
+if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append('CarPlay Audio entitlement is required for standard CarPlay visibility')
 scenes=app_info.get('UIApplicationSceneManifest',{}).get('UISceneConfigurations',{})
-if any(key.startswith('CP') for key in scenes):errors.append('CarPlay scene must be absent')
-if any('CarPlay' in key for key in app_info):errors.append('CarPlay runtime flags must be absent')
+if not scenes.get('CPTemplateApplicationSceneSessionRoleApplication'):errors.append('CarPlay Video scene is required')
+if app_info.get('CMCarPlayAudioEnabled') in [True,'YES']:errors.append('CarPlay Audio runtime flag must be absent')
 base=(ROOT/'Config/Base.xcconfig').read_text()
 if not re.search(r'^MIRIVO_PRO_SALES_ENABLED = YES$',base,re.M):errors.append('Pro release must enable sales')
 if not re.search(r'^MARKETING_VERSION = 1.0$',base,re.M):errors.append('Version must match App Store Connect 1.0')
@@ -79,7 +80,8 @@ for lang in ['tr','en']:
   value=metadata.get(key,'')
   if not value or len(value)>limit:errors.append(f'{lang}: App Store {key} length invalid')
 for source in (ROOT/'Sources').rglob('*.swift'):
- for key in re.findall(r'L10n\.tr\("([^"\\]*)"',source.read_text()):
+ for key in re.findall(r'L10n\.tr\("((?:\\.|[^"\\])*)"',source.read_text()):
+  if '\\(' in key:errors.append(f'{source.name}: interpolated localization key; use a format placeholder');continue
   if key not in reference:errors.append(f'{source.name}: untranslated literal {key}')
 with zipfile.ZipFile(ROOT/'Release/mirivo-netlify.zip') as archive:
  if archive.testzip():errors.append('Corrupt ZIP')

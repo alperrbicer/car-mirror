@@ -24,3 +24,25 @@ The opt-in provider seek test reads `tmp/mirivo-vod-probe.json` from the simulat
 app container. It exercises longer jumps and records only numeric timing/frame
 statistics. It does not attach provider screenshots or print the source URL.
 Keep that account fixture out of the repository and remove it after the test.
+
+## Library artwork and metadata
+
+`LibraryArtworkUITests` uses an original synthetic catalog, never a provider account.
+Generate its PNG logos/posters with `xcrun swift scripts/generate_library_artwork_fixture.swift`,
+then run `MIRIVO_FIXTURE_PORT=8774 python3 scripts/capture_store_screenshots.py` during the tests.
+The generated files live under the ignored `build/library-artwork-fixtures` directory.
+The catalog exercises category collages, artwork rows, search, on-demand Xtream movie
+details, unavailable images/metadata, and accessibility text sizes. No demo media
+or test account is added to the shipping app.
+
+Metadata coverage also uses an ordinary `/catalog.m3u` URL, with no API credentials
+in the playlist address. The stream routes identify the movie/series API account.
+The fixture verifies general series descriptions, episode-specific descriptions,
+and a metadata HTTP failure with retry instead of an empty-description claim.
+
+The catalog also includes two series with deliberately shuffled episode numbers,
+multiple seasons, and shared posters. Generate the 90-second playback fixture with
+`python3 scripts/generate_playback_options_fixture.py` before exercising series playback.
+The debug-only `-mirivo-ui-artwork-history` flag seeds older-style history records
+without artwork, so UI coverage checks poster recovery from the source as well as
+season selection, episode ordering, and resuming the saved position.

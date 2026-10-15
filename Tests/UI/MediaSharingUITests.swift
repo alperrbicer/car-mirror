@@ -21,7 +21,7 @@ final class MediaSharingUITests: XCTestCase {
         app.buttons["guide-AirPlay"].tap()
         XCTAssertTrue(app.buttons["guide-AirPlay"].isSelected)
         capture("sharing-airplay-guide", app: app)
-        XCTAssertFalse(app.buttons["guide-CarPlay"].exists)
+        XCTAssertTrue(app.buttons["guide-CarPlay"].exists)
     }
 
     func testPhotoPickerCancelReturnsToHub() {
@@ -49,7 +49,7 @@ final class MediaSharingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["2 fotoğraf"].exists)
         capture("sharing-slideshow-editor", app: app)
         start.tap()
-        guard app.navigationBars["Oynatıcı"].waitForExistence(timeout: 20) else {
+        guard app.otherElements["player-video"].waitForExistence(timeout: 20) else {
             XCTFail("The selected photos did not reach the player"); return
         }
         let pause = app.buttons["Duraklat"].firstMatch

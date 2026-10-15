@@ -2,8 +2,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
+import { completeArchiveStubSymbols } from './archive-symbols.mjs'
 import {
-  argumentsFor, carPlayKeys, assertNoCarPlay, configurationFromSettings, exportPlist, filePath, loadEnvironment,
+  argumentsFor, carPlayVideoKey, assertCarPlayVideo, configurationFromSettings, exportPlist, filePath, loadEnvironment,
   outputRoot, derivedDataRoot, packageCacheRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
   reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock, writeJson,
 } from './deployment-lib.mjs'
@@ -42,7 +43,7 @@ testflight  mobile:ios:testflight     Alias for upload
 --keep-cache               Keep build caches for repeated development builds
 
 Setup and examples: ${join(root, 'docs/DEPLOYMENT.md')}
-All builds omit CarPlay. App Groups, push notifications and App Attest signing remain required.
+The app uses CarPlay Audio and Video. App Groups, push notifications and App Attest signing remain required.
 Upload does not submit App Review or publish the app.`)
 }
 
@@ -144,7 +145,7 @@ function verifyBundle(app, config, { device, distribution = false } = {}) {
   run('codesign', ['--verify', '--deep', '--strict', requireFile(app)], { capture: true, quiet: true })
   for (const [path, bundleId, mainApp] of [[app, config.bundleId, true], [join(app, 'PlugIns/CarMirrorBroadcast.appex'), `${config.bundleId}.broadcast`, false]]) {
     const info = readPlist(join(path, 'Info.plist'))
-    assertNoCarPlay(info)
+    if (mainApp) assertCarPlayVideo(info)
     if (info.CFBundleIdentifier !== bundleId || String(info.CFBundleVersion) !== config.build || info.CFBundleShortVersionString !== config.version) {
       throw new Error(`Bundle ID/version mismatch in ${path}. Rebuild both the app and extension.`)
     }
@@ -163,7 +164,7 @@ function install(simulator = false) {
   config.preview = Boolean(options.preview)
   config.version = options.version || config.version
   config.build = options.build || config.build
-  if (config.preview) console.log('iPhone install compatibility alias; the app has no CarPlay integration.')
+  if (config.preview) console.log('iPhone install compatibility alias; CarPlay Video is enabled for supported vehicles.')
   if (!simulator) requireTeam(config)
   let device = { id: '<device identifier>', udid: options.device || '<device UDID>', name: '<iPhone>', state: 'Shutdown' }
   if (!dryRun) {
@@ -209,6 +210,7 @@ function archive() {
   const path = join(directory, 'CarMirror.xcarchive')
   execute('xcodebuild', [...buildArguments('Release', 'generic/platform=iOS', config), '-archivePath', path, 'archive'])
   verifyBundle(join(path, 'Products/Applications/CarMirror.app'), config)
+  if (!dryRun) completeArchiveStubSymbols(path)
   const record = { archive: path, ...config, createdAt: new Date().toISOString() }
   if (!dryRun) {
     writeJson(join(directory, 'archive.json'), record)
@@ -234,8 +236,9 @@ function existingArchive() {
     const info = readPlist(join(app, 'Info.plist'))
     config.version = info.CFBundleShortVersionString
     config.build = String(info.CFBundleVersion)
-    assertNoCarPlay(info)
+    assertCarPlayVideo(info)
     verifyBundle(app, config)
+    completeArchiveStubSymbols(path)
   }
   return { archive: path, ...config }
 }
@@ -285,7 +288,8 @@ function doctor() {
   requireTeam(config)
   console.log(`App: ${config.bundleId}\nExtension: ${config.bundleId}.broadcast\nApp Group: ${config.appGroup}\nTeam: ${config.team}\nVersion: ${config.version} (${config.build})`)
   const source = readPlist(join(root, 'Config/App.entitlements'))
-  if (carPlayKeys.some(key => Object.hasOwn(source, key))) throw new Error('CarPlay must be absent from the app entitlements.')
+  if (source[carPlayVideoKey] !== true || source['com.apple.developer.carplay-audio'] !== true)
+    throw new Error('The app must request CarPlay Audio and Video; enable both capabilities for its App ID and refresh profiles.')
   const identities = run('security', ['find-identity', '-v', '-p', 'codesigning'], { capture: true, quiet: true })
   const hasIdentity = /[1-9]\d* valid identities found/.test(identities)
   console.log(hasIdentity ? 'Signing identity: available in the current keychain.' : 'Signing identity: not available. Configure your Apple account/certificate in Xcode.')
@@ -304,7 +308,6 @@ function doctor() {
     const bundleId = `${config.bundleId}${mainApp ? '' : '.broadcast'}`
     const matching = profiles.filter(profile => {
       const requested = { ...profile.Entitlements }
-      for (const key of carPlayKeys) delete requested[key]
       try { validateProfile(requested, profile, { ...config, bundleId, mainApp }); return true } catch { return false }
     })
     console.log(`${bundleId}: ${matching.length} local, unexpired profile(s) with the required capabilities.`)

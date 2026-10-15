@@ -16,10 +16,10 @@ struct MirrorHomeView: View {
             MediaSharingView(model: model)
             Button { showingGuide = true } label: {
                 HStack(spacing: 14) {
-                    Image(systemName: "sparkles.tv").font(.title2).foregroundStyle(MirrorStyle.accent)
+                    Image(systemName: playback.displayConnection.symbol).font(.title2).foregroundStyle(MirrorStyle.accent)
                     VStack(alignment: .leading, spacing: 5) {
                         Text(L10n.tr("Nasıl bağlanırım?")).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
-                        Text("Google Cast · AirPlay").font(.caption).foregroundStyle(MirrorStyle.secondary)
+                        Text("Google Cast · AirPlay · CarPlay").font(.caption).foregroundStyle(MirrorStyle.secondary)
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right").font(.caption).foregroundStyle(MirrorStyle.secondary)
@@ -45,13 +45,13 @@ struct MirrorHomeView: View {
     private var connectionCard: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Circle().fill(playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
-                Text(playback.tvName ?? "TV · AIRPLAY")
+                Circle().fill(playback.displayConnection.isConnected ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
+                Text(playback.displayConnection.isConnected ? playback.displayConnection.connectedSummary : "TV · AIRPLAY · CARPLAY")
                     .font(.system(.caption2, design: .monospaced, weight: .medium))
                     .tracking(L10n.appLanguage.allowsLetterSpacing ? 1.2 : 0)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .foregroundStyle(playback.tvName != nil ? MirrorStyle.accent : MirrorStyle.secondary)
+            .foregroundStyle(playback.displayConnection.isConnected ? MirrorStyle.accent : MirrorStyle.secondary)
             .padding(.bottom, 18)
             Text(model.broadcasting ? model.captureTitle : L10n.tr("Büyük ekranda daha fazlası."))
                 .font(.system(.largeTitle, design: .default, weight: .semibold))
@@ -84,7 +84,7 @@ struct MirrorHomeView: View {
     private var actions: some View {
         if model.broadcasting {
             VStack(spacing: 12) {
-                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (playback.tvDevice != nil || model.externalScreenCount > 0) {
+                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (model.supportsVideo == true || playback.tvDevice != nil || model.externalScreenCount > 0) {
                     Button { model.playOnDisplay() } label: {
                         Label(L10n.tr("Görüntüyü yeniden bağla"), systemImage: "arrow.clockwise")
                     }.buttonStyle(MirivoButtonStyle(prominent: true))
@@ -154,17 +154,17 @@ struct MirrorHomeView: View {
     }
 
     private var detail: String {
-        if playback.tvDevice != nil || model.externalScreenCount > 0 {
+        if model.supportsVideo == true || playback.tvDevice != nil || model.externalScreenCount > 0 {
             switch model.sessionState {
             case .captureReady, .connecting: return L10n.tr("Görüntü bağlanıyor")
             default: break
             }
         }
         switch model.sessionState {
-        case .waitingForDisplay: return L10n.tr("TV’ye bağlan")
+        case .waitingForDisplay: return model.displayRequiredMessage
         case .ready: return L10n.tr("Hazır olduğunda ekranını paylaş.")
         case .preparing: return L10n.tr("Ekran paylaşımı başlatılıyor.")
-        case .captureReady, .connecting: return L10n.tr("TV bağlantısı")
+        case .captureReady, .connecting: return playback.displayConnection.title
         case .presenting: return L10n.tr("İzlemek istediğin uygulamaya geçebilirsin.")
         case .paused: return L10n.tr("Hazır olduğunda paylaşıma devam edebilirsin.")
         case .stopping: return L10n.tr("Yayın sonlandırılıyor.")

@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Manage subscription";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Unable to connect to the App Store. Try again.";
-"Büyük kontroller" = "Large controls";
+"Araç modu" = "Vehicle mode";
 "Ayarlar" = "Settings";
 "Açık" = "Connected";
 "Bağlantı testi" = "Connection test";
@@ -344,3 +344,71 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Pinch in to return to normal";
 "Hareket tanıtımını yeniden göster" = "Show gesture introduction again";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Show the volume, brightness, and screen gestures in the player again.";
+
+"Araç video desteği" = "Vehicle video support";
+"CarPlay bağlı" = "CarPlay connected";
+"CarPlay sahnesi" = "CarPlay scene";
+"CarPlay video testini başlat" = "Start CarPlay video test";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Connect to CarPlay and open the app on your car display.";
+"Araç bağlantısında hatırlat" = "Remind me when connected to a car";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Sends one reminder on your phone when a new CarPlay session is detected. Car connection information is not sent to a server.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay video is available in supported vehicles while parked.";
+
+"Sıfırla" = "Reset";
+"İptal" = "Cancel";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Gesture introduction reset. It will appear the next time you open landscape full screen.";
+"İndiriliyor" = "Downloading";
+"Kontrol" = "Checking";
+"Başarısız" = "Failed";
+"İndirme başarısız. Yeniden dene." = "Download failed. Try again.";
+"Bu film/dizi biçimi indirilemiyor." = "This movie or series format cannot be downloaded.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "The provider rejected the download request (HTTP %d). Check your login or download permission.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "The provider returned HTTP %d for the download request.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "This vehicle does not support CarPlay video playback.";
+"Tam ekrandan çık" = "Exit full screen";
+
+// Display connection status and disconnection
+"Harici ekran" = "External display";
+"Araç ekranında oynatılıyor" = "Playing on the car display";
+"Harici ekranda oynatılıyor" = "Playing on the external display";
+"Bağlantıyı kesme adımları" = "How to disconnect";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "For wired CarPlay, unplug the USB cable. For wireless CarPlay, disconnect from the car display. If you use CarPlay Simulator, end the connection in the simulator.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "For AirPlay, go to Control Center → Screen Mirroring → Stop Mirroring. For a wired display, unplug the HDMI/USB adapter.";
+
+"%d içerik" = "%d items";
+"Kategoriler" = "Categories";
+"Canlı yayın" = "Live";
+"Video" = "Video";
+"İçerik hakkında" = "About this content";
+"Daha az göster" = "Show less";
+"Devamını oku" = "Read more";
+"İçerik bilgileri yükleniyor…" = "Loading content details…";
+"Bu içerik için açıklama paylaşılmamış." = "No description has been provided for this content.";
+"Tür" = "Genre";
+"Yönetmen" = "Director";
+"Oyuncular" = "Cast";
+"%d dk" = "%d min";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Display connections";
+"Ekran bağlantısı" = "Display connection";
+"Ekrana bağlan" = "Connect to a display";
+"Bağlı: %@" = "Connected: %@";
+"AirPlay ile oynatılıyor" = "Playing via AirPlay";
+"Başka bir ekrana bağlan" = "Connect to another display";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "Could not connect to %@. Check your connection and try again.";
+
+// Series library
+"Özel bölümler" = "Specials";
+"%d. sezon" = "Season %d";
+"%d. bölüm" = "Episode %d";
+"%d sezon" = "%d seasons";
+"%d bölüm" = "%d episodes";
+"%d dizi" = "%d series";
+"Diğer içerikler" = "Other content";
+"Bölüm ara" = "Search episodes";
+"Dizi ara" = "Search series";
+"Bu içerik için açıklama bulunamadı." = "No description was found for this content.";
+"İçerik bilgileri yüklenemedi." = "Unable to load content details.";

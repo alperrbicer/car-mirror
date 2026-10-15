@@ -115,6 +115,86 @@ final class ProductUITests: XCTestCase {
         capture("continue-watching-with-active-player", app: app)
     }
 
+    func testPlaybackQueueSearchSelectsAnotherChannel() {
+        let app = launch(continuations: true)
+        defer { app.terminate() }
+        app.buttons["page-library"].tap()
+        let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Mirivo Demo", "Oynatma listesi")).firstMatch
+        XCTAssertTrue(source.waitForExistence(timeout: 10))
+        reveal(source, in: app)
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        let all = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Tüm kanallar")).firstMatch
+        if !all.waitForExistence(timeout: 3), source.isHittable {
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        }
+        XCTAssertTrue(all.waitForExistence(timeout: 10)); all.tap()
+        let first = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 01")).firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 5)); first.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        let pause = app.buttons["player-play-pause"]
+        XCTAssertTrue(pause.waitForExistence(timeout: 5))
+        if pause.label == "Duraklat" { pause.tap() }
+        let queue = app.buttons["player-channel-picker"]
+        let ready = NSPredicate { _, _ in queue.exists && queue.isEnabled }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: ready, object: queue)], timeout: 10), .completed)
+        queue.tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        if !search.isHittable { app.swipeDown() }
+        search.tap(); search.typeText("02")
+        let channel = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Mirivo Demo 02")).firstMatch
+        XCTAssertTrue(channel.waitForExistence(timeout: 5))
+        capture("audit-player-queue-search", app: app)
+        channel.tap()
+        XCTAssertTrue(app.navigationBars["Mirivo Demo 02"].waitForExistence(timeout: 5))
+        capture("audit-player-queue-selected", app: app)
+    }
+
+    func testPlayerTVPickerAndManualFullscreenExitPersist() {
+        let app = launch(continuations: true)
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
+        app.buttons["page-library"].tap()
+        let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5)); card.tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 5), .completed)
+        if app.buttons["Tamam"].waitForExistence(timeout: 2) { app.buttons["Tamam"].tap() }
+        if !app.buttons["tv-connection"].isHittable { video.tap() }
+        app.buttons["tv-connection"].tap()
+        XCTAssertTrue(app.buttons["Kapat"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 12)
+        XCTAssertTrue(app.buttons["Kapat"].isHittable, "TV search must survive both chrome and discovery timers")
+        capture("tv-picker-stays-open", app: app)
+        app.buttons["Kapat"].tap()
+        if !app.buttons["player-fullscreen"].isHittable { video.tap() }
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.28))
+            .press(forDuration: 0.05, thenDragTo: video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.78)))
+        let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
+        XCUIDevice.shared.orientation = .portrait
+        XCUIDevice.shared.orientation = .landscapeRight
+        Thread.sleep(forTimeInterval: 2)
+        XCTAssertGreaterThan(app.frame.height, app.frame.width)
+        XCTAssertLessThan(video.frame.height, video.frame.width)
+        capture("manual-fullscreen-exit-persists", app: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(card.waitForExistence(timeout: 5)); card.tap()
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 5), .completed)
+        if !app.buttons["player-options"].isHittable { video.tap() }
+        app.buttons["player-options"].tap()
+        app.buttons["Durdur"].tap()
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
+        for _ in 0..<8 {
+            Thread.sleep(forTimeInterval: 0.25)
+            XCTAssertGreaterThan(app.frame.height, app.frame.width, "Stopped player must not re-enable landscape")
+        }
+        capture("continue-watching-stop-stays-portrait", app: app)
+    }
+
     func testContinueWatchingLargeTextLayout() {
         let app = launch(large: true, continuations: true)
         defer { app.terminate() }
@@ -179,7 +259,11 @@ final class ProductUITests: XCTestCase {
         app.buttons["subtitles-off"].tap()
         XCTAssertTrue(app.buttons["subtitles-off"].isSelected)
         capture("player-fullscreen-subtitles-off", app: app)
-        app.buttons["close-media-options"].tap(); app.buttons["close-fullscreen"].tap()
+        app.buttons["close-media-options"].tap()
+        if !app.buttons["player-fullscreen"].isHittable {
+            app.otherElements["player-video"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.22)).tap()
+        }
+        app.buttons["player-fullscreen"].tap()
         app.otherElements["player-video"].coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.32)).doubleTap()
         let position = app.sliders["Oynatma konumu"].value as? String
         XCTAssertNotEqual(position, "00:00")
@@ -406,13 +490,22 @@ final class ProductUITests: XCTestCase {
         XCTAssertEqual(pause.label, "Oynat")
         capture("player-inline-custom-controls", app: app)
         vehicle.tap()
-        let close = app.buttons["close-fullscreen"]
-        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        XCTAssertTrue(vehicle.isSelected)
         XCTAssertFalse(app.buttons["pro-close"].exists, "Free viewing must include large controls")
         capture("player-free-large-controls", app: app)
-        close.tap()
-        XCTAssertTrue(fullscreen.waitForExistence(timeout: 5)); fullscreen.tap()
-        XCTAssertTrue(close.waitForExistence(timeout: 5))
+        fullscreen.tap() // Switch from large controls to the standard fullscreen layout.
+        XCTAssertEqual(fullscreen.label, "Tam ekrandan çık")
+        fullscreen.tap()
+        XCTAssertEqual(fullscreen.label, "Tam ekran")
+        fullscreen.tap()
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 5), .completed)
+        if app.staticTexts["Yatay tam ekran hareketleri"].waitForExistence(timeout: 3) {
+            capture("audit-player-gesture-intro", app: app)
+            app.buttons["Tamam"].tap()
+        }
+        let close = app.buttons["player-fullscreen"]
         video.pinch(withScale: 2, velocity: 1)
         pause.tap()
         app.buttons["player-options"].tap()
@@ -433,24 +526,23 @@ final class ProductUITests: XCTestCase {
         let optionsClosed = NSPredicate { _, _ in !stopOption.exists }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: optionsClosed, object: stopOption)], timeout: 6), .completed)
         Thread.sleep(forTimeInterval: 0.8) // Finish the UIKit dismissal before rotating.
-        XCUIDevice.shared.orientation = .landscapeLeft
-        let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
-        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 5), .completed)
-        XCTAssertLessThan(close.frame.minY, 50, "Rotation must refresh the portrait top inset")
-        XCTAssertGreaterThanOrEqual(app.staticTexts["Mirivo Demo 01"].frame.minX, 50, "Keep the title outside the notch")
-        XCTAssertLessThan(close.frame.maxX, app.frame.maxX - 40, "Keep the close button inside the landscape safe area")
+        let options = app.buttons["player-options"]
+        if !options.isHittable { video.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.22)).tap() }
+        XCTAssertGreaterThanOrEqual(options.frame.minX, 40)
+        XCTAssertLessThan(options.frame.maxX, app.frame.maxX - 40, "Keep controls inside the landscape safe area")
         capture("player-fullscreen-landscape-controls", app: app)
         video.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.32)).doubleTap()
         capture("player-seek-forward-landscape", app: app, waitForTransition: false)
         XCUIDevice.shared.orientation = .portrait
         let portrait = NSPredicate { _, _ in
-            app.frame.height > app.frame.width && video.frame.height > video.frame.width && close.frame.minY >= 50
+            app.frame.height > app.frame.width && video.frame.height > video.frame.width
         }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
         video.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.28))
             .press(forDuration: 0.05, thenDragTo: video.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.72)))
-        XCTAssertTrue(app.navigationBars["Oynatıcı"].waitForExistence(timeout: 5))
-        XCTAssertFalse(close.exists)
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 5))
+        XCTAssertEqual(close.label, "Tam ekran")
+        XCTAssertLessThan(video.frame.height, video.frame.width)
         capture("player-inline-after-fullscreen", app: app)
     }
 
@@ -619,6 +711,277 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(files.buttons["source-file"].waitForExistence(timeout: 5))
         files.terminate()
     }
+    func testSettingsSecondaryScreensAndConnectionGuide() {
+        let app = launch()
+        defer { app.terminate() }
+        app.buttons["open-settings"].tap()
+        XCTAssertTrue(app.buttons["settings-quality"].waitForExistence(timeout: 5))
+        func selectPreference(_ identifier: String, _ value: String) {
+            let picker = app.buttons[identifier]
+            picker.tap()
+            let option = app.buttons[value]
+            XCTAssertTrue(option.waitForExistence(timeout: 3))
+            option.tap()
+            // UIKit can publish menu items before the opening animation finishes.
+            if !option.waitForNonExistence(timeout: 2) { option.tap() }
+            XCTAssertTrue(option.waitForNonExistence(timeout: 3))
+            XCTAssertTrue(picker.label.contains(value))
+        }
+        selectPreference("settings-quality", "Yüksek")
+        selectPreference("settings-audio", "Kaynak uygulamadan")
+        capture("audit-settings-preferences", app: app)
+        for identifier in ["settings-notifications", "settings-language", "settings-vlc", "settings-cast", "settings-connection-test"] {
+            reveal(app.buttons[identifier], in: app)
+            app.buttons[identifier].tap()
+            capture("audit-" + identifier, app: app)
+            XCTAssertTrue(app.navigationBars.buttons.element(boundBy: 0).isHittable)
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
+        // Restore the defaults changed by this UI-only audit.
+        for _ in 0..<10 {
+            if app.buttons["settings-quality"].isHittable { break }
+            app.swipeDown()
+        }
+        selectPreference("settings-quality", "Dengeli")
+        selectPreference("settings-audio", "Görüntüyle birlikte")
+        reveal(app.buttons["settings-player-gesture-intro"], in: app)
+        app.buttons["settings-player-gesture-intro"].tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 3))
+        capture("audit-gesture-reset", app: app)
+        app.alerts.buttons["Tamam"].tap()
+        app.buttons["close-settings"].tap()
+        reveal(app.buttons["tv-connection"], in: app)
+        app.buttons["tv-connection"].tap()
+        XCTAssertTrue(app.navigationBars["Ekran bağlantısı"].waitForExistence(timeout: 5))
+        capture("audit-tv-picker", app: app)
+        reveal(app.buttons["tv-connection-help"], in: app)
+        app.buttons["tv-connection-help"].tap()
+        for route in ["Google Cast", "AirPlay", "CarPlay"] {
+            app.buttons["guide-" + route].tap()
+            XCTAssertTrue(app.buttons["guide-" + route].isSelected)
+            capture("audit-guide-" + route, app: app)
+        }
+        XCTAssertFalse(app.staticTexts["TV bulunamadı"].exists)
+    }
+
+    func testCarPlayStatusUsesVehicleLabelsAndFitsLargeText() {
+        for videoSupported in [true, false] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-carplay", "-AppleLanguages", "(tr)",
+                                   "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+            if !videoSupported { app.launchArguments.append("-mirivo-ui-carplay-no-video") }
+            XCUIDevice.shared.orientation = .portrait
+            app.launch()
+            let status = app.buttons["tv-route-status"]
+            XCTAssertTrue(status.waitForExistence(timeout: 10))
+            XCTAssertEqual(status.label, "CarPlay")
+            capture("audit-carplay-home-large", app: app)
+            status.tap()
+            let navigation = app.navigationBars["CarPlay"]
+            if !navigation.waitForExistence(timeout: 3), status.isHittable { status.tap() }
+            guard navigation.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
+            let text = videoSupported
+                ? "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir."
+                : "Bu araç CarPlay video oynatmayı desteklemiyor."
+            reveal(app.staticTexts[text], in: app)
+            XCTAssertTrue(app.staticTexts[text].isHittable)
+            XCTAssertFalse(app.staticTexts["AirPlay ekranı"].exists)
+            XCTAssertFalse(app.buttons["disconnect-tv-route"].exists)
+            let disconnect = app.buttons["disconnect-carPlay-help"]
+            reveal(disconnect, in: app)
+            XCTAssertTrue(disconnect.isHittable)
+            disconnect.tap()
+            let help = app.alerts["Bağlantıyı kesme adımları"]
+            if !help.waitForExistence(timeout: 3), disconnect.isHittable { disconnect.tap() }
+            guard help.waitForExistence(timeout: 5) else {
+                XCTFail(app.debugDescription)
+                app.terminate()
+                return
+            }
+            XCTAssertTrue(app.alerts.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Kablolu CarPlay")).firstMatch.exists)
+            capture("audit-carplay-disconnect-\(videoSupported)", app: app)
+            app.alerts.buttons["Tamam"].tap()
+            capture("audit-carplay-status-\(videoSupported)", app: app)
+            app.buttons["Kapat"].tap()
+            XCTAssertTrue(app.buttons["open-settings"].isHittable)
+            if videoSupported {
+                app.buttons["open-settings"].tap()
+                app.buttons["settings-pro"].tap()
+                let lifetime = app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"]
+                XCTAssertTrue(lifetime.waitForExistence(timeout: 15))
+                reveal(lifetime, in: app)
+                let description = app.staticTexts["pro-description-com.alperbicer.carmirror.pro.lifetime"]
+                XCTAssertGreaterThan(description.frame.width, app.frame.width * 0.6,
+                                     "Large text descriptions must not be squeezed beside a fixed-width price")
+                capture("audit-pro-large-text", app: app)
+                reveal(app.buttons["pro-purchase"], in: app)
+                XCTAssertTrue(app.buttons["pro-purchase"].isHittable)
+                capture("audit-pro-purchase-large-text", app: app)
+            }
+            app.terminate()
+        }
+    }
+
+    func testExternalCarPlayAndTVStatusOfferTheCorrectDisconnectSteps() {
+        for carPlay in [true, false] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-mirivo-ui-testing", carPlay ? "-mirivo-ui-carplay-display" : "-mirivo-ui-external-display",
+                                   "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+            app.launch()
+            let status = app.buttons["tv-route-status"]
+            XCTAssertTrue(status.waitForExistence(timeout: 10))
+            XCTAssertEqual(status.label, carPlay ? "CarPlay" : "Harici ekran")
+            capture(carPlay ? "route-carplay-home" : "route-tv-home", app: app)
+            status.tap()
+            let disconnect = app.buttons[carPlay ? "disconnect-carPlay-help" : "disconnect-externalDisplay-help"]
+            if !disconnect.waitForExistence(timeout: 3), status.isHittable { status.tap() }
+            XCTAssertTrue(disconnect.waitForExistence(timeout: 5))
+            XCTAssertTrue(app.staticTexts[carPlay ? "CarPlay bağlı" : "Harici ekran"].exists)
+            XCTAssertFalse(app.staticTexts["AirPlay ekranı"].exists)
+            XCTAssertFalse(app.staticTexts["Bu araç CarPlay video oynatmayı desteklemiyor."].exists)
+            capture(carPlay ? "route-carplay-status" : "route-tv-status", app: app)
+            disconnect.tap()
+            let alert = app.alerts["Bağlantıyı kesme adımları"]
+            XCTAssertTrue(alert.waitForExistence(timeout: 3))
+            XCTAssertTrue(alert.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", carPlay ? "CarPlay Simulator" : "Yansıtmayı Durdur")).firstMatch.exists)
+            capture(carPlay ? "route-carplay-disconnect" : "route-tv-disconnect", app: app)
+            app.terminate()
+        }
+    }
+
+    func testConnectionStatusButtonMatchesHomeInChannelToolbar() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-carplay-display", "-AppleLanguages", "(tr)",
+                               "-AppleLocale", "tr_TR", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
+        app.launch()
+        defer { app.terminate() }
+        let status = app.buttons["tv-route-status"]
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        let homeSize = status.frame.size
+        capture("route-toolbar-home", app: app)
+        guard openSourceEditor(in: app) else { return }
+        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Route Toolbar QA")
+        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
+        app.buttons["Ekle"].tap()
+        let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Route Toolbar QA")).firstMatch
+        guard source.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        let all = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Tüm kanallar")).firstMatch
+        if !all.waitForExistence(timeout: 3), source.isHittable {
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        }
+        XCTAssertTrue(all.waitForExistence(timeout: 10))
+        let toolbarStatus = app.navigationBars.buttons["tv-route-status"]
+        XCTAssertTrue(toolbarStatus.waitForExistence(timeout: 5))
+        XCTAssertEqual(toolbarStatus.label, "CarPlay")
+        XCTAssertEqual(toolbarStatus.frame.width, homeSize.width, accuracy: 1)
+        XCTAssertEqual(toolbarStatus.frame.height, homeSize.height, accuracy: 1)
+        capture("route-toolbar-channels", app: app)
+        toolbarStatus.tap()
+        XCTAssertTrue(app.buttons["disconnect-carPlay-help"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["AirPlay ekranı"].exists)
+    }
+
+    func testCarPlayAndExternalDisplayNamesStayConsistentAcrossHomePlayerAndMiniPlayer() {
+        continueAfterFailure = false
+        for carPlay in [true, false] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-mirivo-ui-testing", carPlay ? "-mirivo-ui-carplay-display" : "-mirivo-ui-external-display",
+                                   "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
+                                   "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
+            XCUIDevice.shared.orientation = .portrait
+            app.launch()
+            let destination = carPlay ? "CarPlay" : "Harici ekran"
+            let connection = app.buttons["tv-connection"]
+            XCTAssertTrue(connection.waitForExistence(timeout: 10))
+            XCTAssertEqual(connection.label, destination)
+            XCTAssertFalse(app.staticTexts["TV’ye bağlan"].exists)
+            capture("appwide-route-home-\(carPlay)", app: app)
+            reveal(app.buttons["share-link"], in: app)
+            app.buttons["share-link"].tap()
+            let url = app.textFields["quick-media-url"]
+            XCTAssertTrue(url.waitForExistence(timeout: 5))
+            url.tap(); url.typeText("http://127.0.0.1:8769/tracks/options.mp4")
+            app.buttons["quick-media-play"].tap()
+            let output = app.staticTexts["player-output-destination"]
+            XCTAssertTrue(output.waitForExistence(timeout: 15))
+            XCTAssertEqual(output.label, destination)
+            XCTAssertEqual(connection.label, destination)
+            let pause = app.buttons["player-play-pause"]
+            let playing = NSPredicate { _, _ in pause.exists && pause.label == "Duraklat" }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: playing, object: app)], timeout: 15), .completed)
+            pause.tap()
+            XCTAssertEqual(app.staticTexts["player-output-status"].label, "Yayın duraklatıldı")
+            capture("appwide-route-player-\(carPlay)", app: app)
+            connection.tap()
+            XCTAssertTrue(app.navigationBars[destination].waitForExistence(timeout: 5))
+            XCTAssertFalse(app.staticTexts["TV bağlantısı"].exists)
+            let another = app.buttons["connect-another-display"]
+            reveal(another, in: app)
+            another.tap()
+            let picker = app.navigationBars["Ekran bağlantısı"]
+            XCTAssertTrue(picker.waitForExistence(timeout: 5))
+            XCTAssertTrue(app.staticTexts["CarPlay"].exists)
+            capture("appwide-route-picker-\(carPlay)", app: app)
+            picker.buttons["Kapat"].tap()
+            app.navigationBars[destination].buttons["Kapat"].tap()
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            let mini = app.buttons["now-playing-open"]
+            XCTAssertTrue(mini.waitForExistence(timeout: 5))
+            XCTAssertTrue(mini.label.contains(destination))
+            app.buttons["Oynat"].tap()
+            let expectedStatus = carPlay ? "Araç ekranında oynatılıyor" : "Harici ekranda oynatılıyor"
+            XCTAssertTrue(app.staticTexts[expectedStatus].waitForExistence(timeout: 5))
+            capture("appwide-route-mini-\(carPlay)", app: app)
+            app.terminate()
+        }
+    }
+
+    func testDisconnectedConnectionEntryUsesGenericDisplayLabels() {
+        let app = launch()
+        defer { app.terminate() }
+        let connection = app.buttons["tv-connection"]
+        XCTAssertTrue(connection.waitForExistence(timeout: 10))
+        XCTAssertEqual(connection.label, "Ekran bağlantısı")
+        XCTAssertTrue(app.staticTexts["Ekrana bağlan"].exists)
+        connection.tap()
+        XCTAssertTrue(app.navigationBars["Ekran bağlantısı"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["CarPlay"].exists)
+        capture("appwide-route-disconnected-picker", app: app)
+    }
+
+    func testOfflineDownloadPlaybackAndRemoval() {
+        let app = launch()
+        defer { app.terminate() }
+        guard openSourceEditor(in: app) else { return }
+        app.buttons["source-kind"].tap(); app.buttons["Yayın bağlantısı"].tap()
+        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Offline QA")
+        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/tracks/options.mp4?offline=screen-audit")
+        app.buttons["Ekle"].tap()
+        let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Offline QA", "Yayın bağlantısı")).firstMatch
+        XCTAssertTrue(source.waitForExistence(timeout: 10))
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        let download = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "download-")).firstMatch
+        XCTAssertTrue(download.waitForExistence(timeout: 10)); download.tap()
+        let finished = app.images["İndirildi"]
+        XCTAssertTrue(finished.waitForExistence(timeout: 30))
+        capture("audit-download-finished", app: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        reveal(app.buttons["offline-downloads-open"], in: app)
+        app.buttons["offline-downloads-open"].tap()
+        XCTAssertTrue(app.staticTexts["Çevrimdışı izlemeye hazır"].waitForExistence(timeout: 5))
+        capture("audit-downloads", app: app)
+        let row = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "offline-item-")).firstMatch
+        row.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        capture("audit-offline-player", app: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.staticTexts["Çevrimdışı izlemeye hazır"].waitForExistence(timeout: 5))
+        row.swipeLeft(); app.buttons["Sil"].tap()
+        XCTAssertTrue(app.staticTexts["Henüz indirilen içerik yok"].waitForExistence(timeout: 5))
+        capture("audit-downloads-empty", app: app)
+    }
+
     private func launch(language: String = "tr", large: Bool = false, continuations: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(\(language))", "-AppleLocale", language.replacingOccurrences(of: "-", with: "_")]
@@ -693,7 +1056,9 @@ final class ProductUITests: XCTestCase {
             let url = app.textFields["source-url"]
             XCTAssertTrue(url.waitForExistence(timeout: 5))
             let name = "QA RTL 1"
-            app.textFields["source-name"].tap(); app.textFields["source-name"].typeText(name)
+            app.textFields["source-name"].tap()
+            if !app.keyboards.firstMatch.waitForExistence(timeout: 2) { app.textFields["source-name"].tap() }
+            app.textFields["source-name"].typeText(name)
             let address = "https://example.com/live.m3u?user=qa&token=abc123"
             url.tap(); url.typeText(address)
             XCTAssertEqual(url.value as? String, address, "\(language): URL must remain intact")
@@ -841,17 +1206,15 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.buttons["open-settings"].label, "設定", "Explicit language persists across launches")
         app.buttons["open-settings"].tap()
-        app.buttons["プライバシーポリシー"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["Privacy Policy"].waitForExistence(timeout: 10), "Non-TR languages have a working English legal document")
-        capture("legal-fallback-ja", app: app)
-        app.webViews.links["Türkçe"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["Gizlilik Politikası"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.segmentedControls.buttons["Türkçe"].isSelected)
-        app.segmentedControls.buttons["English"].tap()
-        XCTAssertTrue(app.webViews.staticTexts["Privacy Policy"].waitForExistence(timeout: 10))
-        app.webViews.links["Terms"].tap()
-        XCTAssertTrue(app.navigationBars["利用規約（EULA）"].waitForExistence(timeout: 5))
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        for identifier in ["settings-privacy", "settings-terms", "settings-support"] {
+            reveal(app.buttons[identifier], in: app)
+            XCTAssertTrue(app.buttons[identifier].isHittable)
+        }
+        capture("settings-links-ja", app: app)
+        for _ in 0..<8 {
+            if app.buttons["settings-language"].isHittable { break }
+            app.swipeDown()
+        }
         app.buttons["settings-language"].tap()
         app.buttons["language-system"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -962,21 +1325,20 @@ final class ProductUITests: XCTestCase {
             app.terminate()
         }
     }
-    func testEnglishLayoutAndLargeTextLandscape() {
+    func testEnglishLargeTextKeepsHomePortraitAndControlsReachable() {
         let app = launch(language: "en", large: true)
         XCTAssertTrue(app.buttons["page-mirror"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Share your screen"].exists)
         capture("09-mirivo-large-text-en", app: app)
         XCUIDevice.shared.orientation = .landscapeLeft
-        let rotated = NSPredicate { _, _ in app.frame.width > app.frame.height }
-        expectation(for: rotated, evaluatedWith: app)
-        waitForExpectations(timeout: 10)
-        // The entire page scrolls at accessibility sizes, including after rotation.
+        // Only the player rotates; the home screen stays portrait on iPhone.
+        XCTAssertGreaterThan(app.frame.height, app.frame.width)
+        // All controls remain reachable by scrolling at accessibility sizes.
         reveal(app.staticTexts["Share your screen"], in: app)
-        capture("10-mirivo-landscape-en", app: app)
+        capture("10-mirivo-large-text-share-en", app: app)
         XCTAssertTrue(app.staticTexts["Share your screen"].isHittable, app.debugDescription)
         app.swipeUp()
-        capture("11-mirivo-landscape-scrolled-en", app: app)
+        capture("11-mirivo-large-text-scrolled-en", app: app)
         XCUIDevice.shared.orientation = .portrait
     }
 }

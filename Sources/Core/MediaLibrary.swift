@@ -35,6 +35,8 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
     public let title: String
     public let group: String
     public let url: URL
+    public let metadata: MediaMetadata
+    public let episode: MediaEpisode?
     public var requiresCompatibilityPlayback: Bool {
         ["mkv", "webm", "avi", "ts", "flac", "ogg", "opus"].contains(url.pathExtension.lowercased())
     }
@@ -42,13 +44,24 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
         ["mp3", "m4a", "aac", "wav", "aif", "aiff", "flac", "ogg", "opus"].contains(url.pathExtension.lowercased())
     }
     public var isLive: Bool {
-        !url.isFileURL && !isAudio && !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(url.pathExtension.lowercased())
+        // Xtream uses the same HLS extension for live channels and can use
+        // container formats such as MKV for VOD. Prefer its route metadata
+        // over the extension when it is present.
+        let route = Set(url.pathComponents.map { $0.lowercased() })
+        if route.contains("live") { return true }
+        if route.contains("movie") || route.contains("series") { return false }
+        return !url.isFileURL && !isAudio && !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(url.pathExtension.lowercased())
     }
-    public init(title: String, group: String = "", url: URL) {
+    public var isDownloadableVideo: Bool {
+        !isLive && ["m3u8", "mp4", "m4v", "mov", "mkv", "avi", "webm"].contains(url.pathExtension.lowercased())
+    }
+    public init(title: String, group: String = "", url: URL, metadata: MediaMetadata = MediaMetadata()) {
         self.id = url.absoluteString
         self.title = String(title.prefix(200))
         self.group = String(group.prefix(100))
         self.url = url
+        self.metadata = metadata
+        self.episode = MediaEpisode.parse(self.title)
     }
 }
 
@@ -102,32 +115,52 @@ public enum M3UParser {
         if text.contains("#EXT-X-TARGETDURATION:") || text.contains("#EXT-X-STREAM-INF:") {
             return [MediaChannel(title: fallbackTitle, url: baseURL)]
         }
-        var title: String?, group = "", channels: [MediaChannel] = [], seen: Set<String> = []
+        var title: String?, group = "", metadata = MediaMetadata()
+        var channels: [MediaChannel] = [], seen: Set<String> = []
         for line in text.components(separatedBy: .newlines) {
             let line = line.trimmingCharacters(in: .whitespacesAndNewlines)
             if line.hasPrefix("#EXTINF:") {
                 // Commas inside quoted attributes do not terminate metadata.
-                var quoted = false
+                var quote: Character?
                 let comma = line.indices.first { index in
-                    if line[index] == "\"" { quoted.toggle() }
-                    return line[index] == "," && !quoted
+                    let character = line[index]
+                    if character == "\"" || character == "'" {
+                        if quote == character { quote = nil }
+                        else if quote == nil { quote = character }
+                    }
+                    return character == "," && quote == nil
                 }
+                let attributes = attributes(in: comma.map { String(line[..<$0]) } ?? line)
                 title = comma.map { String(line[line.index(after: $0)...]).trimmingCharacters(in: .whitespaces) }
-                group = attribute("group-title", in: line) ?? ""
+                group = attributes["group-title"] ?? ""
+                let duration = line.dropFirst(8).prefix { !$0.isWhitespace && $0 != "," }
+                metadata = MediaMetadata(
+                    artworkURL: MediaMetadata.artworkURL(attributes["tvg-logo"], relativeTo: baseURL),
+                    summary: attributes["tvg-description"] ?? attributes["description"] ?? attributes["plot"],
+                    genre: attributes["genre"],
+                    year: attributes["year"],
+                    duration: Double(duration),
+                    rating: attributes["rating"].flatMap(Double.init))
             } else if line.hasPrefix("#EXTGRP:") { group = String(line.dropFirst(8)) }
             else if !line.isEmpty, !line.hasPrefix("#") {
-                defer { title = nil; group = "" }
+                defer { title = nil; group = ""; metadata = MediaMetadata() }
                 guard let url = try? MediaURL.validate(line, relativeTo: baseURL), seen.insert(url.absoluteString).inserted else { continue }
-                channels.append(MediaChannel(title: title?.isEmpty == false ? title! : fallbackTitle, group: group, url: url))
+                channels.append(MediaChannel(title: title?.isEmpty == false ? title! : fallbackTitle, group: group, url: url, metadata: metadata))
                 if channels.count >= maximumChannels { break }
             }
         }
         guard !channels.isEmpty else { throw LibraryError.emptyPlaylist }
         return channels
     }
-    private static func attribute(_ name: String, in line: String) -> String? {
-        guard let range = line.range(of: name + "=\"") else { return nil }
-        return line[range.upperBound...].split(separator: "\"", omittingEmptySubsequences: false).first.map(String.init)
+    private static let attributePattern = try! NSRegularExpression(pattern: #"(?:^|\s)([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')"#)
+    private static func attributes(in line: String) -> [String: String] {
+        var result: [String: String] = [:]
+        for match in attributePattern.matches(in: line, range: NSRange(line.startIndex..., in: line)) {
+            guard let name = Range(match.range(at: 1), in: line),
+                  let value = Range(match.range(at: match.range(at: 2).location == NSNotFound ? 3 : 2), in: line) else { continue }
+            result[String(line[name]).lowercased()] = String(line[value])
+        }
+        return result
     }
 }
 

@@ -1,3 +1,5 @@
+> Tarihsel kayıt: 15 Ekim 2026 tarihinde CarPlay Video yeniden etkinleştirildi. Güncel durum için [DEPLOYMENT.md](DEPLOYMENT.md).
+
 # CarPlay’siz App Store adayı — 8 Ekim 2026
 
 CarPlay entegrasyonunun kaldırılması `87329eb` olarak kaydedildi. Başlangıçtaki PiP düzeltmesi `9a4730d`, destek sitesi düzenlemesi `ca21df1` olarak ayrı kaydedildi.

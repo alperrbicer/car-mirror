@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Hantera prenumeration";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Det går inte att ansluta till App Store. Försök igen.";
-"Büyük kontroller" = "Stora reglage";
+"Araç modu" = "Billäge";
 "Ayarlar" = "Inställningar";
 "Açık" = "Ansluten";
 "Bağlantı testi" = "Anslutningstest";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Nyp in för att återgå till normal visning";
 "Hareket tanıtımını yeniden göster" = "Visa gestguiden igen";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Visa volym-, ljusstyrke- och skärmgesterna i spelaren igen.";
+
+"Araç video desteği" = "Bilens videostöd";
+"CarPlay bağlı" = "CarPlay anslutet";
+"CarPlay sahnesi" = "CarPlay-scen";
+"CarPlay video testini başlat" = "Starta videotest för CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Anslut till CarPlay och öppna appen på bilens skärm.";
+"Araç bağlantısında hatırlat" = "Påminn vid anslutning till bilen";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Skickar en påminnelse på telefonen när en ny CarPlay-session upptäcks. Information om bilanslutningen skickas inte till någon server.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay-video är tillgänglig i fordon som stöds när de är parkerade.";
+
+"AirPlay ekranı" = "AirPlay-skärm";
+"AirPlay hedefini değiştir" = "Byt AirPlay-mål";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Använd systemmenyn nedan för att byta AirPlay-mål eller återgå till iPhone.";
+"Bağlı" = "Ansluten";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Dagens kostnadsfria visningstid har återställts. Du kan titta i upp till 2 timmar idag.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Återställa dagens kostnadsfria visningstid?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Öppna Skärmdubblering i iOS Kontrollcenter och koppla från för att avsluta skärmdubbleringen.";
+"Oynatma durduruldu, TV bağlantısı açık" = "Uppspelningen har stoppats; TV:n är fortfarande ansluten";
+"TV bağlantısı açık" = "TV:n är ansluten";
+"TV bağlantısını kes" = "Koppla från TV:n";
+"TV’den ayrıl" = "Lämna TV:n";
+"Video seçenekleri" = "Videoalternativ";
+"Sıfırla" = "Återställ";
+"İptal" = "Avbryt";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Gestintroduktionen har återställts. Den visas nästa gång du öppnar helskärm i liggande läge.";
+"İndiriliyor" = "Hämtar";
+"Kontrol" = "Kontrollerar";
+"Başarısız" = "Misslyckades";
+"İndirme başarısız. Yeniden dene." = "Hämtningen misslyckades. Försök igen.";
+"Bu film/dizi biçimi indirilemiyor." = "Det här film- eller serieformatet kan inte hämtas.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "Leverantören nekade hämtningen (HTTP %d). Kontrollera din inloggning eller behörighet att hämta.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "Leverantören svarade med HTTP %d på hämtningsbegäran.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "Det här fordonet stöder inte videouppspelning via CarPlay.";
+"Tam ekrandan çık" = "Avsluta helskärm";
+
+// Display connection status and disconnection
+"Harici ekran" = "Extern skärm";
+"Araç ekranında oynatılıyor" = "Spelas upp på bilens skärm";
+"Harici ekranda oynatılıyor" = "Spelas upp på den externa skärmen";
+"Bağlantıyı kesme adımları" = "Så kopplar du från";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "Dra ur USB-kabeln för trådbunden CarPlay. Koppla från trådlös CarPlay via bilens skärm. Om du använder CarPlay Simulator avslutar du anslutningen i simulatorn.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "För AirPlay, gå till Kontrollcenter → Skärmdubblering → Avsluta skärmdubblering. Dra ur HDMI/USB-adaptern för en trådbunden skärm.";
+
+"%d içerik" = "%d innehåll";
+"Kategoriler" = "Kategorier";
+"Canlı yayın" = "Direkt";
+"Video" = "Video";
+"İçerik hakkında" = "Om innehållet";
+"Daha az göster" = "Visa mindre";
+"Devamını oku" = "Läs mer";
+"İçerik bilgileri yükleniyor…" = "Läser in innehållsinformation…";
+"Bu içerik için açıklama paylaşılmamış." = "Ingen beskrivning har angetts för det här innehållet.";
+"Tür" = "Genre";
+"Yönetmen" = "Regissör";
+"Oyuncular" = "Rollista";
+"%d dk" = "%d min";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Skärmanslutningar";
+"Ekran bağlantısı" = "Skärmanslutning";
+"Ekrana bağlan" = "Anslut till en skärm";
+"Bağlı: %@" = "Ansluten: %@";
+"AirPlay ile oynatılıyor" = "Spelas upp via AirPlay";
+"Başka bir ekrana bağlan" = "Anslut till en annan skärm";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "Det gick inte att ansluta till %@. Kontrollera anslutningen och försök igen.";
+
+// Series library
+"Özel bölümler" = "Specialavsnitt";
+"%d. sezon" = "Säsong %d";
+"%d. bölüm" = "Avsnitt %d";
+"%d sezon" = "%d säsonger";
+"%d bölüm" = "%d avsnitt";
+"%d dizi" = "%d serier";
+"Diğer içerikler" = "Övrigt innehåll";
+"Bölüm ara" = "Sök avsnitt";
+"Dizi ara" = "Sök serier";
+"Bu içerik için açıklama bulunamadı." = "Ingen beskrivning hittades för det här innehållet.";
+"İçerik bilgileri yüklenemedi." = "Det gick inte att läsa in innehållsinformationen.";

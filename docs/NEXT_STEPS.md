@@ -1,4 +1,4 @@
-> 8 Ekim 2026 güncellemesi: CarPlay kaldırılmıştır. Aşağıdaki CarPlay/build 12 kayıtları tarihsel kanıttır; güncel dağıtım için DEPLOYMENT.md ve CARPLAY_REMOVAL_2026-10-08.md esas alınmalıdır.
+> 15 Ekim 2026 güncellemesi: Apple CarPlay Video yetkisi etkinleştirildi; CarPlay video sahnesi, ekran paylaşımı ve bağlantı hatırlatması geri getirildi. Güncel dağıtım durumu DEPLOYMENT.md içindedir. Aşağıdaki eski build kayıtları tarihseldir.
 
 # Mirivo — kaldığımız yer
 

@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 import AVKit
+import CarPlay
 
 /// Only handles screens that iOS actually supplies.
 @MainActor
@@ -15,14 +16,78 @@ final class ExternalDisplaySceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.isHidden = false
         self.window = window
         MirrorModel.shared.externalScreenConnected(diagnosticID,
-            role: session.role == .windowExternalDisplayNonInteractive ? .externalNonInteractive : .externalInteractive,
+            role: Self.displayRole(role: session.role, idiom: screen.traitCollection.userInterfaceIdiom),
             size: screen.screen.bounds.size)
+    }
+
+    static func displayRole(role: UISceneSession.Role, idiom: UIUserInterfaceIdiom) -> DiagnosticValues.Screen {
+        // CarPlay Simulator can supply an ordinary external-display scene.
+        // Its car idiom still identifies the destination without guessing from size.
+        if idiom == .carPlay || role == .carTemplateApplication || role.rawValue == "UIWindowSceneSessionRoleCarPlay" {
+            return .carPlay
+        }
+        return role == .windowExternalDisplayNonInteractive ? .externalNonInteractive : .externalInteractive
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         window?.isHidden = true
         window = nil
         MirrorModel.shared.externalScreenDisconnected(diagnosticID)
+    }
+}
+
+/// Some iOS CarPlay sessions supply a UIWindowScene rather than the template
+/// scene. Own only that otherwise-empty, system-provided car window; never
+/// replace the phone, an external-display delegate, or a template scene.
+@MainActor
+final class CarPlayWindowCoordinator: NSObject {
+    static let shared = CarPlayWindowCoordinator()
+    private var started = false
+    private var presentations: [String: (window: UIWindow, diagnosticID: UUID)] = [:]
+
+    func start() {
+        guard !started else { return }
+        started = true
+        for name in [UIScene.willConnectNotification, UIScene.didActivateNotification] {
+            NotificationCenter.default.addObserver(self, selector: #selector(sceneAvailable(_:)), name: name, object: nil)
+        }
+        NotificationCenter.default.addObserver(self, selector: #selector(sceneDisconnected(_:)),
+                                               name: UIScene.didDisconnectNotification, object: nil)
+        UIApplication.shared.connectedScenes.forEach(attach)
+    }
+
+    static func shouldAttach(role: UISceneSession.Role, idiom: UIUserInterfaceIdiom,
+                             hasDelegate: Bool, hasWindows: Bool) -> Bool {
+        idiom == .carPlay && role != .windowApplication && role != .carTemplateApplication &&
+            role != .windowExternalDisplay && role != .windowExternalDisplayNonInteractive &&
+            !hasDelegate && !hasWindows
+    }
+
+    @objc private func sceneAvailable(_ notification: Notification) {
+        guard let scene = notification.object as? UIScene else { return }
+        attach(scene)
+    }
+
+    private func attach(_ scene: UIScene) {
+        guard let scene = scene as? UIWindowScene else { return }
+        let id = scene.session.persistentIdentifier
+        guard presentations[id] == nil,
+              Self.shouldAttach(role: scene.session.role, idiom: scene.traitCollection.userInterfaceIdiom,
+                                hasDelegate: scene.delegate != nil, hasWindows: !scene.windows.isEmpty) else { return }
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = UIHostingController(rootView: ExternalDisplayProbeView(model: .shared))
+        let diagnosticID = UUID()
+        presentations[id] = (window, diagnosticID)
+        window.isHidden = false
+        MirrorModel.shared.externalScreenConnected(diagnosticID, role: .carPlay, size: scene.screen.bounds.size)
+    }
+
+    @objc private func sceneDisconnected(_ notification: Notification) {
+        guard let scene = notification.object as? UIScene,
+              let presentation = presentations.removeValue(forKey: scene.session.persistentIdentifier) else { return }
+        presentation.window.isHidden = true
+        presentation.window.rootViewController = nil
+        MirrorModel.shared.externalScreenDisconnected(presentation.diagnosticID)
     }
 }
 

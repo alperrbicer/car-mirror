@@ -8,14 +8,37 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 import json
+import os
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
+PORT = int(os.environ.get("MIRIVO_FIXTURE_PORT", "8769"))
 PLAYLIST = ("#EXTM3U\n" + "".join(
     f'#EXTINF:-1 group-title="Mirivo Demo",Mirivo Demo {i:02}\n'
-    f"http://127.0.0.1:8769/demo.mp4?clip={i}\n" for i in range(1, 7)
+    f"http://127.0.0.1:{PORT}/demo.mp4?clip={i}\n" for i in range(1, 7)
 )).encode()
 VIDEO = (ROOT / "Resources/ConnectionProbe.mp4").read_bytes()
+CATALOG = ("#EXTM3U\n" + "".join(
+    f'#EXTINF:-1 tvg-logo="http://127.0.0.1:{PORT}/catalog/art/{art}.png" group-title="{group}",{title}\n'
+    f'http://127.0.0.1:{PORT}/{kind}/artwork/fixture/{number}.{extension}\n'
+    for number, title, group, art, kind, extension in [
+        (1, "Nova TV", "TR: Ulusal", "nova", "live", "m3u8"),
+        (2, "Haber 24", "TR: Ulusal", "news", "live", "m3u8"),
+        (3, "Arena Spor", "TR: Spor", "arena", "live", "m3u8"),
+        (4, "Spor Plus", "TR: Spor", "nova", "live", "m3u8"),
+        (101, "Mavi Yolculuk", "FİLM: Macera", "voyage", "movie", "mp4"),
+        (102, "Yolun Ötesi", "FİLM: Macera", "beyond", "movie", "mp4"),
+        (103, "Son Işık", "FİLM: Drama", "light", "movie", "mp4"),
+        (104, "Eksik Görsel", "Diğer", "missing", "movie", "mp4"),
+        (105, "Bilgi Bağlantısı Hatası", "Diğer", "missing", "movie", "mp4"),
+        (210, "Kıyı Hikâyeleri S01-E10", "DİZİ: Exxen", "voyage", "series", "mp4"),
+        (221, "Kıyı Hikâyeleri S02-E01", "DİZİ: Exxen", "voyage", "series", "mp4"),
+        (202, "Kıyı Hikâyeleri S01-E02", "DİZİ: Exxen", "voyage", "series", "mp4"),
+        (201, "Kıyı Hikâyeleri S01-E01", "DİZİ: Exxen", "voyage", "series", "mp4"),
+        (304, "Gece Vardiyası S02-E04", "DİZİ: Exxen", "light", "series", "mp4"),
+        (301, "Gece Vardiyası S01-E01", "DİZİ: Exxen", "light", "series", "mp4"),
+    ]
+)).encode()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -32,7 +55,53 @@ class Handler(BaseHTTPRequestHandler):
     def serve(self, body):
         request = urlsplit(self.path)
         path = request.path
-        if path == "/sources/get.php":
+        if path in ["/catalog/get.php", "/catalog.m3u"]:
+            data, mime = CATALOG, "application/vnd.apple.mpegurl"
+        elif path in ["/catalog/player_api.php", "/player_api.php"]:
+            query = parse_qs(request.query)
+            if query.get("action") == ["get_vod_info"]:
+                if query.get("vod_id") == ["105"]:
+                    self.send_error(503)
+                    return
+                info = {"plot": "İki kardeş, yıllar sonra kıyı kasabalarında yeniden buluşur. Eski bir yelkenliyle çıktıkları yolculuk, onları unutulmuş hikâyelere ve yeni başlangıçlara götürür.",
+                        "genre": "Macera, Drama", "releasedate": "2025-06-01", "duration_secs": "6540", "rating": "8.2",
+                        "director": "Deniz Örnek", "cast": "Ada Örnek, Ege Örnek"}
+                data = json.dumps({"info": info if query.get("vod_id") == ["101"] else {}}).encode()
+            elif query.get("action") == ["get_series"]:
+                data = json.dumps([
+                    {"series_id": 500, "name": "Kıyı Hikâyeleri", "plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "genre": "Drama", "releaseDate": "2024-01-26"},
+                    {"series_id": 600, "name": "Gece Vardiyası", "plot": "Gece çalışan bir ekip, şehrin sessiz saatlerinde yeni hikâyeler keşfeder."},
+                ]).encode()
+            elif query.get("action") == ["get_series_info"]:
+                if query.get("series_id") == ["500"]:
+                    info = {"plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "genre": "Drama", "releaseDate": "2024-01-26"}
+                    episodes = {"1": [
+                        {"id": "201", "info": {"plot": "Kasabaya dönen bir mektup, üç arkadaşın hayatını değiştirir.", "duration_secs": 1980}},
+                        {"id": "202", "info": {"duration_secs": 2040}},
+                        {"id": "210", "info": {}},
+                    ], "2": [{"id": "221", "info": {}}]}
+                else:
+                    info = {"plot": "Gece çalışan bir ekip, şehrin sessiz saatlerinde yeni hikâyeler keşfeder."}
+                    episodes = {"1": [{"id": "301", "info": {}}], "2": [{"id": "304", "info": {}}]}
+                data = json.dumps({"info": info, "episodes": episodes}).encode()
+            else:
+                data = json.dumps({"user_info": {"auth": 1, "status": "Active", "exp_date": None}}).encode()
+            mime = "application/json"
+        elif path.startswith("/catalog/art/"):
+            artwork = ROOT / "build/library-artwork-fixtures" / Path(path).name
+            if not artwork.is_file():
+                self.send_error(404)
+                return
+            data, mime = artwork.read_bytes(), "image/png"
+        elif path.startswith("/movie/artwork/fixture/"):
+            data, mime = VIDEO, "video/mp4"
+        elif path.startswith("/series/artwork/fixture/"):
+            fixture = ROOT / "build/playback-options-fixtures/options.mp4"
+            if not fixture.is_file():
+                self.send_error(404)
+                return
+            data, mime = fixture.read_bytes(), "video/mp4"
+        elif path == "/sources/get.php":
             query = parse_qs(request.query)
             if query.get("username") != ["source+user"] or query.get("password") != ["source+p&ss"]:
                 self.send_error(401)
@@ -98,6 +167,6 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print("Mirivo screenshot fixture: http://127.0.0.1:8769/demo.m3u", flush=True)
+    print(f"Mirivo screenshot fixture: http://127.0.0.1:{PORT}/demo.m3u", flush=True)
     # MKV can seek to its cue index while an earlier range is still open.
-    ThreadingHTTPServer(("127.0.0.1", 8769), Handler).serve_forever()
+    ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()

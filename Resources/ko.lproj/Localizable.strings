@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "구독 관리";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "App Store에 연결할 수 없어요. 다시 시도해 주세요.";
-"Büyük kontroller" = "큰 조작 버튼";
+"Araç modu" = "차량 모드";
 "Ayarlar" = "설정";
 "Açık" = "연결됨";
 "Bağlantı testi" = "연결 테스트";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "손가락을 모아 일반 화면으로 돌아가기";
 "Hareket tanıtımını yeniden göster" = "동작 안내 다시 보기";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "플레이어에서 음량, 밝기, 화면 동작 안내를 다시 표시합니다.";
+
+"Araç video desteği" = "차량 비디오 지원";
+"CarPlay bağlı" = "CarPlay 연결됨";
+"CarPlay sahnesi" = "CarPlay 장면";
+"CarPlay video testini başlat" = "CarPlay 비디오 테스트 시작";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlay에 연결하고 차량 화면에서 앱을 열어 주세요.";
+"Araç bağlantısında hatırlat" = "차량 연결 시 알림";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "새 CarPlay 세션이 감지되면 휴대폰으로 한 번 알립니다. 차량 연결 정보는 서버로 전송되지 않습니다.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay 비디오는 지원 차량이 주차되어 있을 때 사용할 수 있습니다.";
+
+"AirPlay ekranı" = "AirPlay 화면";
+"AirPlay hedefini değiştir" = "AirPlay 대상 변경";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "아래 시스템 메뉴에서 AirPlay 대상을 변경하거나 iPhone으로 돌아가세요.";
+"Bağlı" = "연결됨";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "오늘의 무료 시청 시간이 초기화되었습니다. 오늘 최대 2시간까지 시청할 수 있습니다.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "오늘의 무료 시청 시간을 초기화할까요?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "화면 미러링을 중단하려면 iOS 제어 센터에서 화면 미러링을 열고 연결을 해제하세요.";
+"Oynatma durduruldu, TV bağlantısı açık" = "재생이 중지되었으며 TV 연결은 유지됩니다";
+"TV bağlantısı açık" = "TV가 연결되어 있습니다";
+"TV bağlantısını kes" = "TV 연결 해제";
+"TV’den ayrıl" = "TV에서 연결 해제";
+"Video seçenekleri" = "비디오 옵션";
+"Sıfırla" = "초기화";
+"İptal" = "취소";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "제스처 안내가 초기화되었습니다. 다음에 가로 전체 화면을 열면 표시됩니다.";
+"İndiriliyor" = "다운로드 중";
+"Kontrol" = "확인 중";
+"Başarısız" = "실패";
+"İndirme başarısız. Yeniden dene." = "다운로드하지 못했습니다. 다시 시도하세요.";
+"Bu film/dizi biçimi indirilemiyor." = "이 영화 또는 시리즈 형식은 다운로드할 수 없습니다.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "제공업체가 다운로드를 거부했습니다(HTTP %d). 로그인 정보나 다운로드 권한을 확인하세요.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "제공업체가 다운로드 요청에 HTTP %d로 응답했습니다.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "이 차량은 CarPlay 비디오 재생을 지원하지 않습니다.";
+"Tam ekrandan çık" = "전체 화면 종료";
+
+// Display connection status and disconnection
+"Harici ekran" = "외부 디스플레이";
+"Araç ekranında oynatılıyor" = "차량 디스플레이에서 재생 중";
+"Harici ekranda oynatılıyor" = "외부 디스플레이에서 재생 중";
+"Bağlantıyı kesme adımları" = "연결 해제 방법";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "유선 CarPlay는 USB 케이블을 분리하세요. 무선 CarPlay는 차량 디스플레이에서 연결을 해제하세요. CarPlay Simulator를 사용하는 경우 시뮬레이터에서 연결을 종료하세요.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "AirPlay는 제어 센터 → 화면 미러링 → 미러링 중단으로 이동하세요. 유선 디스플레이는 HDMI/USB 어댑터를 분리하세요.";
+
+"%d içerik" = "콘텐츠 %d개";
+"Kategoriler" = "카테고리";
+"Canlı yayın" = "실시간";
+"Video" = "동영상";
+"İçerik hakkında" = "콘텐츠 소개";
+"Daha az göster" = "접기";
+"Devamını oku" = "더 읽기";
+"İçerik bilgileri yükleniyor…" = "콘텐츠 정보 로딩 중…";
+"Bu içerik için açıklama paylaşılmamış." = "이 콘텐츠에 대한 설명이 제공되지 않았습니다.";
+"Tür" = "장르";
+"Yönetmen" = "감독";
+"Oyuncular" = "출연진";
+"%d dk" = "%d분";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "디스플레이 연결";
+"Ekran bağlantısı" = "디스플레이 연결";
+"Ekrana bağlan" = "디스플레이에 연결";
+"Bağlı: %@" = "연결됨: %@";
+"AirPlay ile oynatılıyor" = "AirPlay로 재생 중";
+"Başka bir ekrana bağlan" = "다른 디스플레이에 연결";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "%@에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요.";
+
+// Series library
+"Özel bölümler" = "스페셜";
+"%d. sezon" = "시즌 %d";
+"%d. bölüm" = "에피소드 %d";
+"%d sezon" = "시즌 %d개";
+"%d bölüm" = "에피소드 %d개";
+"%d dizi" = "시리즈 %d개";
+"Diğer içerikler" = "기타 콘텐츠";
+"Bölüm ara" = "에피소드 검색";
+"Dizi ara" = "시리즈 검색";
+"Bu içerik için açıklama bulunamadı." = "이 콘텐츠의 설명을 찾을 수 없습니다.";
+"İçerik bilgileri yüklenemedi." = "콘텐츠 정보를 불러올 수 없습니다.";

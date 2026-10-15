@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "管理訂閱";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "無法連接 App Store，請再試一次。";
-"Büyük kontroller" = "大型控制按鈕";
+"Araç modu" = "車用模式";
 "Ayarlar" = "設定";
 "Açık" = "已連線";
 "Bağlantı testi" = "連線測試";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "捏合雙指以回到正常顯示";
 "Hareket tanıtımını yeniden göster" = "再次顯示手勢說明";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "在播放器中再次顯示音量、亮度和螢幕手勢說明。";
+
+"Araç video desteği" = "車輛影片支援";
+"CarPlay bağlı" = "CarPlay 已連線";
+"CarPlay sahnesi" = "CarPlay 場景";
+"CarPlay video testini başlat" = "開始 CarPlay 影片測試";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "連接 CarPlay，然後在車載螢幕上開啟 App。";
+"Araç bağlantısında hatırlat" = "連接車輛時提醒我";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "偵測到新的 CarPlay 工作階段時，在手機上提醒一次。車輛連線資訊不會傳送至伺服器。";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay 影片可在支援的車輛停放時使用。";
+
+"AirPlay ekranı" = "AirPlay 顯示器";
+"AirPlay hedefini değiştir" = "更改 AirPlay 目標裝置";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "使用下方的系統選單更改 AirPlay 目標裝置或返回 iPhone。";
+"Bağlı" = "已連線";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "今天的免費觀看時間已重設。今天你最多可以觀看 2 小時。";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "重設今天的免費觀看時間？";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "若要停止螢幕鏡像輸出，請在 iOS 控制中心開啟「螢幕鏡像輸出」並中斷連線。";
+"Oynatma durduruldu, TV bağlantısı açık" = "播放已停止，電視仍保持連線";
+"TV bağlantısı açık" = "電視已連線";
+"TV bağlantısını kes" = "中斷電視連線";
+"TV’den ayrıl" = "中斷與電視的連線";
+"Video seçenekleri" = "影片選項";
+"Sıfırla" = "重設";
+"İptal" = "取消";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "手勢介紹已重設。下次開啟橫向全螢幕模式時會再次顯示。";
+"İndiriliyor" = "正在下載";
+"Kontrol" = "正在檢查";
+"Başarısız" = "失敗";
+"İndirme başarısız. Yeniden dene." = "下載失敗，請再試一次。";
+"Bu film/dizi biçimi indirilemiyor." = "無法下載此電影或影集格式。";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "供應商拒絕了下載要求（HTTP %d）。請檢查登入資訊或下載權限。";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "供應商對下載要求回傳了 HTTP %d。";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "此車輛不支援 CarPlay 影片播放。";
+"Tam ekrandan çık" = "結束全螢幕";
+
+// Display connection status and disconnection
+"Harici ekran" = "外接顯示器";
+"Araç ekranında oynatılıyor" = "正在車載螢幕上播放";
+"Harici ekranda oynatılıyor" = "正在外接顯示器上播放";
+"Bağlantıyı kesme adımları" = "如何中斷連線";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "有線 CarPlay：拔除 USB 連接線。無線 CarPlay：在車載螢幕上中斷連線。如果使用 CarPlay Simulator，請在模擬器中結束連線。";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "AirPlay：開啟控制中心 → 螢幕鏡像輸出 → 停止鏡像輸出。有線顯示器：拔除 HDMI/USB 轉接器。";
+
+"%d içerik" = "%d 個內容";
+"Kategoriler" = "分類";
+"Canlı yayın" = "直播";
+"Video" = "影片";
+"İçerik hakkında" = "內容簡介";
+"Daha az göster" = "收起";
+"Devamını oku" = "閱讀更多";
+"İçerik bilgileri yükleniyor…" = "正在載入內容資訊…";
+"Bu içerik için açıklama paylaşılmamış." = "此內容暫無簡介。";
+"Tür" = "類型";
+"Yönetmen" = "導演";
+"Oyuncular" = "演員";
+"%d dk" = "%d 分鐘";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "顯示器連線";
+"Ekran bağlantısı" = "顯示器連線";
+"Ekrana bağlan" = "連接顯示器";
+"Bağlı: %@" = "已連線：%@";
+"AirPlay ile oynatılıyor" = "正在透過 AirPlay 播放";
+"Başka bir ekrana bağlan" = "連接其他顯示器";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "無法連接到 %@。請檢查連線後再試一次。";
+
+// Series library
+"Özel bölümler" = "特別篇";
+"%d. sezon" = "第%d季";
+"%d. bölüm" = "第%d集";
+"%d sezon" = "%d季";
+"%d bölüm" = "%d集";
+"%d dizi" = "%d部影集";
+"Diğer içerikler" = "其他內容";
+"Bölüm ara" = "搜尋單集";
+"Dizi ara" = "搜尋影集";
+"Bu içerik için açıklama bulunamadı." = "找不到此內容的簡介。";
+"İçerik bilgileri yüklenemedi." = "無法載入內容資訊。";

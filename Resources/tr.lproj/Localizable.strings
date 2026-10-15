@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "Aboneliği yönet";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "App Store’a bağlanılamadı. Yeniden deneyebilirsin.";
-"Büyük kontroller" = "Büyük kontroller";
+"Araç modu" = "Araç modu";
 "Ayarlar" = "Ayarlar";
 "Açık" = "Açık";
 "Bağlantı testi" = "Bağlantı testi";
@@ -344,3 +344,71 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Normal görünüme dönmek için parmaklarını kapat";
 "Hareket tanıtımını yeniden göster" = "Hareket tanıtımını yeniden göster";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster.";
+
+"Araç video desteği" = "Araç video desteği";
+"CarPlay bağlı" = "CarPlay bağlı";
+"CarPlay sahnesi" = "CarPlay sahnesi";
+"CarPlay video testini başlat" = "CarPlay video testini başlat";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlay’e bağlanıp araç ekranında uygulamayı aç.";
+"Araç bağlantısında hatırlat" = "Araç bağlantısında hatırlat";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir.";
+
+"Sıfırla" = "Sıfırla";
+"İptal" = "İptal";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek.";
+"İndiriliyor" = "İndiriliyor";
+"Kontrol" = "Kontrol";
+"Başarısız" = "Başarısız";
+"İndirme başarısız. Yeniden dene." = "İndirme başarısız. Yeniden dene.";
+"Bu film/dizi biçimi indirilemiyor." = "Bu film/dizi biçimi indirilemiyor.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "Sağlayıcı indirme isteğine HTTP %d yanıtı verdi.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "Bu araç CarPlay video oynatmayı desteklemiyor.";
+"Tam ekrandan çık" = "Tam ekrandan çık";
+
+// Display connection status and disconnection
+"Harici ekran" = "Harici ekran";
+"Araç ekranında oynatılıyor" = "Araç ekranında oynatılıyor";
+"Harici ekranda oynatılıyor" = "Harici ekranda oynatılıyor";
+"Bağlantıyı kesme adımları" = "Bağlantıyı kesme adımları";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar.";
+
+"%d içerik" = "%d içerik";
+"Kategoriler" = "Kategoriler";
+"Canlı yayın" = "Canlı yayın";
+"Video" = "Video";
+"İçerik hakkında" = "İçerik hakkında";
+"Daha az göster" = "Daha az göster";
+"Devamını oku" = "Devamını oku";
+"İçerik bilgileri yükleniyor…" = "İçerik bilgileri yükleniyor…";
+"Bu içerik için açıklama paylaşılmamış." = "Bu içerik için açıklama paylaşılmamış.";
+"Tür" = "Tür";
+"Yönetmen" = "Yönetmen";
+"Oyuncular" = "Oyuncular";
+"%d dk" = "%d dk";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "Ekran bağlantıları";
+"Ekran bağlantısı" = "Ekran bağlantısı";
+"Ekrana bağlan" = "Ekrana bağlan";
+"Bağlı: %@" = "Bağlı: %@";
+"AirPlay ile oynatılıyor" = "AirPlay ile oynatılıyor";
+"Başka bir ekrana bağlan" = "Başka bir ekrana bağlan";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene.";
+
+// Series library
+"Özel bölümler" = "Özel bölümler";
+"%d. sezon" = "%d. sezon";
+"%d. bölüm" = "%d. bölüm";
+"%d sezon" = "%d sezon";
+"%d bölüm" = "%d bölüm";
+"%d dizi" = "%d dizi";
+"Diğer içerikler" = "Diğer içerikler";
+"Bölüm ara" = "Bölüm ara";
+"Dizi ara" = "Dizi ara";
+"Bu içerik için açıklama bulunamadı." = "Bu içerik için açıklama bulunamadı.";
+"İçerik bilgileri yüklenemedi." = "İçerik bilgileri yüklenemedi.";

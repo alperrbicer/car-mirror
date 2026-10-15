@@ -27,7 +27,6 @@ final class TVDiscovery: NSObject, ObservableObject, @preconcurrency GCKDiscover
     @Published private(set) var searching = false
     @Published private(set) var unavailable = false
     private var observing = false
-    private var searchTask: Task<Void, Never>?
 
     func start() {
         stop()
@@ -38,15 +37,9 @@ final class TVDiscovery: NSObject, ObservableObject, @preconcurrency GCKDiscover
         searching = true
         manager.startDiscovery()
         refreshDevices()
-        searchTask = Task { [weak self] in
-            do { try await Task.sleep(for: .seconds(10)) } catch { return }
-            self?.searching = false
-            self?.unavailable = CastServices.context.discoveryManager.discoveryState == .stopped
-        }
     }
 
     func stop() {
-        searchTask?.cancel(); searchTask = nil
         if observing {
             let manager = CastServices.context.discoveryManager
             manager.remove(self)
@@ -63,5 +56,6 @@ final class TVDiscovery: NSObject, ObservableObject, @preconcurrency GCKDiscover
         devices = (0..<manager.deviceCount).map { manager.device(at: $0) }
             .filter { $0.hasCapabilities(.videoOut) }.map(Device.init)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        searching = devices.isEmpty
     }
 }

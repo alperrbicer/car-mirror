@@ -1,6 +1,6 @@
 "Aboneliği yönet" = "ניהול המינוי";
 "App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "לא ניתן להתחבר ל-App Store. אפשר לנסות שוב.";
-"Büyük kontroller" = "פקדים גדולים";
+"Araç modu" = "מצב רכב";
 "Ayarlar" = "הגדרות";
 "Açık" = "מחובר";
 "Bağlantı testi" = "בדיקת חיבור";
@@ -331,3 +331,83 @@
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "צבוט להקטנה כדי לחזור לתצוגה רגילה";
 "Hareket tanıtımını yeniden göster" = "הצגת מדריך המחוות שוב";
 "Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "הצג שוב בנגן את מחוות עוצמת הקול, הבהירות והמסך.";
+
+"Araç video desteği" = "תמיכה בווידאו ברכב";
+"CarPlay bağlı" = "CarPlay מחובר";
+"CarPlay sahnesi" = "ממשק CarPlay";
+"CarPlay video testini başlat" = "התחלת בדיקת וידאו ב-CarPlay";
+"CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "יש להתחבר ל-CarPlay ולפתוח את האפליקציה במסך הרכב.";
+"Araç bağlantısında hatırlat" = "תזכורת בעת חיבור לרכב";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "נשלחת תזכורת אחת בטלפון כאשר מזוהה הפעלת CarPlay חדשה. מידע על החיבור לרכב אינו נשלח לשרת.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "וידאו ב-CarPlay זמין בכלי רכב נתמכים בזמן חניה.";
+
+"AirPlay ekranı" = "מסך AirPlay";
+"AirPlay hedefini değiştir" = "שינוי יעד AirPlay";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "אפשר להשתמש בתפריט המערכת למטה כדי לשנות את יעד AirPlay או לחזור ל-iPhone.";
+"Bağlı" = "מחובר";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "זמן הצפייה החינמי להיום אופס. אפשר לצפות עד שעתיים היום.";
+"Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "לאפס את זמן הצפייה החינמי להיום?";
+"Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "כדי להפסיק את שיקוף המסך, יש לפתוח את שיקוף המסך במרכז הבקרה של iOS ולנתק את החיבור.";
+"Oynatma durduruldu, TV bağlantısı açık" = "הניגון הופסק; הטלוויזיה עדיין מחוברת";
+"TV bağlantısı açık" = "הטלוויזיה מחוברת";
+"TV bağlantısını kes" = "ניתוק מהטלוויזיה";
+"TV’den ayrıl" = "התנתקות מהטלוויזיה";
+"Video seçenekleri" = "אפשרויות וידאו";
+"Sıfırla" = "איפוס";
+"İptal" = "ביטול";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "מדריך המחוות אופס. הוא יופיע בפתיחה הבאה של מסך מלא לרוחב.";
+"İndiriliyor" = "בהורדה";
+"Kontrol" = "בבדיקה";
+"Başarısız" = "נכשל";
+"İndirme başarısız. Yeniden dene." = "ההורדה נכשלה. יש לנסות שוב.";
+"Bu film/dizi biçimi indirilemiyor." = "לא ניתן להוריד סרט או סדרה בפורמט הזה.";
+"Mirivo" = "Mirivo";
+
+"Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et." = "הספק דחה את בקשת ההורדה (HTTP %d). יש לבדוק את פרטי ההתחברות או הרשאת ההורדה.";
+"Sağlayıcı indirme isteğine HTTP %d yanıtı verdi." = "הספק החזיר HTTP %d לבקשת ההורדה.";
+"Bu araç CarPlay video oynatmayı desteklemiyor." = "הרכב הזה אינו תומך בניגון וידאו באמצעות CarPlay.";
+"Tam ekrandan çık" = "יציאה ממסך מלא";
+
+// Display connection status and disconnection
+"Harici ekran" = "מסך חיצוני";
+"Araç ekranında oynatılıyor" = "מתנגן במסך הרכב";
+"Harici ekranda oynatılıyor" = "מתנגן במסך החיצוני";
+"Bağlantıyı kesme adımları" = "איך מתנתקים";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "עבור CarPlay חוטי, נתקו את כבל ה-USB. עבור CarPlay אלחוטי, התנתקו ממסך הרכב. אם אתם משתמשים ב-CarPlay Simulator, סיימו את החיבור בסימולטור.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "עבור AirPlay, עברו אל מרכז הבקרה ← שיקוף מסך ← הפסק שיקוף. עבור מסך חוטי, נתקו את מתאם ה-HDMI/USB.";
+
+"%d içerik" = "%d פריטים";
+"Kategoriler" = "קטגוריות";
+"Canlı yayın" = "שידור חי";
+"Video" = "וידאו";
+"İçerik hakkında" = "על התוכן";
+"Daha az göster" = "הצגת פחות";
+"Devamını oku" = "קריאה נוספת";
+"İçerik bilgileri yükleniyor…" = "פרטי התוכן נטענים…";
+"Bu içerik için açıklama paylaşılmamış." = "לא סופק תיאור לתוכן זה.";
+"Tür" = "סוגה";
+"Yönetmen" = "בימוי";
+"Oyuncular" = "שחקנים";
+"%d dk" = "%d דקות";
+
+// Shared display connection labels
+"Ekran bağlantıları" = "חיבורי מסכים";
+"Ekran bağlantısı" = "חיבור למסך";
+"Ekrana bağlan" = "חיבור למסך";
+"Bağlı: %@" = "מחובר: %@";
+"AirPlay ile oynatılıyor" = "מתנגן דרך AirPlay";
+"Başka bir ekrana bağlan" = "חיבור למסך אחר";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "לא ניתן להתחבר אל %@. בדקו את החיבור ונסו שוב.";
+
+// Series library
+"Özel bölümler" = "פרקים מיוחדים";
+"%d. sezon" = "עונה %d";
+"%d. bölüm" = "פרק %d";
+"%d sezon" = "%d עונות";
+"%d bölüm" = "%d פרקים";
+"%d dizi" = "%d סדרות";
+"Diğer içerikler" = "תוכן נוסף";
+"Bölüm ara" = "חיפוש פרקים";
+"Dizi ara" = "חיפוש סדרות";
+"Bu içerik için açıklama bulunamadı." = "לא נמצא תיאור לתוכן הזה.";
+"İçerik bilgileri yüklenemedi." = "לא ניתן לטעון את פרטי התוכן.";

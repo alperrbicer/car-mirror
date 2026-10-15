@@ -7,6 +7,8 @@ import SwiftUI
 final class MirrorModel: ObservableObject {
     static let shared = MirrorModel()
     @Published private(set) var capture: CaptureStatus?
+    @Published private(set) var carPlayConnected = false
+    @Published private(set) var supportsVideo: Bool?
     @Published var errorMessage: String?
     @Published private(set) var storageReady = false
     @Published private(set) var sessionState: MirrorSessionState = .waitingForDisplay
@@ -48,7 +50,10 @@ final class MirrorModel: ObservableObject {
     private var lastCapturePhase: CapturePhase?
     private var lastCaptureID: UUID?
     private var staleSessionID: UUID?
-    private var externalScreens: Set<UUID> = []
+    private var externalScreens: [UUID: DiagnosticValues.Screen] = [:]
+    private var carPlayTemplateConnected = false
+    var hasCarPlayDisplay: Bool { externalScreens.values.contains(.carPlay) }
+    var hasTVDisplay: Bool { externalScreens.values.contains { $0 != .carPlay } }
     private var probeTask: Task<Void, Never>?
 
     private init() {
@@ -116,7 +121,7 @@ final class MirrorModel: ObservableObject {
 
     var captureTitle: String {
         switch sessionState {
-        case .waitingForDisplay: return L10n.tr("TV’ye bağlan")
+        case .waitingForDisplay: return displayRequiredMessage
         case .ready: return L10n.tr("Paylaşıma hazır")
         case .preparing: return L10n.tr("Yayın hazırlanıyor")
         case .captureReady: return L10n.tr("Ekran yayını hazır")
@@ -156,7 +161,7 @@ final class MirrorModel: ObservableObject {
         if let stopRequestedID, capture?.sessionID != stopRequestedID || !broadcasting {
             self.stopRequestedID = nil
         }
-        if probeStartedAt == nil, (externalScreenCount > 0 || playback.tvDevice != nil), readyToPlay,
+        if probeStartedAt == nil, (supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil), readyToPlay,
            stopRequestedID == nil, capture?.sessionID != lastAttemptedSessionID {
             playOnDisplay()
         }
@@ -165,10 +170,37 @@ final class MirrorModel: ObservableObject {
 
     func foregrounded() { record(.appForegrounded); refresh(); Task { await PurchaseStore.shared.refresh() } }
 
+    func connected(supportsVideo: Bool?) {
+        carPlayTemplateConnected = true
+        carPlayConnected = true
+        updateConnectedDisplays()
+        self.supportsVideo = supportsVideo == true
+        var values = DiagnosticValues()
+        values.screen = .carPlay
+        values.supportsVideo = self.supportsVideo
+        record(.carConnected, values: values)
+        refresh()
+    }
+
+    func disconnected() {
+        var values = DiagnosticValues()
+        values.reason = .disconnected
+        record(.carDisconnected, values: values)
+        carPlayTemplateConnected = false
+        carPlayConnected = hasCarPlayDisplay
+        updateConnectedDisplays()
+        supportsVideo = nil
+        if externalScreenCount == 0 && playback.tvDevice == nil {
+            stopBroadcast()
+            stopProbe()
+        }
+        updateSessionState()
+    }
+
     func playOnDisplay() {
         guard AppUpdateStore.shared.requiredURL == nil else { return }
-        guard externalScreenCount > 0 || playback.tvDevice != nil else {
-            errorMessage = L10n.tr("TV’ye bağlan")
+        guard supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil else {
+            errorMessage = displayRequiredMessage
             return
         }
         guard let capture, capture.canPlay() else {
@@ -180,7 +212,7 @@ final class MirrorModel: ObservableObject {
         errorMessage = nil
         // A receiver cannot fetch 127.0.0.1 on the phone. Do not silently substitute it.
         guard let url = externalScreenCount > 0 && playback.tvDevice == nil ? capture.loopbackURL : capture.networkURL else {
-            errorMessage = L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene.")
+            errorMessage = playback.displayConnection.failureMessage
             playbackAttemptFailed = true
             var values = DiagnosticValues()
             values.reason = .unavailable
@@ -249,7 +281,8 @@ final class MirrorModel: ObservableObject {
             errorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
             return false
         }
-        if selectedMediaChannel == channel, playback.hasActivePlayback {
+        if selectedMediaChannel == channel, playback.hasActivePlayback,
+           presentation == nil || presentation == mediaPresentation {
             // Selecting the already-playing channel from a category must still
             // replace the playlist queue with that category's filtered items.
             let nextQueue = queue ?? playbackQueue
@@ -335,7 +368,7 @@ final class MirrorModel: ObservableObject {
         }
         guard mediaSourceID == sourceID, self.selectedMediaChannel?.id == selectedChannelID,
               channels.contains(where: { $0.id == selectedChannelID }) else { return }
-        playbackQueue = channels
+        playbackQueue = MediaSeriesCatalog.playbackQueue(for: selectedMediaChannel, in: channels)
     }
     func switchChannel(_ offset: Int) {
         guard let channel = adjacentChannel(offset) else { return }
@@ -408,6 +441,13 @@ final class MirrorModel: ObservableObject {
             try? LastPlaybackStore.shared.clear(sourceID: sourceID)
             return false
         }
+        if let sourceID = last.sourceID,
+           let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }),
+           let channels = SourceLibrary.shared.cachedChannels(for: source),
+           let channel = channels.first(where: { $0.id == last.channel.id }) {
+            return playMedia(channel, queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels),
+                             sourceID: sourceID, startAt: last.resumePosition)
+        }
         return playMedia(last.channel, sourceID: last.sourceID, startAt: last.resumePosition)
     }
 
@@ -435,6 +475,7 @@ final class MirrorModel: ObservableObject {
             saveLastPlayback(force: true)
         }
         finishPlayerRestoration(false)
+        PlayerOrientationPolicy.update(playerVisible: false, allowsLandscape: false)
         presentingPlayer = false
         playback.stop()
         mediaTitle = nil
@@ -477,8 +518,10 @@ final class MirrorModel: ObservableObject {
     }
 
     func externalScreenConnected(_ id: UUID, role: DiagnosticValues.Screen, size: CGSize) {
-        externalScreens.insert(id)
+        externalScreens[id] = role
         externalScreenCount = externalScreens.count
+        carPlayConnected = carPlayTemplateConnected || hasCarPlayDisplay
+        updateConnectedDisplays()
         playback.externalDisplayConnected = externalScreenCount > 0
         var values = DiagnosticValues()
         values.screen = role
@@ -489,8 +532,10 @@ final class MirrorModel: ObservableObject {
     }
 
     func externalScreenDisconnected(_ id: UUID) {
-        externalScreens.remove(id)
+        externalScreens.removeValue(forKey: id)
         externalScreenCount = externalScreens.count
+        carPlayConnected = carPlayTemplateConnected || hasCarPlayDisplay
+        updateConnectedDisplays()
         playback.externalDisplayConnected = externalScreenCount > 0
         record(.externalScreenDisconnected)
         if externalScreenCount == 0 { stopProbe(); if playbackSessionID != nil { stopBroadcast() } }
@@ -501,6 +546,31 @@ final class MirrorModel: ObservableObject {
         probeStartedAt = Date()
         record(.probeStarted)
         scheduleProbeEnd()
+    }
+
+    var displayRequiredMessage: String {
+        L10n.tr(carPlayConnected ? "Bu araç CarPlay video oynatmayı desteklemiyor." : "Ekrana bağlan")
+    }
+
+    private func updateConnectedDisplays() {
+        playback.updateConnectedDisplays(carPlay: carPlayConnected, externalTV: hasTVDisplay)
+    }
+
+    func startVideoProbe() {
+        guard !broadcasting, carPlayConnected, supportsVideo == true,
+              let url = Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4") else { return }
+        do {
+            probeStartedAt = Date()
+            record(.probeStarted)
+            try playback.play(url: url, preserveSourceAudio: false)
+            scheduleProbeEnd()
+        } catch {
+            errorMessage = L10n.tr("Bağlantı testi başlatılamadı.")
+            var values = DiagnosticValues()
+            values.failure = DiagnosticFailure(error)
+            record(.failure, values: values)
+            stopProbe()
+        }
     }
 
     func stopProbe() {
@@ -521,7 +591,7 @@ final class MirrorModel: ObservableObject {
     }
 
     private func updateSessionState() {
-        sessionState = .resolve(capture: capture, displayConnected: externalScreenCount > 0 || playback.tvDevice != nil,
+        sessionState = .resolve(capture: capture, displayConnected: supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil,
             playbackSessionID: playbackSessionID, externalPlayback: playback.externalPlaybackActive || ((externalScreenCount > 0 || playback.tvDevice != nil) && playbackSessionID == capture?.sessionID),
             playing: playback.isPlaying, stopRequested: stopRequestedID == capture?.sessionID && stopRequestedID != nil,
             playbackFailed: playbackAttemptFailed || playback.errorMessage != nil)

@@ -7,8 +7,11 @@ import { derivedDataRoot, packageCacheRoot, withBuildCacheCleanup, withNativeBui
 const root = fileURLToPath(new URL('..', import.meta.url))
 const [device, ...flags] = process.argv.slice(2)
 const uiOnly = flags.includes('--ui-only')
-if (!device || !/^[0-9a-f-]{36}$/i.test(device) || flags.some(flag => !['--ui-only', '--keep-cache'].includes(flag))) {
-  console.error('Usage: node scripts/test_app.mjs SIMULATOR_UDID [--ui-only] [--keep-cache]\nUse a working StoreKit Test runtime for purchase tests. --ui-only also works on iOS 26.5.')
+const selectedTests = flags.filter(flag => flag.startsWith('--only-testing=')).map(flag => flag.slice('--only-testing='.length))
+if (!device || !/^[0-9a-f-]{36}$/i.test(device) ||
+    flags.some(flag => !['--ui-only', '--keep-cache'].includes(flag) && !/^--only-testing=[A-Za-z_][A-Za-z0-9_]*(?:\/[A-Za-z_][A-Za-z0-9_]*){0,2}$/.test(flag)) ||
+    (uiOnly && selectedTests.length > 0)) {
+  console.error('Usage: node scripts/test_app.mjs SIMULATOR_UDID [--ui-only | --only-testing=TARGET[/CLASS[/METHOD]]] [--keep-cache]\nUse a working StoreKit Test runtime for purchase tests. --only-testing may be repeated.')
   process.exit(1)
 }
 const results = join(root, 'build/app-tests.xcresult')
@@ -18,8 +21,10 @@ try {
     rmSync(results, { recursive: true, force: true })
     const run = spawnSync('xcodebuild', ['-project', join(root, 'CarMirror.xcodeproj'), '-scheme', 'CarMirror',
       '-configuration', 'Debug', '-parallel-testing-enabled', 'NO', '-jobs', '1', '-destination', `platform=iOS Simulator,id=${device}`,
+      '-collect-test-diagnostics', 'never',
       '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, '-resultBundlePath', results,
       ...(uiOnly ? ['-only-testing:MirivoUITests'] : []),
+      ...selectedTests.map(test => `-only-testing:${test}`),
       `MIRIVO_MAIN_APP_ENTITLEMENTS=${join(root, 'Config/App.entitlements')}`, 'CODE_SIGN_IDENTITY=-', 'test'], { stdio: 'inherit' })
     return run.status ?? 1
   }, { keepCache: flags.includes('--keep-cache') }))

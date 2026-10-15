@@ -3,7 +3,7 @@ import SwiftUI
 struct MirivoRootView: View {
     @ObservedObject var model: MirrorModel
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
-    @State private var selectedPage = 0
+    @SceneStorage("mirivo.root.selectedPage") private var selectedPage = 0
     @State private var showingSettings = false
     @State private var showingPlayer = false
     @ObservedObject private var notifications = NotificationStore.shared
@@ -71,15 +71,22 @@ struct MirivoRootView: View {
             Spacer(minLength: 8)
             TVRouteStatusButton(model: model)
             Button { showingSettings = true } label: {
-                Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .frame(width: 54, height: 54)
-                    .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
-                    .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
-                    .contentShape(RoundedRectangle(cornerRadius: 18))
+                Image(systemName: "gearshape")
+                    .font(.system(size: 21, weight: .medium))
+                    .foregroundStyle(LinearGradient(colors: [.white, .white.opacity(0.65)],
+                                                    startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: 46, height: 46)
+                    .background {
+                        Circle().fill(LinearGradient(colors: [MirrorStyle.raised, MirrorStyle.surface],
+                                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+                    }
+                    .overlay {
+                        Circle().strokeBorder(LinearGradient(colors: [.white.opacity(0.18), .white.opacity(0.03)],
+                                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+                    }
+                    .contentShape(Circle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(MirivoPressButtonStyle())
             .accessibilityLabel(L10n.tr("Ayarlar"))
             .accessibilityIdentifier("open-settings")
         }

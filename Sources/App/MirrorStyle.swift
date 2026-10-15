@@ -39,6 +39,19 @@ struct MirivoButtonStyle: ButtonStyle {
     }
 }
 
+/// A light touch response for controls that supply their own surface and layout.
+struct MirivoPressButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(isEnabled ? (configuration.isPressed ? 0.82 : 1) : 0.4)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: configuration.isPressed)
+    }
+}
+
 struct MirivoSectionLabel: View {
     let title: String
     var body: some View {

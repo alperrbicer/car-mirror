@@ -7,6 +7,7 @@ struct LastPlaybackRecord: Codable, Equatable, Identifiable {
     let title: String
     let group: String
     let url: URL
+    let metadata: MediaMetadata?
     let isLive: Bool
     let position: Double
     let duration: Double
@@ -14,23 +15,25 @@ struct LastPlaybackRecord: Codable, Equatable, Identifiable {
 
     init(channel: MediaChannel, sourceID: UUID?, position: Double, duration: Double, isLive: Bool, updatedAt: Date = Date()) {
         self.sourceID = sourceID; title = channel.title; group = channel.group; url = channel.url
+        metadata = channel.metadata
         self.isLive = isLive; self.updatedAt = updatedAt
         self.duration = duration.isFinite ? max(0, duration) : 0
         self.position = position.isFinite ? max(0, position) : 0
     }
-    private enum CodingKeys: String, CodingKey { case sourceID, title, group, url, isLive, position, duration, updatedAt }
+    private enum CodingKeys: String, CodingKey { case sourceID, title, group, url, metadata, isLive, position, duration, updatedAt }
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self.init(channel: MediaChannel(title: try values.decode(String.self, forKey: .title),
                                        group: try values.decode(String.self, forKey: .group),
-                                       url: try values.decode(URL.self, forKey: .url)),
+                                       url: try values.decode(URL.self, forKey: .url),
+                                       metadata: try values.decodeIfPresent(MediaMetadata.self, forKey: .metadata) ?? MediaMetadata()),
                   sourceID: try values.decodeIfPresent(UUID.self, forKey: .sourceID),
                   position: try values.decode(Double.self, forKey: .position),
                   duration: try values.decode(Double.self, forKey: .duration),
                   isLive: try values.decode(Bool.self, forKey: .isLive),
                   updatedAt: try values.decodeIfPresent(Date.self, forKey: .updatedAt) ?? .distantPast)
     }
-    var channel: MediaChannel { MediaChannel(title: title, group: group, url: url) }
+    var channel: MediaChannel { MediaChannel(title: title, group: group, url: url, metadata: metadata ?? MediaMetadata()) }
     var resumePosition: Double {
         guard !isLive, duration <= 0 || position < duration - 2 else { return 0 }
         return position
@@ -38,12 +41,8 @@ struct LastPlaybackRecord: Codable, Equatable, Identifiable {
     var isFinished: Bool { !isLive && duration > 0 && position >= duration * 0.95 }
     var isInProgress: Bool { !isLive && position >= 30 && !isFinished }
     var progress: Double? { duration > 0 ? min(1, max(0, position / duration)) : nil }
-    // Only explicit season/episode notation is grouped; unrelated titles stay separate.
-    var seriesTitle: String? {
-        guard !isLive, let match = title.range(of: #"(?i)\s+(?:S\d{1,3}[\s._-]*E\d{1,4}|\d{1,3}x\d{1,4})(?:\b.*)?$"#, options: .regularExpression) else { return nil }
-        let name = String(title[..<match.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? nil : name
-    }
+    var episode: MediaEpisode? { isLive ? nil : MediaEpisode.parse(title) }
+    var seriesTitle: String? { episode?.seriesTitle }
     // Hash identifiers so accessibility identifiers never expose stream credentials.
     var id: String {
         let content = seriesTitle.map { "series:" + $0.lowercased() } ?? "url:" + url.absoluteString

@@ -14,6 +14,7 @@ struct OfflineDownload: Codable, Identifiable, Equatable {
     var progress: Double
     var taskIdentifier: Int?
     var packagePath: String?
+    var failureMessage: String?
 
     var localURL: URL? {
         guard state == .finished, let packagePath, FileManager.default.fileExists(atPath: packagePath) else { return nil }
@@ -26,14 +27,18 @@ struct OfflineDownload: Codable, Identifiable, Equatable {
 }
 
 enum OfflineDownloadError: LocalizedError {
-    case unsupported, liveStream, protected, unavailable, storage
+    case unsupported, liveStream, protected, unavailable, storage, serverResponse(Int)
     var errorDescription: String? {
         switch self {
-        case .unsupported: L10n.tr("Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir.")
+        case .unsupported: L10n.tr("Bu film/dizi biçimi indirilemiyor.")
         case .liveStream: L10n.tr("Canlı yayınlar çevrimdışı izlenmek üzere indirilemez.")
         case .protected: L10n.tr("Bu içerik sağlayıcı koruması nedeniyle indirilemiyor.")
         case .unavailable: L10n.tr("İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et.")
         case .storage: L10n.tr("İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et.")
+        case .serverResponse(let status) where status == 401 || status == 403:
+            String(format: L10n.tr("Sağlayıcı indirme isteğini reddetti (HTTP %d). Girişini veya indirme iznini kontrol et."), status)
+        case .serverResponse(let status):
+            String(format: L10n.tr("Sağlayıcı indirme isteğine HTTP %d yanıtı verdi."), status)
         }
     }
 }
@@ -43,6 +48,7 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
     static let shared = OfflineDownloadStore()
     @Published private(set) var items: [OfflineDownload] = []
     @Published var message: String?
+    @Published private(set) var messageAssetKey: String?
 
     private let sessionIdentifier = "com.alperbicer.carmirror.offline-downloads"
     private let fileSessionIdentifier = "com.alperbicer.carmirror.offline-files"
@@ -97,6 +103,16 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
     var finishedItems: [OfflineDownload] { items.filter { $0.localURL != nil } }
     var activeItems: [OfflineDownload] { items.filter { $0.state == .preparing || $0.state == .downloading } }
 
+    func clearMessage() {
+        message = nil
+        messageAssetKey = nil
+    }
+
+    private func report(_ message: String, assetKey: String? = nil) {
+        messageAssetKey = assetKey
+        self.message = message
+    }
+
     func handleBackgroundEvents(identifier: String, completionHandler: @escaping () -> Void) {
         guard identifier == sessionIdentifier || identifier == fileSessionIdentifier else { completionHandler(); return }
         backgroundCompletionHandlers[identifier] = completionHandler
@@ -114,35 +130,39 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
     }
 
     func download(_ channel: MediaChannel, sourceID: UUID?) async {
+        clearMessage()
         let ext = channel.url.pathExtension.lowercased()
         let hls = ext == "m3u8"
+        let downloadableFileExtensions: Set<String> = ["mp4", "m4v", "mov", "mkv", "avi", "webm"]
         guard ["http", "https"].contains(channel.url.scheme?.lowercased() ?? ""),
-              hls || ["mp4", "m4v", "mov"].contains(ext) else {
-            message = OfflineDownloadError.unsupported.localizedDescription
+              channel.isDownloadableVideo, hls || downloadableFileExtensions.contains(ext) else {
+            report(OfflineDownloadError.unsupported.localizedDescription, assetKey: Self.assetKey(for: channel.url))
             return
         }
         guard !contains(channel), items.filter({ $0.state != .failed }).count < 50 else {
-            message = items.filter({ $0.state != .failed }).count >= 50
+            report(items.filter({ $0.state != .failed }).count >= 50
                 ? L10n.tr("En fazla 50 içerik indirilebilir.")
-                : L10n.tr("Bu içerik zaten indirilenlerde veya indiriliyor.")
+                : L10n.tr("Bu içerik zaten indirilenlerde veya indiriliyor."), assetKey: Self.assetKey(for: channel.url))
             return
         }
 
+        items.removeAll { $0.assetKey == Self.assetKey(for: channel.url) && $0.state == .failed }
         let entry = OfflineDownload(id: UUID(), title: channel.title, group: channel.group,
                                     sourceID: sourceID, assetKey: Self.assetKey(for: channel.url),
-                                    state: .preparing, progress: 0, taskIdentifier: nil, packagePath: nil)
+                                    state: .preparing, progress: 0, taskIdentifier: nil, packagePath: nil,
+                                    failureMessage: nil)
         items.insert(entry, at: 0)
         persist()
         do {
-            let asset = AVURLAsset(url: channel.url)
-            async let playable = asset.load(.isPlayable)
-            async let protected = asset.load(.hasProtectedContent)
-            async let duration = asset.load(.duration)
-            guard try await playable else { throw OfflineDownloadError.unavailable }
-            guard try await !protected else { throw OfflineDownloadError.protected }
-            let time = try await duration
-            guard time.isNumeric, time.seconds.isFinite, time.seconds > 0 else { throw OfflineDownloadError.liveStream }
             if hls {
+                let asset = AVURLAsset(url: channel.url)
+                async let playable = asset.load(.isPlayable)
+                async let protected = asset.load(.hasProtectedContent)
+                async let duration = asset.load(.duration)
+                guard try await playable else { throw OfflineDownloadError.unavailable }
+                guard try await !protected else { throw OfflineDownloadError.protected }
+                let time = try await duration
+                guard time.isNumeric, time.seconds.isFinite, time.seconds > 0 else { throw OfflineDownloadError.liveStream }
                 let configuration = AVAssetDownloadConfiguration(asset: asset, title: channel.title)
                 let task = session.makeAssetDownloadTask(downloadConfiguration: configuration)
                 task.taskDescription = entry.id.uuidString
@@ -165,10 +185,19 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
                 task.resume()
             }
         } catch {
-            items.removeAll { $0.id == entry.id }
+            if error is CancellationError {
+                items.removeAll { $0.id == entry.id }
+                persist()
+                return
+            }
+            let failure = (error as? LocalizedError)?.errorDescription ?? OfflineDownloadError.unavailable.localizedDescription
+            if var failed = items.first(where: { $0.id == entry.id }) {
+                failed.state = .failed
+                failed.failureMessage = failure
+                replace(failed)
+            }
+            report(failure, assetKey: entry.assetKey)
             persist()
-            if error is CancellationError { return }
-            message = (error as? LocalizedError)?.errorDescription ?? OfflineDownloadError.unavailable.localizedDescription
         }
     }
 
@@ -201,7 +230,7 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
             try FileManager.default.createDirectory(at: storageURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try JSONEncoder().encode(items)
             try data.write(to: storageURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
-        } catch { message = OfflineDownloadError.storage.localizedDescription }
+        } catch { report(OfflineDownloadError.storage.localizedDescription) }
     }
 }
 
@@ -259,10 +288,15 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
     nonisolated func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
                                 didFinishDownloadingTo location: URL) {
         guard let response = downloadTask.response as? HTTPURLResponse,
-              (200..<300).contains(response.statusCode),
               let description = downloadTask.taskDescription?.split(separator: "|", omittingEmptySubsequences: false),
               description.count == 2, let id = UUID(uuidString: String(description[0])) else {
             Task { @MainActor in self.fail(downloadID: Self.downloadID(from: downloadTask.taskDescription)) }
+            return
+        }
+        guard (200..<300).contains(response.statusCode) else {
+            Task { @MainActor in
+                self.fail(downloadID: id, message: OfflineDownloadError.serverResponse(response.statusCode).localizedDescription)
+            }
             return
         }
         let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -279,7 +313,7 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
             try excludedURL.setResourceValues(values)
         } catch {
             try? FileManager.default.removeItem(at: destination)
-            Task { @MainActor in self.fail(downloadID: Self.downloadID(from: downloadTask.taskDescription)) }
+            Task { @MainActor in self.fail(downloadID: Self.downloadID(from: downloadTask.taskDescription), message: OfflineDownloadError.storage.localizedDescription) }
             return
         }
         Task { @MainActor in
@@ -302,13 +336,14 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
         Task { @MainActor in self.fail(downloadID: Self.downloadID(from: task.taskDescription)) }
     }
 
-    private func fail(downloadID: UUID?) {
+    private func fail(downloadID: UUID?, message: String = OfflineDownloadError.unavailable.localizedDescription) {
         guard let downloadID, var item = items.first(where: { $0.id == downloadID }) else { return }
         item.state = .failed
         item.taskIdentifier = nil
+        item.failureMessage = message
         tasksByDownloadID.removeValue(forKey: downloadID)
         replace(item)
-        message = OfflineDownloadError.unavailable.localizedDescription
+        report(message, assetKey: item.assetKey)
         persist()
     }
 }

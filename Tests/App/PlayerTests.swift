@@ -1,14 +1,233 @@
 import XCTest
 import AVFoundation
 import AVKit
+import CarPlay
 import MediaPlayer
 import SwiftUI
 import Security
+import Combine
 @preconcurrency import VLCKit
 @testable import CarMirror
 
 @MainActor
 final class PlayerTests: XCTestCase {
+    func testSharedDisplayLabelsDifferentiateCarPlayTVAirPlayAndGenericScreens() {
+        let defaults = SharedPreferences.defaults
+        let previous = defaults.object(forKey: "language")
+        defaults.set("tr", forKey: "language")
+        defer { defaults.set(previous, forKey: "language") }
+        let car = DisplayConnection(routes: [.carPlay])
+        XCTAssertEqual(car.title, "CarPlay")
+        XCTAssertEqual(car.destinationName, "CarPlay")
+        XCTAssertEqual(car.actionTitle, "CarPlay bağlı")
+        XCTAssertEqual(car.symbol, "car.side")
+        XCTAssertEqual(car.playbackStatus(.playing), "Araç ekranında oynatılıyor")
+        XCTAssertEqual(car.playbackStatus(.paused), "Yayın duraklatıldı")
+        XCTAssertEqual(car.playbackStatus(.idle), "CarPlay bağlı")
+        XCTAssertTrue(car.failureMessage.contains("CarPlay"))
+        XCTAssertFalse(car.failureMessage.contains("TV"))
+        let tv = DisplayConnection(routes: [.cast], castName: "Living Room")
+        XCTAssertEqual(tv.title, "TV bağlantısı")
+        XCTAssertEqual(tv.destinationName, "Living Room")
+        XCTAssertEqual(tv.playbackStatus(.playing), "TV’de oynatılıyor")
+        XCTAssertTrue(tv.failureMessage.contains("TV"))
+        let airPlay = DisplayConnection(routes: [.airPlay], airPlayName: "Studio")
+        XCTAssertEqual(airPlay.title, "AirPlay")
+        XCTAssertEqual(airPlay.destinationName, "Studio")
+        XCTAssertEqual(airPlay.playbackStatus(.playing), "AirPlay ile oynatılıyor")
+        let external = DisplayConnection(routes: [.externalDisplay])
+        XCTAssertEqual(external.title, "Harici ekran")
+        XCTAssertEqual(external.playbackStatus(.playing), "Harici ekranda oynatılıyor")
+        let disconnected = DisplayConnection(routes: [])
+        XCTAssertEqual(disconnected.actionTitle, "Ekrana bağlan")
+        XCTAssertEqual(disconnected.title, "Ekran bağlantısı")
+        let both = DisplayConnection(routes: [.cast, .carPlay], castName: "Living Room")
+        XCTAssertEqual(both.title, "Ekran bağlantıları")
+        XCTAssertTrue(both.connectedSummary.contains("CarPlay"))
+        XCTAssertTrue(both.connectedSummary.contains("Living Room"))
+        XCTAssertEqual(both.playbackStatus(.playing, for: .carPlay), "CarPlay bağlı",
+                       "A connected car must not be described as playing the video being sent to Cast")
+    }
+
+    func testDisplayLabelsFollowConnectionChangesWhilePausedAndSurviveMediaStop() async throws {
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, startPaused: true)
+        for _ in 0..<100 {
+            if playback.state == .paused { break }
+            try await Task.sleep(for: .milliseconds(30))
+        }
+        XCTAssertEqual(playback.state, .paused)
+        let item = try XCTUnwrap(playback.player.currentItem)
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false)
+        XCTAssertEqual(playback.displayPlaybackStatus(), L10n.tr("CarPlay bağlı"),
+                       "A connected template scene alone is not evidence of video output on the car")
+        playback.externalDisplayConnected = true
+        XCTAssertEqual(playback.displayConnection.primaryRoute, .carPlay)
+        XCTAssertEqual(playback.displayConnection.destinationName, "CarPlay")
+        playback.updateConnectedDisplays(carPlay: false, externalTV: true)
+        XCTAssertEqual(playback.displayConnection.primaryRoute, .externalDisplay)
+        XCTAssertTrue(playback.player.currentItem === item, "Relabel the output without replacing the media or its pause intent")
+        XCTAssertEqual(playback.state, .paused)
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false)
+        playback.stop()
+        XCTAssertEqual(playback.displayConnection.primaryRoute, .carPlay, "Stopping media does not disconnect the car")
+        playback.updateConnectedDisplays(carPlay: false, externalTV: false)
+        playback.externalDisplayConnected = false
+        XCTAssertFalse(playback.displayConnection.isConnected)
+    }
+
+    func testExternalDisplayClassificationRecognizesCarPlayWithoutTemplateScene() {
+        for role in [UISceneSession.Role.windowExternalDisplay, .windowExternalDisplayNonInteractive] {
+            XCTAssertEqual(ExternalDisplaySceneDelegate.displayRole(role: role, idiom: .carPlay), .carPlay)
+        }
+        let carWindow = UISceneSession.Role(rawValue: "UIWindowSceneSessionRoleCarPlay")
+        XCTAssertEqual(ExternalDisplaySceneDelegate.displayRole(role: carWindow, idiom: .unspecified), .carPlay)
+        XCTAssertEqual(ExternalDisplaySceneDelegate.displayRole(role: .windowExternalDisplayNonInteractive, idiom: .tv), .externalNonInteractive)
+    }
+
+    func testCarPlayAndTVDisplaysKeepIndependentConnectionLifetimes() {
+        let model = MirrorModel.shared
+        let car = UUID(), tv = UUID()
+        let size = CGSize(width: 800, height: 480)
+        defer {
+            model.externalScreenDisconnected(car)
+            model.externalScreenDisconnected(tv)
+            model.disconnected()
+        }
+        model.externalScreenConnected(car, role: .carPlay, size: size)
+        XCTAssertTrue(model.carPlayConnected)
+        XCTAssertTrue(model.hasCarPlayDisplay)
+        XCTAssertFalse(model.hasTVDisplay)
+        XCTAssertNil(model.supportsVideo, "An external CarPlay window does not report template video capabilities")
+        XCTAssertEqual(ConnectedDisplayRoute.connected(to: model), [.carPlay])
+        model.externalScreenConnected(tv, role: .externalNonInteractive, size: size)
+        XCTAssertTrue(model.hasTVDisplay)
+        XCTAssertEqual(Set(ConnectedDisplayRoute.connected(to: model)), [.externalDisplay, .carPlay])
+        model.connected(supportsVideo: false)
+        model.externalScreenDisconnected(car)
+        XCTAssertTrue(model.carPlayConnected, "The template scene is still connected")
+        XCTAssertFalse(model.hasCarPlayDisplay)
+        model.externalScreenConnected(car, role: .carPlay, size: size)
+        model.disconnected()
+        XCTAssertTrue(model.carPlayConnected, "The CarPlay window is still connected")
+        XCTAssertNil(model.supportsVideo)
+        model.externalScreenDisconnected(car)
+        XCTAssertFalse(model.carPlayConnected)
+        XCTAssertTrue(model.playback.externalDisplayConnected, "The TV connection is independent")
+        XCTAssertEqual(ConnectedDisplayRoute.connected(to: model), [.externalDisplay])
+        model.externalScreenDisconnected(tv)
+        XCTAssertFalse(model.playback.externalDisplayConnected)
+        XCTAssertTrue(ConnectedDisplayRoute.connected(to: model).isEmpty)
+    }
+
+    func testConnectionRoutesDoNotGuessAirPlayFromCarPlayOrWiredDisplays() {
+        XCTAssertEqual(ConnectedDisplayRoute.resolve(cast: false, carPlay: true, externalDisplay: false,
+                                                    externalPlayback: true, airPlayAudio: false), [.carPlay])
+        XCTAssertEqual(ConnectedDisplayRoute.resolve(cast: false, carPlay: false, externalDisplay: true,
+                                                    externalPlayback: true, airPlayAudio: false), [.externalDisplay])
+        XCTAssertEqual(ConnectedDisplayRoute.resolve(cast: false, carPlay: false, externalDisplay: true,
+                                                    externalPlayback: false, airPlayAudio: true), [.airPlay])
+        XCTAssertEqual(ConnectedDisplayRoute.resolve(cast: false, carPlay: false, externalDisplay: false,
+                                                    externalPlayback: true, airPlayAudio: false), [.airPlay])
+        XCTAssertEqual(ConnectedDisplayRoute.resolve(cast: true, carPlay: true, externalDisplay: false,
+                                                    externalPlayback: true, airPlayAudio: false), [.cast, .carPlay])
+        XCTAssertEqual(ConnectedDisplayRoute.resolve(cast: false, carPlay: true, externalDisplay: true,
+                                                    externalPlayback: true, airPlayAudio: true), [.airPlay, .carPlay])
+        XCTAssertTrue(ConnectedDisplayRoute.resolve(cast: false, carPlay: false, externalDisplay: false,
+                                                   externalPlayback: false, airPlayAudio: false).isEmpty)
+    }
+
+    func testCarWindowRecoveryOnlyOwnsUnclaimedCarScenes() {
+        let carWindow = UISceneSession.Role(rawValue: "UIWindowSceneSessionRoleCarPlay")
+        XCTAssertTrue(CarPlayWindowCoordinator.shouldAttach(role: carWindow, idiom: .carPlay,
+                                                            hasDelegate: false, hasWindows: false))
+        for role in [UISceneSession.Role.windowApplication, .carTemplateApplication,
+                     .windowExternalDisplay, .windowExternalDisplayNonInteractive] {
+            XCTAssertFalse(CarPlayWindowCoordinator.shouldAttach(role: role, idiom: .carPlay,
+                                                                 hasDelegate: false, hasWindows: false))
+        }
+        for idiom in [UIUserInterfaceIdiom.phone, .pad, .unspecified] {
+            XCTAssertFalse(CarPlayWindowCoordinator.shouldAttach(role: carWindow, idiom: idiom,
+                                                                 hasDelegate: false, hasWindows: false))
+        }
+        XCTAssertFalse(CarPlayWindowCoordinator.shouldAttach(role: carWindow, idiom: .carPlay,
+                                                             hasDelegate: true, hasWindows: false))
+        XCTAssertFalse(CarPlayWindowCoordinator.shouldAttach(role: carWindow, idiom: .carPlay,
+                                                             hasDelegate: false, hasWindows: true))
+    }
+
+    func testCarPlayManifestResolvesDelegateAndSystemCallbacks() throws {
+        let manifest = try XCTUnwrap(Bundle.main.infoDictionary?["UIApplicationSceneManifest"] as? [String: Any])
+        let configurations = try XCTUnwrap(manifest["UISceneConfigurations"] as? [String: Any])
+        let entries = try XCTUnwrap(configurations[UISceneSession.Role.carTemplateApplication.rawValue] as? [[String: Any]])
+        let entry = try XCTUnwrap(entries.first)
+        let className = try XCTUnwrap(entry["UISceneDelegateClassName"] as? String)
+        XCTAssertTrue(NSClassFromString(className) === CarPlaySceneDelegate.self)
+        let sceneClassName = try XCTUnwrap(entry["UISceneClassName"] as? String)
+        XCTAssertTrue(NSClassFromString(sceneClassName) === CPTemplateApplicationScene.self)
+        let delegate = CarPlaySceneDelegate()
+        XCTAssertTrue(delegate.responds(to: #selector(CPTemplateApplicationSceneDelegate.templateApplicationScene(_:didConnect:))))
+        XCTAssertTrue(delegate.responds(to: #selector(CPTemplateApplicationSceneDelegate.templateApplicationScene(_:didDisconnectInterfaceController:))))
+    }
+
+    func testAccessoryScenesUseTheirOwnDelegatesAndLeavePhoneToSwiftUI() {
+        let phone = MirivoAppDelegate.configuration(for: .windowApplication)
+        XCTAssertEqual(phone.role, .windowApplication)
+        XCTAssertNil(phone.delegateClass)
+        // A restored/default configuration must never claim the CarPlay role.
+        let car = MirivoAppDelegate.configuration(for: .carTemplateApplication)
+        XCTAssertEqual(car.role, .carTemplateApplication)
+        XCTAssertTrue(car.sceneClass === CPTemplateApplicationScene.self)
+        XCTAssertTrue(car.delegateClass === CarPlaySceneDelegate.self)
+        for role in [UISceneSession.Role.windowExternalDisplay, .windowExternalDisplayNonInteractive] {
+            let external = MirivoAppDelegate.configuration(for: role)
+            XCTAssertEqual(external.role, role)
+            XCTAssertTrue(external.sceneClass === UIWindowScene.self)
+            XCTAssertTrue(external.delegateClass === ExternalDisplaySceneDelegate.self)
+        }
+    }
+
+    func testCaptionSettingsLayoutAtStandardAndAccessibilityTextSizes() async throws {
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.frame = scene.screen.bounds
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+            previousWindow?.makeKeyAndVisible()
+        }
+        for size in [DynamicTypeSize.large, .accessibility5] {
+            let host = UIHostingController(rootView: NavigationStack { CaptionSettingsView() }
+                .environment(\.dynamicTypeSize, size).preferredColorScheme(.dark))
+            window.rootViewController = host
+            window.makeKeyAndVisible()
+            try await Task.sleep(for: .milliseconds(800))
+            XCTAssertEqual(host.view.bounds.width, window.bounds.width, accuracy: 1)
+            capturePlayer(host.view, name: "audit-caption-settings-\(size)")
+        }
+    }
+
+    func testDownloadServerErrorsUseSelectedLanguageAndKeepStatusCode() {
+        let defaults = SharedPreferences.defaults
+        let previous = defaults.string(forKey: "language")
+        defer {
+            if let previous { defaults.set(previous, forKey: "language") }
+            else { defaults.removeObject(forKey: "language") }
+        }
+        defaults.set("en", forKey: "language")
+        XCTAssertEqual(OfflineDownloadError.serverResponse(403).errorDescription,
+            "The provider rejected the download request (HTTP 403). Check your login or download permission.")
+        XCTAssertEqual(OfflineDownloadError.serverResponse(503).errorDescription,
+            "The provider returned HTTP 503 for the download request.")
+        defaults.set("tr", forKey: "language")
+        XCTAssertEqual(OfflineDownloadError.serverResponse(503).errorDescription,
+            "Sağlayıcı indirme isteğine HTTP 503 yanıtı verdi.")
+    }
+
     func testContinueWatchingGroupsSeriesKeepsMoviesAndCleansCompletedAndSources() throws {
         let account = "continue-test-\(UUID())"
         let store = LastPlaybackStore(account: account)
@@ -1184,6 +1403,79 @@ final class PlayerTests: XCTestCase {
         XCTAssertNotNil(playback.player.currentItem)
     }
 
+    func testNativePiPReadinessNotifiesControlsWithoutTimelineUpdates() async throws {
+        try XCTSkipUnless(AVPictureInPictureController.isPictureInPictureSupported(),
+                          "Native AVKit PiP readiness requires a PiP-capable runtime")
+        let playback = PlaybackController()
+        let source = NativeVideoController(player: playback.player, playback: playback, primary: true)
+        let pip = try XCTUnwrap(source.pip)
+        // Drain initial registration before testing a readiness-only change.
+        await Task.yield()
+        await Task.yield()
+        var notifications = 0
+        let observation = playback.objectWillChange.sink { notifications += 1 }
+        defer { observation.cancel(); playback.stop() }
+        let key = #keyPath(AVPictureInPictureController.isPictureInPicturePossible)
+        pip.willChangeValue(forKey: key)
+        pip.didChangeValue(forKey: key)
+        for _ in 0..<20 {
+            if notifications > 0 { break }
+            await Task.yield()
+        }
+        XCTAssertGreaterThan(notifications, 0, "AVKit readiness must redraw controls without a playing timeline")
+        XCTAssertEqual(playback.currentTime, 0)
+
+        playback.nativePiP = nil
+        notifications = 0
+        playback.nativePictureInPictureAvailabilityChanged(pip)
+        XCTAssertEqual(notifications, 0, "A detached source must not update the current player")
+    }
+
+    func testCompatibilityPiPReadinessAndFailedStartUpdateControlsImmediately() throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false, useCompatibility: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        XCTAssertFalse(playback.canStartPictureInPicture)
+        var notifications = 0
+        let observation = playback.objectWillChange.sink { notifications += 1 }
+        defer { observation.cancel() }
+        let pip = PictureInPictureStub()
+        pip.completesStartImmediately = false
+        engine.configurePiP(pip)
+        XCTAssertGreaterThan(notifications, 0, "Source readiness must publish without a time or state callback")
+        XCTAssertTrue(playback.canStartPictureInPicture)
+        notifications = 0
+        engine.pip = nil
+        engine.onPiPReady?()
+        XCTAssertGreaterThan(notifications, 0)
+        XCTAssertFalse(playback.canStartPictureInPicture, "Losing the source must also update the button immediately")
+        engine.configurePiP(pip)
+        XCTAssertTrue(playback.canStartPictureInPicture)
+        playback.startPictureInPicture()
+        XCTAssertFalse(playback.canStartPictureInPicture, "Disable the button while AVKit is starting")
+        playback.startPictureInPicture()
+        XCTAssertEqual(pip.startCount, 1)
+        notifications = 0
+        pip.stateChangeEventHandler?(false)
+        XCTAssertGreaterThan(notifications, 0)
+        XCTAssertTrue(playback.canStartPictureInPicture, "A failed start must allow another attempt")
+        playback.startPictureInPicture()
+        XCTAssertEqual(pip.startCount, 2)
+        pip.stateChangeEventHandler?(true)
+        XCTAssertFalse(playback.canStartPictureInPicture)
+        playback.pictureInPictureWillStop()
+        XCTAssertFalse(playback.canStartPictureInPicture)
+        pip.stateChangeEventHandler?(false)
+        XCTAssertTrue(playback.canStartPictureInPicture, "PiP return must immediately restore the control")
+        playback.stop()
+        XCTAssertFalse(playback.canStartPictureInPicture)
+        notifications = 0
+        engine.onPiPReady?()
+        XCTAssertEqual(notifications, 0, "A stopped decoder must not publish readiness for its replacement")
+    }
+
     func testPiPRequestDuringReturnDoesNotBlockTheNextStart() throws {
         let playback = PlaybackController()
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
@@ -1194,9 +1486,11 @@ final class PlayerTests: XCTestCase {
         pip.completesStartImmediately = false
         engine.configurePiP(pip)
         playback.pictureInPictureWillStop()
+        XCTAssertFalse(playback.canStartPictureInPicture)
         playback.startPictureInPicture()
         XCTAssertEqual(pip.startCount, 0, "Do not send a start while the return animation owns PiP")
         playback.pictureInPictureStopped()
+        XCTAssertTrue(playback.canStartPictureInPicture)
         playback.startPictureInPicture()
         XCTAssertEqual(pip.startCount, 1, "A rejected request must not leave the start flag latched")
     }
@@ -1530,6 +1824,21 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual((MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyMediaType] as? NSNumber)?.uintValue,
                        MPNowPlayingInfoMediaType.audio.rawValue)
         XCTAssertEqual(AVAudioSession.sharedInstance().routeSharingPolicy, .longFormAudio)
+    }
+
+    func testCarPlayAudioSelectionReconfiguresAlreadyPlayingVideo() throws {
+        let model = MirrorModel.shared
+        model.stopPlayback()
+        defer { model.stopPlayback() }
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let channel = MediaChannel(title: "CarPlay presentation", url: url)
+        XCTAssertTrue(model.playMedia(channel, presentation: .video))
+        XCTAssertTrue(model.playback.player.allowsExternalPlayback)
+        XCTAssertTrue(model.playMedia(channel, presentation: .audio))
+        XCTAssertFalse(model.playback.player.allowsExternalPlayback)
+        XCTAssertEqual(AVAudioSession.sharedInstance().routeSharingPolicy, .longFormAudio)
+        XCTAssertEqual((MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyMediaType] as? NSNumber)?.uintValue,
+                       MPNowPlayingInfoMediaType.audio.rawValue)
     }
 
     func testVideoPlaysOnPhoneWithoutExternalDisplay() async throws {
