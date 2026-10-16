@@ -152,6 +152,25 @@ enum SourceKeychain {
     }
 }
 
+/// Keep playback sources accessible after the first unlock, including during locked CarPlay sessions.
+private enum SourceFileProtection {
+    static func migrateFile(_ file: URL) throws {
+        guard FileManager.default.fileExists(atPath: file.path) else { return }
+        try FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                                             ofItemAtPath: file.path)
+    }
+
+    static func prepareDirectory(_ directory: URL, migratingExistingFiles: Bool = false) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try migrateFile(directory)
+        if migratingExistingFiles {
+            for file in try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) {
+                try migrateFile(file)
+            }
+        }
+    }
+}
+
 @MainActor
 final class SourceLibrary: ObservableObject {
     static let shared = SourceLibrary()
@@ -170,7 +189,9 @@ final class SourceLibrary: ObservableObject {
         channelCache = SourceChannelCache(directory: directory.appendingPathComponent("ChannelCache", isDirectory: true))
         accounts = SourceAccountStore(file: directory.appendingPathComponent("account-expiry.json"), load: accountLoad)
         do {
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try SourceFileProtection.prepareDirectory(directory)
+            try SourceFileProtection.migrateFile(file)
+            try SourceFileProtection.prepareDirectory(importedPlaylists, migratingExistingFiles: true)
             var directory = directory
             var values = URLResourceValues(); values.isExcludedFromBackup = true
             try directory.setResourceValues(values)
@@ -244,9 +265,9 @@ final class SourceLibrary: ObservableObject {
         let channels = try M3UParser.parse(data, baseURL: input, fallbackTitle: name)
         // A local HLS manifest cannot be served to AVPlayer as a remote channel.
         guard channels.allSatisfy({ !$0.url.isFileURL }) else { throw LibraryError.unsupportedURL }
-        try FileManager.default.createDirectory(at: importedPlaylists, withIntermediateDirectories: true)
+        try SourceFileProtection.prepareDirectory(importedPlaylists)
         let destination = importedPlaylists.appendingPathComponent(UUID().uuidString + ".m3u")
-        try data.write(to: destination, options: [.atomic, .completeFileProtection])
+        try data.write(to: destination, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         do {
             let secret = SourceSecret(url: destination)
             if let source { try update(source, name: name, kind: .playlistFile, secret: secret) }
@@ -269,7 +290,7 @@ final class SourceLibrary: ObservableObject {
         }
     }
     private func persist(_ sources: [MediaSource]) throws {
-        try JSONEncoder().encode(sources).write(to: file, options: [.atomic, .completeFileProtection])
+        try JSONEncoder().encode(sources).write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
     }
     func cachedChannels(for source: MediaSource) -> [MediaChannel]? { channelCache.cached(for: source) }
     func channels(for source: MediaSource, reload: Bool = false,
@@ -465,7 +486,7 @@ final class SourceChannelCache {
         self.directory = directory
         key = directory == nil ? nil : (encryptionKey ?? (try? Self.deviceKey()))
         if let directory {
-            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try? SourceFileProtection.prepareDirectory(directory, migratingExistingFiles: true)
             var excluded = directory
             var resources = URLResourceValues(); resources.isExcludedFromBackup = true
             try? excluded.setResourceValues(resources)
@@ -527,7 +548,7 @@ final class SourceChannelCache {
                         return try? AES.GCM.seal(plaintext, using: key).combined
                     }.value
                     try Task.checkCancellation()
-                    if let data { try? data.write(to: file, options: [.atomic, .completeFileProtection]) }
+                    if let data { try? data.write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]) }
                 }
                 return channels
             } catch {

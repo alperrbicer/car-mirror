@@ -11,12 +11,13 @@ final class ExternalDisplaySceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let screen = scene as? UIWindowScene else { return }
+        let role = Self.displayRole(role: session.role, idiom: screen.traitCollection.userInterfaceIdiom)
         let window = UIWindow(windowScene: screen)
-        window.rootViewController = UIHostingController(rootView: ExternalDisplayProbeView(model: .shared))
+        window.rootViewController = UIHostingController(rootView: ExternalDisplayProbeView(model: .shared, isCarPlay: role == .carPlay))
         window.isHidden = false
         self.window = window
         MirrorModel.shared.externalScreenConnected(diagnosticID,
-            role: Self.displayRole(role: session.role, idiom: screen.traitCollection.userInterfaceIdiom),
+            role: role,
             size: screen.screen.bounds.size)
     }
 
@@ -75,7 +76,7 @@ final class CarPlayWindowCoordinator: NSObject {
               Self.shouldAttach(role: scene.session.role, idiom: scene.traitCollection.userInterfaceIdiom,
                                 hasDelegate: scene.delegate != nil, hasWindows: !scene.windows.isEmpty) else { return }
         let window = UIWindow(windowScene: scene)
-        window.rootViewController = UIHostingController(rootView: ExternalDisplayProbeView(model: .shared))
+        window.rootViewController = UIHostingController(rootView: ExternalDisplayProbeView(model: .shared, isCarPlay: true))
         let diagnosticID = UUID()
         presentations[id] = (window, diagnosticID)
         window.isHidden = false
@@ -93,6 +94,7 @@ final class CarPlayWindowCoordinator: NSObject {
 
 private struct ExternalDisplayProbeView: View {
     @ObservedObject var model: MirrorModel
+    let isCarPlay: Bool
     @ObservedObject private var playback = MirrorModel.shared.playback
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
     @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.normal
@@ -107,7 +109,7 @@ private struct ExternalDisplayProbeView: View {
                 VStack(spacing: 16) {
                     MirrorMark().frame(width: 72, height: 72)
                     Text(BrandIdentity.name).font(.largeTitle)
-                    Text(L10n.tr("iPhone’da ekran paylaşımını başlat.")).foregroundStyle(.secondary)
+                    Text(L10n.tr(isCarPlay ? "CarPlay bağlı" : "iPhone’da ekran paylaşımını başlat.")).foregroundStyle(.secondary)
                 }
             }
         }

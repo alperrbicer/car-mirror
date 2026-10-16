@@ -12,6 +12,15 @@ import CryptoKit
 
 @MainActor
 final class PlayerTests: XCTestCase {
+    private func assertCarPlayFileProtection(_ url: URL, file: StaticString = #filePath, line: UInt = #line) throws {
+        // Simulator does not expose NSFileProtectionKey. Content migration is tested on both platforms.
+        #if !targetEnvironment(simulator)
+        let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        XCTAssertEqual(attributes[.protectionKey] as? String,
+                       FileProtectionType.completeUntilFirstUserAuthentication.rawValue, file: file, line: line)
+        #endif
+    }
+
     func testPortraitFullscreenExitAcceptsDownwardDragsAndShortFastSwipes() {
         XCTAssertTrue(PlayerFullscreenExitGesture.shouldExit(translation: CGSize(width: 8, height: 90), velocity: .zero))
         XCTAssertTrue(PlayerFullscreenExitGesture.shouldExit(translation: CGSize(width: 4, height: 40),
@@ -749,7 +758,18 @@ final class PlayerTests: XCTestCase {
         XCTAssertNotEqual(imported, original)
         XCTAssertEqual(try Data(contentsOf: original), data)
         try FileManager.default.removeItem(at: original)
+        let sourceFile = directory.appendingPathComponent("sources.json")
+        for file in [sourceFile, imported] {
+            try assertCarPlayFileProtection(file)
+            // Simulate an existing installation that saved its sources before the CarPlay fix.
+            try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: file.path)
+        }
         let reopened = SourceLibrary(directory: directory) { _ in nil }
+        XCTAssertEqual(reopened.sources, library.sources)
+        for file in [sourceFile, imported] {
+            try assertCarPlayFileProtection(file)
+        }
+        XCTAssertEqual(try Data(contentsOf: imported), data, "Protection migration must preserve the imported playlist")
         let first = try await reopened.channels(for: source)
         XCTAssertEqual(first.first?.title, "First")
         XCTAssertEqual(first.first?.group, "Film")
@@ -2588,7 +2608,11 @@ final class PlayerTests: XCTestCase {
         let data = try Data(contentsOf: file)
         XCTAssertNil(data.range(of: Data("private-password".utf8)))
         XCTAssertNil(data.range(of: Data("Private channel".utf8)))
+        try assertCarPlayFileProtection(file)
+        try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: file.path)
         let restored = SourceChannelCache(directory: directory, encryptionKey: key)
+        try assertCarPlayFileProtection(file)
+        XCTAssertEqual(try Data(contentsOf: file), data, "Protection migration must leave the encrypted snapshot intact")
         var cached: [MediaChannel]?
         let result = try await restored.channels(for: source, now: now.addingTimeInterval(SourceChannelCache.lifetime - 1), onCached: { cached = $0 }) {
             XCTFail("A fresh disk snapshot must not download again")

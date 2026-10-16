@@ -9,26 +9,25 @@ struct MirivoEntryView: View {
     @State private var showingIntroductionPro = false
 
     var body: some View {
-        Group {
-            if onboardingCompleted {
+        ZStack {
+            if showingIntroductionPro {
+                NavigationStack {
+                    ProView(allowsBrowsing: true, onClose: { showingIntroductionPro = false })
+                }
+                .environment(\.locale, Locale(identifier: L10n.language))
+                .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
+            } else if onboardingCompleted {
                 home
             } else {
                 MirivoOnboardingView { showPro in
-                    if showPro { showingIntroductionPro = true }
-                    else { onboardingCompleted = true }
+                    showingIntroductionPro = showPro
+                    onboardingCompleted = true
                 }
-                    .environment(\.locale, Locale(identifier: L10n.language))
-                    .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
-            }
-        }
-        .fullScreenCover(isPresented: $showingIntroductionPro) {
-            NavigationStack { ProView(allowsBrowsing: true) }
                 .environment(\.locale, Locale(identifier: L10n.language))
                 .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
-                // The stable entry view owns the cover, so replacing the
-                // introduction underneath cannot dismiss the Pro offer.
-                .onAppear { onboardingCompleted = true }
+            }
         }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: showingIntroductionPro)
     }
 
     private var home: some View {

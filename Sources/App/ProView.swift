@@ -17,15 +17,17 @@ struct MembershipOfferPresenter: ViewModifier {
 struct ProView: View {
     let allowsBrowsing: Bool
     let showsCloseButton: Bool
+    private let onClose: (() -> Void)?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var store = PurchaseStore.shared
     private var annual: Product? { store.products.first { $0.id == ProProduct.yearly.rawValue } }
     private var offersTrial: Bool { annual.map(store.hasThreeDayTrial) ?? false }
 
-    init(allowsBrowsing: Bool = false, showsCloseButton: Bool = true) {
+    init(allowsBrowsing: Bool = false, showsCloseButton: Bool = true, onClose: (() -> Void)? = nil) {
         self.allowsBrowsing = allowsBrowsing
         self.showsCloseButton = showsCloseButton
+        self.onClose = onClose
     }
 
     var body: some View {
@@ -76,7 +78,7 @@ struct ProView: View {
         .toolbar {
             if showsCloseButton {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { dismiss() } label: {
+                    Button { close() } label: {
                         Image(systemName: "xmark").frame(width: 44, height: 44)
                     }.accessibilityLabel(L10n.tr("Kapat")).accessibilityIdentifier("pro-close")
                 }
@@ -84,11 +86,16 @@ struct ProView: View {
         }
         .task { await store.loadProducts(reportErrors: !allowsBrowsing) }
         .onChange(of: store.verifiedPro) { _, active in
-            if active && showsCloseButton { dismiss() }
+            if active && showsCloseButton { close() }
         }
         .alert(L10n.tr("Mirivo Pro"), isPresented: Binding(get: { store.message != nil }, set: { if !$0 { store.message = nil } })) {
             Button(L10n.tr("Tamam")) { store.message = nil }
         } message: { Text(store.message ?? "") }
+    }
+
+    private func close() {
+        if let onClose { onClose() }
+        else { dismiss() }
     }
 
     private var hero: some View {
@@ -161,7 +168,7 @@ struct ProView: View {
         VStack(spacing: 10) {
             if !dynamicTypeSize.isAccessibilitySize { purchaseControls }
             if allowsBrowsing {
-                Button(L10n.tr("Şimdilik keşfet")) { dismiss() }
+                Button(L10n.tr("Şimdilik keşfet")) { close() }
                     .font(.subheadline.weight(.medium)).foregroundStyle(MirrorStyle.secondary)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .accessibilityIdentifier("onboarding-continue-free")
