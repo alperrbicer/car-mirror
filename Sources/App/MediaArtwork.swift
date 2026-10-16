@@ -57,10 +57,11 @@ private final class MediaArtworkStore {
 
 struct MediaArtworkView: View {
     let channel: MediaChannel
-    var artworkURL: URL?
+    var fallbackArtworkURL: URL?
     var cornerRadius: CGFloat = 14
     @State private var image: UIImage?
-    private var url: URL? { artworkURL ?? channel.metadata.artworkURL }
+    // Keep the catalog poster when details provide a different edition or cover.
+    private var url: URL? { channel.metadata.artworkURL ?? fallbackArtworkURL }
     private var isLogo: Bool { channel.isLive || channel.isAudio }
 
     var body: some View {
@@ -118,13 +119,7 @@ struct ChannelCategoryCard: View {
 
     init(name: String, channels: [MediaChannel], prominent: Bool = false) {
         self.name = name; count = channels.count; self.prominent = prominent
-        var seen: Set<URL> = []
-        var preview: [MediaChannel] = []
-        for channel in channels {
-            if let url = channel.metadata.artworkURL, seen.insert(url).inserted { preview.append(channel) }
-            if preview.count == 3 { break }
-        }
-        self.preview = preview.isEmpty ? Array(channels.prefix(3)) : preview
+        preview = MediaChannelCategory.artworkPreview(channels)
     }
 
     var body: some View {

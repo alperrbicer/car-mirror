@@ -15,6 +15,14 @@ struct CarMirrorApp: App {
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-testing") {
             if !ProcessInfo.processInfo.arguments.contains("-mirivo-ui-preserve-library") {
+                UserDefaults.standard.removeObject(forKey: "dailyViewingBudget")
+                let arguments = ProcessInfo.processInfo.arguments
+                if let index = arguments.firstIndex(of: "-mirivo-ui-viewing-limit"), arguments.indices.contains(index + 1) {
+                    let carPlay = arguments[index + 1] == "carplay"
+                    let budget = DailyViewingBudget(now: Date(), used: carPlay ? 4000 : DailyViewingBudget.limit - 10,
+                                                    carPlayUsed: carPlay ? DailyViewingBudget.carPlayLimit - 10 : 0)
+                    UserDefaults.standard.set(try? JSONEncoder().encode(budget), forKey: "dailyViewingBudget")
+                }
                 try? SourceLibrary.shared.clear()
                 if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-continue-watching") {
                     seedContinuationTestData()
@@ -35,8 +43,11 @@ struct CarMirrorApp: App {
                          secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/demo.m3u")!),
                          access: ProductAccess(salesEnabled: false, verifiedPro: false))
         guard let source = library.sources.last else { return }
+        let arguments = ProcessInfo.processInfo.arguments
+        let ext = arguments.contains("-mirivo-ui-compatibility-continuation") ? "mkv" : "mp4"
+        let delay = arguments.contains("-mirivo-ui-delayed-continuation") ? "&delay=1" : ""
         for (index, title) in ["Kıyı Hikâyeleri S01-E02", "Uzun Yol", "Gece Vardiyası S02-E04", "Sessiz Şehir", "Bir Başka Gün S01-E07"].enumerated() {
-            let channel = MediaChannel(title: title, url: URL(string: "http://127.0.0.1:8769/tracks/options.mp4?item=\(index)")!)
+            let channel = MediaChannel(title: title, url: URL(string: "http://127.0.0.1:8769/tracks/options.\(ext)?item=\(index)\(delay)")!)
             try? LastPlaybackStore.shared.save(LastPlaybackRecord(channel: channel, sourceID: source.id,
                 position: Double(30 + index * 3), duration: 90, isLive: false))
         }

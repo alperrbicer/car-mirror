@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "เครื่องเล่นกว้าง ปุ่มควบคุมขนาดใหญ่ และพื้นที่รับชมที่เรียบง่าย";
 "Gizlilik" = "ความเป็นส่วนตัว";
 "Gizlilik Politikası" = "นโยบายความเป็นส่วนตัว";
-"Görüntü bağlanıyor" = "กำลังเชื่อมต่อวิดีโอ";
+"Görüntü bağlanıyor" = "กำลังเชื่อมต่อ…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "เริ่มวิดีโอไม่ได้ ลองอีกครั้ง";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "เล่นวิดีโอไม่ได้ ลองอีกครั้ง";
 "Görüntüyle birlikte" = "พร้อมวิดีโอ";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "แหล่งสัญญาณ";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "เปิดแหล่งสัญญาณไม่ได้ ลองอีกครั้ง";
 "Kaynaklar silinemedi. Yeniden dene." = "ลบแหล่งสัญญาณทั้งหมดไม่ได้ ลองอีกครั้ง";
-"Kaynakların burada" = "แหล่งสัญญาณของคุณอยู่ที่นี่";
+"Kaynakların burada" = "เพิ่มแหล่งสัญญาณแรกของคุณ";
 "Kayıtlar temizlendi" = "ล้างบันทึกแล้ว";
 "Kayıtlar temizlenemedi." = "ล้างบันทึกไม่ได้";
 "Kayıtları temizle" = "ล้างบันทึก";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "วันนี้เหลือ: %d นาที";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "คุณใช้เวลารับชมครบ 2 ชั่วโมงสำหรับวันนี้แล้ว กลับมารับชมได้อีกครั้งพรุ่งนี้";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "คุณใช้เวลาดูฟรีครบ 2 ชั่วโมงสำหรับวันนี้แล้ว กลับมาดูใหม่พรุ่งนี้ หรือใช้ Pro เพื่อดูต่อได้ไม่จำกัดเวลา";
 
-"Ücretsiz izleme günde 2 saat." = "รับชมฟรีวันละ 2 ชั่วโมง";
+"Ücretsiz izleme günde 2 saat." = "ดูฟรีได้รวมวันละ 2 ชั่วโมง โดยใช้กับ CarPlay ได้สูงสุด 1 ชั่วโมง เมื่อถึงขีดจำกัดใดขีดจำกัดหนึ่ง การดูฟรีในวันนั้นจะสิ้นสุดลง";
 
 "Sınırsız izleme" = "รับชมไม่จำกัด";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "รูปภาพจะถูกแปลงเป็นสไลด์โชว์ 1080p บนอุปกรณ์ โดยไม่เปลี่ยนแปลงต้นฉบับ";
 "Nasıl bağlanırım?" = "เชื่อมต่ออย่างไร?";
 "Büyük ekranda daha fazlası." = "สนุกยิ่งขึ้นบนจอใหญ่";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "ความทรงจำ วิดีโอ และเพลงของคุณ เลือกหน้าจอแล้วเริ่มแชร์";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "เลือกหน้าจอเพื่อแชร์ความทรงจำ วิดีโอ และเพลงของคุณ";
 "Google Cast araması kullanılamıyor." = "ไม่สามารถค้นหา Google Cast ได้";
 "Ayarları aç" = "เปิดการตั้งค่า";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "เลือกเนื้อหา คุณหยุดชั่วคราวหรือเปลี่ยนการเชื่อมต่อทีวีจากเครื่องเล่นได้";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "อนุญาตการแจ้งเตือนในการตั้งค่า iOS";
 "Bildirimler hazırlanıyor…" = "กำลังตั้งค่าการแจ้งเตือน…";
 "Bildirimler açık." = "เปิดการแจ้งเตือนแล้ว";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "ลงทะเบียนการแจ้งเตือนไม่สำเร็จ โปรดลองอีกครั้ง";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "ติดต่อเซิร์ฟเวอร์เพื่อปิดการแจ้งเตือนไม่ได้ จะลองอีกครั้งเมื่อเชื่อมต่อ";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "เปิดการแจ้งเตือนไม่ได้ ลองอีกครั้ง";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "ติดต่อเซิร์ฟเวอร์เพื่อปิดการแจ้งเตือนไม่ได้ Mirivo จะลองอีกครั้งเมื่อมีการเชื่อมต่อ";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "รับข่าวสารเวอร์ชันและผลิตภัณฑ์ สื่อและที่อยู่แหล่งข้อมูลของคุณจะไม่ถูกส่งไปยังเซิร์ฟเวอร์การแจ้งเตือน";
 "iOS Ayarlarını aç" = "เปิดการตั้งค่า iOS";
 "Güncelleme gerekli" = "ต้องอัปเดต";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "นำออกจากรายการ";
 "İçerik bulunamadı" = "ไม่พบเนื้อหา";
 "Film veya dizi ara" = "ค้นหาภาพยนตร์หรือซีรีส์";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "นำประวัติการรับชมออกไม่ได้ โปรดลองอีกครั้ง";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "นำเนื้อหานี้ออกจากรายการไม่ได้ ลองอีกครั้ง";
 
 "İndirilenler" = "ดาวน์โหลด";
 "Çevrimdışı izlemeye hazır" = "พร้อมรับชมแบบออฟไลน์";
@@ -330,7 +330,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "กางนิ้วเพื่อให้ภาพเต็มหน้าจอ";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "หุบนิ้วเพื่อกลับไปยังมุมมองปกติ";
 "Hareket tanıtımını yeniden göster" = "แสดงคำแนะนำท่าทางอีกครั้ง";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "แสดงท่าทางควบคุมเสียง ความสว่าง และหน้าจอในเครื่องเล่นอีกครั้ง";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "แสดงคำแนะนำท่าทางควบคุมเสียง ความสว่าง และหน้าจอในเครื่องเล่นอีกครั้ง";
 
 "Araç video desteği" = "การรองรับวิดีโอของรถ";
 "CarPlay bağlı" = "เชื่อมต่อ CarPlay แล้ว";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "เริ่มทดสอบวิดีโอ CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "เชื่อมต่อกับ CarPlay แล้วเปิดแอปบนหน้าจอรถ";
 "Araç bağlantısında hatırlat" = "เตือนเมื่อเชื่อมต่อกับรถ";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "ส่งการเตือนบนโทรศัพท์หนึ่งครั้งเมื่อตรวจพบเซสชัน CarPlay ใหม่ ข้อมูลการเชื่อมต่อกับรถจะไม่ถูกส่งไปยังเซิร์ฟเวอร์";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "คุณจะได้รับการเตือนบนโทรศัพท์หนึ่งครั้งเมื่อตรวจพบเซสชัน CarPlay ใหม่ ข้อมูลการเชื่อมต่อกับรถจะไม่ถูกส่งไปยังเซิร์ฟเวอร์";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "วิดีโอ CarPlay ใช้งานได้ในรถที่รองรับขณะจอดรถ";
 
 "AirPlay ekranı" = "หน้าจอ AirPlay";
 "AirPlay hedefini değiştir" = "เปลี่ยนปลายทาง AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "ใช้เมนูระบบด้านล่างเพื่อเปลี่ยนปลายทาง AirPlay หรือกลับไปที่ iPhone";
 "Bağlı" = "เชื่อมต่อแล้ว";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "รีเซ็ตเวลาดูฟรีของวันนี้แล้ว วันนี้คุณดูได้สูงสุด 2 ชั่วโมง";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "รีเซ็ตเวลาดูฟรีแล้ว วันนี้ดูได้รวม 2 ชั่วโมง โดยใช้กับ CarPlay ได้สูงสุด 1 ชั่วโมง";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "รีเซ็ตเวลาดูฟรีของวันนี้หรือไม่?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "หากต้องการหยุดสะท้อนหน้าจอ ให้เปิดการสะท้อนหน้าจอในศูนย์ควบคุม iOS แล้วตัดการเชื่อมต่อ";
 "Oynatma durduruldu, TV bağlantısı açık" = "หยุดเล่นแล้ว แต่ทีวียังเชื่อมต่ออยู่";
 "TV bağlantısı açık" = "ทีวีเชื่อมต่ออยู่";
 "TV bağlantısını kes" = "ตัดการเชื่อมต่อทีวี";
-"TV’den ayrıl" = "ออกจากทีวี";
+"TV’den ayrıl" = "ตัดการเชื่อมต่อทีวี";
 "Video seçenekleri" = "ตัวเลือกวิดีโอ";
 "Sıfırla" = "รีเซ็ต";
 "İptal" = "ยกเลิก";
@@ -411,3 +411,10 @@
 "Dizi ara" = "ค้นหาซีรีส์";
 "Bu içerik için açıklama bulunamadı." = "ไม่พบคำอธิบายสำหรับเนื้อหานี้";
 "İçerik bilgileri yüklenemedi." = "ไม่สามารถโหลดข้อมูลเนื้อหาได้";
+"Klavyeyi kapat" = "ซ่อนแป้นพิมพ์";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay วันนี้: เหลือ %d นาที";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "คุณใช้เวลาดูผ่าน CarPlay ครบ 1 ชั่วโมงสำหรับวันนี้แล้ว กลับมาดูใหม่พรุ่งนี้ หรือใช้ Pro เพื่อดูต่อได้ไม่จำกัดเวลา";
+
+"Bugünkü ücretsiz süren doldu" = "เวลาดูฟรีของวันนี้หมดแล้ว";

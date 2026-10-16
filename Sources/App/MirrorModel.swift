@@ -27,10 +27,24 @@ final class MirrorModel: ObservableObject {
     }
     private var advancesQueue = false
     @Published private(set) var dailyRemaining: TimeInterval = DailyViewingBudget.limit
-    private var viewingBudget = (UserDefaults.standard.data(forKey: "dailyViewingBudget").flatMap { try? JSONDecoder().decode(DailyViewingBudget.self, from: $0) }) ?? DailyViewingBudget(now: Date())
-    private var viewingCheckpoint = Date()
+    @Published private(set) var viewingLimit: DailyViewingBudget.Limit?
+    @Published var viewingLimitPrompt: DailyViewingBudget.Limit?
+    var isViewingLimited: Bool { viewingLimit != nil }
+    var viewingUsesCarPlay: Bool { playback.displayConnection.primaryRoute == .carPlay }
+    var dailyViewingLimit: TimeInterval { viewingUsesCarPlay ? DailyViewingBudget.carPlayLimit : DailyViewingBudget.limit }
+    var remainingViewingText: String {
+        String(format: L10n.tr(viewingUsesCarPlay ? "CarPlay’de bugün kalan: %d dk" : "Bugün kalan: %d dk"), Int(ceil(dailyRemaining / 60)))
+    }
+    private let viewingDefaults: UserDefaults
+    private let viewingNow: () -> Date
+    private let viewingAccess: @MainActor () -> ProductAccess
+    private var viewingBudget: DailyViewingBudget
+    private var viewingCheckpoint: Date
     private var wasViewing = false
+    private var wasViewingInCarPlay = false
+    private var viewingLimitResumePosition: Double?
     private var viewingObserver: AnyCancellable?
+    private var viewingRouteObserver: AnyCancellable?
     private var historyObserver: AnyCancellable?
     private var pendingPlayerRestores: [(Bool) -> Void] = []
     private var mediaPresentation: MediaPlaybackPresentation?
@@ -56,7 +70,13 @@ final class MirrorModel: ObservableObject {
     var hasTVDisplay: Bool { externalScreens.values.contains { $0 != .carPlay } }
     private var probeTask: Task<Void, Never>?
 
-    private init() {
+    init(viewingDefaults: UserDefaults = .standard, now: @escaping () -> Date = { Date() },
+         viewingAccess: @escaping @MainActor () -> ProductAccess = { PurchaseStore.shared.access }, startsTimer: Bool = true) {
+        self.viewingDefaults = viewingDefaults
+        self.viewingNow = now
+        self.viewingAccess = viewingAccess
+        self.viewingCheckpoint = now()
+        self.viewingBudget = (viewingDefaults.data(forKey: "dailyViewingBudget").flatMap { try? JSONDecoder().decode(DailyViewingBudget.self, from: $0) }) ?? DailyViewingBudget(now: now())
         do { store = try BroadcastSessionStore(); storageReady = true }
         catch { errorMessage = L10n.tr("Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene.") }
         playback.onDiagnostic = { [weak self] kind, values in self?.record(kind, values: values) }
@@ -94,10 +114,21 @@ final class MirrorModel: ObservableObject {
             self.errorMessage = message
             self.updateSessionState()
         }
-        viewingObserver = playback.$isPlaying.sink { [weak self] playing in
-            self?.accountViewingTime()
-            self?.wasViewing = playing && self?.selectedMediaChannel != nil && self?.playback.hasActivePlayback == true
+        viewingObserver = playback.$isPlaying.sink { [weak self] _ in
+            // Published emits before the player changes. Enforce the budget
+            // afterwards so stopping cannot be overwritten by that same event.
+            Task { @MainActor in
+                guard let self else { return }
+                self.accountViewingTime()
+                self.wasViewing = self.playback.isPlaying && self.playback.hasActivePlayback &&
+                    (self.selectedMediaChannel != nil || self.playbackSessionID != nil)
+                if self.wasViewing && self.isViewingLimited { self.stopForViewingLimit() }
+            }
         }
+        viewingRouteObserver = Publishers.CombineLatest4(playback.$tvDevice, playback.$airPlayName,
+            playback.$carPlayConnected, playback.$externalTVDisplayConnected).sink { [weak self] _ in
+                Task { @MainActor in self?.accountViewingTime() }
+            }
         historyObserver = playback.$state.sink { [weak self] state in
             if state == .playing || state == .paused {
                 Task { @MainActor in self?.saveLastPlayback(force: true) }
@@ -108,8 +139,10 @@ final class MirrorModel: ObservableObject {
                 Task { @MainActor in self?.saveLastPlayback(force: true) }
             }
         refresh()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.refresh() }
+        if startsTimer {
+            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+                Task { @MainActor in self?.refresh() }
+            }
         }
     }
 
@@ -171,6 +204,7 @@ final class MirrorModel: ObservableObject {
     func foregrounded() { record(.appForegrounded); refresh(); Task { await PurchaseStore.shared.refresh() } }
 
     func connected(supportsVideo: Bool?) {
+        accountViewingTime()
         carPlayTemplateConnected = true
         carPlayConnected = true
         updateConnectedDisplays()
@@ -183,6 +217,7 @@ final class MirrorModel: ObservableObject {
     }
 
     func disconnected() {
+        accountViewingTime()
         var values = DiagnosticValues()
         values.reason = .disconnected
         record(.carDisconnected, values: values)
@@ -199,6 +234,7 @@ final class MirrorModel: ObservableObject {
 
     func playOnDisplay() {
         guard AppUpdateStore.shared.requiredURL == nil else { return }
+        guard allowViewing() else { return }
         guard supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil else {
             errorMessage = displayRequiredMessage
             return
@@ -239,6 +275,7 @@ final class MirrorModel: ObservableObject {
     }
 
     func connectTV(_ renderer: GCKDevice) {
+        accountViewingTime()
         do {
             try playback.setTVDevice(renderer)
             if broadcasting { lastAttemptedSessionID = nil; refresh() }
@@ -251,11 +288,13 @@ final class MirrorModel: ObservableObject {
             errorMessage = L10n.tr("TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene.")
             mediaErrorMessage = errorMessage
         }
+        updateViewingAllowance()
         updateSessionState()
     }
 
     func disconnectTV() {
         guard playback.tvDevice != nil else { return }
+        accountViewingTime()
         // Do not loop the phone's own screen capture back onto its display.
         if playbackSessionID != nil { stopBroadcast() }
         do {
@@ -269,6 +308,7 @@ final class MirrorModel: ObservableObject {
             mediaTitle = nil
             mediaErrorMessage = L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
         }
+        updateViewingAllowance()
         updateSessionState()
     }
 
@@ -276,11 +316,7 @@ final class MirrorModel: ObservableObject {
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil,
                    advanceAutomatically: Bool = false, sourceID: UUID? = nil, startAt: Double = 0) -> Bool {
         guard AppUpdateStore.shared.requiredURL == nil else { return false }
-        accountViewingTime()
-        guard PurchaseStore.shared.access.fullAccess || dailyRemaining > 0 else {
-            errorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
-            return false
-        }
+        guard allowViewing() else { return false }
         if selectedMediaChannel == channel, playback.hasActivePlayback,
            presentation == nil || presentation == mediaPresentation {
             // Selecting the already-playing channel from a category must still
@@ -375,28 +411,62 @@ final class MirrorModel: ObservableObject {
         playMedia(channel)
     }
     private func accountViewingTime() {
-        let now = Date()
+        let now = viewingNow()
         viewingBudget.record(from: viewingCheckpoint, to: now,
-                             playing: wasViewing && !PurchaseStore.shared.access.fullAccess)
+                             playing: wasViewing && !viewingAccess().fullAccess, carPlay: wasViewingInCarPlay)
         viewingCheckpoint = now
-        dailyRemaining = viewingBudget.remaining
-        if let data = try? JSONEncoder().encode(viewingBudget) { UserDefaults.standard.set(data, forKey: "dailyViewingBudget") }
-        if dailyRemaining == 0, !PurchaseStore.shared.access.fullAccess, wasViewing {
-            wasViewing = false
-            playback.stop()
-            mediaTitle = nil
-            mediaErrorMessage = L10n.tr("Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
-            errorMessage = mediaErrorMessage
+        updateViewingAllowance()
+        if let data = try? JSONEncoder().encode(viewingBudget) { viewingDefaults.set(data, forKey: "dailyViewingBudget") }
+        if isViewingLimited, wasViewing || (playback.hasActivePlayback && (selectedMediaChannel != nil || playbackSessionID != nil)) {
+            stopForViewingLimit()
         }
     }
 
+    private func updateViewingAllowance() {
+        let previousLimit = viewingLimit
+        wasViewingInCarPlay = viewingUsesCarPlay
+        dailyRemaining = viewingBudget.remaining(carPlay: viewingUsesCarPlay)
+        viewingLimit = viewingAccess().fullAccess ? nil : viewingBudget.exhaustedLimit
+        if viewingLimit == nil {
+            viewingLimitPrompt = nil
+            if let previousLimit, mediaErrorMessage == previousLimit.explanation { mediaErrorMessage = nil }
+        }
+    }
+
+    private func allowViewing() -> Bool {
+        accountViewingTime()
+        guard isViewingLimited else { return true }
+        lastAttemptedSessionID = capture?.sessionID
+        stopBroadcastCapture()
+        presentViewingLimitOffer()
+        return false
+    }
+
+    func presentViewingLimitOffer() {
+        guard let viewingLimit else { return }
+        errorMessage = nil
+        viewingLimitPrompt = viewingLimit
+    }
+
+    private func stopForViewingLimit() {
+        guard let viewingLimit else { return }
+        wasViewing = false
+        viewingLimitResumePosition = playback.isLive ? 0 : playback.currentTime
+        saveLastPlayback(force: true)
+        playback.stop()
+        mediaTitle = nil
+        stopBroadcastCapture()
+        mediaErrorMessage = viewingLimit.explanation
+        presentViewingLimitOffer()
+    }
+
     func resetDailyViewingBudget() {
-        let now = Date()
+        let now = viewingNow()
         viewingBudget = DailyViewingBudget(now: now)
         viewingCheckpoint = now
-        dailyRemaining = DailyViewingBudget.limit
+        updateViewingAllowance()
         if let data = try? JSONEncoder().encode(viewingBudget) {
-            UserDefaults.standard.set(data, forKey: "dailyViewingBudget")
+            viewingDefaults.set(data, forKey: "dailyViewingBudget")
         }
     }
 
@@ -412,7 +482,7 @@ final class MirrorModel: ObservableObject {
 
     func retryMedia() {
         guard let channel = selectedMediaChannel else { return }
-        playMedia(channel, presentation: mediaPresentation)
+        playMedia(channel, presentation: mediaPresentation, startAt: viewingLimitResumePosition ?? 0)
     }
 
     private func saveLastPlayback(force: Bool = false) {
@@ -441,14 +511,21 @@ final class MirrorModel: ObservableObject {
             try? LastPlaybackStore.shared.clear(sourceID: sourceID)
             return false
         }
+        let previousPlaybackID = playback.playbackID
+        let started: Bool
         if let sourceID = last.sourceID,
            let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }),
            let channels = SourceLibrary.shared.cachedChannels(for: source),
            let channel = channels.first(where: { $0.id == last.channel.id }) {
-            return playMedia(channel, queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels),
-                             sourceID: sourceID, startAt: last.resumePosition)
+            started = playMedia(channel, queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels),
+                                sourceID: sourceID, startAt: last.resumePosition)
+        } else {
+            started = playMedia(last.channel, sourceID: last.sourceID, startAt: last.resumePosition)
         }
-        return playMedia(last.channel, sourceID: last.sourceID, startAt: last.resumePosition)
+        // Reusing an active decoder also reuses its paused state. Continue
+        // Watching is an explicit Play action, including for that existing item.
+        if started, playback.playbackID == previousPlaybackID { playback.resume() }
+        return started
     }
 
     var activeContinuationID: String? {
@@ -466,14 +543,9 @@ final class MirrorModel: ObservableObject {
         try? LastPlaybackStore.shared.clear(sourceID: sourceID)
     }
 
-    func stopPlayback(clearLastPlayback: Bool = false) {
-        if clearLastPlayback {
-            let continuationID = activeContinuationID
-            resumeRecordingEnabled = false
-            if let continuationID { try? LastPlaybackStore.shared.remove(id: continuationID) }
-        } else {
-            saveLastPlayback(force: true)
-        }
+    func stopPlayback() {
+        saveLastPlayback(force: true)
+        viewingLimitResumePosition = nil
         finishPlayerRestoration(false)
         PlayerOrientationPolicy.update(playerVisible: false, allowsLandscape: false)
         presentingPlayer = false
@@ -518,6 +590,7 @@ final class MirrorModel: ObservableObject {
     }
 
     func externalScreenConnected(_ id: UUID, role: DiagnosticValues.Screen, size: CGSize) {
+        accountViewingTime()
         externalScreens[id] = role
         externalScreenCount = externalScreens.count
         carPlayConnected = carPlayTemplateConnected || hasCarPlayDisplay
@@ -532,6 +605,7 @@ final class MirrorModel: ObservableObject {
     }
 
     func externalScreenDisconnected(_ id: UUID) {
+        accountViewingTime()
         externalScreens.removeValue(forKey: id)
         externalScreenCount = externalScreens.count
         carPlayConnected = carPlayTemplateConnected || hasCarPlayDisplay
@@ -554,6 +628,7 @@ final class MirrorModel: ObservableObject {
 
     private func updateConnectedDisplays() {
         playback.updateConnectedDisplays(carPlay: carPlayConnected, externalTV: hasTVDisplay)
+        updateViewingAllowance()
     }
 
     func startVideoProbe() {

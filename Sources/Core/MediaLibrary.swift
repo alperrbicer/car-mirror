@@ -70,6 +70,37 @@ public struct MediaChannelCategory: Identifiable, Equatable, Sendable {
     public let name: String
     public var channels: [MediaChannel]
 
+    /// Episodes may have different poster URLs for the same series. Represent
+    /// each title once and leave a smaller preview when fewer covers exist.
+    public static func artworkPreview(_ channels: [MediaChannel]) -> [MediaChannel] {
+        var preview: [MediaChannel] = []
+        var seenContent: Set<String> = []
+        var seenArtwork: Set<URL> = []
+        for channel in channels {
+            guard let artwork = channel.metadata.artworkURL else { continue }
+            let key = previewContentKey(channel)
+            guard !seenContent.contains(key), !seenArtwork.contains(artwork) else { continue }
+            seenContent.insert(key); seenArtwork.insert(artwork)
+            preview.append(channel)
+            if preview.count == 3 { return preview }
+        }
+        if !preview.isEmpty { return preview }
+        for channel in channels where seenContent.insert(previewContentKey(channel)).inserted {
+            preview.append(channel)
+            if preview.count == 3 { break }
+        }
+        return preview
+    }
+
+    private static func previewContentKey(_ channel: MediaChannel) -> String {
+        if !channel.isLive, !channel.isAudio, let episode = channel.episode {
+            return "series:" + episode.seriesKey
+        }
+        let title = channel.title.split(whereSeparator: \.isWhitespace).joined(separator: " ").lowercased()
+        let kind = channel.isLive ? "live:" : channel.isAudio ? "audio:" : "video:"
+        return kind + (title.isEmpty ? channel.id : title)
+    }
+
     /// Preserve provider order, including channels with no category metadata.
     public static func group(_ channels: [MediaChannel]) -> [MediaChannelCategory] {
         var result: [MediaChannelCategory] = []
@@ -136,7 +167,9 @@ public enum M3UParser {
                 let duration = line.dropFirst(8).prefix { !$0.isWhitespace && $0 != "," }
                 metadata = MediaMetadata(
                     artworkURL: MediaMetadata.artworkURL(attributes["tvg-logo"], relativeTo: baseURL),
-                    summary: attributes["tvg-description"] ?? attributes["description"] ?? attributes["plot"],
+                    summary: ["tvg-description", "description", "plot"].lazy.compactMap {
+                        MediaMetadata(summary: attributes[$0]).summary
+                    }.first,
                     genre: attributes["genre"],
                     year: attributes["year"],
                     duration: Double(duration),

@@ -15,12 +15,27 @@ actor MediaMetadataLoader {
     }
 
     func load(kind: MediaSourceKind, secret: SourceSecret, channel: MediaChannel, seriesOnly: Bool = false) async throws -> MediaMetadata? {
+        var seriesFailure: Error?
+        if let lookup = try XtreamEndpoint.seriesLookup(kind: kind, secret: secret, channel: channel) {
+            do {
+                if let metadata = try await loadSeries(lookup, channel: channel, seriesOnly: seriesOnly) { return metadata }
+            } catch {
+                try Task.checkCancellation()
+                seriesFailure = error
+            }
+        }
         if let url = try XtreamEndpoint.vodInfo(kind: kind, secret: secret, channel: channel) {
             let response = try await fetch(url, VODMetadataParser.maximumBytes)
             try Task.checkCancellation()
-            return try VODMetadataParser.parse(response.data, baseURL: response.url)
+            let metadata = try VODMetadataParser.parse(response.data, baseURL: response.url)
+            if metadata.summary == nil, let seriesFailure { throw seriesFailure }
+            return metadata
         }
-        guard let lookup = try XtreamEndpoint.seriesLookup(kind: kind, secret: secret, channel: channel) else { return nil }
+        if let seriesFailure { throw seriesFailure }
+        return nil
+    }
+
+    private func loadSeries(_ lookup: XtreamSeriesLookup, channel: MediaChannel, seriesOnly: Bool) async throws -> MediaMetadata? {
         let catalog: [SeriesMetadataCandidate]
         if let cached = catalogs[lookup.catalogURL], Date().timeIntervalSince(cached.date) < 900 {
             catalog = cached.entries
@@ -156,7 +171,7 @@ struct MediaDetailsView: View {
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
             : AnyLayout(HStackLayout(alignment: .top, spacing: 16))
         return layout {
-            MediaArtworkView(channel: channel, artworkURL: metadata.artworkURL)
+            MediaArtworkView(channel: channel, fallbackArtworkURL: metadata.artworkURL)
                 .frame(width: 76, height: channel.isLive || channel.isAudio ? 76 : 108)
             VStack(alignment: .leading, spacing: 9) {
                 Text(series?.title ?? channel.title).font(.title3.weight(.semibold)).fixedSize(horizontal: false, vertical: true)

@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "宽阔的播放器、大尺寸控件和简洁的观看界面。";
 "Gizlilik" = "隐私";
 "Gizlilik Politikası" = "隐私政策";
-"Görüntü bağlanıyor" = "正在连接视频";
+"Görüntü bağlanıyor" = "正在连接…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "无法启动视频，请重试。";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "无法播放视频，请重试。";
 "Görüntüyle birlikte" = "随视频输出";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "来源";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "无法打开来源，请重试。";
 "Kaynaklar silinemedi. Yeniden dene." = "无法删除来源，请重试。";
-"Kaynakların burada" = "你的来源会显示在这里";
+"Kaynakların burada" = "添加你的第一个来源";
 "Kayıtlar temizlendi" = "日志已清除";
 "Kayıtlar temizlenemedi." = "无法清除日志。";
 "Kayıtları temizle" = "清除日志";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "今天剩余：%d分钟";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "您已达到每天2小时的观看上限。明天可以继续观看。";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "今天的2小时免费观看时间已用完。你可以明天继续观看，或升级至Pro，不受时间限制地继续观看。";
 
-"Ücretsiz izleme günde 2 saat." = "免费版每天可观看2小时。";
+"Ücretsiz izleme günde 2 saat." = "每天可免费观看共2小时，其中通过CarPlay观看最多1小时。达到任一上限后，当天的免费观看即会结束。";
 
 "Sınırsız izleme" = "不限时观看";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "照片将在设备上制作成 1080p 幻灯片，原始照片保持不变。";
 "Nasıl bağlanırım?" = "如何连接？";
 "Büyük ekranda daha fazlası." = "大屏幕，更多精彩。";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "你的回忆、视频与音乐。选择屏幕，开始分享。";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "选择屏幕，分享你的回忆、视频和音乐。";
 "Google Cast araması kullanılamıyor." = "Google Cast 搜索不可用。";
 "Ayarları aç" = "打开设置";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "选择内容，即可在播放器中暂停或更改电视连接。";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "请在 iOS 设置中允许通知。";
 "Bildirimler hazırlanıyor…" = "正在设置通知…";
 "Bildirimler açık." = "通知已开启。";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "通知注册失败，请重试。";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "无法连接服务器以关闭通知。连接恢复后将重试。";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "无法开启通知，请重试。";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "无法连接服务器以关闭通知。连接恢复后，Mirivo 会重试。";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "接收版本及产品公告。你的媒体内容和来源地址不会发送到通知服务器。";
 "iOS Ayarlarını aç" = "打开 iOS 设置";
 "Güncelleme gerekli" = "需要更新";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "从列表中移除";
 "İçerik bulunamadı" = "未找到内容";
 "Film veya dizi ara" = "搜索电影或剧集";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "无法移除观看记录，请重试。";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "无法从列表中移除此内容，请重试。";
 
 "İndirilenler" = "下载";
 "Çevrimdışı izlemeye hazır" = "可离线观看";
@@ -317,7 +317,7 @@
 "İçerik kontrol ediliyor…" = "正在检查内容…";
 "Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "仅支持下载 HLS、MP4、M4V 和 MOV 格式的电影或剧集。";
 "Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "直播内容无法下载以供离线观看。";
-"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "由于服务提供方的保护，此内容无法下载。";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "此内容受服务提供方保护，无法下载。";
 "İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "目前无法下载此内容。请检查流媒体网址。";
 "İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "无法保存下载内容。请检查设备剩余空间。";
 "Bu içerik zaten indirilenlerde veya indiriliyor." = "此内容已下载或正在下载。";
@@ -330,7 +330,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "张开双指以铺满屏幕";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "捏合双指以恢复正常显示";
 "Hareket tanıtımını yeniden göster" = "再次显示手势说明";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "在播放器中再次显示音量、亮度和屏幕手势说明。";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "在播放器中再次显示用手势调节音量、亮度和画面的提示。";
 
 "Araç video desteği" = "车辆视频支持";
 "CarPlay bağlı" = "CarPlay 已连接";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "开始 CarPlay 视频测试";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "连接 CarPlay，然后在车载屏幕上打开应用。";
 "Araç bağlantısında hatırlat" = "连接车辆时提醒我";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "检测到新的 CarPlay 会话时，在手机上提醒一次。车辆连接信息不会发送到服务器。";
-"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay 视频可在支持的车辆停放时使用。";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "检测到新的 CarPlay 会话时，你的手机会收到一次提醒。车辆连接信息不会发送到服务器。";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "支持 CarPlay 视频的车辆可在停放时使用此功能。";
 
 "AirPlay ekranı" = "AirPlay 显示屏";
 "AirPlay hedefini değiştir" = "更改 AirPlay 目标设备";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "使用下方的系统菜单更改 AirPlay 目标设备或返回 iPhone。";
 "Bağlı" = "已连接";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "今天的免费观看时长已重置。今天你最多可以观看 2 小时。";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "免费观看时间已重置：今天总共可观看2小时，其中通过CarPlay观看最多1小时。";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "重置今天的免费观看时长？";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "要停止屏幕镜像，请在 iOS 控制中心打开“屏幕镜像”并断开连接。";
 "Oynatma durduruldu, TV bağlantısı açık" = "播放已停止，电视仍保持连接";
 "TV bağlantısı açık" = "电视已连接";
 "TV bağlantısını kes" = "断开电视连接";
-"TV’den ayrıl" = "断开与电视的连接";
+"TV’den ayrıl" = "断开电视连接";
 "Video seçenekleri" = "视频选项";
 "Sıfırla" = "重置";
 "İptal" = "取消";
@@ -411,3 +411,10 @@
 "Dizi ara" = "搜索剧集";
 "Bu içerik için açıklama bulunamadı." = "未找到此内容的简介。";
 "İçerik bilgileri yüklenemedi." = "无法加载内容信息。";
+"Klavyeyi kapat" = "收起键盘";
+
+"CarPlay’de bugün kalan: %d dk" = "今天CarPlay还剩%d分钟";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "今天的1小时CarPlay观看时间已用完。你可以明天继续观看，或升级至Pro，不受时间限制地继续观看。";
+
+"Bugünkü ücretsiz süren doldu" = "今天的免费观看时间已用完";

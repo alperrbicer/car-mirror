@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "बड़ा प्लेयर, बड़े कंट्रोल और देखने के लिए सरल स्क्रीन।";
 "Gizlilik" = "गोपनीयता";
 "Gizlilik Politikası" = "गोपनीयता नीति";
-"Görüntü bağlanıyor" = "वीडियो कनेक्ट हो रहा है";
+"Görüntü bağlanıyor" = "कनेक्ट हो रहा है…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "वीडियो शुरू नहीं हो पाया। फिर कोशिश करें।";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "वीडियो चल नहीं पाया। फिर कोशिश करें।";
 "Görüntüyle birlikte" = "वीडियो के साथ";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "स्रोत";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "आपके स्रोत नहीं खुल पाए। फिर कोशिश करें।";
 "Kaynaklar silinemedi. Yeniden dene." = "आपके स्रोत मिटाए नहीं जा सके। फिर कोशिश करें।";
-"Kaynakların burada" = "आपके स्रोत यहाँ हैं";
+"Kaynakların burada" = "अपना पहला स्रोत जोड़ें";
 "Kayıtlar temizlendi" = "लॉग साफ़ कर दिए गए";
 "Kayıtlar temizlenemedi." = "लॉग साफ़ नहीं हो पाए।";
 "Kayıtları temizle" = "लॉग साफ़ करें";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "आज शेष: %d मिनट";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "आज की 2 घंटे की देखने की सीमा पूरी हो गई है। आप कल फिर देख सकते हैं।";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "आज मुफ़्त देखने के आपके 2 घंटे पूरे हो गए हैं। कल फिर देखें या बिना समय सीमा के देखने के लिए Pro लें।";
 
-"Ücretsiz izleme günde 2 saat." = "हर दिन 2 घंटे मुफ़्त देखें।";
+"Ücretsiz izleme günde 2 saat." = "हर दिन कुल 2 घंटे मुफ़्त देख सकते हैं, जिनमें से ज़्यादा से ज़्यादा 1 घंटा CarPlay पर देख सकते हैं। किसी भी सीमा तक पहुँचने पर उस दिन का मुफ़्त देखना बंद हो जाता है।";
 
 "Sınırsız izleme" = "असीमित देखना";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "डिवाइस पर फ़ोटो से 1080p स्लाइडशो बनता है। मूल फ़ोटो नहीं बदलतीं।";
 "Nasıl bağlanırım?" = "कैसे कनेक्ट करें?";
 "Büyük ekranda daha fazlası." = "बड़ी स्क्रीन पर और भी बहुत कुछ।";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "आपकी यादें, वीडियो और संगीत। स्क्रीन चुनें और शेयर करना शुरू करें।";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "अपनी यादें, वीडियो और संगीत साझा करने के लिए स्क्रीन चुनें।";
 "Google Cast araması kullanılamıyor." = "Google Cast खोज उपलब्ध नहीं है।";
 "Ayarları aç" = "सेटिंग्स खोलें";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "कंटेंट चुनें। प्लेयर से रोकें या TV कनेक्शन बदलें।";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "iOS सेटिंग्स में सूचनाओं की अनुमति दें।";
 "Bildirimler hazırlanıyor…" = "सूचनाएँ सेट अप हो रही हैं…";
 "Bildirimler açık." = "सूचनाएँ चालू हैं।";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "सूचना पंजीकरण विफल हुआ। फिर प्रयास करें।";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "सूचनाएँ बंद करने के लिए सर्वर से संपर्क नहीं हो सका। कनेक्ट होने पर फिर प्रयास होगा।";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "सूचनाएँ चालू नहीं हो सकीं। फिर से कोशिश करें।";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "सूचनाएँ बंद करने के लिए सर्वर से संपर्क नहीं हो सका। कनेक्शन मिलने पर Mirivo फिर कोशिश करेगा।";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "संस्करण और उत्पाद की घोषणाएँ पाएँ। आपकी मीडिया और स्रोत के पते सूचना सर्वर को नहीं भेजे जाते।";
 "iOS Ayarlarını aç" = "iOS सेटिंग्स खोलें";
 "Güncelleme gerekli" = "अपडेट ज़रूरी है";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "सूची से हटाएँ";
 "İçerik bulunamadı" = "कोई सामग्री नहीं मिली";
 "Film veya dizi ara" = "फ़िल्में या सीरीज़ खोजें";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "देखने का रिकॉर्ड हटाया नहीं जा सका। फिर से कोशिश करें।";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "यह सामग्री सूची से नहीं हट सकी। फिर से कोशिश करें।";
 
 "İndirilenler" = "डाउनलोड";
 "Çevrimdışı izlemeye hazır" = "ऑफ़लाइन देखने के लिए तैयार";
@@ -330,7 +330,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "स्क्रीन भरने के लिए उंगलियाँ फैलाएँ";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "सामान्य दृश्य पर लौटने के लिए उंगलियाँ पास लाएँ";
 "Hareket tanıtımını yeniden göster" = "जेस्चर परिचय फिर दिखाएँ";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "प्लेयर में आवाज़, चमक और स्क्रीन के जेस्चर फिर दिखाएँ।";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "प्लेयर में आवाज़, चमक और स्क्रीन को जेस्चर से नियंत्रित करने के सुझाव फिर दिखाएँ।";
 
 "Araç video desteği" = "कार में वीडियो की सुविधा";
 "CarPlay bağlı" = "CarPlay कनेक्ट है";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "CarPlay वीडियो टेस्ट शुरू करें";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlay से कनेक्ट करें और कार की स्क्रीन पर ऐप खोलें।";
 "Araç bağlantısında hatırlat" = "कार से कनेक्ट होने पर याद दिलाएँ";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "नया CarPlay सत्र मिलने पर फ़ोन पर एक बार याद दिलाता है। कार कनेक्शन की जानकारी सर्वर पर नहीं भेजी जाती।";
-"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay वीडियो समर्थित वाहनों में पार्क किए जाने पर उपलब्ध है।";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "नया CarPlay सत्र मिलने पर आपके फ़ोन पर एक बार याद दिलाया जाएगा। कार कनेक्शन की जानकारी सर्वर पर नहीं भेजी जाती।";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "समर्थित वाहनों में गाड़ी पार्क होने पर CarPlay से वीडियो देख सकते हैं।";
 
 "AirPlay ekranı" = "AirPlay स्क्रीन";
 "AirPlay hedefini değiştir" = "AirPlay का गंतव्य बदलें";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "AirPlay का गंतव्य बदलने या iPhone पर वापस जाने के लिए नीचे दिए गए सिस्टम मेनू का उपयोग करें।";
 "Bağlı" = "कनेक्ट है";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "आज का मुफ़्त देखने का समय रीसेट कर दिया गया है। आज आप 2 घंटे तक देख सकते हैं।";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "आपका मुफ़्त देखने का समय रीसेट हो गया है: आज कुल 2 घंटे, जिनमें से ज़्यादा से ज़्यादा 1 घंटा CarPlay पर।";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "आज का मुफ़्त देखने का समय रीसेट करें?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "स्क्रीन मिररिंग बंद करने के लिए iOS कंट्रोल सेंटर में स्क्रीन मिररिंग खोलें और कनेक्शन बंद करें।";
 "Oynatma durduruldu, TV bağlantısı açık" = "प्लेबैक रुक गया है; टीवी अभी भी कनेक्ट है";
 "TV bağlantısı açık" = "टीवी कनेक्ट है";
 "TV bağlantısını kes" = "टीवी से कनेक्शन बंद करें";
-"TV’den ayrıl" = "टीवी से डिस्कनेक्ट करें";
+"TV’den ayrıl" = "टीवी से कनेक्शन बंद करें";
 "Video seçenekleri" = "वीडियो विकल्प";
 "Sıfırla" = "रीसेट करें";
 "İptal" = "रद्द करें";
@@ -411,3 +411,10 @@
 "Dizi ara" = "सीरीज़ खोजें";
 "Bu içerik için açıklama bulunamadı." = "इस सामग्री का विवरण नहीं मिला।";
 "İçerik bilgileri yüklenemedi." = "सामग्री की जानकारी लोड नहीं हो सकी।";
+"Klavyeyi kapat" = "कीबोर्ड छिपाएँ";
+
+"CarPlay’de bugün kalan: %d dk" = "आज CarPlay पर %d मिनट बाकी";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "आज CarPlay पर देखने का आपका 1 घंटा पूरा हो गया है। कल फिर देखें या बिना समय सीमा के देखने के लिए Pro लें।";
+
+"Bugünkü ücretsiz süren doldu" = "आज का मुफ़्त देखने का समय पूरा हो गया";

@@ -4,6 +4,57 @@ import XCTest
 final class MediaMetadataTests: XCTestCase {
     private let base = URL(string: "https://provider.example/list.m3u")!
 
+    func testSeriesLookupRecognizesEpisodesExportedOnMovieRoutes() throws {
+        let secret = SourceSecret(url: URL(string: "https://api.example/get.php?username=u&password=p&type=std_m3u&output=ts")!)
+        let episode = MediaChannel(title: "Coast Stories EXXEN S01-E01", url: URL(string: "https://cdn.example/movie/u/p/987.mp4")!)
+        let lookup = try XCTUnwrap(XtreamEndpoint.seriesLookup(kind: .playlist, secret: secret, channel: episode))
+        XCTAssertEqual(lookup.catalogURL.host, "api.example")
+        XCTAssertEqual(lookup.episodeID, "987")
+        XCTAssertEqual(URLComponents(url: lookup.catalogURL, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "action" })?.value, "get_series")
+        XCTAssertNotNil(try XtreamEndpoint.vodInfo(kind: .playlist, secret: secret, channel: episode), "The original VOD lookup remains available as a fallback")
+        let movie = MediaChannel(title: "A film", url: episode.url)
+        XCTAssertNil(try XtreamEndpoint.seriesLookup(kind: .playlist, secret: secret, channel: movie))
+        let otherAccount = MediaChannel(title: episode.title, url: URL(string: "https://cdn.example/movie/other/p/987.mp4")!)
+        XCTAssertNil(try XtreamEndpoint.seriesLookup(kind: .playlist, secret: secret, channel: otherAccount))
+        XCTAssertNil(try XtreamEndpoint.seriesLookup(kind: .stream, secret: secret, channel: episode))
+    }
+
+    func testMovieSynopsisFallsBackAcrossResponseSectionsWithoutLosingInfoFields() throws {
+        let data = Data(#"{"info":{"plot":"null","description":"<p> </p>","duration_secs":"7200","rating":"5.0"},"movie_data":{"stream_id":267,"description":"A film synopsis.","username":"must-not-be-retained","password":"must-not-be-retained"}}"#.utf8)
+        let metadata = try VODMetadataParser.parse(data, baseURL: base)
+        XCTAssertEqual(metadata.summary, "A film synopsis.")
+        XCTAssertEqual(metadata.duration, 7200)
+        XCTAssertEqual(metadata.rating, 5)
+        let encoded = String(decoding: try JSONEncoder().encode(metadata), as: UTF8.self)
+        XCTAssertFalse(encoded.contains("must-not-be-retained"))
+        let preferred = try VODMetadataParser.parse(Data(#"{"info":{"plot":"Preferred synopsis"},"movie_data":{"description":"Fallback synopsis"}}"#.utf8), baseURL: base)
+        XCTAssertEqual(preferred.summary, "Preferred synopsis")
+    }
+
+    func testEpisodeSynopsisReadsEpisodeFieldsAndKeepsSeriesSummarySeparate() throws {
+        let data = Data(#"{"info":{"plot":"General series synopsis","genre":"Comedy"},"episodes":{"1":[{"id":"987","plot":"Episode synopsis","info":{"plot":"null","duration_secs":"2028","rating":"7.8"}},{"id":"988","description":"Another episode synopsis","info":{"plot":"Preferred episode synopsis"}}]}}"#.utf8)
+        let episode = try XCTUnwrap(SeriesMetadataParser.parseInfo(data, episodeID: "987", baseURL: base))
+        XCTAssertEqual(episode.summary, "Episode synopsis")
+        XCTAssertEqual(episode.duration, 2028)
+        XCTAssertEqual(episode.rating, 7.8)
+        XCTAssertEqual(episode.genre, "Comedy")
+        XCTAssertEqual(try SeriesMetadataParser.parseInfo(data, episodeID: "987", baseURL: base, includeEpisode: false)?.summary, "General series synopsis")
+        XCTAssertEqual(try SeriesMetadataParser.parseInfo(data, episodeID: "988", baseURL: base)?.summary, "Preferred episode synopsis")
+        XCTAssertNil(try SeriesMetadataParser.parseInfo(data, episodeID: "999", baseURL: base))
+    }
+
+    func testPlaylistEmptyDescriptionAliasDoesNotHideAnAvailableSynopsis() throws {
+        let playlist = """
+        #EXTM3U
+        #EXTINF:-1 tvg-description="null" description="<p> </p>" plot="A playlist synopsis.",Film
+        https://provider.example/movie/u/p/123.mp4
+        #EXTINF:-1 tvg-description=" " description="Another synopsis.",Another film
+        https://provider.example/movie/u/p/124.mp4
+        """
+        let channels = try M3UParser.parse(Data(playlist.utf8), baseURL: base, fallbackTitle: "List")
+        XCTAssertEqual(channels.map(\.metadata.summary), ["A playlist synopsis.", "Another synopsis."])
+    }
+
     func testPlaylistRetainsArtworkDescriptionAndResetsMetadataForEveryEntry() throws {
         let playlist = """
         #EXTM3U

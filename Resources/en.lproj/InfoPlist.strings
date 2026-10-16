@@ -1,1 +1,1 @@
-"NSLocalNetworkUsageDescription" = "Used to discover TVs on the same Wi-Fi network, send video and screen broadcasts to a TV or car display, and connect to local media sources you choose.";
+"NSLocalNetworkUsageDescription" = "Mirivo uses your local network to find TVs on the same Wi-Fi and connect to the local media sources you choose. It also sends video and your screen to a TV or car display over this network.";

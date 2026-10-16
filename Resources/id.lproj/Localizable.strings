@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "Pemutar yang luas, kontrol lebih besar, dan area menonton yang sederhana.";
 "Gizlilik" = "Privasi";
 "Gizlilik Politikası" = "Kebijakan Privasi";
-"Görüntü bağlanıyor" = "Menghubungkan video";
+"Görüntü bağlanıyor" = "Menghubungkan…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Tidak dapat memulai video. Coba lagi.";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Tidak dapat memutar video. Coba lagi.";
 "Görüntüyle birlikte" = "Bersama video";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "Sumber";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "Tidak dapat membuka sumber Anda. Coba lagi.";
 "Kaynaklar silinemedi. Yeniden dene." = "Tidak dapat menghapus sumber Anda. Coba lagi.";
-"Kaynakların burada" = "Sumber Anda ada di sini";
+"Kaynakların burada" = "Tambahkan sumber pertama Anda";
 "Kayıtlar temizlendi" = "Log dihapus";
 "Kayıtlar temizlenemedi." = "Tidak dapat menghapus log.";
 "Kayıtları temizle" = "Hapus log";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "Sisa hari ini: %d menit";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Anda telah mencapai batas menonton harian selama 2 jam. Anda dapat menonton lagi besok.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Jatah 2 jam menonton gratis hari ini sudah habis. Tonton lagi besok atau beralih ke Pro untuk melanjutkan tanpa batas waktu.";
 
-"Ücretsiz izleme günde 2 saat." = "Menonton gratis tersedia selama 2 jam per hari.";
+"Ücretsiz izleme günde 2 saat." = "Kamu bisa menonton gratis total 2 jam per hari, dengan maksimal 1 jam di CarPlay. Saat salah satu batas tercapai, menonton gratis berakhir untuk hari itu.";
 
 "Sınırsız izleme" = "Menonton tanpa batas";
 
@@ -227,7 +227,7 @@
 "TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "Tidak dapat terhubung ke TV. Periksa TV dan koneksi Wi-Fi, lalu coba lagi.";
 
 /* Personal media and connection guide */
-"Ne paylaşmak istersin?" = "Apa yang ingin kamu bagikan?";
+"Ne paylaşmak istersin?" = "Apa yang ingin Anda bagikan?";
 "Fotoğraflar" = "Foto";
 "Slayt gösterisi" = "Slideshow";
 "Videolar" = "Video";
@@ -238,15 +238,15 @@
 "Kaydetmeden oynat" = "Putar tanpa menyimpan";
 "Medya hazırlanıyor…" = "Menyiapkan media…";
 "Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Media tidak dapat dibuka. Pastikan file sudah diunduh dan ruang kosong tersedia.";
-"En fazla 20 dosya seçebilirsin." = "Kamu dapat memilih hingga 20 file.";
+"En fazla 20 dosya seçebilirsin." = "Anda dapat memilih hingga 20 file.";
 "Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Masukkan tautan langsung ke video atau audio. Halaman web tidak dapat diputar di sini.";
 "Geçerli bir http veya https bağlantısı gir." = "Masukkan tautan http atau https yang valid.";
 "%d fotoğraf" = "%d foto";
 "Fotoğraf başına" = "Durasi per foto";
-"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "Foto menjadi slideshow 1080p di perangkatmu. Foto asli tidak berubah.";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "Foto diubah menjadi slideshow 1080p di perangkat Anda. Foto aslinya tidak berubah.";
 "Nasıl bağlanırım?" = "Bagaimana cara terhubung?";
 "Büyük ekranda daha fazlası." = "Lebih seru di layar besar.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Kenangan, video, dan musikmu. Pilih layar dan mulai berbagi.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Pilih layar untuk membagikan kenangan, video, dan musik Anda.";
 "Google Cast araması kullanılamıyor." = "Pencarian Google Cast tidak tersedia.";
 "Ayarları aç" = "Buka Pengaturan";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Pilih konten. Jeda atau ubah koneksi TV dari pemutar.";
@@ -264,9 +264,9 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "Izinkan notifikasi di Pengaturan iOS.";
 "Bildirimler hazırlanıyor…" = "Menyiapkan notifikasi…";
 "Bildirimler açık." = "Notifikasi aktif.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Pendaftaran notifikasi gagal. Coba lagi.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Server tidak dapat dihubungi untuk menonaktifkan notifikasi. Akan dicoba lagi saat terhubung.";
-"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Terima pengumuman versi dan produk. Media dan alamat sumbermu tidak dikirim ke server notifikasi.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Notifikasi tidak dapat diaktifkan. Coba lagi.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Server tidak dapat dihubungi untuk menonaktifkan notifikasi. Mirivo akan mencoba lagi saat koneksi tersedia.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Terima pengumuman versi dan produk. Media dan alamat sumber Anda tidak dikirim ke server notifikasi.";
 "iOS Ayarlarını aç" = "Buka Pengaturan iOS";
 "Güncelleme gerekli" = "Pembaruan diperlukan";
 "Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Unduh versi baru Mirivo dari App Store untuk melanjutkan.";
@@ -276,7 +276,7 @@
 
 // Optional usage analytics
 "Kullanım analizi" = "Analisis penggunaan";
-"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Bagikan statistik penggunaan untuk membantu meningkatkan Mirivo. Media, alamat sumber, dan teks pencarian tidak dikirim. Kamu dapat menonaktifkannya kapan saja.";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Bagikan statistik penggunaan untuk membantu meningkatkan Mirivo. Media, alamat sumber, dan teks pencarian tidak dikirim. Anda dapat menonaktifkannya kapan saja.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Ditagih sekali per tahun; diperpanjang otomatis.";
 "Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Pembelian seumur hidup tidak membatalkan langganan yang ada secara otomatis. Anda dapat membatalkannya di akun Apple Anda.";
 
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "Hapus dari daftar";
 "İçerik bulunamadı" = "Konten tidak ditemukan";
 "Film veya dizi ara" = "Cari film atau serial";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "Tidak dapat menghapus riwayat tontonan. Coba lagi.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Konten ini tidak dapat dihapus dari daftar. Coba lagi.";
 
 "İndirilenler" = "Unduhan";
 "Çevrimdışı izlemeye hazır" = "Siap ditonton offline";
@@ -327,10 +327,10 @@
 "İndir" = "Unduh";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Unduh hanya konten yang diizinkan oleh penyedia. Streaming yang dilindungi DRM tidak didukung.";
-"Sıkıştırıp yakınlaştır: ekranı doldur" = "Cubit keluar untuk memenuhi layar";
-"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Cubit masuk untuk kembali ke tampilan normal";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Rentangkan jari untuk memenuhi layar";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Rapatkan jari untuk kembali ke tampilan normal";
 "Hareket tanıtımını yeniden göster" = "Tampilkan panduan gestur lagi";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Tampilkan lagi gestur volume, kecerahan, dan layar di pemutar.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Tampilkan lagi panduan gestur untuk volume, kecerahan, dan tampilan di pemutar.";
 
 "Araç video desteği" = "Dukungan video mobil";
 "CarPlay bağlı" = "CarPlay terhubung";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "Mulai tes video CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Hubungkan ke CarPlay dan buka aplikasi di layar mobil.";
 "Araç bağlantısında hatırlat" = "Ingatkan saat terhubung ke mobil";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Mengirim satu pengingat di ponsel saat sesi CarPlay baru terdeteksi. Informasi koneksi mobil tidak dikirim ke server.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Anda akan menerima satu pengingat di ponsel saat sesi CarPlay baru terdeteksi. Informasi koneksi mobil tidak dikirim ke server.";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Video CarPlay tersedia di kendaraan yang didukung saat diparkir.";
 
 "AirPlay ekranı" = "Layar AirPlay";
 "AirPlay hedefini değiştir" = "Ubah tujuan AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Gunakan menu sistem di bawah untuk mengubah tujuan AirPlay atau kembali ke iPhone.";
 "Bağlı" = "Terhubung";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Waktu menonton gratis hari ini telah direset. Anda dapat menonton hingga 2 jam hari ini.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Waktu menonton gratis sudah direset: total 2 jam hari ini, dengan maksimal 1 jam di CarPlay.";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Reset waktu menonton gratis hari ini?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Untuk menghentikan pencerminan layar, buka Pencerminan Layar di Pusat Kontrol iOS dan putuskan koneksi.";
 "Oynatma durduruldu, TV bağlantısı açık" = "Pemutaran dihentikan; TV tetap terhubung";
 "TV bağlantısı açık" = "TV terhubung";
 "TV bağlantısını kes" = "Putuskan koneksi TV";
-"TV’den ayrıl" = "Keluar dari TV";
+"TV’den ayrıl" = "Putuskan koneksi TV";
 "Video seçenekleri" = "Opsi video";
 "Sıfırla" = "Reset";
 "İptal" = "Batal";
@@ -411,3 +411,10 @@
 "Dizi ara" = "Cari serial";
 "Bu içerik için açıklama bulunamadı." = "Deskripsi konten ini tidak ditemukan.";
 "İçerik bilgileri yüklenemedi." = "Informasi konten tidak dapat dimuat.";
+"Klavyeyi kapat" = "Tutup papan ketik";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay hari ini: tersisa %d mnt";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "Jatah 1 jam CarPlay hari ini sudah habis. Tonton lagi besok atau beralih ke Pro untuk melanjutkan tanpa batas waktu.";
+
+"Bugünkü ücretsiz süren doldu" = "Waktu menonton gratis hari ini sudah habis";

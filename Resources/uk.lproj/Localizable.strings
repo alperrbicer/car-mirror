@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "Великий програвач, зручні кнопки та просторий екран для перегляду.";
 "Gizlilik" = "Приватність";
 "Gizlilik Politikası" = "Політика приватності";
-"Görüntü bağlanıyor" = "Підключення відео";
+"Görüntü bağlanıyor" = "Підключення…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Не вдалося запустити відео. Спробуйте ще раз.";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Не вдалося відтворити відео. Спробуйте ще раз.";
 "Görüntüyle birlikte" = "Разом із відео";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "Джерела";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "Не вдалося відкрити джерела. Спробуйте ще раз.";
 "Kaynaklar silinemedi. Yeniden dene." = "Не вдалося видалити джерела. Спробуйте ще раз.";
-"Kaynakların burada" = "Тут будуть ваші джерела";
+"Kaynakların burada" = "Додайте перше джерело";
 "Kayıtlar temizlendi" = "Журнали очищено";
 "Kayıtlar temizlenemedi." = "Не вдалося очистити журнали.";
 "Kayıtları temizle" = "Очистити журнали";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "Залишилося сьогодні: %d хв";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Ви досягли денного обмеження перегляду у 2 години. Знову дивитися можна завтра.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Сьогоднішні 2 години безкоштовного перегляду закінчилися. Повертайся завтра або переходь на Pro, щоб дивитися без обмеження часу.";
 
-"Ücretsiz izleme günde 2 saat." = "Безкоштовний перегляд — 2 години на день.";
+"Ücretsiz izleme günde 2 saat." = "Безкоштовно можна дивитися загалом 2 години на день, з них не більше 1 години через CarPlay. Досягнення будь-якого з лімітів завершує безкоштовний перегляд до наступного дня.";
 
 "Sınırsız izleme" = "Необмежений перегляд";
 
@@ -220,11 +220,11 @@
 "iPhone ve TV aynı Wi-Fi ağına bağlı olmalı." = "iPhone і ТБ мають бути в одній мережі Wi-Fi.";
 "TV aranıyor…" = "Пошук телевізорів…";
 "TV bulunamadı" = "Телевізорів не знайдено";
-"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "Увімкни ТБ і Google Cast. Якщо ТБ не видно, перевір дозвіл «Локальна мережа» для Mirivo в параметрах iPhone.";
-"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "Щоб передати весь екран або MKV, вибери AirPlay ТБ: Центр керування → Дублювання екрана.";
+"TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et." = "Увімкніть ТБ і Google Cast. Якщо ТБ не відображається, перевірте дозвіл «Локальна мережа» для Mirivo в параметрах iPhone.";
+"Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç." = "Щоб передати весь екран або MKV, виберіть AirPlay ТБ: Центр керування → Дублювання екрана.";
 "Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez." = "Підтримуються ТБ з Google Cast або AirPlay. ТБ лише з Miracast або DLNA тут не відображаються.";
 "TV’de oynatılıyor" = "Відтворення на ТБ";
-"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "Не вдалося з’єднатися з ТБ. Перевір ТБ і Wi-Fi та спробуй знову.";
+"TV bağlantısı kurulamadı. TV’yi ve Wi-Fi bağlantısını kontrol edip yeniden dene." = "Не вдалося з’єднатися з ТБ. Перевірте ТБ і Wi-Fi та спробуйте ще раз.";
 
 /* Personal media and connection guide */
 "Ne paylaşmak istersin?" = "Чим хочеш поділитися?";
@@ -237,21 +237,21 @@
 "Bağlantı aç" = "Відкрити посилання";
 "Kaydetmeden oynat" = "Відтворити без збереження";
 "Medya hazırlanıyor…" = "Підготовка медіа…";
-"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Не вдалося відкрити медіа. Перевір, чи завантажено файл і чи є вільне місце.";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Не вдалося відкрити медіа. Перевірте, чи завантажено файл і чи є вільне місце.";
 "En fazla 20 dosya seçebilirsin." = "Можна вибрати до 20 файлів.";
-"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Введи пряме посилання на відео або аудіо. Вебсторінки тут не відтворюються.";
-"Geçerli bir http veya https bağlantısı gir." = "Введи коректне посилання http або https.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Введіть пряме посилання на відео або аудіо. Вебсторінки тут не відтворюються.";
+"Geçerli bir http veya https bağlantısı gir." = "Введіть коректне посилання http або https.";
 "%d fotoğraf" = "Фото: %d";
 "Fotoğraf başına" = "Час на фото";
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "На пристрої буде створено слайд-шоу 1080p. Оригінали фото залишаться без змін.";
 "Nasıl bağlanırım?" = "Як підключитися?";
 "Büyük ekranda daha fazlası." = "Більше на великому екрані.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Твої спогади, відео та музика. Вибери екран і почни ділитися.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Виберіть екран, щоб поділитися своїми спогадами, відео та музикою.";
 "Google Cast araması kullanılamıyor." = "Пошук Google Cast недоступний.";
 "Ayarları aç" = "Відкрити параметри";
-"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Вибери вміст. У плеєрі можна призупинити відтворення або змінити підключення до ТБ.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Виберіть вміст. У програвачі можна призупинити відтворення або змінити підключення до ТБ.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN або гостьова мережа можуть заважати пристроям знаходити один одного.";
-"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Трансляція з цього iPhone на ТБ. Залиш Mirivo відкритим.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Трансляція з цього iPhone на ТБ. Залиште Mirivo відкритим.";
 "Oynatma sırası" = "Черга відтворення";
 "Önceki" = "Попередній";
 "Sonraki" = "Наступний";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "Дозвольте сповіщення в параметрах iOS.";
 "Bildirimler hazırlanıyor…" = "Налаштування сповіщень…";
 "Bildirimler açık." = "Сповіщення увімкнено.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Не вдалося зареєструвати сповіщення. Спробуйте ще раз.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Не вдалося зв’язатися із сервером для вимкнення. Повторимо спробу після підключення.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Не вдалося ввімкнути сповіщення. Спробуйте ще раз.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Не вдалося зв’язатися із сервером, щоб вимкнути сповіщення. Mirivo спробує знову, коли з’явиться з’єднання.";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Отримуйте новини про версії та продукт. Ваші медіафайли й адреси джерел не надсилаються на сервер сповіщень.";
 "iOS Ayarlarını aç" = "Відкрити параметри iOS";
 "Güncelleme gerekli" = "Потрібне оновлення";
@@ -297,7 +297,7 @@
 // Local playlist import
 "Dosyadan oynatma listesi" = "Список відтворення з файлу";
 "Dosya seç" = "Вибрати файл";
-"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Не вдалося відкрити список. Вибери файл M3U або M3U8.";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Не вдалося відкрити список. Виберіть файл M3U або M3U8.";
 "Bilgiler yenileniyor…" = "Оновлення інформації…";
 "İzlemeye devam et" = "Продовжити перегляд";
 "Ses ve altyazı" = "Аудіо та субтитри";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "Прибрати зі списку";
 "İçerik bulunamadı" = "Вміст не знайдено";
 "Film veya dizi ara" = "Пошук фільмів або серіалів";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "Не вдалося видалити запис перегляду. Спробуй ще раз.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Не вдалося видалити цей матеріал зі списку. Спробуйте ще раз.";
 
 "İndirilenler" = "Завантаження";
 "Çevrimdışı izlemeye hazır" = "Готово до перегляду офлайн";
@@ -330,7 +330,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Розведіть пальці, щоб заповнити екран";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Зведіть пальці, щоб повернутися до звичайного вигляду";
 "Hareket tanıtımını yeniden göster" = "Показати інструкцію жестів знову";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Знову показати в плеєрі жести гучності, яскравості та екрана.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Знову показати підказки з керування гучністю, яскравістю та зображенням за допомогою жестів у програвачі.";
 
 "Araç video desteği" = "Підтримка відео в автомобілі";
 "CarPlay bağlı" = "CarPlay підключено";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "Почати перевірку відео CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Підключіться до CarPlay та відкрийте програму на екрані автомобіля.";
 "Araç bağlantısında hatırlat" = "Нагадувати при підключенні до авто";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Надсилає одне нагадування на телефон, коли виявлено новий сеанс CarPlay. Дані про підключення до автомобіля не передаються на сервер.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Коли виявлено новий сеанс CarPlay, на телефон надійде одне нагадування. Дані про підключення до автомобіля не передаються на сервер.";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Відео CarPlay доступне в підтримуваних автомобілях під час стоянки.";
 
 "AirPlay ekranı" = "Екран AirPlay";
 "AirPlay hedefini değiştir" = "Змінити пристрій AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Скористайтеся системним меню нижче, щоб змінити пристрій AirPlay або повернутися до iPhone.";
 "Bağlı" = "Підключено";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Безкоштовний час перегляду на сьогодні скинуто. Сьогодні можна дивитися до 2 годин.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Безкоштовний час перегляду скинуто: сьогодні доступні загалом 2 години, з них не більше 1 години через CarPlay.";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Скинути безкоштовний час перегляду на сьогодні?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Щоб зупинити дублювання екрана, відкрийте «Дублювання екрана» в Центрі керування iOS і від’єднайтеся.";
 "Oynatma durduruldu, TV bağlantısı açık" = "Відтворення зупинено; телевізор підключено";
 "TV bağlantısı açık" = "Телевізор підключено";
 "TV bağlantısını kes" = "Від’єднати телевізор";
-"TV’den ayrıl" = "Від’єднатися від телевізора";
+"TV’den ayrıl" = "Від’єднати телевізор";
 "Video seçenekleri" = "Параметри відео";
 "Sıfırla" = "Скинути";
 "İptal" = "Скасувати";
@@ -411,3 +411,10 @@
 "Dizi ara" = "Пошук серіалів";
 "Bu içerik için açıklama bulunamadı." = "Опис цього вмісту не знайдено.";
 "İçerik bilgileri yüklenemedi." = "Не вдалося завантажити відомості про вміст.";
+"Klavyeyi kapat" = "Сховати клавіатуру";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay сьогодні: залишилося %d хв";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "Сьогоднішня 1 година перегляду через CarPlay закінчилася. Повертайся завтра або переходь на Pro, щоб дивитися без обмеження часу.";
+
+"Bugünkü ücretsiz süren doldu" = "Безкоштовний час перегляду на сьогодні закінчився";

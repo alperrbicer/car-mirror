@@ -11,6 +11,187 @@ import Combine
 
 @MainActor
 final class PlayerTests: XCTestCase {
+    func testCarPlayViewingLimitStopsPlaybackAndSurvivesDisconnectAndRelaunch() async throws {
+        let suite = "mirivo.quota.tests.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+        try seedViewingBudget(DailyViewingBudget(now: now, used: 4000, carPlayUsed: 3598), in: defaults)
+        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        model.connected(supportsVideo: true)
+        XCTAssertEqual(model.dailyRemaining, 2)
+        try await startViewingBudgetPlayback(model)
+        now = now.addingTimeInterval(3)
+        model.refresh()
+        XCTAssertEqual(model.viewingLimit, .carPlay)
+        XCTAssertEqual(model.viewingLimitPrompt, .carPlay)
+        XCTAssertEqual(model.playback.state, .idle)
+        XCTAssertFalse(model.playback.isPlaying)
+        let saved = try XCTUnwrap(LastPlaybackStore.shared.record)
+        XCTAssertEqual(saved.title, "Viewing quota QA")
+        XCTAssertGreaterThanOrEqual(saved.position, 32)
+        model.viewingLimitPrompt = nil
+        model.disconnected()
+        XCTAssertEqual(model.dailyRemaining, 0)
+        XCTAssertFalse(model.resumePlayback(saved), "Switching to the phone cannot bypass an exhausted CarPlay allowance")
+        let restored = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
+        defer { restored.stopPlayback() }
+        XCTAssertEqual(restored.viewingLimit, .carPlay)
+        XCTAssertFalse(restored.resumePlayback(saved))
+        XCTAssertEqual(restored.viewingLimitPrompt, .carPlay)
+        let budget = try readViewingBudget(defaults)
+        XCTAssertEqual(budget.used, 4002)
+        XCTAssertEqual(budget.carPlayUsed, 3600)
+    }
+
+    func testOverallViewingLimitCanStopCarPlayFirst() async throws {
+        let suite = "mirivo.quota.tests.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+        try seedViewingBudget(DailyViewingBudget(now: now, used: 7198, carPlayUsed: 500), in: defaults)
+        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        model.connected(supportsVideo: true)
+        try await startViewingBudgetPlayback(model)
+        now = now.addingTimeInterval(3)
+        model.refresh()
+        XCTAssertEqual(model.viewingLimit, .daily)
+        XCTAssertEqual(model.viewingLimitPrompt, .daily)
+        XCTAssertEqual(model.playback.state, .idle)
+        let budget = try readViewingBudget(defaults)
+        XCTAssertEqual(budget.used, 7200)
+        XCTAssertEqual(budget.carPlayUsed, 502)
+        XCTAssertFalse(model.playMedia(try viewingBudgetChannel()))
+    }
+
+    func testViewingBudgetTracksDestinationChangesAndExcludesPauses() async throws {
+        let suite = "mirivo.quota.tests.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        try await startViewingBudgetPlayback(model)
+        now = now.addingTimeInterval(900)
+        model.refresh()
+        model.connected(supportsVideo: true)
+        now = now.addingTimeInterval(600)
+        model.refresh()
+        let tv = UUID()
+        model.externalScreenConnected(tv, role: .externalNonInteractive, size: CGSize(width: 1920, height: 1080))
+        XCTAssertFalse(model.viewingUsesCarPlay, "A TV destination takes precedence over a connected CarPlay template")
+        now = now.addingTimeInterval(900)
+        model.refresh()
+        model.externalScreenDisconnected(tv)
+        XCTAssertTrue(model.viewingUsesCarPlay)
+        now = now.addingTimeInterval(300)
+        model.refresh()
+        var budget = try readViewingBudget(defaults)
+        XCTAssertEqual(budget.used, 2700)
+        XCTAssertEqual(budget.carPlayUsed, 900)
+        model.playback.togglePlayPause()
+        for _ in 0..<50 {
+            if !model.playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        for _ in 0..<5 { await Task.yield() }
+        now = now.addingTimeInterval(600)
+        model.refresh()
+        budget = try readViewingBudget(defaults)
+        XCTAssertEqual(budget.used, 2700)
+        XCTAssertEqual(budget.carPlayUsed, 900)
+        XCTAssertEqual(model.dailyRemaining, 2700)
+    }
+
+    func testProAndSalesDisabledBypassBothViewingLimits() async throws {
+        for access in [ProductAccess(salesEnabled: true, verifiedPro: true), ProductAccess(salesEnabled: false, verifiedPro: false)] {
+            let suite = "mirivo.quota.tests.\(UUID())"
+            let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+            var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+            try seedViewingBudget(DailyViewingBudget(now: now, used: 7200, carPlayUsed: 3600), in: defaults)
+            let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { access }, startsTimer: false)
+            defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+            model.connected(supportsVideo: true)
+            try await startViewingBudgetPlayback(model)
+            now = now.addingTimeInterval(900)
+            model.refresh()
+            XCTAssertNil(model.viewingLimit)
+            XCTAssertNil(model.viewingLimitPrompt)
+            XCTAssertTrue(model.playback.isPlaying)
+            let budget = try readViewingBudget(defaults)
+            XCTAssertEqual(budget.used, 7200)
+            XCTAssertEqual(budget.carPlayUsed, 3600)
+        }
+    }
+
+    func testProUpgradeClearsViewingLimitAndKeepsTheStoppedPosition() async throws {
+        let suite = "mirivo.quota.tests.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+        var access = ProductAccess(salesEnabled: true, verifiedPro: false)
+        try seedViewingBudget(DailyViewingBudget(now: now, used: 4000, carPlayUsed: 3598), in: defaults)
+        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { access }, startsTimer: false)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        model.connected(supportsVideo: true)
+        try await startViewingBudgetPlayback(model)
+        now = now.addingTimeInterval(3)
+        model.refresh()
+        let position = try XCTUnwrap(LastPlaybackStore.shared.record).position
+        XCTAssertEqual(model.viewingLimit, .carPlay)
+        access = ProductAccess(salesEnabled: true, verifiedPro: true)
+        model.refresh()
+        XCTAssertNil(model.viewingLimit)
+        XCTAssertNil(model.viewingLimitPrompt)
+        XCTAssertNil(model.mediaErrorMessage)
+        model.retryMedia()
+        for _ in 0..<200 {
+            if model.playback.isPlaying && model.playback.currentTime >= position { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
+        XCTAssertEqual(model.playback.currentTime, position, accuracy: 0.6)
+    }
+
+    func testViewingLimitsResetTogetherOnTheNextDay() throws {
+        let suite = "mirivo.quota.tests.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+        try seedViewingBudget(DailyViewingBudget(now: now, used: 6000, carPlayUsed: 3600), in: defaults)
+        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        XCTAssertEqual(model.viewingLimit, .carPlay)
+        now = Calendar.current.date(byAdding: .day, value: 1, to: now)!
+        model.refresh()
+        XCTAssertNil(model.viewingLimit)
+        XCTAssertEqual(model.dailyRemaining, 7200)
+        model.connected(supportsVideo: true)
+        XCTAssertEqual(model.dailyRemaining, 3600)
+        try seedViewingBudget(DailyViewingBudget(now: now, used: 1000, carPlayUsed: 500), in: defaults)
+        model.resetDailyViewingBudget()
+        let reset = try readViewingBudget(defaults)
+        XCTAssertEqual(reset.used, 0)
+        XCTAssertEqual(reset.carPlayUsed, 0)
+    }
+
+    private func seedViewingBudget(_ budget: DailyViewingBudget, in defaults: UserDefaults) throws {
+        defaults.set(try JSONEncoder().encode(budget), forKey: "dailyViewingBudget")
+    }
+    private func readViewingBudget(_ defaults: UserDefaults) throws -> DailyViewingBudget {
+        try JSONDecoder().decode(DailyViewingBudget.self, from: XCTUnwrap(defaults.data(forKey: "dailyViewingBudget")))
+    }
+    private func viewingBudgetChannel() throws -> MediaChannel {
+        MediaChannel(title: "Viewing quota QA", url: try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.mp4")))
+    }
+    private func startViewingBudgetPlayback(_ model: MirrorModel) async throws {
+        XCTAssertTrue(model.playMedia(try viewingBudgetChannel(), startAt: 32))
+        for _ in 0..<200 {
+            if model.playback.isPlaying && model.playback.currentTime >= 32 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        for _ in 0..<5 { await Task.yield() }
+        XCTAssertTrue(model.playback.isPlaying)
+        XCTAssertGreaterThanOrEqual(model.playback.currentTime, 32)
+    }
+
     func testSharedDisplayLabelsDifferentiateCarPlayTVAirPlayAndGenericScreens() {
         let defaults = SharedPreferences.defaults
         let previous = defaults.object(forKey: "language")
@@ -321,11 +502,12 @@ final class PlayerTests: XCTestCase {
         let channel = try XCTUnwrap(channels.first)
         XCTAssertTrue(model.playMedia(channel, sourceID: source.id, startAt: 35))
         for _ in 0..<150 {
-            if model.playback.isPlaying && model.playback.currentTime >= 35 && !LastPlaybackStore.shared.entries.isEmpty { break }
+            if model.playback.isPlaying && model.playback.currentTime >= 35 &&
+                LastPlaybackStore.shared.entries.contains(where: { $0.sourceID == source.id && $0.url == channel.url }) { break }
             try await Task.sleep(for: .milliseconds(50))
         }
         model.refresh()
-        let entry = try XCTUnwrap(LastPlaybackStore.shared.entries.first)
+        let entry = try XCTUnwrap(LastPlaybackStore.shared.entries.first { $0.sourceID == source.id && $0.url == channel.url })
         try model.removeContinuation(entry.id)
         model.refresh(); model.stopPlayback()
         XCTAssertFalse(LastPlaybackStore.shared.entries.contains { $0.id == entry.id })
@@ -384,6 +566,186 @@ final class PlayerTests: XCTestCase {
         try library.delete(source)
         XCTAssertNil(LastPlaybackStore.shared.record)
         XCTAssertNil(LastPlaybackStore().record)
+    }
+
+    func testContinuationResumesAnAlreadyPausedNativePlayer() async throws {
+        try await checkContinuationResumesPausedPlayer(extension: "mp4")
+    }
+
+    func testContinuationResumesAnAlreadyPausedCompatibilityPlayer() async throws {
+        try await checkContinuationResumesPausedPlayer(extension: "mkv")
+    }
+
+    func testCompatibilityImmediateResumeWaitsForPauseAcknowledgement() async throws {
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        let url = try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.mkv"))
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, useCompatibility: true, startAt: 32)
+        for _ in 0..<200 {
+            if playback.isPlaying && playback.currentTime >= 32 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.isPlaying)
+        for _ in 0..<8 {
+            let position = playback.currentTime
+            playback.togglePlayPause()
+            playback.resume()
+            for _ in 0..<150 {
+                if playback.isPlaying && playback.currentTime > position + 0.3 { break }
+                try await Task.sleep(for: .milliseconds(20))
+            }
+            XCTAssertTrue(playback.isPlaying)
+            XCTAssertGreaterThan(playback.currentTime, position + 0.3, "A rapid Play request must survive the pending decoder pause")
+        }
+    }
+
+    private func checkContinuationResumesPausedPlayer(extension ext: String) async throws {
+        let model = MirrorModel.shared
+        let library = SourceLibrary.shared
+        model.stopPlayback()
+        try library.add(name: "Autoplay QA", kind: .stream,
+                        secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/tracks/options.\(ext)")!),
+                        access: ProductAccess(salesEnabled: false, verifiedPro: false))
+        let source = try XCTUnwrap(library.sources.last)
+        defer { model.stopPlayback(); try? library.delete(source) }
+        let channels = try await library.channels(for: source)
+        let channel = try XCTUnwrap(channels.first)
+        XCTAssertTrue(model.playMedia(channel, sourceID: source.id, startAt: 32))
+        for _ in 0..<300 {
+            if model.playback.isPlaying && model.playback.currentTime >= 32 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
+        XCTAssertGreaterThanOrEqual(model.playback.currentTime, 32)
+        model.playback.togglePlayPause()
+        for _ in 0..<100 {
+            if model.playback.state == .paused && !model.playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertEqual(model.playback.state, .paused)
+        let position = model.playback.currentTime
+        let playbackID = model.playback.playbackID
+        let saved = LastPlaybackRecord(channel: channel, sourceID: source.id, position: position,
+                                       duration: model.playback.duration, isLive: false)
+        XCTAssertTrue(model.resumePlayback(saved))
+        for _ in 0..<200 {
+            if model.playback.isPlaying && model.playback.currentTime > position + 1 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertEqual(model.playback.playbackID, playbackID, "Resuming the same item should keep its decoder and position")
+        XCTAssertTrue(model.playback.isPlaying, "Continue Watching must resume an already-loaded, paused item")
+        XCTAssertGreaterThan(model.playback.currentTime, position + 1, "A saved timestamp alone does not prove playback")
+        XCTAssertNil(model.mediaErrorMessage)
+    }
+
+    func testNativeAutoplaySurvivesAnAudioInterruptionWhileLoading() async throws {
+        try await checkAutoplayAfterLoadingInterruption(compatibility: false)
+    }
+
+    func testCompatibilityAutoplaySurvivesAnAudioInterruptionWhileLoading() async throws {
+        try await checkAutoplayAfterLoadingInterruption(compatibility: true)
+    }
+
+    private func checkAutoplayAfterLoadingInterruption(compatibility: Bool) async throws {
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        let ext = compatibility ? "mkv" : "mp4"
+        let url = try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.\(ext)?delay=1"))
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, useCompatibility: compatibility)
+        XCTAssertEqual(playback.state, .loading)
+        XCTAssertFalse(playback.isPlaying)
+        let playbackID = playback.playbackID
+        NotificationCenter.default.post(name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance(),
+                                        userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue])
+        try await Task.sleep(for: .milliseconds(150))
+        NotificationCenter.default.post(name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance(),
+                                        userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                                                   AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue])
+        for _ in 0..<300 {
+            if playback.isPlaying && playback.currentTime > 1 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertEqual(playback.playbackID, playbackID)
+        XCTAssertTrue(playback.isPlaying, "An interruption during loading must retain the pending autoplay request")
+        XCTAssertGreaterThan(playback.currentTime, 1)
+    }
+
+    func testResumeDuringCompatibilityPositionRestorationUsesLatestPlayRequest() async throws {
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        let url = try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.mkv?delay=1"))
+        try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, useCompatibility: true, startAt: 32, startPaused: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        for _ in 0..<2000 {
+            if playback.state == .loading && engine.mediaPlayer.state == .paused { break }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        XCTAssertEqual(engine.mediaPlayer.state, .paused, "The initial saved-position seek should still be pending")
+        playback.resume()
+        for _ in 0..<300 {
+            if playback.isPlaying && playback.currentTime > 33 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.isPlaying)
+        XCTAssertGreaterThan(playback.currentTime, 33, "The latest Play request must win over the initial paused state")
+    }
+
+    func testAudioInterruptionKeepsAnExplicitPauseForBothPlayers() async throws {
+        for compatibility in [false, true] {
+            let playback = PlaybackController()
+            defer { playback.stop() }
+            let ext = compatibility ? "mkv" : "mp4"
+            let url = try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.\(ext)"))
+            try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                              live: false, useCompatibility: compatibility, startAt: 32, startPaused: true)
+            for _ in 0..<200 {
+                if playback.state == .paused && playback.duration > 0 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertEqual(playback.state, .paused)
+            XCTAssertEqual(playback.currentTime, 32, accuracy: 0.3)
+            NotificationCenter.default.post(name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance(),
+                                            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue])
+            try await Task.sleep(for: .milliseconds(100))
+            NotificationCenter.default.post(name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance(),
+                                            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                                                       AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue])
+            try await Task.sleep(for: .seconds(1))
+            XCTAssertEqual(playback.state, .paused)
+            XCTAssertFalse(playback.isPlaying)
+            XCTAssertEqual(playback.currentTime, 32, accuracy: 0.3)
+        }
+    }
+
+    func testSystemPlayerControlsCanResumeAfterAnAppPauseForBothPlayers() async throws {
+        for compatibility in [false, true] {
+            let playback = PlaybackController()
+            defer { playback.stop() }
+            let ext = compatibility ? "mkv" : "mp4"
+            let url = try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.\(ext)"))
+            try playback.play(url: url, preserveSourceAudio: false, requiresExternalPlayback: false,
+                              live: false, useCompatibility: compatibility, startAt: 32)
+            for _ in 0..<200 {
+                if playback.isPlaying && playback.currentTime >= 32 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertTrue(playback.isPlaying)
+            playback.togglePlayPause()
+            try await Task.sleep(for: .milliseconds(200))
+            let position = playback.currentTime
+            // AVKit and the VLC PiP delegate can control their decoder directly.
+            if let engine = playback.compatibility { engine.play() }
+            else { playback.player.play() }
+            for _ in 0..<200 {
+                if playback.isPlaying && playback.currentTime > position + 1 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertTrue(playback.isPlaying)
+            XCTAssertGreaterThan(playback.currentTime, position + 1)
+        }
     }
 
     func testNativeAudioAndSubtitleSelectionUsesRealMediaTracks() async throws {

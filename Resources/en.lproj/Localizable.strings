@@ -1,25 +1,25 @@
 "Aboneliği yönet" = "Manage subscription";
-"App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Unable to connect to the App Store. Try again.";
+"App Store’a bağlanılamadı. Yeniden deneyebilirsin." = "Couldn’t connect to the App Store. Try again.";
 "Araç modu" = "Vehicle mode";
 "Ayarlar" = "Settings";
 "Açık" = "Connected";
 "Bağlantı testi" = "Connection test";
-"Bağlantı testi başlatılamadı." = "Unable to start the connection test.";
+"Bağlantı testi başlatılamadı." = "Couldn’t start the connection test.";
 "Başlatmak için dokun" = "Tap to start";
 "Bir oynatma listesi, yayın bağlantısı veya IPTV sunucusu ekle." = "Add a playlist, stream URL or IPTV server.";
 "Bitti" = "Done";
 "Bize ulaş" = "Contact us";
 "Bu Apple hesabında etkin Pro satın alımı bulunamadı." = "No active Pro purchase was found for this Apple account.";
-"Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "This language is not yet supported for on-device captions. Try another language.";
+"Bu dil cihaz içi altyazı için henüz desteklenmiyor. Başka bir dil seçebilirsin." = "This language isn’t supported for on-device captions yet. Choose another language.";
 "Bu sürümde tüm özellikler açık." = "All features are available in this version.";
 "Canlı altyazılar" = "Live captions";
 "Canlı altyazılar bu cihazda kullanılamıyor." = "Live captions are unavailable on this device.";
 "Canlı altyazılar · Pro" = "Live captions · Pro";
 "Dengeli" = "Balanced";
 "Destek" = "Support";
-"Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "Add on-device captions to screen sharing in supported languages.";
+"Desteklenen dillerde ekran paylaşımına cihaz içi altyazı ekle." = "Add captions created on your device to screen sharing in supported languages.";
 "Dil" = "Language";
-"Dil hazırlanamadı. İnternet bağlantını kontrol edip yeniden dene." = "Unable to prepare the language. Check your connection and try again.";
+"Dil hazırlanamadı. İnternet bağlantını kontrol edip yeniden dene." = "Couldn’t prepare the language. Check your internet connection and try again.";
 "Dil hazırlanıyor…" = "Preparing language…";
 "Duraklat" = "Pause";
 "Durdur" = "Stop";
@@ -28,8 +28,8 @@
 "Ekran bağlantı testi" = "Display connection test";
 "Ekran paylaşımı başlatılıyor." = "Starting screen sharing.";
 "Ekran paylaşımı etkin" = "Screen sharing is active";
-"Ekran paylaşımındaki konuşmaları cihazında yazıya çevirir ve görüntüye ekler. iOS 26 ve desteklenen bir dil gerekir. İlk hazırlıkta dil dosyası indirilir; ses ve altyazılar kaydedilmez." = "Transcribes speech on your device and adds captions to your screen broadcast. Requires iOS 26 and a supported language. Setup downloads a language model; audio and captions are not saved.";
-"Ekran paylaşımını Mirivo süre sınırı olmadan kullan." = "Share your screen without a Mirivo session time limit.";
+"Ekran paylaşımındaki konuşmaları cihazında yazıya çevirir ve görüntüye ekler. iOS 26 ve desteklenen bir dil gerekir. İlk hazırlıkta dil dosyası indirilir; ses ve altyazılar kaydedilmez." = "Turns speech into text on your device and adds captions to your screen broadcast. Requires iOS 26 and a supported language. A language model is downloaded during setup. Audio and captions aren’t saved.";
+"Ekran paylaşımını Mirivo süre sınırı olmadan kullan." = "Share your screen without Mirivo’s session time limit.";
 "Ekran paylaşımını yeniden başlatabilirsin." = "You can restart screen sharing.";
 "Ekran yayını hazır" = "Screen broadcast ready";
 "Ekran yayınını başlat veya durdur" = "Start or stop screen broadcast";
@@ -37,12 +37,12 @@
 "English" = "English";
 "Etkin" = "Active";
 "Geliştirme" = "Development";
-"Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "A spacious player, larger controls and a focused viewing area.";
+"Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "Watch in a spacious player with larger controls and a clear viewing area.";
 "Gizlilik" = "Privacy";
 "Gizlilik Politikası" = "Privacy Policy";
-"Görüntü bağlanıyor" = "Connecting video";
-"Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Unable to start video. Try again.";
-"Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Unable to play video. Try again.";
+"Görüntü bağlanıyor" = "Connecting…";
+"Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Couldn’t start the video. Try again.";
+"Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Couldn’t play the video. Try again.";
 "Görüntüyle birlikte" = "With video";
 "Görüntüyü yeniden bağla" = "Reconnect video";
 "Haftalık" = "Weekly";
@@ -51,7 +51,7 @@
 "Harici ekran desenini başlat" = "Start external display pattern";
 "Harici ekran sayısı" = "External display count";
 "Hazır olduğunda ekranını paylaş." = "Share your screen when you are ready.";
-"Hazır olduğunda paylaşıma devam edebilirsin." = "Resume sharing when you are ready.";
+"Hazır olduğunda paylaşıma devam edebilirsin." = "Continue sharing when you’re ready.";
 "Henüz okunmadı" = "Not checked yet";
 "IPTV sunucusu" = "IPTV server";
 "Kanal veya grup ara" = "Search channels or groups";
@@ -60,18 +60,18 @@
 "Kaynak adresi" = "Source URL";
 "Kaynak adı" = "Source name";
 "Kaynak ekle" = "Add source";
-"Kaynak eklenemedi. Adresi ve giriş bilgilerini kontrol et." = "Unable to add the source. Check the URL and credentials.";
-"Kaynak silinemedi. Yeniden dene." = "Unable to delete the source. Try again.";
+"Kaynak eklenemedi. Adresi ve giriş bilgilerini kontrol et." = "Couldn’t add the source. Check the URL and login details.";
+"Kaynak silinemedi. Yeniden dene." = "Couldn’t delete the source. Try again.";
 "Kaynak türü" = "Source type";
 "Kaynak uygulamadan" = "From source app";
-"Kaynak yüklenemedi. Adresi ve bağlantını kontrol et." = "Unable to load the source. Check the URL and connection.";
+"Kaynak yüklenemedi. Adresi ve bağlantını kontrol et." = "Couldn’t load the source. Check the URL and your connection.";
 "Kaynak yükleniyor…" = "Loading source…";
 "Kaynaklar" = "Sources";
-"Kaynaklar açılamadı. Lütfen yeniden dene." = "Unable to open your sources. Try again.";
-"Kaynaklar silinemedi. Yeniden dene." = "Unable to delete your sources. Try again.";
-"Kaynakların burada" = "Your sources live here";
+"Kaynaklar açılamadı. Lütfen yeniden dene." = "Couldn’t open your sources. Try again.";
+"Kaynaklar silinemedi. Yeniden dene." = "Couldn’t delete your sources. Try again.";
+"Kaynakların burada" = "Add your first source";
 "Kayıtlar temizlendi" = "Logs cleared";
-"Kayıtlar temizlenemedi." = "Unable to clear logs.";
+"Kayıtlar temizlenemedi." = "Couldn’t clear the logs.";
 "Kayıtları temizle" = "Clear logs";
 "Keşfet" = "Explore";
 "Konuşma dili" = "Spoken language";
@@ -91,25 +91,25 @@
 "Video seçenekleri" = "Video options";
 "PRO" = "PRO";
 "Parola" = "Password";
-"Paylaşım durdurulamadı. Yeniden deneyebilirsin." = "Unable to stop sharing. Try again.";
+"Paylaşım durdurulamadı. Yeniden deneyebilirsin." = "Couldn’t stop sharing. Try again.";
 "Paylaşım durduruluyor" = "Stopping sharing";
-"Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene." = "Unable to prepare sharing. Try reopening the app.";
+"Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene." = "Couldn’t prepare screen sharing. Try reopening the app.";
 "Paylaşıma hazır" = "Ready to share";
 "Paylaşımı durdur" = "Stop sharing";
-"Planlar yüklenemedi. Biraz sonra yeniden dene." = "Unable to load plans. Try again shortly.";
+"Planlar yüklenemedi. Biraz sonra yeniden dene." = "Couldn’t load the plans. Try again in a moment.";
 "Planları yeniden yükle" = "Reload plans";
 "Pro etkin" = "Pro is active";
 "Pro satın alımın geri yüklendi." = "Your Pro purchase has been restored.";
 "Rapor" = "Report";
-"Rapor hazırlanamadı. Lütfen yeniden dene." = "Unable to prepare the report. Try again.";
-"Rapor yalnızca bağlantı ve hata kayıtlarını içerir. Rapora ekran görüntüsü ve ses eklenmez." = "The report only contains connection and error logs. No screen images or audio are included.";
+"Rapor hazırlanamadı. Lütfen yeniden dene." = "Couldn’t prepare the report. Try again.";
+"Rapor yalnızca bağlantı ve hata kayıtlarını içerir. Rapora ekran görüntüsü ve ses eklenmez." = "The report contains only connection and error logs. It doesn’t include screen images or audio.";
 "Satın al" = "Buy";
-"Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et." = "Unable to verify the purchase. Check your App Store account.";
-"Satın alma henüz doğrulanamadı. Satın alımları geri yükleyebilirsin." = "The purchase has not been verified yet. You can restore purchases.";
-"Satın alma onay bekliyor. Onaylandığında Pro otomatik açılacak." = "Your purchase is pending approval. Pro will unlock automatically once approved.";
-"Satın alma tamamlanamadı." = "The purchase could not be completed.";
-"Satın alma tamamlanamadı. Yeniden deneyebilirsin." = "Unable to complete the purchase. Try again.";
-"Satın alımlar geri yüklenemedi. Yeniden deneyebilirsin." = "Unable to restore purchases. Try again.";
+"Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et." = "Couldn’t verify your purchase. Check your App Store account.";
+"Satın alma henüz doğrulanamadı. Satın alımları geri yükleyebilirsin." = "Your purchase hasn’t been verified yet. You can restore your purchases.";
+"Satın alma onay bekliyor. Onaylandığında Pro otomatik açılacak." = "Your purchase is waiting for approval. Pro will unlock automatically once it’s approved.";
+"Satın alma tamamlanamadı." = "Your purchase couldn’t be completed.";
+"Satın alma tamamlanamadı. Yeniden deneyebilirsin." = "Couldn’t complete your purchase. Try again.";
+"Satın alımlar geri yüklenemedi. Yeniden deneyebilirsin." = "Couldn’t restore your purchases. Try again.";
 "Satın alımları geri yükle" = "Restore purchases";
 "Ses" = "Audio";
 "Sil" = "Delete";
@@ -125,7 +125,7 @@
 "Testi durdur" = "Stop test";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Delete all sources and saved credentials?";
 "Tüm kaynakları sil" = "Delete all sources";
-"Tüm özellikler seninle." = "Pro is active. All features are unlocked.";
+"Tüm özellikler seninle." = "Pro is active, so you can use all features.";
 "Türkçe" = "Türkçe";
 "Var" = "Available";
 "Vazgeç" = "Cancel";
@@ -136,11 +136,11 @@
 "Yayın bağlantısı" = "Stream URL";
 "Yayın bağlantısı kesildi" = "Broadcast disconnected";
 "Yayın bağlantısı kesildi. Yeniden deneyebilirsin." = "The stream disconnected. Try again.";
-"Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene." = "Unable to start playback. Check the source and try again.";
+"Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene." = "Couldn’t start playback. Check the source and try again.";
 "Yayın duraklatıldı" = "Broadcast paused";
 "Yayın hazırlanıyor" = "Preparing broadcast";
 "Yayın kalitesi" = "Stream quality";
-"Yayın sonlandırılıyor." = "Ending broadcast.";
+"Yayın sonlandırılıyor." = "Ending the broadcast…";
 "Yayın tamamlanamadı" = "Broadcast failed";
 "Yeniden dene" = "Try again";
 "Yok" = "Unavailable";
@@ -149,7 +149,7 @@
 "iOS bağlantısı" = "iOS connection";
 "iPhone ekranı" = "iPhone screen";
 "iPhone’da ekran paylaşımını başlat." = "Start screen sharing on your iPhone.";
-"Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Payment is charged to your Apple account. Unless cancelled, the subscription automatically renews at the selected period and price. Manage it in App Store account settings.";
+"Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Payment is charged to your Apple account. Your subscription renews automatically at the price and for the period you chose unless you cancel. You can manage it in your App Store account settings.";
 "Ömür boyu" = "Lifetime";
 "Önce iPhone’da ekran yayınını başlat." = "Start the screen broadcast on your iPhone first.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "The free sharing session has ended. Start a new broadcast or upgrade to Pro.";
@@ -169,7 +169,7 @@
 "Düzenle" = "Edit";
 "Kaynak düzenle" = "Edit source";
 "Kaydet" = "Save";
-"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Unable to update the source. Check the URL and credentials.";
+"Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et." = "Couldn’t update the source. Check the URL and login details.";
 "Tüm kanallar" = "All channels";
 
 "Tam ekran" = "Full screen";
@@ -184,15 +184,15 @@
 
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Reset today’s free viewing time?";
 
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Today’s free viewing time has been reset. You can watch for up to 2 hours today.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Your free viewing time has been reset: 2 hours in total today, including up to 1 hour on CarPlay.";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "You have reached your daily 2-hour viewing limit. You can watch again tomorrow.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Your 2 hours of free viewing are up for today. Watch again tomorrow, or go Pro to keep watching without limits.";
 
-"Ücretsiz izleme günde 2 saat." = "Free viewing includes 2 hours per day.";
+"Ücretsiz izleme günde 2 saat." = "Free viewing includes 2 hours a day in total, with up to 1 hour on CarPlay. Reaching either limit ends free viewing for the day.";
 
 "Sınırsız izleme" = "Unlimited viewing";
 
-"Pro ile günlük izleme sınırı olmadan devam et." = "Keep watching without a daily viewing limit with Pro.";
+"Pro ile günlük izleme sınırı olmadan devam et." = "Watch with Pro without a daily time limit.";
 
 "Canlı" = "Live";
 
@@ -225,10 +225,10 @@
 "TV’den ayrıl" = "Disconnect from TV";
 "Bağlı" = "Connected";
 "AirPlay ekranı" = "AirPlay display";
-"Oynatma durduruldu, TV bağlantısı açık" = "Playback stopped; TV remains connected";
-"TV bağlantısı açık" = "TV is connected";
+"Oynatma durduruldu, TV bağlantısı açık" = "Playback stopped; the TV is still connected";
+"TV bağlantısı açık" = "The TV is still connected";
 "TV bağlantısını kes" = "Disconnect from TV";
-"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Use the system menu below to change the AirPlay destination or return to iPhone.";
+"AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Use the system menu below to choose another AirPlay device or play on your iPhone.";
 "AirPlay hedefini değiştir" = "Change AirPlay destination";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "To stop screen mirroring, open Screen Mirroring in iOS Control Center and disconnect.";
 "iPhone’da oynat" = "Play on iPhone";
@@ -252,21 +252,21 @@
 "Bağlantı aç" = "Open a link";
 "Kaydetmeden oynat" = "Play without saving";
 "Medya hazırlanıyor…" = "Preparing media…";
-"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Could not open media. Check that the file is downloaded and there is free space.";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "Couldn’t open the media. Check that the file is downloaded and your device has free space.";
 "En fazla 20 dosya seçebilirsin." = "You can select up to 20 files.";
 "Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "Enter a direct video or audio link. Web pages cannot be played here.";
 "Geçerli bir http veya https bağlantısı gir." = "Enter a valid http or https link.";
 "%d fotoğraf" = "%d photos";
 "Fotoğraf başına" = "Time per photo";
-"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "Photos become a 1080p slideshow on your device. Originals stay unchanged.";
+"Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "Your device turns the photos into a 1080p slideshow. The originals stay unchanged.";
 "Nasıl bağlanırım?" = "How do I connect?";
 "Büyük ekranda daha fazlası." = "More on the big screen.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Your memories, videos and music. Choose a screen and start sharing.";
-"Google Cast araması kullanılamıyor." = "Google Cast discovery is unavailable.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Choose a screen to share your memories, videos and music.";
+"Google Cast araması kullanılamıyor." = "Google Cast device search isn’t available.";
 "Ayarları aç" = "Open Settings";
-"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Choose something to play. Pause or change the TV connection from the player.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Choose something to play. You can pause or change the TV connection from the player.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "A VPN or guest network can prevent devices from finding each other.";
-"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "Streaming to the TV from this iPhone. Keep Mirivo open.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "This iPhone is streaming to the TV. Keep Mirivo open.";
 "Oynatma sırası" = "Play queue";
 "Önceki" = "Previous";
 "Sonraki" = "Next";
@@ -279,32 +279,32 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "Allow notifications in iOS Settings.";
 "Bildirimler hazırlanıyor…" = "Setting up notifications…";
 "Bildirimler açık." = "Notifications are on.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Notification registration failed. Try again.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "The server could not be reached to turn notifications off. We will retry when connected.";
-"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Receive release and product announcements. Your media and source addresses are never sent to the notification server.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Couldn’t turn on notifications. Try again.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Couldn’t reach the server to turn off notifications. Mirivo will try again when connected.";
+"Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Get notifications about releases and product news. Your media and source addresses aren’t sent to the notification server.";
 "iOS Ayarlarını aç" = "Open iOS Settings";
 "Güncelleme gerekli" = "Update required";
-"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Download the new version of Mirivo from the App Store to continue.";
+"Devam etmek için Mirivo’nun yeni sürümünü App Store’dan indir." = "Update Mirivo from the App Store to continue.";
 "App Store’da güncelle" = "Update in the App Store";
 "Yeniden kontrol et" = "Check again";
-"App Store açılamadı. Lütfen yeniden dene." = "The App Store could not be opened. Please try again.";
+"App Store açılamadı. Lütfen yeniden dene." = "Couldn’t open the App Store. Try again.";
 
 // Optional usage analytics
 "Kullanım analizi" = "Usage analytics";
-"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Share usage statistics to help improve Mirivo. Media, source addresses and search text are not sent. You can turn this off anytime.";
+"Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Share usage statistics to help improve Mirivo. Your media, source addresses and search text aren’t sent. You can turn this off at any time.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Billed once per year; renews automatically.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "A lifetime purchase does not automatically cancel your existing subscription. You can cancel it in your Apple account.";
+"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Buying lifetime access doesn’t automatically cancel your current subscription. You can cancel it in your Apple account.";
 
 "Genel duyurular" = "General announcements";
 "Mirivo araç bağlantısına hazır" = "Mirivo is ready to connect to your car";
-"Bildirim izni alınamadı. Yeniden dene." = "Notification permission could not be obtained. Try again.";
+"Bildirim izni alınamadı. Yeniden dene." = "Couldn’t get notification permission. Try again.";
 
 // IPTV account expiry
 "IPTV bitişi: %@" = "IPTV expires: %@";
 "IPTV süresi doldu: %@" = "IPTV expired: %@";
 "IPTV süresi doldu" = "IPTV expired";
 "Bitiş tarihi paylaşılmıyor" = "Expiry date not provided";
-"Bitiş tarihi alınamadı" = "Could not get expiry date";
+"Bitiş tarihi alınamadı" = "Couldn’t get the expiry date";
 "Bitiş tarihi alınıyor…" = "Getting expiry date…";
 "Son kontrol: %@" = "Last checked: %@";
 "Bilgileri yenile" = "Refresh information";
@@ -312,7 +312,7 @@
 // Local playlist import
 "Dosyadan oynatma listesi" = "Playlist from file";
 "Dosya seç" = "Choose file";
-"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Could not open the playlist file. Choose an M3U or M3U8 file.";
+"Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç." = "Couldn’t open the playlist file. Choose an M3U or M3U8 file.";
 "Bilgiler yenileniyor…" = "Refreshing information…";
 "İzlemeye devam et" = "Continue watching";
 "Ses ve altyazı" = "Audio and subtitles";
@@ -322,7 +322,7 @@
 "Listeden kaldır" = "Remove from list";
 "İçerik bulunamadı" = "No content found";
 "Film veya dizi ara" = "Search movies or series";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "Unable to remove the viewing record. Try again.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Couldn’t remove this item from the list. Try again.";
 "İndirilenler" = "Downloads";
 "Çevrimdışı izlemeye hazır" = "Ready to watch offline";
 "İndirme başarısız" = "Download failed";
@@ -331,10 +331,10 @@
 "İçerik kontrol ediliyor…" = "Checking content…";
 "Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "Only HLS, MP4, M4V and MOV movies or series can be downloaded.";
 "Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "Live streams cannot be downloaded for offline viewing.";
-"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "This content cannot be downloaded because of provider protection.";
-"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "This content cannot be downloaded right now. Check the stream URL.";
-"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "The download could not be saved. Check your device storage.";
-"Bu içerik zaten indirilenlerde veya indiriliyor." = "This item is already downloaded or downloading.";
+"Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "The provider’s protection prevents this content from being downloaded.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "This content can’t be downloaded right now. Check the stream URL.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "Couldn’t save the download. Check your device’s free space.";
+"Bu içerik zaten indirilenlerde veya indiriliyor." = "This content is already downloaded or is downloading now.";
 "En fazla 50 içerik indirilebilir." = "You can download up to 50 items.";
 "İndirildi" = "Downloaded";
 "Yeniden indir" = "Download again";
@@ -343,7 +343,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Pinch out to fill the screen";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Pinch in to return to normal";
 "Hareket tanıtımını yeniden göster" = "Show gesture introduction again";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Show the volume, brightness, and screen gestures in the player again.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Show the player’s volume, brightness and screen gesture tips again.";
 
 "Araç video desteği" = "Vehicle video support";
 "CarPlay bağlı" = "CarPlay connected";
@@ -351,12 +351,12 @@
 "CarPlay video testini başlat" = "Start CarPlay video test";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Connect to CarPlay and open the app on your car display.";
 "Araç bağlantısında hatırlat" = "Remind me when connected to a car";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Sends one reminder on your phone when a new CarPlay session is detected. Car connection information is not sent to a server.";
-"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlay video is available in supported vehicles while parked.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Get one reminder on your phone when a new CarPlay session is detected. Information about your car connection isn’t sent to a server.";
+"CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "You can watch video with CarPlay in supported vehicles while parked.";
 
 "Sıfırla" = "Reset";
 "İptal" = "Cancel";
-"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Gesture introduction reset. It will appear the next time you open landscape full screen.";
+"Hareket tanıtımı sıfırlandı. Yatay tam ekranı bir sonraki açışında gösterilecek." = "Gesture tips have been reset. You’ll see them the next time you open landscape full screen.";
 "İndiriliyor" = "Downloading";
 "Kontrol" = "Checking";
 "Başarısız" = "Failed";
@@ -410,5 +410,12 @@
 "Diğer içerikler" = "Other content";
 "Bölüm ara" = "Search episodes";
 "Dizi ara" = "Search series";
-"Bu içerik için açıklama bulunamadı." = "No description was found for this content.";
-"İçerik bilgileri yüklenemedi." = "Unable to load content details.";
+"Bu içerik için açıklama bulunamadı." = "We couldn’t find a description for this content.";
+"İçerik bilgileri yüklenemedi." = "Couldn’t load the content details.";
+"Klavyeyi kapat" = "Dismiss keyboard";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay today: %d min left";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "You’ve used today’s 1 hour of CarPlay viewing. Watch again tomorrow, or go Pro to keep watching without limits.";
+
+"Bugünkü ücretsiz süren doldu" = "Your free viewing time is up for today";

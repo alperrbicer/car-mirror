@@ -2,6 +2,99 @@ import XCTest
 
 /// Run the artwork fixture server with MIRIVO_FIXTURE_PORT=8774.
 final class LibraryArtworkUITests: XCTestCase {
+    func testEpisodeSearchEmptyStateStaysBelowSeriesDetails() {
+        verifyEpisodeSearchEmptyState(large: false)
+    }
+
+    func testEpisodeSearchEmptyStateWithLargeText() {
+        verifyEpisodeSearchEmptyState(large: true)
+    }
+
+    private func verifyEpisodeSearchEmptyState(large: Bool) {
+        let app = openCatalog(large: large)
+        defer { app.terminate() }
+        openSeriesCategory(app)
+        let series = app.buttons["series-open-Kıyı Hikâyeleri"]
+        XCTAssertTrue(series.waitForExistence(timeout: 5)); series.tap()
+        let season = app.buttons["series-season-2"]
+        let list = app.descendants(matching: .any)["channel-list"].firstMatch
+        for _ in 0..<8 { if season.isHittable { break }; list.swipeUp() }
+        XCTAssertTrue(season.isHittable); season.tap()
+        let episode = app.buttons["Kıyı Hikâyeleri S02-E01"].firstMatch
+        for _ in 0..<8 { if episode.isHittable { break }; list.swipeUp() }
+        XCTAssertTrue(episode.isHittable); episode.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        pause(app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["now-playing-open"].waitForExistence(timeout: 5))
+
+        let search = app.searchFields["channel-search-field"]
+        let query = "zzzxq"
+        search.tap(); search.typeText(query)
+        let empty = app.descendants(matching: .any)["channel-search-empty"].firstMatch
+        capture("episode-search-start-\(large)")
+        for _ in 0..<8 {
+            let bottom = app.buttons["now-playing-open"].frame.minY
+            if empty.exists && empty.isHittable && empty.frame.maxY <= bottom { break }
+            // A list's accessibility frame can extend behind its safe-area
+            // inset. Keep this gesture above the mini player and keyboard.
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let top = max(list.frame.minY, app.navigationBars.firstMatch.frame.maxY) + 16
+            origin.withOffset(CGVector(dx: app.frame.midX, dy: bottom - 16))
+                .press(forDuration: 0.05, thenDragTo: origin.withOffset(CGVector(dx: app.frame.midX, dy: top)))
+        }
+        capture("episode-search-empty-keyboard-\(large)")
+        XCTAssertTrue(empty.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.keyboards.firstMatch.exists)
+        XCTAssertTrue(empty.isHittable)
+        XCTAssertLessThanOrEqual(empty.frame.maxY, app.buttons["now-playing-open"].frame.minY)
+        for preceding in [app.otherElements["media-details"], season] where preceding.exists {
+            XCTAssertFalse(empty.frame.intersects(preceding.frame))
+            XCTAssertGreaterThanOrEqual(empty.frame.minY, preceding.frame.maxY)
+        }
+        XCTAssertFalse(episode.exists)
+
+        app.buttons["dismiss-channel-search-keyboard"].tap()
+        XCTAssertEqual(search.value as? String, query)
+        capture("episode-search-empty-dismissed-\(large)")
+        search.tap()
+        search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: query.count))
+        XCTAssertFalse(empty.exists)
+        XCTAssertTrue(episode.waitForExistence(timeout: 5))
+        XCTAssertTrue(season.isSelected)
+        XCTAssertFalse(app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch.exists)
+    }
+
+    func testCatalogSearchEmptyStateRestoresSeriesAndMovies() {
+        let app = openCatalog()
+        defer { app.terminate() }
+        openSeriesCategory(app)
+        let search = app.searchFields["channel-search-field"]
+        let query = "zzzxq"
+        search.tap(); search.typeText(query)
+        let empty = app.descendants(matching: .any)["channel-search-empty"].firstMatch
+        XCTAssertTrue(empty.waitForExistence(timeout: 5))
+        XCTAssertTrue(empty.isHittable)
+        XCTAssertLessThanOrEqual(empty.frame.maxY, search.frame.minY)
+        capture("series-search-empty")
+        search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: query.count))
+        XCTAssertFalse(empty.exists)
+        XCTAssertTrue(app.buttons["series-open-Kıyı Hikâyeleri"].exists)
+        app.buttons["dismiss-channel-search-keyboard"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let category = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "FİLM: Macera")).firstMatch
+        for _ in 0..<5 { if category.isHittable { break }; app.swipeDown() }
+        XCTAssertTrue(category.isHittable); category.tap()
+        search.tap(); search.typeText(query)
+        XCTAssertTrue(empty.waitForExistence(timeout: 5))
+        XCTAssertTrue(empty.isHittable)
+        XCTAssertLessThanOrEqual(empty.frame.maxY, search.frame.minY)
+        capture("movie-search-empty")
+        search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: query.count))
+        XCTAssertFalse(empty.exists)
+        XCTAssertTrue(app.buttons["Mavi Yolculuk"].firstMatch.exists)
+    }
+
     func testSeriesSeasonsSortAndKeepPlaybackQueueWithinSeries() {
         let app = openCatalog()
         defer { app.terminate() }
@@ -78,16 +171,33 @@ final class LibraryArtworkUITests: XCTestCase {
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
         XCUIDevice.shared.orientation = .portrait
         app.launch()
-        XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 10))
-        app.buttons["page-library"].tap()
+        openLibrary(app)
         XCTAssertTrue(app.buttons["continue-watching-all"].waitForExistence(timeout: 10))
         return app
     }
 
     private func openSeriesCategory(_ app: XCUIApplication) {
         let category = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "DİZİ: Exxen")).firstMatch
-        for _ in 0..<8 { if category.isHittable { break }; app.swipeUp() }
-        XCTAssertTrue(category.waitForExistence(timeout: 5)); category.tap()
+        for _ in 0..<8 {
+            let visible = app.frame.insetBy(dx: 0, dy: 130)
+            if category.isHittable && visible.contains(CGPoint(x: category.frame.midX, y: category.frame.midY)) { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(category.waitForExistence(timeout: 5))
+        capture("category-distinct-series-posters")
+        category.tap()
+    }
+
+    private func openLibrary(_ app: XCUIApplication) {
+        let page = app.buttons["page-library"]
+        XCTAssertTrue(page.waitForExistence(timeout: 10))
+        for _ in 0..<3 {
+            if page.isSelected { return }
+            page.tap()
+            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: page)
+            if XCTWaiter.wait(for: [selected], timeout: 2) == .completed { return }
+        }
+        XCTAssertTrue(page.isSelected)
     }
 
     private func pause(_ app: XCUIApplication) {
@@ -122,14 +232,25 @@ final class LibraryArtworkUITests: XCTestCase {
     }
 
     func testSeriesGeneralAndEpisodeSynopsesFromOrdinaryM3U() {
-        let app = openCatalog(ordinaryPlaylist: true)
+        verifySeriesSynopses(movieEpisodes: false)
+    }
+
+    func testSeriesGeneralAndEpisodeSynopsesFromMovieEpisodeM3U() {
+        verifySeriesSynopses(movieEpisodes: true)
+    }
+
+    private func verifySeriesSynopses(movieEpisodes: Bool) {
+        let app = openCatalog(ordinaryPlaylist: true, movieEpisodes: movieEpisodes)
         defer { app.terminate() }
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "DİZİ: Exxen")).firstMatch.tap()
-        app.buttons["series-open-Kıyı Hikâyeleri"].tap()
+        openSeriesCategory(app)
+        let series = app.buttons["series-open-Kıyı Hikâyeleri"]
+        XCTAssertTrue(series.waitForExistence(timeout: 10))
+        capture(movieEpisodes ? "series-movie-route-catalog-poster" : "series-catalog-poster")
+        series.tap()
         let summary = app.staticTexts["media-synopsis"]
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("Bir kıyı kasabasında"))
-        capture("series-general-synopsis")
+        capture(movieEpisodes ? "series-movie-route-general-synopsis" : "series-general-synopsis")
         let episode = app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch
         for _ in 0..<5 { if episode.isHittable { break }; app.swipeUp() }
         XCTAssertTrue(episode.waitForExistence(timeout: 5))
@@ -139,14 +260,18 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("Kasabaya dönen bir mektup"))
         XCTAssertFalse(app.staticTexts["media-details-empty"].exists)
-        capture("series-episode-synopsis")
+        capture(movieEpisodes ? "series-movie-route-episode-synopsis" : "series-episode-synopsis")
     }
 
     func testMetadataNetworkFailureOffersRetryInsteadOfClaimingNoDescription() {
         let app = openCatalog(ordinaryPlaylist: true)
         defer { app.terminate() }
-        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Diğer")).firstMatch.tap()
-        app.buttons["Bilgi Bağlantısı Hatası"].firstMatch.tap()
+        app.buttons["browse-all-channels"].tap()
+        let search = app.searchFields.firstMatch
+        search.tap(); search.typeText("Bilgi Bağlantısı Hatası")
+        let movie = app.buttons["Bilgi Bağlantısı Hatası"].firstMatch
+        XCTAssertTrue(movie.waitForExistence(timeout: 10))
+        movie.tap()
         XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
         let retry = app.buttons["media-details-retry"]
         for _ in 0..<6 { if retry.isHittable { break }; app.swipeUp() }
@@ -179,28 +304,35 @@ final class LibraryArtworkUITests: XCTestCase {
         capture("library-artwork-missing-details")
     }
 
-    private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false) -> XCUIApplication {
+    private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false, movieEpisodes: Bool = false) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
         XCUIDevice.shared.orientation = .portrait
         app.launch()
-        XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 10))
-        app.buttons["page-library"].tap()
+        openLibrary(app)
         let add = app.buttons["add-source"]
         for _ in 0..<4 { if add.isHittable { break }; app.swipeUp() }
         add.tap()
         XCTAssertTrue(app.textFields["source-name"].waitForExistence(timeout: 5))
         app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Görsel Kitaplık")
         app.textFields["source-url"].tap()
-        app.textFields["source-url"].typeText(ordinaryPlaylist ? "http://127.0.0.1:8774/catalog.m3u" : "http://127.0.0.1:8774/catalog/get.php?username=artwork&password=fixture&type=m3u_plus")
+        app.textFields["source-url"].typeText(movieEpisodes ? "http://127.0.0.1:8774/catalog-movie-episodes.m3u" : ordinaryPlaylist ? "http://127.0.0.1:8774/catalog.m3u" : "http://127.0.0.1:8774/catalog/get.php?username=artwork&password=fixture&type=m3u_plus")
         app.buttons["Ekle"].tap()
         let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Görsel Kitaplık", "Oynatma listesi")).firstMatch
         XCTAssertTrue(source.waitForExistence(timeout: 10))
         for _ in 0..<4 { if source.isHittable { break }; app.swipeUp() }
-        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
-        XCTAssertTrue(app.buttons["browse-all-channels"].waitForExistence(timeout: 15))
+        let categories = app.buttons["browse-all-channels"]
+        for _ in 0..<3 {
+            if categories.exists { break }
+            if source.isHittable {
+                source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            }
+            if categories.waitForExistence(timeout: 3) { break }
+        }
+        if !categories.waitForExistence(timeout: 15) { capture("catalog-open-failed") }
+        XCTAssertTrue(categories.exists)
         return app
     }
 

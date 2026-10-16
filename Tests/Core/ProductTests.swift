@@ -34,6 +34,65 @@ final class ProductTests: XCTestCase {
         XCTAssertEqual(budget.used, 20)
     }
 
+    func testCarPlayCountsAgainstBothLimitsAndBlocksEveryDestinationWhenItRunsOut() throws {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        var budget = DailyViewingBudget(now: start)
+        budget.record(from: start, to: start.addingTimeInterval(1800), playing: true)
+        XCTAssertEqual(budget.remaining, 5400)
+        XCTAssertEqual(budget.carPlayRemaining, 3600)
+        budget.record(from: start.addingTimeInterval(1800), to: start.addingTimeInterval(3600), playing: true, carPlay: true)
+        XCTAssertEqual(budget.remaining, 3600)
+        XCTAssertEqual(budget.remaining(carPlay: true), 1800)
+        let restored = try JSONDecoder().decode(DailyViewingBudget.self, from: JSONEncoder().encode(budget))
+        XCTAssertEqual(restored, budget)
+        budget.record(from: start.addingTimeInterval(3600), to: start.addingTimeInterval(5401), playing: true, carPlay: true)
+        XCTAssertEqual(budget.used, 5400)
+        XCTAssertEqual(budget.carPlayUsed, 3600)
+        XCTAssertEqual(budget.exhaustedLimit, .carPlay)
+        XCTAssertEqual(budget.remaining, 0, "Disconnecting CarPlay must not restore today's free access")
+        budget.record(from: start.addingTimeInterval(5401), to: start.addingTimeInterval(6000), playing: true)
+        XCTAssertEqual(budget.used, 5400)
+    }
+
+    func testOverallLimitCanRunOutBeforeCarPlayLimit() {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        var budget = DailyViewingBudget(now: start, used: 6600)
+        XCTAssertEqual(budget.remaining(carPlay: true), 600)
+        budget.record(from: start, to: start.addingTimeInterval(900), playing: true, carPlay: true)
+        XCTAssertEqual(budget.exhaustedLimit, .daily)
+        XCTAssertEqual(budget.used, 7200)
+        XCTAssertEqual(budget.carPlayUsed, 600)
+        XCTAssertEqual(budget.remaining(carPlay: true), 0)
+        XCTAssertEqual(budget.remaining, 0)
+    }
+
+    func testBothDailyCountersResetAtMidnightAndIgnorePausedTime() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let midnight = calendar.startOfDay(for: Date(timeIntervalSince1970: 1_800_000_000))
+        var budget = DailyViewingBudget(now: midnight.addingTimeInterval(-60), calendar: calendar, used: 6000, carPlayUsed: 3600)
+        budget.record(from: midnight.addingTimeInterval(-30), to: midnight.addingTimeInterval(20), playing: true, carPlay: true, calendar: calendar)
+        XCTAssertEqual(budget.used, 20)
+        XCTAssertEqual(budget.carPlayUsed, 20)
+        XCTAssertNil(budget.exhaustedLimit)
+        budget.record(from: midnight.addingTimeInterval(20), to: midnight.addingTimeInterval(600), playing: false, carPlay: true, calendar: calendar)
+        XCTAssertEqual(budget.used, 20)
+        XCTAssertEqual(budget.carPlayUsed, 20)
+        budget.record(from: midnight.addingTimeInterval(600), to: midnight, playing: true, carPlay: true, calendar: calendar)
+        XCTAssertEqual(budget.carPlayUsed, 20)
+    }
+
+    func testExistingDailyBudgetMigratesWithoutGivingBackUsedTime() throws {
+        let day = Date(timeIntervalSinceReferenceDate: 12345)
+        let data = try JSONSerialization.data(withJSONObject: ["day": day.timeIntervalSinceReferenceDate, "used": 5000])
+        let budget = try JSONDecoder().decode(DailyViewingBudget.self, from: data)
+        XCTAssertEqual(budget.day, day)
+        XCTAssertEqual(budget.used, 5000)
+        XCTAssertEqual(budget.carPlayUsed, 0)
+        XCTAssertEqual(budget.remaining, 2200)
+        XCTAssertEqual(budget.remaining(carPlay: true), 2200)
+    }
+
     func testSalesDisabledNeverLimitsFeatures() {
         let access = ProductAccess(salesEnabled: false, verifiedPro: false)
         XCTAssertTrue(access.fullAccess)

@@ -5,7 +5,7 @@
 "Açık" = "מחובר";
 "Bağlantı testi" = "בדיקת חיבור";
 "Bağlantı testi başlatılamadı." = "לא ניתן להתחיל את בדיקת החיבור.";
-"Başlatmak için dokun" = "להתחלה, יש להקיש";
+"Başlatmak için dokun" = "יש להקיש כדי להתחיל";
 "Bir oynatma listesi, yayın bağlantısı veya IPTV sunucusu ekle." = "אפשר להוסיף רשימת השמעה, כתובת שידור או שרת IPTV.";
 "Bitti" = "סיום";
 "Bize ulaş" = "יצירת קשר";
@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "נגן מרווח, פקדים גדולים ואזור צפייה פשוט.";
 "Gizlilik" = "פרטיות";
 "Gizlilik Politikası" = "מדיניות פרטיות";
-"Görüntü bağlanıyor" = "מחבר וידאו";
+"Görüntü bağlanıyor" = "מתחבר…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "לא ניתן להתחיל את הווידאו. אפשר לנסות שוב.";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "לא ניתן להפעיל את הווידאו. אפשר לנסות שוב.";
 "Görüntüyle birlikte" = "עם הווידאו";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "מקורות";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "לא ניתן לפתוח את המקורות. אפשר לנסות שוב.";
 "Kaynaklar silinemedi. Yeniden dene." = "לא ניתן למחוק את המקורות. אפשר לנסות שוב.";
-"Kaynakların burada" = "המקורות שלך כאן";
+"Kaynakların burada" = "הוספת מקור ראשון";
 "Kayıtlar temizlendi" = "היומנים נוקו";
 "Kayıtlar temizlenemedi." = "לא ניתן לנקות את היומנים.";
 "Kayıtları temizle" = "ניקוי יומנים";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "נותרו היום: %d דקות";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "הגעת למגבלת הצפייה היומית של שעתיים. אפשר לצפות שוב מחר.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "שעתיים של צפייה חינמית להיום נוצלו. אפשר לחזור לצפות מחר, או לעבור ל-Pro ולהמשיך ללא הגבלת זמן.";
 
-"Ücretsiz izleme günde 2 saat." = "הצפייה החינמית כוללת שעתיים ביום.";
+"Ücretsiz izleme günde 2 saat." = "אפשר לצפות בחינם עד שעתיים ביום בסך הכול, מתוכן עד שעה אחת ב-CarPlay. כשהגעת לאחת מהמגבלות, הצפייה החינמית מסתיימת לאותו יום.";
 
 "Sınırsız izleme" = "צפייה ללא הגבלה";
 
@@ -204,8 +204,8 @@
 
 "Ekranı doldur" = "מילוי המסך";
 "Yatay tam ekran hareketleri" = "מחוות במסך מלא לרוחב";
-"Sağ kenardan yukarı/aşağı: ses" = "החליקו למעלה או למטה בקצה הימני כדי לשנות את עוצמת הקול";
-"Sol kenardan yukarı/aşağı: parlaklık" = "החליקו למעלה או למטה בקצה השמאלי כדי לשנות את הבהירות";
+"Sağ kenardan yukarı/aşağı: ses" = "להתאמת עוצמת הקול, מחליקים למעלה או למטה בקצה הימני";
+"Sol kenardan yukarı/aşağı: parlaklık" = "להתאמת הבהירות, מחליקים למעלה או למטה בקצה השמאלי";
 "Ses düzeyi" = "עוצמת קול";
 "Parlaklık" = "בהירות";
 
@@ -237,21 +237,21 @@
 "Bağlantı aç" = "פתיחת קישור";
 "Kaydetmeden oynat" = "ניגון ללא שמירה";
 "Medya hazırlanıyor…" = "מכין מדיה…";
-"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "לא ניתן לפתוח מדיה. ודא שהקובץ הורד ושיש שטח פנוי.";
+"Medya açılamadı. Dosyanın indirildiğini ve boş alanı kontrol et." = "לא ניתן לפתוח את המדיה. יש לוודא שהקובץ הורד ושיש מספיק מקום פנוי.";
 "En fazla 20 dosya seçebilirsin." = "ניתן לבחור עד 20 קבצים.";
-"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "הזן קישור ישיר לווידאו או לאודיו. לא ניתן לנגן כאן דפי אינטרנט.";
-"Geçerli bir http veya https bağlantısı gir." = "הזן קישור http או https תקין.";
+"Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz." = "יש להזין קישור ישיר לווידאו או לאודיו. לא ניתן לנגן כאן דפי אינטרנט.";
+"Geçerli bir http veya https bağlantısı gir." = "יש להזין קישור http או https תקין.";
 "%d fotoğraf" = "%d תמונות";
 "Fotoğraf başına" = "משך לכל תמונה";
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "התמונות הופכות במכשיר למצגת 1080p. המקור נשאר ללא שינוי.";
 "Nasıl bağlanırım?" = "איך מתחברים?";
 "Büyük ekranda daha fazlası." = "יותר על המסך הגדול.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "הזיכרונות, הסרטונים והמוזיקה שלך. בחר מסך והתחל לשתף.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "אפשר לבחור מסך ולשתף את הזיכרונות, הסרטונים והמוזיקה שלך.";
 "Google Cast araması kullanılamıyor." = "חיפוש Google Cast אינו זמין.";
 "Ayarları aç" = "פתיחת הגדרות";
-"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "בחר תוכן. אפשר להשהות או לשנות את חיבור הטלוויזיה דרך הנגן.";
+"Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "יש לבחור תוכן. אפשר להשהות את ההפעלה או לשנות את חיבור הטלוויזיה דרך הנגן.";
 "VPN veya misafir ağı cihazların birbirini bulmasını engelleyebilir." = "VPN או רשת אורחים עלולים למנוע מהמכשירים למצוא זה את זה.";
-"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "משדר מ-iPhone זה לטלוויזיה. השאר את Mirivo פתוח.";
+"TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut." = "משדר מ-iPhone זה לטלוויזיה. יש להשאיר את Mirivo פתוח.";
 "Oynatma sırası" = "תור ניגון";
 "Önceki" = "הקודם";
 "Sonraki" = "הבא";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "יש לאפשר התראות בהגדרות iOS.";
 "Bildirimler hazırlanıyor…" = "ההתראות בהגדרה…";
 "Bildirimler açık." = "ההתראות מופעלות.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "הרישום להתראות נכשל. יש לנסות שוב.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "לא ניתן להתחבר לשרת כדי לכבות התראות. ננסה שוב לאחר החיבור.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "לא ניתן להפעיל התראות. אפשר לנסות שוב.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "לא ניתן להגיע לשרת כדי לכבות את ההתראות. Mirivo ינסה שוב כשהחיבור יחזור.";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "קבלת חדשות על גרסאות והמוצר. המדיה וכתובות המקורות שלך אינן נשלחות לשרת ההתראות.";
 "iOS Ayarlarını aç" = "פתיחת הגדרות iOS";
 "Güncelleme gerekli" = "נדרש עדכון";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "הסרה מהרשימה";
 "İçerik bulunamadı" = "לא נמצא תוכן";
 "Film veya dizi ara" = "חיפוש סרטים או סדרות";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "לא ניתן להסיר את רשומת הצפייה. כדאי לנסות שוב.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "לא ניתן להסיר את התוכן הזה מהרשימה. אפשר לנסות שוב.";
 
 "İndirilenler" = "הורדות";
 "Çevrimdışı izlemeye hazır" = "מוכן לצפייה במצב לא מקוון";
@@ -318,19 +318,19 @@
 "Yalnızca HLS, MP4, M4V ve MOV film/dizi içerikleri indirilebilir." = "אפשר להוריד רק סרטים וסדרות בפורמט HLS, MP4, M4V או MOV.";
 "Canlı yayınlar çevrimdışı izlenmek üzere indirilemez." = "אי אפשר להוריד שידורים חיים לצפייה לא מקוונת.";
 "Bu içerik sağlayıcı koruması nedeniyle indirilemiyor." = "אי אפשר להוריד את התוכן בגלל הגנת הספק.";
-"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "אי אפשר להוריד את התוכן כרגע. בדוק את כתובת השידור.";
-"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "שמירת ההורדה נכשלה. בדוק את שטח האחסון במכשיר.";
+"İçerik şu anda indirilemiyor. Yayın bağlantısını kontrol et." = "אי אפשר להוריד את התוכן כרגע. יש לבדוק את כתובת השידור.";
+"İndirme kaydedilemedi. Cihazındaki boş alanı kontrol et." = "שמירת ההורדה נכשלה. יש לבדוק את שטח האחסון במכשיר.";
 "Bu içerik zaten indirilenlerde veya indiriliyor." = "התוכן כבר הורד או נמצא בתהליך הורדה.";
 "En fazla 50 içerik indirilebilir." = "אפשר להוריד עד 50 פריטים.";
 "İndirildi" = "הורד";
 "Yeniden indir" = "הורד שוב";
 "İndir" = "הורדה";
 
-"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "הורד רק תוכן שהספק מתיר להוריד. שידורים המוגנים ב-DRM אינם נתמכים.";
-"Sıkıştırıp yakınlaştır: ekranı doldur" = "צבוט להגדלה כדי למלא את המסך";
-"Sıkıştırıp uzaklaştır: normal görünüme dön" = "צבוט להקטנה כדי לחזור לתצוגה רגילה";
+"Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "יש להוריד רק תוכן שהספק מתיר להוריד. שידורים המוגנים ב-DRM אינם נתמכים.";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "מרחיקים את האצבעות כדי למלא את המסך";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "מקרבים את האצבעות כדי לחזור לתצוגה הרגילה";
 "Hareket tanıtımını yeniden göster" = "הצגת מדריך המחוות שוב";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "הצג שוב בנגן את מחוות עוצמת הקול, הבהירות והמסך.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "הצגה חוזרת של ההסברים על מחוות לשליטה בעוצמת הקול, בבהירות ובתצוגה בנגן.";
 
 "Araç video desteği" = "תמיכה בווידאו ברכב";
 "CarPlay bağlı" = "CarPlay מחובר";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "התחלת בדיקת וידאו ב-CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "יש להתחבר ל-CarPlay ולפתוח את האפליקציה במסך הרכב.";
 "Araç bağlantısında hatırlat" = "תזכורת בעת חיבור לרכב";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "נשלחת תזכורת אחת בטלפון כאשר מזוהה הפעלת CarPlay חדשה. מידע על החיבור לרכב אינו נשלח לשרת.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "תתקבל בטלפון תזכורת אחת כשמזוהה הפעלת CarPlay חדשה. המידע על החיבור לרכב אינו נשלח לשרת.";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "וידאו ב-CarPlay זמין בכלי רכב נתמכים בזמן חניה.";
 
 "AirPlay ekranı" = "מסך AirPlay";
 "AirPlay hedefini değiştir" = "שינוי יעד AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "אפשר להשתמש בתפריט המערכת למטה כדי לשנות את יעד AirPlay או לחזור ל-iPhone.";
 "Bağlı" = "מחובר";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "זמן הצפייה החינמי להיום אופס. אפשר לצפות עד שעתיים היום.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "זמן הצפייה החינמי אופס: שעתיים בסך הכול היום, מתוכן עד שעה אחת ב-CarPlay.";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "לאפס את זמן הצפייה החינמי להיום?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "כדי להפסיק את שיקוף המסך, יש לפתוח את שיקוף המסך במרכז הבקרה של iOS ולנתק את החיבור.";
 "Oynatma durduruldu, TV bağlantısı açık" = "הניגון הופסק; הטלוויזיה עדיין מחוברת";
 "TV bağlantısı açık" = "הטלוויזיה מחוברת";
 "TV bağlantısını kes" = "ניתוק מהטלוויזיה";
-"TV’den ayrıl" = "התנתקות מהטלוויזיה";
+"TV’den ayrıl" = "ניתוק מהטלוויזיה";
 "Video seçenekleri" = "אפשרויות וידאו";
 "Sıfırla" = "איפוס";
 "İptal" = "ביטול";
@@ -373,8 +373,8 @@
 "Araç ekranında oynatılıyor" = "מתנגן במסך הרכב";
 "Harici ekranda oynatılıyor" = "מתנגן במסך החיצוני";
 "Bağlantıyı kesme adımları" = "איך מתנתקים";
-"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "עבור CarPlay חוטי, נתקו את כבל ה-USB. עבור CarPlay אלחוטי, התנתקו ממסך הרכב. אם אתם משתמשים ב-CarPlay Simulator, סיימו את החיבור בסימולטור.";
-"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "עבור AirPlay, עברו אל מרכז הבקרה ← שיקוף מסך ← הפסק שיקוף. עבור מסך חוטי, נתקו את מתאם ה-HDMI/USB.";
+"Kablolu CarPlay için USB kablosunu çıkar. Kablosuz CarPlay için araç ekranından bağlantıyı kes. CarPlay Simulator kullanıyorsan simülatörde bağlantıyı sonlandır." = "כדי לנתק CarPlay חוטי, מוציאים את כבל ה-USB. בחיבור אלחוטי, מנתקים דרך מסך הרכב. ב-CarPlay Simulator, מסיימים את החיבור בסימולטור.";
+"AirPlay için Denetim Merkezi → Ekran Yansıtma → Yansıtmayı Durdur yolunu izle. Kablolu ekran bağlantısında HDMI/USB adaptörünü çıkar." = "כדי לנתק AirPlay, עוברים אל מרכז הבקרה ← שיקוף מסך ← הפסק שיקוף. בחיבור למסך עם כבל, מוציאים את מתאם ה-HDMI/USB.";
 
 "%d içerik" = "%d פריטים";
 "Kategoriler" = "קטגוריות";
@@ -397,7 +397,7 @@
 "Bağlı: %@" = "מחובר: %@";
 "AirPlay ile oynatılıyor" = "מתנגן דרך AirPlay";
 "Başka bir ekrana bağlan" = "חיבור למסך אחר";
-"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "לא ניתן להתחבר אל %@. בדקו את החיבור ונסו שוב.";
+"%@ bağlantısı kurulamadı. Bağlantını kontrol edip yeniden dene." = "לא ניתן להתחבר אל %@. יש לבדוק את החיבור ולנסות שוב.";
 
 // Series library
 "Özel bölümler" = "פרקים מיוחדים";
@@ -411,3 +411,10 @@
 "Dizi ara" = "חיפוש סדרות";
 "Bu içerik için açıklama bulunamadı." = "לא נמצא תיאור לתוכן הזה.";
 "İçerik bilgileri yüklenemedi." = "לא ניתן לטעון את פרטי התוכן.";
+"Klavyeyi kapat" = "הסתרת המקלדת";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay היום: נותרו %d דקות";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "שעת הצפייה היומית ב-CarPlay נוצלה. אפשר לחזור לצפות מחר, או לעבור ל-Pro ולהמשיך ללא הגבלת זמן.";
+
+"Bugünkü ücretsiz süren doldu" = "זמן הצפייה החינמי להיום הסתיים";

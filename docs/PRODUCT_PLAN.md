@@ -1,3 +1,5 @@
+> 16 Ekim 2026 ücretsiz izleme kararı: Günlük toplam sınır 2 saat, CarPlay sınırı 1 saattir. CarPlay süresi iki sayaçtan da düşer. Sınırlardan biri dolunca o gün tüm ücretsiz izleme durur ve Pro ekranı açılır. Sayaçlar yerel gece yarısında sıfırlanır; Pro kullanıcılarına bu sınırlar uygulanmaz.
+
 > 15 Ekim 2026 güncellemesi: Apple CarPlay Video yetkisi etkinleştirildi; CarPlay video sahnesi, ekran paylaşımı ve bağlantı hatırlatması geri getirildi. Güncel dağıtım durumu DEPLOYMENT.md içindedir. Aşağıdaki eski build kayıtları tarihseldir.
 
 # Mirivo ürün ve uygulama planı

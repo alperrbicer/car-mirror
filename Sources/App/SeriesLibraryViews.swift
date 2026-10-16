@@ -38,11 +38,36 @@ struct SeriesPosterCard: View {
 struct SeriesLibraryHeader: View {
     let series: MediaSeries
     let sourceID: UUID?
+    var showsDescription = true
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     var body: some View {
-        if let channel = series.artworkChannel {
+        if showsDescription, let channel = series.artworkChannel {
             MediaDetailsView(channel: channel,
                              source: SourceLibrary.shared.sources.first { $0.id == sourceID }, series: series)
+        } else {
+            compactHeader
         }
+    }
+
+    private var compactHeader: some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 18))
+        return layout {
+            if let channel = series.artworkChannel {
+                MediaArtworkView(channel: channel).frame(width: 88, height: 132)
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                Text(series.title).font(.title2.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
+                if !series.group.isEmpty { Text(series.group).font(.caption).foregroundStyle(MirrorStyle.secondary) }
+                Text(SeriesText.counts(series)).font(.caption).foregroundStyle(MirrorStyle.accent)
+                    .fixedSize(horizontal: false, vertical: true)
+            }.frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(18).frame(maxWidth: .infinity, alignment: .leading)
+        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 24))
+        .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(MirrorStyle.hairline) }
+        .accessibilityElement(children: .combine)
     }
 }
 

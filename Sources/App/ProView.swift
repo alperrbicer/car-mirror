@@ -1,7 +1,29 @@
 import SwiftUI
 import StoreKit
 
+extension DailyViewingBudget.Limit {
+    var explanation: String {
+        L10n.tr(self == .carPlay
+            ? "Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin."
+            : "Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin.")
+    }
+}
+
+struct ViewingLimitOfferPresenter: ViewModifier {
+    @ObservedObject var model: MirrorModel
+    var restoredPlayer = false
+
+    func body(content: Content) -> some View {
+        content.sheet(item: Binding(get: {
+            model.presentingPlayer == restoredPlayer ? model.viewingLimitPrompt : nil
+        }, set: { model.viewingLimitPrompt = $0 })) { limit in
+            NavigationStack { ProView(viewingLimit: limit) }
+        }
+    }
+}
+
 struct ProView: View {
+    let viewingLimit: DailyViewingBudget.Limit?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var store = PurchaseStore.shared
@@ -13,6 +35,7 @@ struct ProView: View {
         ("rectangle.on.rectangle", "Sınırsız yayın", "Ekran paylaşımını Mirivo süre sınırı olmadan kullan.")
     ]
     private var selected: Product? { store.products.first { $0.id == selectedID } }
+    init(viewingLimit: DailyViewingBudget.Limit? = nil) { self.viewingLimit = viewingLimit }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
@@ -27,6 +50,16 @@ struct ProView: View {
                     Text(L10n.tr("Mirivo Pro")).font(.system(.largeTitle, design: .default, weight: .bold))
                     Text(L10n.tr(store.verifiedPro ? "Tüm özellikler seninle." : "Büyük ekranda daha fazlası."))
                         .font(.title3).foregroundStyle(MirrorStyle.secondary)
+                }
+                if let viewingLimit {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label(L10n.tr("Bugünkü ücretsiz süren doldu"), systemImage: "clock")
+                            .font(.headline).foregroundStyle(MirrorStyle.accent)
+                        Text(viewingLimit.explanation).font(.subheadline).fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(MirrorStyle.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 22))
+                    .accessibilityElement(children: .contain).accessibilityIdentifier("viewing-limit-offer")
                 }
                 VStack(spacing: 24) {
                     ForEach(benefits, id: \.0) { icon, title, subtitle in

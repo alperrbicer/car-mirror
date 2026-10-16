@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "Большой плеер, крупные кнопки и удобный экран просмотра.";
 "Gizlilik" = "Конфиденциальность";
 "Gizlilik Politikası" = "Политика конфиденциальности";
-"Görüntü bağlanıyor" = "Подключение видео";
+"Görüntü bağlanıyor" = "Подключение…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Не удалось запустить видео. Попробуйте ещё раз.";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Не удалось воспроизвести видео. Попробуйте ещё раз.";
 "Görüntüyle birlikte" = "Вместе с видео";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "Источники";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "Не удалось открыть источники. Попробуйте ещё раз.";
 "Kaynaklar silinemedi. Yeniden dene." = "Не удалось удалить источники. Попробуйте ещё раз.";
-"Kaynakların burada" = "Здесь будут ваши источники";
+"Kaynakların burada" = "Добавьте первый источник";
 "Kayıtlar temizlendi" = "Журналы очищены";
 "Kayıtlar temizlenemedi." = "Не удалось очистить журналы.";
 "Kayıtları temizle" = "Очистить журналы";
@@ -133,7 +133,7 @@
 "Yasal" = "Правовая информация";
 "Yayın bağlantısı" = "Ссылка на поток";
 "Yayın bağlantısı kesildi" = "Трансляция прервана";
-"Yayın bağlantısı kesildi. Yeniden deneyebilirsin." = "Соединение трансляции прервано. Попробуйте ещё раз.";
+"Yayın bağlantısı kesildi. Yeniden deneyebilirsin." = "Соединение с трансляцией прервано. Попробуйте ещё раз.";
 "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene." = "Не удалось начать воспроизведение. Проверьте источник и повторите попытку.";
 "Yayın duraklatıldı" = "Трансляция на паузе";
 "Yayın hazırlanıyor" = "Подготовка трансляции";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "Осталось сегодня: %d мин";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Вы достигли дневного лимита просмотра в 2 часа. Смотреть снова можно завтра.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Сегодняшние 2 часа бесплатного просмотра закончились. Возвращайся завтра или переходи на Pro, чтобы смотреть без ограничения времени.";
 
-"Ücretsiz izleme günde 2 saat." = "Бесплатный просмотр — 2 часа в день.";
+"Ücretsiz izleme günde 2 saat." = "Бесплатно можно смотреть в общей сложности 2 часа в день, из них не более 1 часа через CarPlay. При достижении любого из лимитов бесплатный просмотр заканчивается до следующего дня.";
 
 "Sınırsız izleme" = "Неограниченный просмотр";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "На устройстве будет создано слайд-шоу 1080p. Оригиналы фото останутся без изменений.";
 "Nasıl bağlanırım?" = "Как подключиться?";
 "Büyük ekranda daha fazlası." = "Больше на большом экране.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Ваши воспоминания, видео и музыка. Выберите экран и начните делиться.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Выберите экран, чтобы поделиться своими воспоминаниями, видео и музыкой.";
 "Google Cast araması kullanılamıyor." = "Поиск Google Cast недоступен.";
 "Ayarları aç" = "Открыть настройки";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Выберите контент. Пауза и смена подключения к ТВ доступны в плеере.";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "Разрешите уведомления в настройках iOS.";
 "Bildirimler hazırlanıyor…" = "Настройка уведомлений…";
 "Bildirimler açık." = "Уведомления включены.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Не удалось зарегистрировать уведомления. Повторите попытку.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Не удалось связаться с сервером для отключения. Повторим попытку при подключении.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Не удалось включить уведомления. Попробуйте ещё раз.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Не удалось связаться с сервером, чтобы отключить уведомления. Mirivo попробует снова, когда появится соединение.";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Получайте новости о версиях и продукте. Ваши медиафайлы и адреса источников не отправляются на сервер уведомлений.";
 "iOS Ayarlarını aç" = "Открыть настройки iOS";
 "Güncelleme gerekli" = "Требуется обновление";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "Убрать из списка";
 "İçerik bulunamadı" = "Контент не найден";
 "Film veya dizi ara" = "Поиск фильмов или сериалов";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "Не удалось удалить запись просмотра. Попробуй ещё раз.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Не удалось удалить этот материал из списка. Попробуйте ещё раз.";
 
 "İndirilenler" = "Загрузки";
 "Çevrimdışı izlemeye hazır" = "Готово для просмотра офлайн";
@@ -330,7 +330,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Разведите пальцы, чтобы заполнить экран";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Сведите пальцы, чтобы вернуться к обычному виду";
 "Hareket tanıtımını yeniden göster" = "Показать инструкцию по жестам снова";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Снова показать в плеере жесты регулировки громкости, яркости и экрана.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Снова показать подсказки по управлению громкостью, яркостью и изображением с помощью жестов в плеере.";
 
 "Araç video desteği" = "Поддержка видео в автомобиле";
 "CarPlay bağlı" = "CarPlay подключён";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "Начать проверку видео CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Подключитесь к CarPlay и откройте приложение на экране автомобиля.";
 "Araç bağlantısında hatırlat" = "Напоминать при подключении к авто";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Отправляет одно напоминание на телефон при обнаружении нового сеанса CarPlay. Данные о подключении к автомобилю не передаются на сервер.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "При обнаружении нового сеанса CarPlay на телефон придёт одно напоминание. Данные о подключении к автомобилю не передаются на сервер.";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Видео CarPlay доступно в поддерживаемых автомобилях во время стоянки.";
 
 "AirPlay ekranı" = "Экран AirPlay";
 "AirPlay hedefini değiştir" = "Изменить устройство AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Используйте системное меню ниже, чтобы изменить устройство AirPlay или вернуться к iPhone.";
 "Bağlı" = "Подключено";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Бесплатное время просмотра на сегодня сброшено. Сегодня можно смотреть до 2 часов.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Бесплатное время просмотра сброшено: сегодня доступны 2 часа в общей сложности, из них не более 1 часа через CarPlay.";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Сбросить бесплатное время просмотра на сегодня?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Чтобы остановить повтор экрана, откройте «Повтор экрана» в Пункте управления iOS и отключитесь.";
 "Oynatma durduruldu, TV bağlantısı açık" = "Воспроизведение остановлено; телевизор подключён";
 "TV bağlantısı açık" = "Телевизор подключён";
 "TV bağlantısını kes" = "Отключить телевизор";
-"TV’den ayrıl" = "Отключиться от телевизора";
+"TV’den ayrıl" = "Отключить телевизор";
 "Video seçenekleri" = "Параметры видео";
 "Sıfırla" = "Сбросить";
 "İptal" = "Отмена";
@@ -411,3 +411,10 @@
 "Dizi ara" = "Поиск сериалов";
 "Bu içerik için açıklama bulunamadı." = "Описание этого контента не найдено.";
 "İçerik bilgileri yüklenemedi." = "Не удалось загрузить сведения о контенте.";
+"Klavyeyi kapat" = "Скрыть клавиатуру";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay сегодня: осталось %d мин";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "Сегодняшний 1 час просмотра через CarPlay закончился. Возвращайся завтра или переходи на Pro, чтобы смотреть без ограничения времени.";
+
+"Bugünkü ücretsiz süren doldu" = "Бесплатное время просмотра на сегодня закончилось";

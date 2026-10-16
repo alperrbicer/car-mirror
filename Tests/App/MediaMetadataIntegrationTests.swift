@@ -3,6 +3,124 @@ import CryptoKit
 @testable import CarMirror
 
 final class MediaMetadataIntegrationTests: XCTestCase {
+    func testSeriesEpisodeExportedAsMovieUsesOnlySeriesWithTheSameEpisodeID() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })
+        let secret = SourceSecret(url: URL(string: "https://playlist.example/library.m3u")!)
+        let channel = MediaChannel(title: "Coast Stories EXXEN S01-E01", url: URL(string: "https://provider.example/movie/u/p/987.mp4")!)
+        let metadata = try await loader.load(kind: .playlist, secret: secret, channel: channel)
+        XCTAssertEqual(metadata?.summary, "General series synopsis")
+        XCTAssertEqual(metadata?.duration, 1980)
+        XCTAssertEqual(metadata?.genre, "Comedy")
+        let requests = await fixture.requests
+        XCTAssertTrue(requests.contains("get_series_info:99"))
+        XCTAssertTrue(requests.contains("get_series_info:42"))
+        XCTAssertFalse(requests.contains("get_vod_info:987"))
+    }
+
+    func testMovieEpisodeWithNoVerifiedSeriesKeepsItsOwnVODMetadata() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })
+        let channel = MediaChannel(title: "Coast Stories EXXEN S01-E03", url: URL(string: "https://provider.example/movie/u/p/125.mp4")!)
+        let metadata = try await loader.load(kind: .playlist,
+            secret: SourceSecret(url: URL(string: "https://playlist.example/library.m3u")!), channel: channel)
+        XCTAssertEqual(metadata?.summary, "Film fallback synopsis")
+        XCTAssertEqual(metadata?.rating, 5)
+        let requests = await fixture.requests
+        XCTAssertTrue(requests.contains("get_vod_info:125"))
+    }
+
+    func testMovieEpisodeCanUseVODWhenTheSeriesCatalogIsUnavailable() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in
+            let action = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "action" }?.value
+            if action == "get_series" { throw URLError(.cannotConnectToHost) }
+            return try await fixture.fetch(url)
+        })
+        let secret = SourceSecret(url: URL(string: "https://playlist.example/library.m3u")!)
+        let channel = MediaChannel(title: "Coast Stories EXXEN S01-E03", url: URL(string: "https://provider.example/movie/u/p/125.mp4")!)
+        let metadata = try await loader.load(kind: .playlist, secret: secret, channel: channel)
+        XCTAssertEqual(metadata?.summary, "Film fallback synopsis")
+        let series = MediaChannel(title: channel.title, url: URL(string: "https://provider.example/series/u/p/987.mp4")!)
+        do {
+            _ = try await loader.load(kind: .playlist, secret: secret, channel: series)
+            XCTFail("A failed series-only request must remain retryable")
+        } catch { XCTAssertTrue(error is URLError) }
+    }
+
+    func testMovieEpisodeDoesNotTreatSeriesNetworkFailureAsMissingSynopsis() async throws {
+        let loader = MediaMetadataLoader(fetch: { url, _ in
+            let action = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "action" }?.value
+            if action == "get_series" { throw URLError(.cannotConnectToHost) }
+            return (Data(#"{"info":{"duration_secs":"1980","rating":"7.8"}}"#.utf8), url)
+        })
+        let secret = SourceSecret(url: URL(string: "https://playlist.example/library.m3u")!)
+        let episode = MediaChannel(title: "Coast Stories S01-E01", url: URL(string: "https://provider.example/movie/u/p/126.mp4")!)
+        do {
+            _ = try await loader.load(kind: .playlist, secret: secret, channel: episode)
+            XCTFail("A failed series lookup must offer retry when VOD has no synopsis")
+        } catch { XCTAssertTrue(error is URLError) }
+        let movie = MediaChannel(title: "Film", url: episode.url)
+        let metadata = try await loader.load(kind: .playlist, secret: secret, channel: movie)
+        XCTAssertNil(metadata?.summary)
+        XCTAssertEqual(metadata?.duration, 1980, "An ordinary movie without a provider synopsis is still a valid response")
+    }
+
+    func testOptInProviderMetadata() async throws {
+        struct Probe: Decodable {
+            struct Item: Decodable { let title: String; let url: URL; let summaryLength: Int? }
+            let source: SourceSecret
+            let items: [Item]
+        }
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("mirivo-provider-metadata.json")
+        guard FileManager.default.fileExists(atPath: file.path) else { throw XCTSkip("No opt-in provider metadata fixture") }
+        let probe = try JSONDecoder().decode(Probe.self, from: Data(contentsOf: file))
+        let loader = MediaMetadataLoader()
+        for item in probe.items {
+            do {
+                let channel = MediaChannel(title: item.title, url: item.url)
+                let metadata = try await loader.load(kind: .playlist, secret: probe.source, channel: channel)
+                XCTAssertNotNil(metadata)
+                XCTAssertEqual(metadata?.summary?.count, item.summaryLength, item.title)
+                XCTAssertNotNil(metadata?.duration, item.title)
+                XCTAssertNotNil(metadata?.rating, item.title)
+                if channel.episode != nil {
+                    let series = try await loader.load(kind: .playlist, secret: probe.source, channel: channel, seriesOnly: true)
+                    XCTAssertEqual(series?.summary?.count, item.summaryLength, item.title)
+                }
+                print("MIRIVO_PROVIDER_METADATA: \(item.title), summaryCharacters=\(metadata?.summary?.count ?? 0)")
+            } catch {
+                // NSError's full description can include a credential-bearing URL.
+                let failure = error as NSError
+                XCTFail("Provider metadata request failed: \(failure.domain) [\(failure.code)]")
+            }
+        }
+    }
+
+    func testMovieSynopsisOutsideInfoKeepsDurationAndRatingFromInfo() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })
+        let channel = MediaChannel(title: "Film", url: URL(string: "https://provider.example/movie/u/p/125.mp4")!)
+        let metadata = try await loader.load(kind: .playlist,
+            secret: SourceSecret(url: URL(string: "https://playlist.example/library.m3u")!), channel: channel)
+        XCTAssertEqual(metadata?.summary, "Film fallback synopsis")
+        XCTAssertEqual(metadata?.duration, 7196)
+        XCTAssertEqual(metadata?.rating, 5)
+    }
+
+    func testEpisodeSynopsisOutsideInfoDoesNotReplaceTheSeriesSynopsis() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })
+        let secret = SourceSecret(url: URL(string: "https://playlist.example/library.m3u")!)
+        let channel = MediaChannel(title: "Coast Stories EXXEN S01-E03", url: URL(string: "https://provider.example/series/u/p/989.mp4")!)
+        let episode = try await loader.load(kind: .playlist, secret: secret, channel: channel)
+        XCTAssertEqual(episode?.summary, "Episode three synopsis")
+        XCTAssertEqual(episode?.duration, 2028)
+        XCTAssertEqual(episode?.rating, 7.8)
+        let series = try await loader.load(kind: .playlist, secret: secret, channel: channel, seriesOnly: true)
+        XCTAssertEqual(series?.summary, "General series synopsis")
+    }
+
     func testSeriesLookupValidatesEpisodeMembershipAndCachesCatalogAcrossEpisodes() async throws {
         let fixture = MetadataFixture()
         let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })
@@ -88,9 +206,11 @@ private actor MetadataFixture {
         case ("get_series_info", "99"):
             json = #"{"info":{"plot":"Wrong series"},"episodes":{"1":[{"id":111,"info":{"plot":"Wrong episode"}}]}}"#
         case ("get_series_info", "42"):
-            json = #"{"info":{"plot":"General series synopsis"},"episodes":{"1":[{"id":"987","info":{"duration_secs":"1980"}},{"id":"988","info":{"plot":"Episode two synopsis"}}]}}"#
+            json = #"{"info":{"plot":"General series synopsis"},"episodes":{"1":[{"id":"987","info":{"duration_secs":"1980"}},{"id":"988","info":{"plot":"Episode two synopsis"}},{"id":"989","description":"Episode three synopsis","info":{"plot":"null","duration_secs":"2028","rating":"7.8"}}]}}"#
         case ("get_vod_info", "123"):
             json = #"{"info":{"description":"Film synopsis"}}"#
+        case ("get_vod_info", "125"):
+            json = #"{"info":{"plot":"null","duration_secs":"7196","rating":"5.0"},"movie_data":{"description":"Film fallback synopsis"}}"#
         default: throw URLError(.cannotConnectToHost)
         }
         return (Data(json.utf8), url)

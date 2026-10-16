@@ -2,6 +2,43 @@ import XCTest
 @testable import MirrorCore
 
 final class MediaSeriesTests: XCTestCase {
+    private func posterChannel(_ title: String, _ id: Int, artwork: String?) -> MediaChannel {
+        MediaChannel(title: title, url: URL(string: "https://example.com/series/user/pass/\(id).mp4")!,
+                     metadata: MediaMetadata(artworkURL: artwork.flatMap(URL.init(string:))))
+    }
+
+    func testCategoryPreviewUsesDifferentSeriesDespiteEpisodePosterVariants() {
+        let input = [posterChannel("Show S01-E01", 1, artwork: "https://art.example/show.jpg?episode=1"),
+                     posterChannel("SHOW S01-E02", 2, artwork: "https://art.example/show.jpg?episode=2"),
+                     posterChannel("Show S02-E01", 3, artwork: "https://art.example/season-two.jpg"),
+                     posterChannel("Other S01-E01", 4, artwork: "https://art.example/other.jpg"),
+                     posterChannel("Third S01-E01", 5, artwork: "https://art.example/third.jpg")]
+        XCTAssertEqual(MediaChannelCategory.artworkPreview(input), [input[0], input[3], input[4]])
+    }
+
+    func testCategoryPreviewFindsArtworkAfterAnEpisodeWithoutAPosterAndSkipsRepeatedImages() {
+        let input = [posterChannel("Show S01-E01", 1, artwork: nil),
+                     posterChannel("Show S01-E02", 2, artwork: "https://art.example/shared.jpg"),
+                     posterChannel("Other S01-E01", 3, artwork: "https://art.example/shared.jpg"),
+                     posterChannel("Other S01-E02", 4, artwork: "https://art.example/other.jpg")]
+        XCTAssertEqual(MediaChannelCategory.artworkPreview(input), [input[1], input[3]])
+    }
+
+    func testCategoryPreviewDoesNotRepeatASingleSeriesToFillThreeSlots() {
+        let input = (1...3).map { posterChannel("Show S01-E0\($0)", $0, artwork: "https://art.example/\($0).jpg") }
+        XCTAssertEqual(MediaChannelCategory.artworkPreview(input), [input[0]])
+        XCTAssertTrue(MediaChannelCategory.artworkPreview([]).isEmpty)
+    }
+
+    func testCategoryPreviewWithoutArtworkStillUsesDifferentTitlesInProviderOrder() {
+        let input = [posterChannel("Show S01-E01", 1, artwork: nil),
+                     posterChannel("Show S01-E02", 2, artwork: nil),
+                     posterChannel("Other", 3, artwork: nil),
+                     posterChannel("  OTHER  ", 4, artwork: nil),
+                     posterChannel("Third", 5, artwork: nil)]
+        XCTAssertEqual(MediaChannelCategory.artworkPreview(input), [input[0], input[2], input[4]])
+    }
+
     private func channel(_ title: String, _ id: Int, group: String = "DIZI: Exxen", route: String = "series", extension ext: String = "mp4") -> MediaChannel {
         MediaChannel(title: title, group: group, url: URL(string: "https://example.com/\(route)/user/pass/\(id).\(ext)")!)
     }

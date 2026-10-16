@@ -10,6 +10,7 @@ from urllib.parse import urlsplit, parse_qs
 import json
 import os
 import re
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 PORT = int(os.environ.get("MIRIVO_FIXTURE_PORT", "8769"))
@@ -19,7 +20,7 @@ PLAYLIST = ("#EXTM3U\n" + "".join(
 )).encode()
 VIDEO = (ROOT / "Resources/ConnectionProbe.mp4").read_bytes()
 CATALOG = ("#EXTM3U\n" + "".join(
-    f'#EXTINF:-1 tvg-logo="http://127.0.0.1:{PORT}/catalog/art/{art}.png" group-title="{group}",{title}\n'
+    f'#EXTINF:-1 tvg-logo="http://127.0.0.1:{PORT}/catalog/art/{art}.png{f"?episode={number}" if kind == "series" else ""}" group-title="{group}",{title}\n'
     f'http://127.0.0.1:{PORT}/{kind}/artwork/fixture/{number}.{extension}\n'
     for number, title, group, art, kind, extension in [
         (1, "Nova TV", "TR: Ulusal", "nova", "live", "m3u8"),
@@ -55,18 +56,19 @@ class Handler(BaseHTTPRequestHandler):
     def serve(self, body):
         request = urlsplit(self.path)
         path = request.path
-        if path in ["/catalog/get.php", "/catalog.m3u"]:
-            data, mime = CATALOG, "application/vnd.apple.mpegurl"
+        if path in ["/catalog/get.php", "/catalog.m3u", "/catalog-movie-episodes.m3u"]:
+            data = CATALOG.replace(b"/series/artwork/fixture/", b"/movie/artwork/fixture/") if path == "/catalog-movie-episodes.m3u" else CATALOG
+            mime = "application/vnd.apple.mpegurl"
         elif path in ["/catalog/player_api.php", "/player_api.php"]:
             query = parse_qs(request.query)
             if query.get("action") == ["get_vod_info"]:
                 if query.get("vod_id") == ["105"]:
                     self.send_error(503)
                     return
-                info = {"plot": "İki kardeş, yıllar sonra kıyı kasabalarında yeniden buluşur. Eski bir yelkenliyle çıktıkları yolculuk, onları unutulmuş hikâyelere ve yeni başlangıçlara götürür.",
-                        "genre": "Macera, Drama", "releasedate": "2025-06-01", "duration_secs": "6540", "rating": "8.2",
+                info = {"plot": None, "movie_image": f"http://127.0.0.1:{PORT}/catalog/art/beyond.png", "genre": "Macera, Drama", "releasedate": "2025-06-01", "duration_secs": "6540", "rating": "8.2",
                         "director": "Deniz Örnek", "cast": "Ada Örnek, Ege Örnek"}
-                data = json.dumps({"info": info if query.get("vod_id") == ["101"] else {}}).encode()
+                details = {"stream_id": 101, "description": "İki kardeş, yıllar sonra kıyı kasabalarında yeniden buluşur. Eski bir yelkenliyle çıktıkları yolculuk, onları unutulmuş hikâyelere ve yeni başlangıçlara götürür."}
+                data = json.dumps({"info": info, "movie_data": details} if query.get("vod_id") == ["101"] else {"info": {}}).encode()
             elif query.get("action") == ["get_series"]:
                 data = json.dumps([
                     {"series_id": 500, "name": "Kıyı Hikâyeleri", "plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "genre": "Drama", "releaseDate": "2024-01-26"},
@@ -74,9 +76,9 @@ class Handler(BaseHTTPRequestHandler):
                 ]).encode()
             elif query.get("action") == ["get_series_info"]:
                 if query.get("series_id") == ["500"]:
-                    info = {"plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "genre": "Drama", "releaseDate": "2024-01-26"}
+                    info = {"plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "cover": f"http://127.0.0.1:{PORT}/catalog/art/light.png", "genre": "Drama", "releaseDate": "2024-01-26"}
                     episodes = {"1": [
-                        {"id": "201", "info": {"plot": "Kasabaya dönen bir mektup, üç arkadaşın hayatını değiştirir.", "duration_secs": 1980}},
+                        {"id": "201", "description": "Kasabaya dönen bir mektup, üç arkadaşın hayatını değiştirir.", "info": {"plot": None, "duration_secs": 1980}},
                         {"id": "202", "info": {"duration_secs": 2040}},
                         {"id": "210", "info": {}},
                     ], "2": [{"id": "221", "info": {}}]}
@@ -93,14 +95,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_error(404)
                 return
             data, mime = artwork.read_bytes(), "image/png"
-        elif path.startswith("/movie/artwork/fixture/"):
-            data, mime = VIDEO, "video/mp4"
-        elif path.startswith("/series/artwork/fixture/"):
-            fixture = ROOT / "build/playback-options-fixtures/options.mp4"
-            if not fixture.is_file():
-                self.send_error(404)
-                return
-            data, mime = fixture.read_bytes(), "video/mp4"
+        elif path.startswith(("/movie/artwork/fixture/", "/series/artwork/fixture/")):
+            if path.startswith("/series/") or Path(path).stem in {"201", "202", "210", "221", "301", "304"}:
+                fixture = ROOT / "build/playback-options-fixtures/options.mp4"
+                if not fixture.is_file():
+                    self.send_error(404)
+                    return
+                data = fixture.read_bytes()
+            else:
+                data = VIDEO
+            mime = "video/mp4"
         elif path == "/sources/get.php":
             query = parse_qs(request.query)
             if query.get("username") != ["source+user"] or query.get("password") != ["source+p&ss"]:
@@ -122,6 +126,8 @@ class Handler(BaseHTTPRequestHandler):
             data, mime = json.dumps({"user_info": info}).encode(), "application/json"
         elif path in ["/demo.m3u", "/expiry/get.php"]:
             data, mime = PLAYLIST, "application/vnd.apple.mpegurl"
+            if path == "/demo.m3u" and parse_qs(request.query).get("long") == ["1"]:
+                data = PLAYLIST.replace(b"/demo.mp4", b"/tracks/options.mp4")
         elif path == "/demo.mp4":
             data, mime = VIDEO, "video/mp4"
         elif path in ["/tracks/options.mp4", "/tracks/options.mkv"]:
@@ -133,6 +139,12 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_error(404)
             return
+        if path in ["/tracks/options.mp4", "/tracks/options.mkv"]:
+            # Exercise cold-launch restoration while the first network requests
+            # and seek ranges arrive after the player view is already visible.
+            delay = parse_qs(request.query).get("delay", ["0"])[0]
+            if delay in ["0", "1", "2"]:
+                time.sleep(int(delay))
         start, end, status = 0, len(data) - 1, 200
         value = self.headers.get("Range")
         if value:

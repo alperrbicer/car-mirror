@@ -234,7 +234,7 @@ struct TVConnectionStatusView: View {
         }
         .tint(MirrorStyle.accent)
         .preferredColorScheme(.dark)
-        .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium, .large])
+        .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.height(540), .large])
         .presentationDragIndicator(.visible)
         .sheet(isPresented: $showingOtherDisplays) { TVConnectionView(model: model) }
         .onChange(of: routes) { _, routes in

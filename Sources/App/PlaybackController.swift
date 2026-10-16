@@ -53,7 +53,7 @@ final class PlaybackController: ObservableObject {
         carPlayConnected = carPlay
         externalTVDisplayConnected = externalTV
     }
-    private var pauseOnStart = false
+    private var pauseRequested = false
     @Published private(set) var currentTime: Double = 0
     @Published private(set) var duration: Double = 0
     @Published private(set) var isLive = false
@@ -294,8 +294,8 @@ final class PlaybackController: ObservableObject {
     private var notificationTokens: [NSObjectProtocol] = []
     private var startupTask: Task<Void, Never>?
     private var stallTask: Task<Void, Never>?
-    private var interruptionItem: AVPlayerItem?
-    private var wasPlayingBeforeInterruption = false
+    private var interruptedPlaybackID: UUID?
+    private var resumeAfterInterruption = false
     private var remoteTargets: [(MPRemoteCommand, Any)] = []
 
     init() {
@@ -345,7 +345,10 @@ final class PlaybackController: ObservableObject {
                 self.isPlaying = self.player.currentItem != nil && self.player.timeControlStatus == .playing
                 if self.player.currentItem != nil {
                     switch self.player.timeControlStatus {
-                    case .playing: self.state = .playing
+                    case .playing:
+                        self.state = .playing
+                        // AVKit's PiP controls can resume AVPlayer directly.
+                        self.pauseRequested = false
                     case .waitingToPlayAtSpecifiedRate: self.state = .loading
                     default: if self.state != .loading { self.state = .paused }
                     }
@@ -380,17 +383,28 @@ final class PlaybackController: ObservableObject {
                     values.reason = .interrupted
                     self.onDiagnostic?(.audioInterrupted, values)
                     if began {
-                        self.wasPlayingBeforeInterruption = self.isPlaying
-                        self.interruptionItem = self.player.currentItem
+                        guard self.hasActivePlayback else { return }
+                        if self.interruptedPlaybackID != self.playbackID {
+                            // Buffering and restoring a saved position still
+                            // carry a Play request, even before the first frame.
+                            self.resumeAfterInterruption = !self.pauseRequested && (self.isPlaying || self.state == .loading)
+                            self.interruptedPlaybackID = self.playbackID
+                        }
                         if let compatibility = self.compatibility { compatibility.pause() } else { self.player.pause() }
+                        self.isPlaying = false
                     } else {
                         let flags = (notification.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0
-                        if flags & AVAudioSession.InterruptionOptions.shouldResume.rawValue != 0,
-                           self.wasPlayingBeforeInterruption, self.player.currentItem === self.interruptionItem {
-                            try? AVAudioSession.sharedInstance().setActive(true)
-                            self.resume()
+                        let interruptedID = self.interruptedPlaybackID
+                        let shouldResume = self.resumeAfterInterruption && !self.pauseRequested
+                        self.interruptedPlaybackID = nil
+                        self.resumeAfterInterruption = false
+                        guard self.playbackID == interruptedID else { return }
+                        guard flags & AVAudioSession.InterruptionOptions.shouldResume.rawValue != 0, shouldResume else {
+                            self.pause()
+                            return
                         }
-                        self.interruptionItem = nil
+                        try? AVAudioSession.sharedInstance().setActive(true)
+                        self.resume()
                     }
                 }
             })
@@ -458,7 +472,7 @@ final class PlaybackController: ObservableObject {
                           presentation: presentation, useCompatibility: useCompatibility)
         let position = startAt.isFinite ? max(0, startAt) : 0
         currentTime = position
-        pauseOnStart = startPaused
+        pauseRequested = startPaused
         requestedLive = live
         isLive = live
         errorMessage = nil
@@ -485,7 +499,7 @@ final class PlaybackController: ObservableObject {
                 self.state = state
                 self.isPlaying = state == .playing
                 if state == .playing || state == .paused {
-                    self.pauseOnStart = state == .paused
+                    self.pauseRequested = state == .paused
                     self.startupTask?.cancel(); self.startupTask = nil
                 }
                 MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = self.isPlaying ? 1.0 : 0.0
@@ -566,27 +580,33 @@ final class PlaybackController: ObservableObject {
             }
             state = .loading
             var resumePosition: Double? = position > 0 ? position : nil
+            var startingPlayback = true
             engine.onState = { [weak self, weak engine] state in
                 guard let self, let engine, self.compatibility === engine else { return }
                 if state == .failed {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .playback, expectedPlaybackID: attemptID)
                     return
                 }
+                if state == .playing, self.interruptedPlaybackID == self.playbackID {
+                    engine.pause()
+                    self.isPlaying = false
+                    return
+                }
                 if state == .playing { self.startPendingPictureInPicture() }
+                let initialPlayback = startingPlayback && state == .playing
+                if state == .playing { startingPlayback = false }
                 if state == .playing, let position = resumePosition {
                     resumePosition = nil
                     self.restoreCompatibilityPosition(position, engine: engine)
                     return
                 }
                 if self.restoringCompatibilityPosition { return }
-                if state == .playing, self.pauseOnStart {
-                    self.pauseOnStart = false
-                    self.startupTask?.cancel(); self.startupTask = nil
-                    engine.pause()
-                    self.state = .paused
-                    self.isPlaying = false
+                if initialPlayback, self.pauseRequested {
+                    self.pause()
                     return
                 }
+                // After startup, a direct PiP Play request is authoritative.
+                if state == .playing { self.pauseRequested = false }
                 self.state = state
                 self.isPlaying = state == .playing
                 if self.isPlaying { self.startupTask?.cancel(); self.startupTask = nil }
@@ -625,13 +645,17 @@ final class PlaybackController: ObservableObject {
                 } else if item.status == .readyToPlay {
                     self.loadNativeTracks(item)
                     self.startPendingPictureInPicture()
-                    guard let position = self.nativeResumePosition else { self.refreshNativeTimeline(item); return }
-                    self.nativeResumePosition = nil
+                    guard let position = self.nativeResumePosition, self.pendingSeek == nil else { self.refreshNativeTimeline(item); return }
+                    let seekID = UUID()
+                    self.pendingSeek = seekID
                     self.player.seek(to: CMTime(seconds: position, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self, weak item] _ in
                         Task { @MainActor in
-                            guard let self, let item, self.player.currentItem === item else { return }
-                            if self.pauseOnStart { self.pauseOnStart = false; self.pause() }
-                            else { self.player.play() }
+                            guard let self, let item, self.player.currentItem === item, self.pendingSeek == seekID else { return }
+                            self.pendingSeek = nil
+                            self.nativeResumePosition = nil
+                            self.refreshNativeTimeline(item)
+                            if self.pauseRequested { self.pause() }
+                            else { self.resume() }
                         }
                     }
                 } else { self.refreshNativeTimeline(item) }
@@ -688,7 +712,7 @@ final class PlaybackController: ObservableObject {
         request = nil
         nativeResumePosition = nil
         restoringCompatibilityPosition = false
-        pauseOnStart = false
+        pauseRequested = false
         if let timeObserver { player.removeTimeObserver(timeObserver); self.timeObserver = nil }
         durationObservation = nil
         pendingSeek = nil
@@ -702,8 +726,8 @@ final class PlaybackController: ObservableObject {
         startupTask = nil
         waitingForExternalPlayback = false
         stallTask?.cancel(); stallTask = nil
-        interruptionItem = nil
-        wasPlayingBeforeInterruption = false
+        interruptedPlaybackID = nil
+        resumeAfterInterruption = false
         remoteTargets.forEach { $0.0.removeTarget($0.1); $0.0.isEnabled = false }; remoteTargets.removeAll()
         itemObservation = nil
         player.pause()
@@ -724,23 +748,30 @@ final class PlaybackController: ObservableObject {
         // VLC's start-time input option may jump to a later keyframe. Restore
         // with the same accurate seek path used by the timeline, after opening.
         restoringCompatibilityPosition = true
-        let stayPaused = pauseOnStart
-        pauseOnStart = false
         let seekID = UUID()
         pendingSeek = seekID
         currentTime = position
-        engine.pause()
+        // Keep an autoplaying decoder running while it seeks. Pausing it here
+        // can leave startup waiting for a frame that the decoder cannot produce.
+        if pauseRequested { engine.pause() }
         engine.seek(to: position) { [weak self, weak engine] in
             guard let self, let engine, self.compatibility === engine, self.pendingSeek == seekID else { return }
             self.pendingSeek = nil
             self.restoringCompatibilityPosition = false
             self.updateTimeline(time: Double(engine.mediaTime()) / 1000, length: Double(engine.mediaLength()) / 1000,
                                 seekable: engine.isMediaSeekable(), live: self.requestedLive)
-            if stayPaused {
-                self.startupTask?.cancel(); self.startupTask = nil
-                self.state = .paused
-                self.isPlaying = false
-            } else { engine.play() }
+            if self.pauseRequested { self.pause() }
+            else {
+                self.resume()
+                // An autoplaying seek need not change VLC's playing state,
+                // so there may be no new state callback after it completes.
+                if self.interruptedPlaybackID == nil, engine.isMediaPlaying() {
+                    self.state = .playing
+                    self.isPlaying = true
+                    self.startupTask?.cancel(); self.startupTask = nil
+                    MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
+                }
+            }
         }
     }
 
@@ -752,7 +783,7 @@ final class PlaybackController: ObservableObject {
         let previous = request
         let position = isLive ? 0 : currentTime
         let live = isLive
-        let paused = state == .paused || pauseOnStart
+        let paused = state == .paused || pauseRequested
         tvDevice = device
         if device == nil { casting?.stop(); CastPlayback.disconnect() }
         guard let previous, hasActivePlayback || state == .failed else { return }
@@ -818,7 +849,15 @@ final class PlaybackController: ObservableObject {
     }
 
     func resume() {
-        pauseOnStart = false
+        pauseRequested = false
+        if interruptedPlaybackID == playbackID {
+            resumeAfterInterruption = true
+            return
+        }
+        // AVPlayer must finish its initial seek before receiving Play. The
+        // completion reads the latest request, including an explicit resume.
+        guard nativeResumePosition == nil else { return }
+        if hasActivePlayback && !isPlaying { state = .loading }
         if let casting { casting.play() }
         else if let compatibility { compatibility.play() } else if player.currentItem != nil { player.play() }
     }
@@ -879,10 +918,12 @@ final class PlaybackController: ObservableObject {
     }
 
     private func pause() {
-        wasPlayingBeforeInterruption = false
+        pauseRequested = true
+        resumeAfterInterruption = false
         startupTask?.cancel(); startupTask = nil
         if let casting { casting.pause() }
         else if let compatibility { compatibility.pause() } else { player.pause() }
+        isPlaying = false
         state = .paused
     }
 
@@ -911,12 +952,12 @@ final class PlaybackController: ObservableObject {
         let retry = request
         let position = currentTime
         let live = isLive
-        let paused = state == .paused || pauseOnStart
+        let paused = state == .paused || pauseRequested
         stop()
         request = retry
         currentTime = position
         isLive = live
-        pauseOnStart = paused
+        pauseRequested = paused
         errorMessage = message
         state = .failed
         onFailure?(message)

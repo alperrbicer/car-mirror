@@ -1,6 +1,89 @@
 import XCTest
 
 final class ProductUITests: XCTestCase {
+    func testLandscapeColdLaunchStaysPortraitAndPlayerCanStillRotate() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-AppleLanguages", "(tr)",
+                               "-AppleLocale", "tr_TR", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
+        for orientation in [UIDeviceOrientation.landscapeLeft, .landscapeRight] {
+            app.terminate()
+            XCUIDevice.shared.orientation = orientation
+            app.launch()
+            XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 10))
+            XCTAssertGreaterThan(app.frame.height, app.frame.width, "A landscape-held phone must launch directly into portrait")
+            capture("cold-launch-held-\(orientation.rawValue)", app: app)
+            app.buttons["page-library"].tap()
+            let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-")).firstMatch
+            if !card.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
+            XCTAssertTrue(card.waitForExistence(timeout: 5)); card.tap()
+            let video = app.otherElements["player-video"]
+            XCTAssertTrue(video.waitForExistence(timeout: 10))
+            let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 10), .completed)
+            if app.buttons["Tamam"].waitForExistence(timeout: 2) { app.buttons["Tamam"].tap() }
+            let fullscreen = app.buttons["player-fullscreen"]
+            if !fullscreen.isHittable { video.tap() }
+            XCTAssertTrue(fullscreen.waitForExistence(timeout: 5)); fullscreen.tap()
+            let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width && video.frame.height < video.frame.width }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
+            capture("portrait-after-player-exit-\(orientation.rawValue)", app: app)
+        }
+    }
+
+    func testCarPlayDailyViewingLimitShowsProAndBlocksPhoneAfterRelaunch() {
+        checkViewingLimitOffer(limit: "carplay")
+    }
+
+    func testOverallDailyViewingLimitShowsProBeforeCarPlayRunsOut() {
+        checkViewingLimitOffer(limit: "daily")
+    }
+
+    private func checkViewingLimitOffer(limit: String) {
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-mirivo-ui-carplay",
+                               "-mirivo-ui-viewing-limit", limit, "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        XCUIDevice.shared.orientation = .portrait
+        app.launch()
+        defer {
+            app.terminate()
+            // The relaunch assertions deliberately leave a spent allowance.
+            // Reset synthetic data so the next test starts with a free budget.
+            app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+            app.launch()
+            app.terminate()
+        }
+        let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
+        app.buttons["page-library"].tap()
+        if !cards.firstMatch.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+        cards.firstMatch.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        let offer = app.otherElements["viewing-limit-offer"]
+        XCTAssertTrue(offer.waitForExistence(timeout: 25), "The first exhausted allowance should stop playback and open Pro")
+        let reason = limit == "carplay" ? "Bugünkü 1 saatlik CarPlay süren doldu." : "Bugünkü 2 saatlik ücretsiz izleme süren doldu."
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", reason)).firstMatch.exists)
+        capture("viewing-limit-\(limit)-pro", app: app)
+        app.buttons["pro-close"].tap()
+        let pro = app.buttons["viewing-limit-pro"]
+        XCTAssertTrue(pro.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["player-play-pause"].exists, "Playback controls must be unavailable after the allowance expires")
+        pro.tap()
+        XCTAssertTrue(offer.waitForExistence(timeout: 5))
+        app.buttons["pro-close"].tap()
+        app.terminate()
+        app.launchArguments.removeAll { $0 == "-mirivo-ui-carplay" }
+        app.launchArguments.append("-mirivo-ui-preserve-library")
+        app.launch()
+        app.buttons["page-library"].tap()
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10), "Stopping for the allowance must preserve Continue Watching")
+        cards.firstMatch.tap()
+        XCTAssertTrue(offer.waitForExistence(timeout: 10), "Removing CarPlay or relaunching must not restore today's allowance")
+        XCTAssertFalse(app.otherElements["player-video"].exists)
+        capture("viewing-limit-\(limit)-relaunch-phone", app: app)
+    }
+
     func testPhysicalNativePiPReturnInline() throws { try physicalPiPReturn(kind: "mp4", fullscreen: false) }
     func testPhysicalNativePiPReturnFullscreen() throws { try physicalPiPReturn(kind: "mp4", fullscreen: true) }
     func testPhysicalCompatibilityPiPReturnInline() throws { try physicalPiPReturn(kind: "mkv", fullscreen: false) }
@@ -66,6 +149,137 @@ final class ProductUITests: XCTestCase {
         }
     }
 
+    func testContinueWatchingLastCardOpensItsInlinePlayer() {
+        let app = launch(continuations: true)
+        defer { app.terminate() }
+        let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
+        let menus = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-menu-"))
+        let remove = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-remove-")).firstMatch
+        app.buttons["page-library"].tap()
+        // A preceding accessibility-size launch can still be settling its
+        // restored layout when XCTest sends the first tab tap.
+        if !cards.firstMatch.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
+        guard cards.firstMatch.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
+        for remaining in stride(from: 5, through: 2, by: -1) {
+            menus.firstMatch.tap()
+            XCTAssertTrue(remove.waitForExistence(timeout: 5))
+            XCTAssertTrue(remove.isHittable, "The native menu action must remain tappable")
+            XCTAssertLessThan(remove.frame.width, app.frame.width)
+            if remaining == 5 { capture("continue-watching-remove-popover", app: app) }
+            remove.tap()
+            let updated = NSPredicate { _, _ in cards.count == min(remaining - 1, 3) && !remove.exists }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: updated, object: app)], timeout: 5), .completed)
+        }
+        XCTAssertEqual(cards.count, 1)
+        XCTAssertFalse(app.buttons["continue-watching-all"].exists)
+        cards.firstMatch.tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10), "Removing the active card must not remove the player navigation destination")
+        XCTAssertTrue(app.navigationBars["Kıyı Hikâyeleri S01-E02"].exists)
+        XCTAssertGreaterThan(app.frame.height, app.frame.width)
+        XCTAssertLessThan(video.frame.height, video.frame.width, "Continuation starts in the small inline player")
+        XCTAssertTrue(app.buttons["player-fullscreen"].exists)
+        let resumed = NSPredicate { _, _ in
+            let parts = (app.sliders["Oynatma konumu"].value as? String ?? "").split(separator: ":").compactMap { Double($0) }
+            return parts.count == 2 && parts[0] * 60 + parts[1] >= 30
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
+        capture("continue-watching-single-inline-player", app: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["now-playing-open"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.otherElements["continue-watching-section"].exists)
+        app.buttons["now-playing-open"].tap()
+        XCTAssertTrue(video.waitForExistence(timeout: 5))
+    }
+
+    func testColdStartContinuationAutomaticallyPlaysNativeInline() {
+        checkColdStartContinuationAutoplay(compatibility: false)
+    }
+
+    func testColdStartContinuationAutomaticallyPlaysCompatibilityInline() {
+        checkColdStartContinuationAutoplay(compatibility: true)
+    }
+
+    private func checkColdStartContinuationAutoplay(compatibility: Bool) {
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-mirivo-ui-delayed-continuation",
+                               "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
+                               "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
+        if compatibility { app.launchArguments.append("-mirivo-ui-compatibility-continuation") }
+        defer { app.terminate() }
+        for attempt in 0..<3 {
+            XCUIDevice.shared.orientation = .portrait
+            app.launch()
+            let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
+            app.buttons["page-library"].tap()
+            if !cards.firstMatch.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
+            guard cards.firstMatch.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+            cards.firstMatch.tap()
+            let video = app.otherElements["player-video"]
+            XCTAssertTrue(video.waitForExistence(timeout: 10))
+            XCTAssertGreaterThan(app.frame.height, app.frame.width)
+            XCTAssertLessThan(video.frame.height, video.frame.width, "Continue Watching must open the portrait inline player")
+            let timeline = app.sliders["Oynatma konumu"]
+            func position() -> Double {
+                let parts = (timeline.value as? String ?? "").split(separator: ":").compactMap { Double($0) }
+                return parts.count == 2 ? parts[0] * 60 + parts[1] : -1
+            }
+            let playing = NSPredicate { _, _ in
+                app.buttons["player-play-pause"].exists && app.buttons["player-play-pause"].label == "Duraklat" && position() >= 43
+            }
+            guard XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: playing, object: app)], timeout: 30) == .completed else {
+                capture("autoplay-start-failed-\(compatibility)-\(attempt)", app: app)
+                XCTFail("Continuation never began playing: \(app.debugDescription)")
+                return
+            }
+            let start = position()
+            let advancing = NSPredicate { _, _ in position() >= start + 2 }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: advancing, object: app)], timeout: 8), .completed,
+                           "Autoplay must advance without another tap on Play")
+            capture("autoplay-cold-\(compatibility ? "mkv" : "mp4")-\(attempt)", app: app)
+            app.terminate()
+            if attempt == 0 { app.launchArguments.append("-mirivo-ui-preserve-library") }
+        }
+    }
+
+    func testStoppingPlaybackKeepsContinuationAcrossRelaunch() {
+        let app = launch(continuations: true)
+        defer { app.terminate() }
+        app.buttons["page-library"].tap()
+        let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
+        if !cards.firstMatch.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
+        guard cards.firstMatch.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
+        let savedID = cards.firstMatch.identifier
+        cards.firstMatch.tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        let position = app.sliders["Oynatma konumu"]
+        let resumed = NSPredicate { _, _ in
+            let parts = (position.value as? String ?? "").split(separator: ":").compactMap { Double($0) }
+            return parts.count == 2 && parts[0] * 60 + parts[1] >= 42
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
+        let pause = app.buttons["player-play-pause"]
+        if !pause.isHittable { video.tap() }
+        if pause.label == "Duraklat" { pause.tap() }
+        let stop = app.buttons["stop-player-playback"]
+        reveal(stop, in: app)
+        XCTAssertTrue(stop.isHittable); stop.tap()
+        let savedCard = app.buttons[savedID]
+        XCTAssertTrue(savedCard.waitForExistence(timeout: 5), "Stopping must return this content to Continue Watching")
+        XCTAssertFalse(app.buttons["now-playing-open"].exists)
+        capture("continue-watching-after-stop", app: app)
+        app.terminate()
+        app.launchArguments.append("-mirivo-ui-preserve-library")
+        app.launch()
+        app.buttons["page-library"].tap()
+        XCTAssertTrue(savedCard.waitForExistence(timeout: 10), "The stopped content must remain saved after relaunch")
+        savedCard.tap()
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
+        capture("continue-watching-resumed-after-stop", app: app)
+    }
+
     func testContinueWatchingIsCompactSearchableRemovableAndResumesAfterRelaunch() {
         let app = launch(continuations: true)
         defer { app.terminate() }
@@ -101,7 +315,10 @@ final class ProductUITests: XCTestCase {
         app.buttons["continue-watching-all"].tap()
         XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5)); XCTAssertEqual(rows.count, 4)
         rows.firstMatch.tap()
-        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        XCTAssertGreaterThan(app.frame.height, app.frame.width)
+        XCTAssertLessThan(video.frame.height, video.frame.width)
         let resumed = NSPredicate { _, _ in
             let value = app.sliders["Oynatma konumu"].value as? String ?? ""
             let parts = value.split(separator: ":").compactMap { Double($0) }
@@ -113,6 +330,46 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.buttons["now-playing-open"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "Şimdi oynatılıyor")).count, 1, "Active playback belongs in the bottom bar only")
         capture("continue-watching-with-active-player", app: app)
+    }
+
+    func testChannelSearchDismissesKeyboardWithoutClearingQuery() {
+        for large in [false, true] {
+            let app = launch(large: large, continuations: true)
+            defer { app.terminate() }
+            let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Mirivo Demo", "Oynatma listesi")).firstMatch
+            app.buttons["page-library"].tap()
+            if !source.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
+            guard source.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
+            reveal(source, in: app)
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            let search = app.searchFields["channel-search-field"]
+            if !search.waitForExistence(timeout: 3), source.isHittable {
+                source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+            }
+            XCTAssertTrue(search.waitForExistence(timeout: 5))
+            search.tap(); search.typeText("02")
+            let keyboard = app.keyboards.firstMatch
+            XCTAssertTrue(keyboard.waitForExistence(timeout: 5))
+            let result = app.buttons.matching(NSPredicate(format: "label == %@", "Mirivo Demo 02")).firstMatch
+            XCTAssertTrue(result.waitForExistence(timeout: 5))
+            let dismissKeyboard = app.buttons["dismiss-channel-search-keyboard"]
+            XCTAssertTrue(dismissKeyboard.isHittable)
+            XCTAssertEqual(dismissKeyboard.label, "Klavyeyi kapat")
+            capture("channel-search-keyboard-\(large)", app: app)
+            dismissKeyboard.tap()
+            let hidden = NSPredicate { _, _ in !keyboard.exists }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: hidden, object: app)], timeout: 5), .completed)
+            XCTAssertEqual(search.value as? String, "02")
+            XCTAssertTrue(result.exists, "Dismissing the keyboard must preserve the filtered results")
+            XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label == %@", "Mirivo Demo 01")).firstMatch.exists)
+            capture("channel-search-dismissed-\(large)", app: app)
+            search.tap()
+            XCTAssertTrue(keyboard.waitForExistence(timeout: 5))
+            XCTAssertEqual(search.value as? String, "02")
+            search.typeText("\n")
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: hidden, object: app)], timeout: 5), .completed)
+            XCTAssertEqual(search.value as? String, "02")
+        }
     }
 
     func testPlaybackQueueSearchSelectsAnotherChannel() {
@@ -204,6 +461,15 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(card.isHittable)
         if card.frame.maxY > app.frame.maxY - 80 { app.swipeUp() }
         capture("continue-watching-large-text", app: app)
+        let menu = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-menu-")).firstMatch
+        reveal(menu, in: app)
+        menu.tap()
+        let remove = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-remove-")).firstMatch
+        XCTAssertTrue(remove.waitForExistence(timeout: 5))
+        XCTAssertTrue(remove.isHittable)
+        XCTAssertGreaterThanOrEqual(remove.frame.minX, app.frame.minX)
+        XCTAssertLessThanOrEqual(remove.frame.maxX, app.frame.maxX)
+        capture("continue-watching-remove-large-text", app: app)
     }
     func testSourceRefreshCompletesWhenProviderReturnsImmediately() {
         let app = launch()
@@ -436,12 +702,71 @@ final class ProductUITests: XCTestCase {
         capture("store-\(language)-05-xtream", app: editor)
         editor.terminate()
     }
+    func testPortraitPlayerOptionsTimeoutRestartsWhenReopened() {
+        continueAfterFailure = false
+        let app = launch()
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
+        let home = app.buttons["page-mirror"]
+        XCTAssertTrue(home.waitForExistence(timeout: 10))
+        for _ in 0..<3 {
+            if home.isSelected { break }
+            home.tap()
+            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: home)
+            if XCTWaiter.wait(for: [selected], timeout: 2) == .completed { break }
+        }
+        XCTAssertTrue(home.isSelected)
+        reveal(app.buttons["share-link"], in: app)
+        app.buttons["share-link"].tap()
+        let url = app.textFields["quick-media-url"]
+        XCTAssertTrue(url.waitForExistence(timeout: 5))
+        url.tap(); url.typeText("http://127.0.0.1:8769/tracks/options.mp4")
+        app.buttons["quick-media-play"].tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 15))
+        let pause = app.buttons["player-play-pause"]
+        let playing = NSPredicate { _, _ in pause.exists && pause.label == "Duraklat" }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: playing, object: app)], timeout: 15), .completed)
+        pause.tap()
+        app.buttons["player-fullscreen"].tap()
+        let fullscreen = NSPredicate { _, _ in video.frame.height > video.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: fullscreen, object: app)], timeout: 5), .completed)
+        app.buttons["tv-connection"].tap()
+        let connection = app.navigationBars["Ekran bağlantısı"]
+        XCTAssertTrue(connection.waitForExistence(timeout: 5))
+        app.buttons["Kapat"].tap()
+        XCTAssertTrue(connection.waitForNonExistence(timeout: 5))
+        let options = app.buttons["player-options"]
+        XCTAssertTrue(options.waitForExistence(timeout: 5))
+        let stop = app.buttons["Durdur"]
+        // UIKit can report no AX hit point while returning from the sheet.
+        // Exercise the visible button's actual touch position instead.
+        XCTAssertTrue(video.frame.contains(options.frame))
+        options.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(stop.waitForExistence(timeout: 3))
+        capture("player-options-portrait-timeout", app: app)
+        Thread.sleep(forTimeInterval: 7)
+        XCTAssertTrue(stop.isHittable)
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.75)).tap()
+        XCTAssertTrue(stop.waitForNonExistence(timeout: 3))
+        options.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(stop.waitForExistence(timeout: 3))
+        // Crossing the first opening's deadline must not close the reopened menu.
+        Thread.sleep(forTimeInterval: 10)
+        XCTAssertTrue(stop.isHittable)
+        XCTAssertTrue(stop.waitForNonExistence(timeout: 6), "The reopened menu must close after its own 15-second timeout")
+        capture("player-options-portrait-dismissed", app: app)
+        options.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(stop.waitForExistence(timeout: 3))
+        app.buttons["Kontrolleri kilitle"].tap()
+        XCTAssertTrue(app.buttons["unlock-player-controls"].waitForExistence(timeout: 3))
+    }
+
     func testPlayerModesGesturesAndControlLayout() {
         let app = launch()
         defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
         guard openSourceEditor(in: app) else { return }
         app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Player QA")
-        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
+        app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u?long=1")
         app.buttons["Ekle"].tap()
         let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Player QA", "Oynatma listesi")).firstMatch
         guard source.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
@@ -515,13 +840,17 @@ final class ProductUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 5)
         XCTAssertTrue(app.buttons["Görüntüyü sığdır"].isHittable, "The popover must survive the old four-second timeout")
         app.buttons["Görüntüyü sığdır"].tap()
-        pause.tap()
-        // A paused fixture lets us verify the full menu timeout without ending
-        // this short video. It must stay open near 30s and then dismiss itself.
+        if pause.label == "Duraklat" {
+            // AVKit can report no AX hit point immediately after a popover closes.
+            pause.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+        let paused = NSPredicate { _, _ in pause.exists && pause.label == "Oynat" }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: paused, object: app)], timeout: 5), .completed)
+        // Confirm the video is paused before measuring the 15-second timeout.
         app.buttons["player-options"].tap()
         let stopOption = app.buttons["Durdur"]
         XCTAssertTrue(stopOption.waitForExistence(timeout: 3))
-        Thread.sleep(forTimeInterval: 27)
+        Thread.sleep(forTimeInterval: 10)
         XCTAssertTrue(stopOption.isHittable)
         let optionsClosed = NSPredicate { _, _ in !stopOption.exists }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: optionsClosed, object: stopOption)], timeout: 6), .completed)
@@ -619,7 +948,7 @@ final class ProductUITests: XCTestCase {
         let scenarios = [
             ("active", false, "IPTV bitişi:", "2100"),
             ("expired", true, "IPTV süresi doldu:", "2023"),
-            ("unknown", false, "Bitiş tarihi paylaşılmıyor", ""),
+            ("unknown", false, "Bitiş tarihi belirtilmemiş", ""),
             ("error", false, "Bitiş tarihi alınamadı", "")
         ]
         for (scenario, xtream, prefix, year) in scenarios {
@@ -781,8 +1110,8 @@ final class ProductUITests: XCTestCase {
             if !navigation.waitForExistence(timeout: 3), status.isHittable { status.tap() }
             guard navigation.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
             let text = videoSupported
-                ? "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir."
-                : "Bu araç CarPlay video oynatmayı desteklemiyor."
+                ? "Aracın destekliyorsa park halindeyken CarPlay ile video izleyebilirsin."
+                : "Bu araç CarPlay ile video oynatmayı desteklemiyor."
             reveal(app.staticTexts[text], in: app)
             XCTAssertTrue(app.staticTexts[text].isHittable)
             XCTAssertFalse(app.staticTexts["AirPlay ekranı"].exists)
@@ -791,7 +1120,7 @@ final class ProductUITests: XCTestCase {
             reveal(disconnect, in: app)
             XCTAssertTrue(disconnect.isHittable)
             disconnect.tap()
-            let help = app.alerts["Bağlantıyı kesme adımları"]
+            let help = app.alerts["Bağlantıyı nasıl keserim?"]
             if !help.waitForExistence(timeout: 3), disconnect.isHittable { disconnect.tap() }
             guard help.waitForExistence(timeout: 5) else {
                 XCTFail(app.debugDescription)
@@ -838,10 +1167,10 @@ final class ProductUITests: XCTestCase {
             XCTAssertTrue(disconnect.waitForExistence(timeout: 5))
             XCTAssertTrue(app.staticTexts[carPlay ? "CarPlay bağlı" : "Harici ekran"].exists)
             XCTAssertFalse(app.staticTexts["AirPlay ekranı"].exists)
-            XCTAssertFalse(app.staticTexts["Bu araç CarPlay video oynatmayı desteklemiyor."].exists)
+            XCTAssertFalse(app.staticTexts["Bu araç CarPlay ile video oynatmayı desteklemiyor."].exists)
             capture(carPlay ? "route-carplay-status" : "route-tv-status", app: app)
             disconnect.tap()
-            let alert = app.alerts["Bağlantıyı kesme adımları"]
+            let alert = app.alerts["Bağlantıyı nasıl keserim?"]
             XCTAssertTrue(alert.waitForExistence(timeout: 3))
             XCTAssertTrue(alert.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", carPlay ? "CarPlay Simulator" : "Yansıtmayı Durdur")).firstMatch.exists)
             capture(carPlay ? "route-carplay-disconnect" : "route-tv-disconnect", app: app)
@@ -1247,7 +1576,7 @@ final class ProductUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(app.buttons["open-settings"].frame.height, 44)
         capture("01-mirivo-home-tr", app: app)
         app.buttons["page-library"].tap()
-        XCTAssertTrue(app.staticTexts["Kaynakların burada"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["İlk kaynağını ekle"].waitForExistence(timeout: 5))
         capture("02-mirivo-sources-tr", app: app)
         let addSource = app.buttons["add-source"]
         reveal(addSource, in: app)
@@ -1281,7 +1610,7 @@ final class ProductUITests: XCTestCase {
         confirm?.tap()
         app.buttons["close-settings"].tap()
         app.buttons["page-library"].tap()
-        XCTAssertTrue(app.staticTexts["Kaynakların burada"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["İlk kaynağını ekle"].waitForExistence(timeout: 5))
     }
     func testProAnnualAndLifetimePlans() {
         for language in ["tr", "en"] {

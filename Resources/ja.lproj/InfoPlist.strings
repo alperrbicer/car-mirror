@@ -1,1 +1,1 @@
-"NSLocalNetworkUsageDescription" = "同じWi-Fi上のテレビの検出、テレビや車載画面への映像・画面配信、および選択したローカルメディアへの接続に使用します。";
+"NSLocalNetworkUsageDescription" = "Mirivoはローカルネットワークを使って、同じWi-Fi上のテレビを検出し、選択したローカルメディアに接続します。このネットワーク経由で、テレビや車載画面に動画や画面を配信します。";

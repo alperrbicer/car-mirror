@@ -1,1 +1,1 @@
-"NSLocalNetworkUsageDescription" = "用于发现同一 Wi-Fi 网络上的电视，将视频和屏幕传输到电视或车载屏幕，以及连接所选的本地媒体源。";
+"NSLocalNetworkUsageDescription" = "Mirivo 通过本地网络查找同一 Wi-Fi 上的电视，并连接你选择的本地媒体源。视频和屏幕内容也会通过此网络传输到电视或车载屏幕。";

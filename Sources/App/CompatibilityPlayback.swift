@@ -27,6 +27,8 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     private var active = false
     private var stoppingRetention: CompatibilityPlayback?
     private var hasPlayed = false
+    private var awaitingPause = false
+    private var resumeAfterPause = false
     private var errorConfirmationTask: Task<Void, Never>?
     private var videoHosts: [WeakVideoHost] = []
     private struct SeekRequest {
@@ -56,6 +58,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     }
     func open(_ url: URL) {
         active = true; hasPlayed = false
+        awaitingPause = false; resumeAfterPause = false
         let media = VLCMedia(url: url)
         if !url.isFileURL && url.pathExtension.lowercased() == "mkv" {
             // Use the Matroska cue index for remote seeks instead of scanning
@@ -67,6 +70,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     }
     func stop() {
         active = false
+        awaitingPause = false; resumeAfterPause = false
         errorConfirmationTask?.cancel(); errorConfirmationTask = nil
         videoView.prepareForPictureInPicture()
         seekTask?.cancel(); seekTask = nil
@@ -89,8 +93,20 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         pip = nil
         stoppingRetention = nil
     }
-    func play() { guard active else { return }; mediaPlayer.play() }
-    func pause() { mediaPlayer.pause() }
+    func play() {
+        guard active else { return }
+        // VLC applies Pause asynchronously. A Play sent before that state
+        // arrives can be consumed while the decoder still considers itself
+        // playing. Apply the latest request when Pause is acknowledged.
+        if awaitingPause { resumeAfterPause = true; return }
+        mediaPlayer.play()
+    }
+    func pause() {
+        guard active else { return }
+        resumeAfterPause = false
+        if mediaPlayer.canPause && mediaPlayer.state != .paused { awaitingPause = true }
+        mediaPlayer.pause()
+    }
     @discardableResult
     func startPictureInPicture() -> Bool {
         guard active, pipPossible, !pipActive, !pipStarting,
@@ -324,7 +340,12 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             switch self.mediaPlayer.state {
             case .opening: self.onState?(.loading)
             case .playing: self.hasPlayed = true; self.onState?(.playing)
-            case .paused: self.onState?(.paused)
+            case .paused:
+                self.awaitingPause = false
+                if self.resumeAfterPause {
+                    self.resumeAfterPause = false
+                    self.mediaPlayer.play()
+                } else { self.onState?(.paused) }
             case .error: self.onState?(.failed)
             case .stopped: if self.hasPlayed { self.onFinished?() }
             default: break
@@ -550,7 +571,7 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
         }
     }
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool) {
-        guard let engine, engine.isMediaPlaying() != playing else { return }
+        guard let engine else { return }
         if playing { engine.play() } else { engine.pause() }
     }
     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool {

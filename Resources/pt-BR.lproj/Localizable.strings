@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "Um player amplo, controles grandes e uma tela sem distrações.";
 "Gizlilik" = "Privacidade";
 "Gizlilik Politikası" = "Política de Privacidade";
-"Görüntü bağlanıyor" = "Conectando vídeo";
+"Görüntü bağlanıyor" = "Conectando…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Não foi possível iniciar o vídeo. Tente novamente.";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Não foi possível reproduzir o vídeo. Tente novamente.";
 "Görüntüyle birlikte" = "Junto com o vídeo";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "Fontes";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "Não foi possível abrir suas fontes. Tente novamente.";
 "Kaynaklar silinemedi. Yeniden dene." = "Não foi possível excluir suas fontes. Tente novamente.";
-"Kaynakların burada" = "Suas fontes ficam aqui";
+"Kaynakların burada" = "Adicione sua primeira fonte";
 "Kayıtlar temizlendi" = "Registros apagados";
 "Kayıtlar temizlenemedi." = "Não foi possível apagar os registros.";
 "Kayıtları temizle" = "Apagar registros";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "Tempo restante hoje: %d min";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Você atingiu o limite diário de 2 horas. Poderá assistir novamente amanhã.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Suas 2 horas de exibição gratuita de hoje acabaram. Volte amanhã ou assine o Pro para continuar sem limite de tempo.";
 
-"Ücretsiz izleme günde 2 saat." = "A versão gratuita inclui 2 horas de reprodução por dia.";
+"Ücretsiz izleme günde 2 saat." = "Você pode assistir grátis por um total de 2 horas por dia, com no máximo 1 hora no CarPlay. Ao atingir qualquer um dos limites, a exibição gratuita termina naquele dia.";
 
 "Sınırsız izleme" = "Reprodução ilimitada";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "As fotos viram uma apresentação em 1080p no seu dispositivo. Os originais não são alterados.";
 "Nasıl bağlanırım?" = "Como conectar?";
 "Büyük ekranda daha fazlası." = "Mais na tela grande.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Suas lembranças, vídeos e músicas. Escolha uma tela e comece a compartilhar.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Escolha uma tela para compartilhar suas lembranças, vídeos e músicas.";
 "Google Cast araması kullanılamıyor." = "A busca do Google Cast não está disponível.";
 "Ayarları aç" = "Abrir Ajustes";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Escolha um conteúdo. Pause ou mude a conexão da TV pelo reprodutor.";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "Permita notificações nos Ajustes do iOS.";
 "Bildirimler hazırlanıyor…" = "Configurando notificações…";
 "Bildirimler açık." = "As notificações estão ativadas.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Falha no registro de notificações. Tente novamente.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Não foi possível contatar o servidor para desativá-las. Tentaremos novamente ao conectar.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Não foi possível ativar as notificações. Tente novamente.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Não foi possível contatar o servidor para desativar as notificações. O Mirivo tentará novamente quando houver conexão.";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Receba anúncios de versões e produtos. Suas mídias e endereços de fontes não são enviados ao servidor de notificações.";
 "iOS Ayarlarını aç" = "Abrir Ajustes do iOS";
 "Güncelleme gerekli" = "Atualização necessária";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "Remover da lista";
 "İçerik bulunamadı" = "Nenhum conteúdo encontrado";
 "Film veya dizi ara" = "Buscar filmes ou séries";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "Não foi possível remover o registro. Tente novamente.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Não foi possível remover este conteúdo da lista. Tente novamente.";
 
 "İndirilenler" = "Downloads";
 "Çevrimdışı izlemeye hazır" = "Pronto para assistir off-line";
@@ -330,7 +330,7 @@
 "Sıkıştırıp yakınlaştır: ekranı doldur" = "Afaste os dedos para preencher a tela";
 "Sıkıştırıp uzaklaştır: normal görünüme dön" = "Junte os dedos para voltar à exibição normal";
 "Hareket tanıtımını yeniden göster" = "Mostrar introdução aos gestos novamente";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Mostre novamente no player os gestos de volume, brilho e tela.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Mostre novamente as dicas de gestos para volume, brilho e tela no player.";
 
 "Araç video desteği" = "Suporte a vídeo do veículo";
 "CarPlay bağlı" = "CarPlay conectado";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "Iniciar teste de vídeo do CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Conecte ao CarPlay e abra o app na tela do carro.";
 "Araç bağlantısında hatırlat" = "Lembrar ao conectar ao carro";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Envia um único lembrete no celular quando uma nova sessão do CarPlay é detectada. As informações de conexão ao carro não são enviadas a um servidor.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Você recebe um único lembrete no celular quando uma nova sessão do CarPlay é detectada. As informações de conexão ao carro não são enviadas a um servidor.";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "O vídeo do CarPlay está disponível em veículos compatíveis enquanto estão estacionados.";
 
 "AirPlay ekranı" = "Tela AirPlay";
 "AirPlay hedefini değiştir" = "Alterar destino do AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Use o menu do sistema abaixo para alterar o destino do AirPlay ou voltar ao iPhone.";
 "Bağlı" = "Conectado";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Seu tempo gratuito de reprodução de hoje foi redefinido. Você pode assistir por até 2 horas hoje.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Seu tempo gratuito foi redefinido: hoje são 2 horas no total, com no máximo 1 hora no CarPlay.";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Redefinir o tempo gratuito de reprodução de hoje?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Para parar de espelhar a tela, abra Espelhamento de Tela na Central de Controle do iOS e desconecte.";
 "Oynatma durduruldu, TV bağlantısı açık" = "Reprodução interrompida; a TV continua conectada";
 "TV bağlantısı açık" = "A TV está conectada";
 "TV bağlantısını kes" = "Desconectar da TV";
-"TV’den ayrıl" = "Sair da TV";
+"TV’den ayrıl" = "Desconectar da TV";
 "Video seçenekleri" = "Opções de vídeo";
 "Sıfırla" = "Redefinir";
 "İptal" = "Cancelar";
@@ -411,3 +411,10 @@
 "Dizi ara" = "Buscar séries";
 "Bu içerik için açıklama bulunamadı." = "Nenhuma descrição foi encontrada para este conteúdo.";
 "İçerik bilgileri yüklenemedi." = "Não foi possível carregar as informações do conteúdo.";
+"Klavyeyi kapat" = "Ocultar teclado";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay hoje: restam %d min";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "Você usou sua 1 hora de CarPlay de hoje. Volte amanhã ou assine o Pro para continuar sem limite de tempo.";
+
+"Bugünkü ücretsiz süren doldu" = "Seu tempo gratuito de hoje acabou";

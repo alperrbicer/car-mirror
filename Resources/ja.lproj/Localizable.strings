@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "大きなプレーヤーと操作ボタンで、すっきり見やすく。";
 "Gizlilik" = "プライバシー";
 "Gizlilik Politikası" = "プライバシーポリシー";
-"Görüntü bağlanıyor" = "映像を接続中";
+"Görüntü bağlanıyor" = "接続中…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "映像を開始できません。もう一度お試しください。";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "映像を再生できません。もう一度お試しください。";
 "Görüntüyle birlikte" = "映像と一緒に";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "ソース";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "ソースを開けません。もう一度お試しください。";
 "Kaynaklar silinemedi. Yeniden dene." = "ソースを削除できません。もう一度お試しください。";
-"Kaynakların burada" = "ソースはここに表示されます";
+"Kaynakların burada" = "最初のソースを追加";
 "Kayıtlar temizlendi" = "ログを消去しました";
 "Kayıtlar temizlenemedi." = "ログを消去できません。";
 "Kayıtları temizle" = "ログを消去";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "本日の残り時間：%d分";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "1日2時間の視聴上限に達しました。明日また視聴できます。";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "今日の無料視聴時間2時間を使い切りました。明日また視聴するか、Proにアップグレードすると時間制限なしで続けられます。";
 
-"Ücretsiz izleme günde 2 saat." = "無料版では1日2時間視聴できます。";
+"Ücretsiz izleme günde 2 saat." = "無料で1日合計2時間、そのうちCarPlayでは最大1時間視聴できます。どちらかの上限に達すると、その日の無料視聴は終了します。";
 
 "Sınırsız izleme" = "視聴時間の制限なし";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "端末内で1080pのスライドショーを作成します。元の写真は変更されません。";
 "Nasıl bağlanırım?" = "接続方法は？";
 "Büyük ekranda daha fazlası." = "大画面でもっと楽しもう。";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "思い出、動画、音楽を。画面を選んで共有を始めましょう。";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "画面を選んで、思い出や動画、音楽を共有しましょう。";
 "Google Cast araması kullanılamıyor." = "Google Cast の検索を利用できません。";
 "Ayarları aç" = "設定を開く";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "コンテンツを選びましょう。プレーヤーから一時停止やテレビ接続の変更ができます。";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "iOSの設定で通知を許可してください。";
 "Bildirimler hazırlanıyor…" = "通知を設定中…";
 "Bildirimler açık." = "通知はオンです。";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "通知の登録に失敗しました。再試行してください。";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "通知をオフにするためのサーバーに接続できませんでした。接続時に再試行します。";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "通知を有効にできませんでした。もう一度お試しください。";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "通知をオフにするためにサーバーに接続できませんでした。接続が回復したら再試行します。";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "バージョンや製品のお知らせを受け取ります。メディアやソースのアドレスは通知サーバーに送信されません。";
 "iOS Ayarlarını aç" = "iOSの設定を開く";
 "Güncelleme gerekli" = "アップデートが必要です";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "リストから削除";
 "İçerik bulunamadı" = "コンテンツが見つかりません";
 "Film veya dizi ara" = "映画やシリーズを検索";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "視聴記録を削除できませんでした。もう一度お試しください。";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "このコンテンツをリストから削除できませんでした。もう一度お試しください。";
 
 "İndirilenler" = "ダウンロード";
 "Çevrimdışı izlemeye hazır" = "オフライン再生の準備完了";
@@ -327,10 +327,10 @@
 "İndir" = "ダウンロード";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "プロバイダがダウンロードを許可しているコンテンツのみダウンロードしてください。DRMで保護された配信には対応していません。";
-"Sıkıştırıp yakınlaştır: ekranı doldur" = "ピンチアウトで画面いっぱいに表示";
-"Sıkıştırıp uzaklaştır: normal görünüme dön" = "ピンチインで通常表示に戻る";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "指を広げて画面いっぱいに表示";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "指を閉じて通常表示に戻る";
 "Hareket tanıtımını yeniden göster" = "ジェスチャーの案内を再表示";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "音量、明るさ、画面のジェスチャーをプレーヤーに再表示します。";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "プレーヤーで音量、明るさ、画面表示を調整するジェスチャーの案内を再表示します。";
 
 "Araç video desteği" = "車のビデオ対応";
 "CarPlay bağlı" = "CarPlay接続済み";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "CarPlayビデオテストを開始";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "CarPlayに接続し、車載画面でアプリを開いてください。";
 "Araç bağlantısında hatırlat" = "車に接続したときに通知";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "新しい CarPlay セッションが検出されると、スマートフォンに一度だけ通知します。車との接続情報はサーバーに送信されません。";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "新しいCarPlayセッションを検出すると、スマートフォンに一度だけ通知します。車との接続情報はサーバーに送信しません。";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "CarPlayビデオは、対応車両の駐車中に利用できます。";
 
 "AirPlay ekranı" = "AirPlay画面";
 "AirPlay hedefini değiştir" = "AirPlayの接続先を変更";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "下のシステムメニューでAirPlayの接続先を変更するか、iPhoneに戻してください。";
 "Bağlı" = "接続済み";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "今日の無料視聴時間をリセットしました。今日は最大2時間視聴できます。";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "無料視聴時間をリセットしました。今日は合計2時間、そのうちCarPlayでは最大1時間視聴できます。";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "今日の無料視聴時間をリセットしますか？";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "画面ミラーリングを停止するには、iOSのコントロールセンターで「画面ミラーリング」を開き、接続を解除してください。";
 "Oynatma durduruldu, TV bağlantısı açık" = "再生を停止しました。テレビへの接続は維持されています";
 "TV bağlantısı açık" = "テレビに接続中";
 "TV bağlantısını kes" = "テレビとの接続を解除";
-"TV’den ayrıl" = "テレビから切断";
+"TV’den ayrıl" = "テレビとの接続を解除";
 "Video seçenekleri" = "ビデオオプション";
 "Sıfırla" = "リセット";
 "İptal" = "キャンセル";
@@ -411,3 +411,10 @@
 "Dizi ara" = "シリーズを検索";
 "Bu içerik için açıklama bulunamadı." = "このコンテンツの説明は見つかりませんでした。";
 "İçerik bilgileri yüklenemedi." = "コンテンツ情報を読み込めませんでした。";
+"Klavyeyi kapat" = "キーボードを閉じる";
+
+"CarPlay’de bugün kalan: %d dk" = "今日のCarPlay：残り%d分";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "今日のCarPlayの視聴時間1時間を使い切りました。明日また視聴するか、Proにアップグレードすると時間制限なしで続けられます。";
+
+"Bugünkü ücretsiz süren doldu" = "今日の無料視聴時間を使い切りました";

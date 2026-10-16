@@ -40,7 +40,7 @@
 "Geniş oynatıcı, büyük kontroller ve sade bir izleme alanı." = "Trình phát rộng rãi, nút điều khiển lớn và khu vực xem gọn gàng.";
 "Gizlilik" = "Quyền riêng tư";
 "Gizlilik Politikası" = "Chính sách quyền riêng tư";
-"Görüntü bağlanıyor" = "Đang kết nối video";
+"Görüntü bağlanıyor" = "Đang kết nối…";
 "Görüntü başlatılamadı. Yeniden deneyebilirsin." = "Không thể bắt đầu video. Hãy thử lại.";
 "Görüntü oynatılamadı. Yeniden deneyebilirsin." = "Không thể phát video. Hãy thử lại.";
 "Görüntüyle birlikte" = "Cùng video";
@@ -69,7 +69,7 @@
 "Kaynaklar" = "Nguồn";
 "Kaynaklar açılamadı. Lütfen yeniden dene." = "Không thể mở các nguồn của bạn. Hãy thử lại.";
 "Kaynaklar silinemedi. Yeniden dene." = "Không thể xóa các nguồn của bạn. Hãy thử lại.";
-"Kaynakların burada" = "Nguồn của bạn ở đây";
+"Kaynakların burada" = "Thêm nguồn đầu tiên";
 "Kayıtlar temizlendi" = "Đã xóa nhật ký";
 "Kayıtlar temizlenemedi." = "Không thể xóa nhật ký.";
 "Kayıtları temizle" = "Xóa nhật ký";
@@ -180,9 +180,9 @@
 
 "Bugün kalan: %d dk" = "Còn lại hôm nay: %d phút";
 
-"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Bạn đã đạt giới hạn xem 2 giờ mỗi ngày. Bạn có thể xem tiếp vào ngày mai.";
+"Günlük 2 saatlik izleme sınırına ulaştın. Yarın yeniden izleyebilirsin." = "Bạn đã dùng hết 2 giờ xem miễn phí hôm nay. Hãy quay lại vào ngày mai hoặc nâng cấp lên Pro để xem tiếp không giới hạn thời gian.";
 
-"Ücretsiz izleme günde 2 saat." = "Xem miễn phí 2 giờ mỗi ngày.";
+"Ücretsiz izleme günde 2 saat." = "Bạn có tổng cộng 2 giờ xem miễn phí mỗi ngày, trong đó tối đa 1 giờ qua CarPlay. Khi chạm một trong hai giới hạn, thời gian xem miễn phí của ngày đó sẽ kết thúc.";
 
 "Sınırsız izleme" = "Xem không giới hạn";
 
@@ -246,7 +246,7 @@
 "Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez." = "Ảnh được tạo thành trình chiếu 1080p trên thiết bị. Ảnh gốc không thay đổi.";
 "Nasıl bağlanırım?" = "Kết nối như thế nào?";
 "Büyük ekranda daha fazlası." = "Thêm trải nghiệm trên màn hình lớn.";
-"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Kỷ niệm, video và âm nhạc của bạn. Chọn màn hình và bắt đầu chia sẻ.";
+"Anıların, videoların ve müziğin. Bir ekran seç, paylaşmaya başla." = "Chọn màn hình để chia sẻ kỷ niệm, video và âm nhạc của bạn.";
 "Google Cast araması kullanılamıyor." = "Không thể tìm thiết bị Google Cast.";
 "Ayarları aç" = "Mở Cài đặt";
 "Bir içerik seç. Oynatıcıdan duraklatabilir veya TV bağlantısını değiştirebilirsin." = "Chọn nội dung. Bạn có thể tạm dừng hoặc đổi kết nối TV từ trình phát.";
@@ -264,8 +264,8 @@
 "Bildirim izni iOS Ayarları’ndan açılmalı." = "Cho phép thông báo trong Cài đặt iOS.";
 "Bildirimler hazırlanıyor…" = "Đang thiết lập thông báo…";
 "Bildirimler açık." = "Thông báo đã bật.";
-"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Đăng ký thông báo không thành công. Hãy thử lại.";
-"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Không thể kết nối máy chủ để tắt thông báo. Sẽ thử lại khi có kết nối.";
+"Bildirim kaydı tamamlanamadı. Yeniden dene." = "Không thể bật thông báo. Hãy thử lại.";
+"Kapatma sunucuya iletilemedi. Bağlantı kurulduğunda yeniden denenecek." = "Không thể liên hệ với máy chủ để tắt thông báo. Mirivo sẽ thử lại khi có kết nối.";
 "Sürüm ve ürün duyuruları al. Medya içeriklerin ve kaynak adreslerin bildirim sunucusuna gönderilmez." = "Nhận tin về phiên bản và sản phẩm. Nội dung đa phương tiện và địa chỉ nguồn của bạn không được gửi đến máy chủ thông báo.";
 "iOS Ayarlarını aç" = "Mở Cài đặt iOS";
 "Güncelleme gerekli" = "Cần cập nhật";
@@ -307,7 +307,7 @@
 "Listeden kaldır" = "Xóa khỏi danh sách";
 "İçerik bulunamadı" = "Không tìm thấy nội dung";
 "Film veya dizi ara" = "Tìm phim hoặc phim bộ";
-"İzleme kaydı kaldırılamadı. Yeniden dene." = "Không thể xóa mục đã xem. Hãy thử lại.";
+"İzleme kaydı kaldırılamadı. Yeniden dene." = "Không thể xóa nội dung này khỏi danh sách. Hãy thử lại.";
 
 "İndirilenler" = "Nội dung đã tải";
 "Çevrimdışı izlemeye hazır" = "Sẵn sàng xem ngoại tuyến";
@@ -327,10 +327,10 @@
 "İndir" = "Tải xuống";
 
 "Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez." = "Chỉ tải nội dung mà nhà cung cấp cho phép tải. Không hỗ trợ luồng được bảo vệ bằng DRM.";
-"Sıkıştırıp yakınlaştır: ekranı doldur" = "Chụm mở để lấp đầy màn hình";
-"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Chụm vào để trở về chế độ xem bình thường";
+"Sıkıştırıp yakınlaştır: ekranı doldur" = "Tách các ngón tay để lấp đầy màn hình";
+"Sıkıştırıp uzaklaştır: normal görünüme dön" = "Chụm các ngón tay để trở về chế độ xem bình thường";
 "Hareket tanıtımını yeniden göster" = "Hiện lại hướng dẫn thao tác";
-"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Hiện lại thao tác âm lượng, độ sáng và màn hình trong trình phát.";
+"Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster." = "Hiện lại hướng dẫn cử chỉ điều chỉnh âm lượng, độ sáng và màn hình trong trình phát.";
 
 "Araç video desteği" = "Hỗ trợ video trên xe";
 "CarPlay bağlı" = "Đã kết nối CarPlay";
@@ -338,20 +338,20 @@
 "CarPlay video testini başlat" = "Bắt đầu kiểm tra video CarPlay";
 "CarPlay’e bağlanıp araç ekranında uygulamayı aç." = "Kết nối với CarPlay rồi mở ứng dụng trên màn hình xe.";
 "Araç bağlantısında hatırlat" = "Nhắc khi kết nối với xe";
-"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Gửi một lời nhắc trên điện thoại khi phát hiện phiên CarPlay mới. Thông tin kết nối với xe không được gửi đến máy chủ.";
+"Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez." = "Bạn sẽ nhận được một lời nhắc trên điện thoại khi phát hiện phiên CarPlay mới. Thông tin kết nối với xe không được gửi đến máy chủ.";
 "CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir." = "Video CarPlay khả dụng trên xe được hỗ trợ khi đang đỗ.";
 
 "AirPlay ekranı" = "Màn hình AirPlay";
 "AirPlay hedefini değiştir" = "Đổi thiết bị AirPlay";
 "AirPlay hedefini değiştirmek veya iPhone’a dönmek için aşağıdaki sistem menüsünü kullan." = "Dùng menu hệ thống bên dưới để đổi thiết bị AirPlay hoặc quay lại iPhone.";
 "Bağlı" = "Đã kết nối";
-"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Thời gian xem miễn phí hôm nay đã được đặt lại. Hôm nay bạn có thể xem tối đa 2 giờ.";
+"Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin." = "Thời gian xem miễn phí đã được đặt lại: hôm nay bạn có tổng cộng 2 giờ, trong đó tối đa 1 giờ qua CarPlay.";
 "Bugünkü ücretsiz izleme süresi sıfırlansın mı?" = "Đặt lại thời gian xem miễn phí hôm nay?";
 "Ekran yansıtmasını sonlandırmak için iOS Denetim Merkezi’nde Ekran Yansıtma’yı açıp bağlantıyı kes." = "Để dừng phản chiếu màn hình, mở Phản chiếu màn hình trong Trung tâm điều khiển iOS rồi ngắt kết nối.";
 "Oynatma durduruldu, TV bağlantısı açık" = "Đã dừng phát; TV vẫn được kết nối";
 "TV bağlantısı açık" = "TV đang được kết nối";
 "TV bağlantısını kes" = "Ngắt kết nối TV";
-"TV’den ayrıl" = "Ngắt khỏi TV";
+"TV’den ayrıl" = "Ngắt kết nối TV";
 "Video seçenekleri" = "Tùy chọn video";
 "Sıfırla" = "Đặt lại";
 "İptal" = "Hủy";
@@ -411,3 +411,10 @@
 "Dizi ara" = "Tìm phim bộ";
 "Bu içerik için açıklama bulunamadı." = "Không tìm thấy mô tả cho nội dung này.";
 "İçerik bilgileri yüklenemedi." = "Không thể tải thông tin nội dung.";
+"Klavyeyi kapat" = "Ẩn bàn phím";
+
+"CarPlay’de bugün kalan: %d dk" = "CarPlay hôm nay: còn %d phút";
+
+"Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "Bạn đã dùng hết 1 giờ xem qua CarPlay hôm nay. Hãy quay lại vào ngày mai hoặc nâng cấp lên Pro để xem tiếp không giới hạn thời gian.";
+
+"Bugünkü ücretsiz süren doldu" = "Thời gian xem miễn phí hôm nay đã hết";

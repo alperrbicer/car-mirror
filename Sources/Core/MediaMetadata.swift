@@ -55,7 +55,13 @@ public extension XtreamEndpoint {
     }
 
     static func seriesLookup(kind: MediaSourceKind, secret: SourceSecret, channel: MediaChannel) throws -> XtreamSeriesLookup? {
-        guard let (components, id) = try metadataEndpoint(kind: kind, secret: secret, channel: channel, route: "series"),
+        var endpoint = try metadataEndpoint(kind: kind, secret: secret, channel: channel, route: "series")
+        // Some providers export series episodes through /movie/. Their episode ID
+        // still has to be verified against get_series_info before using its metadata.
+        if endpoint == nil, channel.episode != nil {
+            endpoint = try metadataEndpoint(kind: kind, secret: secret, channel: channel, route: "movie")
+        }
+        guard let (components, id) = endpoint,
               let catalog = metadataURL(components, action: "get_series") else { return nil }
         return XtreamSeriesLookup(catalogURL: catalog, episodeID: id)
     }
@@ -124,7 +130,8 @@ public enum VODMetadataParser {
         guard data.count <= maximumBytes else { throw LibraryError.tooLarge }
         guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let info = root["info"] as? [String: Any] else { throw LibraryError.invalidResponse }
-        return metadata(info, baseURL: baseURL)
+        let movie = metadata(root["movie_data"] as? [String: Any] ?? [:], baseURL: baseURL)
+        return movie.merging(metadata(info, baseURL: baseURL))
     }
 
     fileprivate static func text(_ info: [String: Any], _ keys: String...) -> String? {
@@ -204,7 +211,10 @@ public enum SeriesMetadataParser {
             guard let episodes = season as? [[String: Any]] else { continue }
             for episode in episodes where VODMetadataParser.text(episode, "id", "stream_id") == episodeID {
                 let series = VODMetadataParser.metadata(info, baseURL: baseURL)
-                return includeEpisode ? series.merging(VODMetadataParser.metadata(episode["info"] as? [String: Any] ?? [:], baseURL: baseURL)) : series
+                guard includeEpisode else { return series }
+                let details = VODMetadataParser.metadata(episode, baseURL: baseURL)
+                    .merging(VODMetadataParser.metadata(episode["info"] as? [String: Any] ?? [:], baseURL: baseURL))
+                return series.merging(details)
             }
         }
         return nil

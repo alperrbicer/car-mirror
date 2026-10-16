@@ -34,6 +34,7 @@ private enum PlayerGestureAdjustment: Equatable {
 }
 
 struct LibraryView: View {
+    let openPlayer: () -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject private var library = SourceLibrary.shared
@@ -54,7 +55,7 @@ struct LibraryView: View {
                 Text(L10n.tr("Bir oynatma listesi, yayın bağlantısı veya IPTV sunucusu ekle."))
                     .font(.subheadline).foregroundStyle(MirrorStyle.secondary).lineSpacing(4)
             }.fixedSize(horizontal: false, vertical: true)
-            ContinueWatchingSection()
+            ContinueWatchingSection(openPlayer: openPlayer)
             OfflineDownloadsSection()
             if library.sources.isEmpty {
                 emptyLibrary
@@ -202,13 +203,14 @@ struct LibraryView: View {
 }
 
 private struct ContinueWatchingSection: View {
+    let openPlayer: () -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var history = LastPlaybackStore.shared
     @ObservedObject private var library = SourceLibrary.shared
     @ObservedObject private var model = MirrorModel.shared
     @ObservedObject private var playback = MirrorModel.shared.playback
     @State private var showingAll = false
-    @State private var showingPlayer = false
+    @State private var pendingResume: LastPlaybackRecord?
     @State private var query = ""
     @State private var message: String?
     private var items: [LastPlaybackRecord] {
@@ -245,8 +247,11 @@ private struct ContinueWatchingSection: View {
                 }.accessibilityElement(children: .contain).accessibilityIdentifier("continue-watching-section")
             }
         }
-        .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
-        .sheet(isPresented: $showingAll) {
+        .sheet(isPresented: $showingAll, onDismiss: {
+            guard let entry = pendingResume else { return }
+            pendingResume = nil
+            resume(entry)
+        }) {
             NavigationStack {
                 List {
                     ForEach(filtered) { entry in
@@ -304,8 +309,14 @@ private struct ContinueWatchingSection: View {
         Binding(get: { showingAll == inSheet && message != nil }, set: { if !$0 { message = nil } })
     }
     private func resume(_ entry: LastPlaybackRecord) {
-        if model.resumePlayback(entry) { showingAll = false; showingPlayer = true }
+        if showingAll {
+            pendingResume = entry
+            showingAll = false
+            return
+        }
+        if model.resumePlayback(entry) { openPlayer() }
         else {
+            guard !model.isViewingLimited else { return }
             message = model.errorMessage ?? L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
             model.errorMessage = nil
         }
@@ -447,10 +458,18 @@ private struct ContinueWatchingCard: View {
             .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
             .overlay(alignment: .topTrailing) {
                 Menu {
-                    Button(action: remove) { Label(L10n.tr("Listeden kaldır"), systemImage: "xmark.circle") }
+                    Button(role: .destructive, action: remove) {
+                        Label(L10n.tr("Listeden kaldır"), systemImage: "trash")
+                    }
+                    .accessibilityIdentifier("continue-watching-remove-\(entry.id)")
                 } label: {
-                    Image(systemName: "ellipsis").foregroundStyle(MirrorStyle.secondary).frame(width: 44, height: 44)
-                }.padding(6).accessibilityLabel(entry.title)
+                    Image(systemName: "ellipsis").font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(MirrorStyle.secondary)
+                        .frame(width: 32, height: 32)
+                        .background(MirrorStyle.raised, in: Circle())
+                        .frame(width: 44, height: 44).contentShape(Rectangle())
+                }.buttonStyle(MirivoPressButtonStyle())
+                    .padding(6).accessibilityLabel(entry.title)
                     .accessibilityIdentifier("continue-watching-menu-\(entry.id)")
             }
     }
@@ -694,6 +713,107 @@ private struct ChannelListView: View {
     }
 }
 
+private struct ChannelSearchBar: View {
+    @Binding var text: String
+    let prompt: String
+    @State private var isEditing = false
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ChannelSearchTextField(text: $text, isEditing: $isEditing, prompt: prompt)
+                .padding(.horizontal, 16).padding(.vertical, 8)
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .modifier(SearchControlSurface())
+            if isEditing {
+                Button { isEditing = false } label: {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                        .font(.system(size: 21, weight: .medium)).foregroundStyle(.white)
+                        .frame(width: 52, height: 52)
+                        .modifier(SearchControlSurface())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(MirivoPressButtonStyle())
+                .accessibilityLabel(L10n.tr("Klavyeyi kapat"))
+                .accessibilityIdentifier("dismiss-channel-search-keyboard")
+            }
+        }
+        .padding(.horizontal, 20).padding(.vertical, 10)
+        .onDisappear { isEditing = false }
+    }
+}
+
+private struct SearchControlSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(.regular, in: Capsule())
+        } else {
+            content.background(MirrorStyle.raised, in: Capsule())
+                .overlay { Capsule().strokeBorder(MirrorStyle.hairline) }
+        }
+    }
+}
+
+/// Keep the native search field and its clear-text control, while the adjacent
+/// button only ends editing instead of cancelling and clearing the search.
+private struct ChannelSearchTextField: UIViewRepresentable {
+    @Binding var text: String
+    @Binding var isEditing: Bool
+    let prompt: String
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+    func makeUIView(context: Context) -> UISearchTextField {
+        let field = UISearchTextField()
+        field.delegate = context.coordinator
+        field.addTarget(context.coordinator, action: #selector(Coordinator.textChanged(_:)), for: .editingChanged)
+        field.font = .preferredFont(forTextStyle: .body)
+        field.adjustsFontForContentSizeCategory = true
+        field.textColor = .label
+        field.tintColor = UIColor(MirrorStyle.accent)
+        field.backgroundColor = .clear
+        field.borderStyle = .none
+        field.clearButtonMode = .whileEditing
+        field.autocapitalizationType = .none
+        field.autocorrectionType = .no
+        field.returnKeyType = .search
+        field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        field.accessibilityTraits.insert(.searchField)
+        field.accessibilityIdentifier = "channel-search-field"
+        return field
+    }
+    func updateUIView(_ field: UISearchTextField, context: Context) {
+        context.coordinator.parent = self
+        if field.text != text { field.text = text }
+        field.placeholder = prompt
+        field.accessibilityLabel = prompt
+        field.semanticContentAttribute = context.environment.layoutDirection == .rightToLeft ? .forceRightToLeft : .forceLeftToRight
+        if !isEditing { field.endEditing(true) }
+    }
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UISearchTextField, context: Context) -> CGSize? {
+        let width = proposal.width ?? 240
+        let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: max(28, size.height))
+    }
+    static func dismantleUIView(_ field: UISearchTextField, coordinator: Coordinator) {
+        field.delegate = nil
+        field.resignFirstResponder()
+    }
+    final class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: ChannelSearchTextField
+        init(parent: ChannelSearchTextField) { self.parent = parent }
+        @objc func textChanged(_ field: UISearchTextField) { parent.text = field.text ?? "" }
+        func textFieldDidBeginEditing(_ textField: UITextField) {
+            if !parent.isEditing { parent.isEditing = true }
+        }
+        func textFieldDidEndEditing(_ textField: UITextField) {
+            if parent.isEditing { parent.isEditing = false }
+        }
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            textField.resignFirstResponder()
+            return true
+        }
+    }
+}
+
 private struct ChannelBrowserView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var downloads = OfflineDownloadStore.shared
@@ -747,13 +867,10 @@ private struct ChannelBrowserView: View {
         !(showsCategories && searchTerm.isEmpty && categories.contains(where: { !$0.name.isEmpty }))
     }
     var body: some View {
-        Group {
+        ZStack {
             if !showsChannelRows { categoryGrid }
             else if !seriesCatalog.series.isEmpty { seriesGrid }
             else { channelList }
-        }
-        .overlay {
-            if !searchTerm.isEmpty && filtered.isEmpty { ContentUnavailableView.search(text: searchTerm) }
         }
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
         .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
@@ -766,12 +883,15 @@ private struct ChannelBrowserView: View {
                 ToolbarItem(placement: .topBarTrailing) { TVRouteStatusButton(model: .shared) }
             }
         }
-        .searchable(text: $query, prompt: L10n.tr(series != nil ? "Bölüm ara" : !seriesCatalog.series.isEmpty ? "Dizi ara" : "Kanal veya grup ara"))
+        .scrollDismissesKeyboard(.interactively)
         .navigationDestination(isPresented: $showingPlayer) {
             if onSelectChannel == nil { MediaPlayerScreen(model: .shared) }
         }
         .safeAreaInset(edge: .bottom) {
-            if onSelectChannel == nil { NowPlayingBar { showingPlayer = true } }
+            VStack(spacing: 0) {
+                if onSelectChannel == nil { NowPlayingBar { showingPlayer = true } }
+                ChannelSearchBar(text: $query, prompt: L10n.tr(series != nil ? "Bölüm ara" : !seriesCatalog.series.isEmpty ? "Dizi ara" : "Kanal veya grup ara"))
+            }.background(MirrorStyle.background)
         }
         .alert(BrandIdentity.name, isPresented: Binding(get: { playbackMessage != nil }, set: { if !$0 { playbackMessage = nil } })) {
             Button(L10n.tr("Tamam")) { playbackMessage = nil }
@@ -817,6 +937,9 @@ private struct ChannelBrowserView: View {
     private var seriesGrid: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
+                if !searchTerm.isEmpty && filteredSeries.isEmpty && ungrouped.isEmpty {
+                    searchEmptyState
+                }
                 if !filteredSeries.isEmpty {
                     Text(String(format: L10n.tr("%d dizi"), filteredSeries.count))
                         .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
@@ -843,11 +966,26 @@ private struct ChannelBrowserView: View {
         }.accessibilityIdentifier("series-library")
     }
 
+    private var searchEmptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "magnifyingglass").font(.title)
+            Text(L10n.tr("İçerik bulunamadı")).font(.headline)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .foregroundStyle(MirrorStyle.secondary)
+        .frame(maxWidth: .infinity).padding(.vertical, 28)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("channel-search-empty")
+    }
+
     private var channelList: some View {
         List {
             if let series {
-                SeriesLibraryHeader(series: series, sourceID: sourceID)
-                    .listRowInsets(EdgeInsets()).listRowBackground(Color.clear).listRowSeparator(.hidden)
+                if onSelectChannel == nil {
+                SeriesLibraryHeader(series: series, sourceID: sourceID, showsDescription: onSelectChannel == nil)
+                        .listRowInsets(EdgeInsets()).listRowBackground(Color.clear).listRowSeparator(.hidden)
+                }
                 if series.seasons.count > 1 {
                     ScrollView(.horizontal) {
                         HStack(spacing: 10) {
@@ -867,12 +1005,19 @@ private struct ChannelBrowserView: View {
                 }
             }
             Section {
-                ForEach(filtered) { channel in channelRow(channel) }
+                if !searchTerm.isEmpty && filtered.isEmpty {
+                    searchEmptyState
+                        .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                } else {
+                    ForEach(filtered) { channel in channelRow(channel) }
+                }
             } header: {
-                Text(series != nil ? String(format: L10n.tr("%d bölüm"), filtered.count) : String(format: L10n.tr("%d içerik"), filtered.count))
-                    .textCase(nil)
+                if !filtered.isEmpty {
+                    Text(series != nil ? String(format: L10n.tr("%d bölüm"), filtered.count) : String(format: L10n.tr("%d içerik"), filtered.count))
+                        .textCase(nil)
+                }
             }
-        }.listStyle(.insetGrouped)
+        }.listStyle(.insetGrouped).accessibilityIdentifier("channel-list")
     }
     private func channelRow(_ channel: MediaChannel) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize
@@ -907,10 +1052,10 @@ private struct ChannelBrowserView: View {
                 }.frame(maxWidth: .infinity, minHeight: MirrorStyle.controlHeight, alignment: .leading)
                     .contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityLabel(channel.title)
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 if dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
                 if channel.isDownloadableVideo {
-                    downloadControl(for: channel).frame(width: 58, height: 44)
+                    downloadControl(for: channel).frame(width: 58, height: 44, alignment: .trailing)
                 }
                 Button { selectChannel(channel) } label: {
                     Image(systemName: "play.circle.fill").font(.title2).foregroundStyle(MirrorStyle.accent).frame(width: 44, height: 44)
@@ -1444,12 +1589,20 @@ struct MediaPlayerScreen: View {
 
     private var playerDetails: some View {
         VStack(spacing: 20) {
-            if let failure = model.mediaErrorMessage, !playback.hasActivePlayback {
+            if let limit = model.viewingLimit {
+                VStack(alignment: .leading, spacing: 14) {
+                    Label(L10n.tr("Bugünkü ücretsiz süren doldu"), systemImage: "clock").font(.headline)
+                    Text(limit.explanation).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                    Button { model.presentViewingLimitOffer() } label: {
+                        Label(L10n.tr("Mirivo Pro"), systemImage: "crown").frame(maxWidth: .infinity)
+                    }.buttonStyle(MirivoButtonStyle(prominent: true)).accessibilityIdentifier("viewing-limit-pro")
+                }.padding(20).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
+            } else if let failure = model.mediaErrorMessage, !playback.hasActivePlayback {
                 ContentUnavailableView {
                     Label(L10n.tr("Yayın tamamlanamadı"), systemImage: "exclamationmark.triangle")
                 } description: { Text(failure) }
             }
-            if !playback.hasActivePlayback, model.selectedMediaChannel != nil {
+            if !model.isViewingLimited, !playback.hasActivePlayback, model.selectedMediaChannel != nil {
                 Button(L10n.tr("Yeniden dene")) { model.retryMedia() }.buttonStyle(MirivoButtonStyle(prominent: true))
             }
             if playback.hasActivePlayback {
@@ -1462,14 +1615,15 @@ struct MediaPlayerScreen: View {
                     }
                     if !purchases.access.fullAccess {
                         VStack(spacing: 8) {
-                            ProgressView(value: model.dailyRemaining, total: DailyViewingBudget.limit).tint(MirrorStyle.accent)
-                            Text(String(format: L10n.tr("Bugün kalan: %d dk"), Int(ceil(model.dailyRemaining / 60))))
+                            ProgressView(value: model.dailyRemaining, total: model.dailyViewingLimit).tint(MirrorStyle.accent)
+                            Text(model.remainingViewingText)
                                 .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                                .accessibilityIdentifier("viewing-time-remaining")
                         }
                     }
-                    Button(role: .destructive) { model.stopPlayback(clearLastPlayback: true) } label: {
+                    Button(role: .destructive) { model.stopPlayback() } label: {
                         Label(L10n.tr("Oynatmayı durdur"), systemImage: "stop.circle").font(.subheadline).frame(minHeight: 44)
-                    }
+                    }.accessibilityIdentifier("stop-player-playback")
                 }.padding(20).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
             }
             if let channel = model.selectedMediaChannel {
@@ -1560,7 +1714,6 @@ private struct PlayerChrome: View {
     @State private var seekFeedback: Int?
     @State private var seekFeedbackPulse = 0
     @State private var feedbackTask: Task<Void, Never>?
-    @State private var optionsTask: Task<Void, Never>?
     @State private var showingEdgeGestureIntro = false
     @State private var gestureAdjustment: PlayerGestureAdjustment?
     @State private var gestureAdjustmentValue: CGFloat = 0
@@ -1660,7 +1813,7 @@ private struct PlayerChrome: View {
         .sheet(isPresented: $showingChannels) { PlaybackQueueSheet(model: model) }
         .sheet(isPresented: $showingMediaChoices) { PlayerMediaChoicesView(playback: playback) }
         .onDisappear {
-            hideTask?.cancel(); clearSeekFeedback(); optionsTask?.cancel(); adjustmentHideTask?.cancel()
+            hideTask?.cancel(); clearSeekFeedback(); adjustmentHideTask?.cancel()
             MediaScreenAwake.release(awakeLease)
         }
         .onChange(of: playback.isPlaying) { _, _ in revealControls() }
@@ -1668,17 +1821,7 @@ private struct PlayerChrome: View {
         .onChange(of: showingTVs) { _, _ in revealControls() }
         .onChange(of: showingChannels) { _, _ in revealControls() }
         .onChange(of: showingMediaChoices) { _, _ in revealControls() }
-        .onChange(of: showingOptions) { _, showing in
-            revealControls()
-            optionsTask?.cancel()
-            if showing {
-                optionsTask = Task { @MainActor in
-                    do { try await Task.sleep(for: .seconds(30)) } catch { return }
-                    guard !UIAccessibility.isVoiceOverRunning else { return }
-                    showingOptions = false
-                }
-            }
-        }
+        .onChange(of: showingOptions) { _, _ in revealControls() }
         .onChange(of: model.selectedMediaChannel?.id) { _, _ in
             showingOptions = false; showingMediaChoices = false; clearSeekFeedback(); revealControls()
         }
@@ -1731,6 +1874,13 @@ private struct PlayerChrome: View {
             optionButton("Durdur", icon: "stop.fill", destructive: true) { model.stopPlayback() }
         }.padding(8).frame(minWidth: 240)
             .accessibilityElement(children: .contain).accessibilityIdentifier("player-options-popover")
+            .task { @MainActor in
+                // The popover owns its timer so presentation changes on the
+                // player cannot cancel it while the menu is still visible.
+                do { try await Task.sleep(for: .seconds(15)) } catch { return }
+                guard !Task.isCancelled, !UIAccessibility.isVoiceOverRunning else { return }
+                showingOptions = false
+            }
     }
     private func optionButton(_ label: String, icon: String, destructive: Bool = false, selected: Bool = false,
                               action: @escaping () -> Void) -> some View {

@@ -18,7 +18,7 @@ struct MirivoRootView: View {
                     if selectedPage == 0 {
                         MirrorHomeView(model: model)
                     } else {
-                        LibraryView()
+                        LibraryView { showingPlayer = true }
                     }
                 }
                 .padding(.horizontal, 24)
@@ -41,8 +41,10 @@ struct MirivoRootView: View {
             .safeAreaInset(edge: .bottom) { NowPlayingBar(hidesSavedProgress: selectedPage == 1) { showingPlayer = true } }
             .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
         }
+        .modifier(ViewingLimitOfferPresenter(model: model))
         .fullScreenCover(isPresented: $model.presentingPlayer) {
             NavigationStack { MediaPlayerScreen(model: model) }
+                .modifier(ViewingLimitOfferPresenter(model: model, restoredPlayer: true))
         }
         .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
         .onAppear { FirebaseServices.recordScreen(selectedPage == 0 ? .home : .library) }

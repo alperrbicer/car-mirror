@@ -46,17 +46,46 @@ public struct BroadcastOptions: Codable, Sendable {
 /// Device-local daily viewing budget. Intervals are split at local midnight.
 public struct DailyViewingBudget: Codable, Equatable {
     public static let limit: TimeInterval = 2 * 60 * 60
+    public static let carPlayLimit: TimeInterval = 60 * 60
+    public enum Limit: String, Identifiable, Sendable {
+        case daily, carPlay
+        public var id: String { rawValue }
+    }
     public private(set) var day: Date
     public private(set) var used: TimeInterval
-    public init(now: Date, calendar: Calendar = .current, used: TimeInterval = 0) {
+    public private(set) var carPlayUsed: TimeInterval
+    public init(now: Date, calendar: Calendar = .current, used: TimeInterval = 0, carPlayUsed: TimeInterval = 0) {
         day = calendar.startOfDay(for: now)
-        self.used = max(0, used)
+        self.used = used.isFinite ? max(0, used) : 0
+        self.carPlayUsed = min(self.used, carPlayUsed.isFinite ? max(0, carPlayUsed) : 0)
     }
-    public mutating func record(from start: Date, to end: Date, playing: Bool, calendar: Calendar = .current) {
+    private enum CodingKeys: String, CodingKey { case day, used, carPlayUsed }
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        day = try values.decode(Date.self, forKey: .day)
+        used = max(0, try values.decode(TimeInterval.self, forKey: .used))
+        // Existing installations retain their total usage when the CarPlay
+        // counter is introduced; no route history existed for those intervals.
+        carPlayUsed = min(used, max(0, try values.decodeIfPresent(TimeInterval.self, forKey: .carPlayUsed) ?? 0))
+    }
+    public mutating func record(from start: Date, to end: Date, playing: Bool, carPlay: Bool = false, calendar: Calendar = .current) {
         let today = calendar.startOfDay(for: end)
-        if today > day { day = today; used = 0 }
+        if today > day { day = today; used = 0; carPlayUsed = 0 }
         guard playing, end > start else { return }
-        used += max(0, end.timeIntervalSince(max(start, day)))
+        let elapsed = min(remaining(carPlay: carPlay), max(0, end.timeIntervalSince(max(start, day))))
+        used += elapsed
+        if carPlay { carPlayUsed += elapsed }
     }
-    public var remaining: TimeInterval { max(0, Self.limit - used) }
+    public var exhaustedLimit: Limit? {
+        if used >= Self.limit { return .daily }
+        if carPlayUsed >= Self.carPlayLimit { return .carPlay }
+        return nil
+    }
+    public var carPlayRemaining: TimeInterval { max(0, Self.carPlayLimit - carPlayUsed) }
+    public var remaining: TimeInterval { remaining(carPlay: false) }
+    public func remaining(carPlay: Bool) -> TimeInterval {
+        guard exhaustedLimit == nil else { return 0 }
+        let total = max(0, Self.limit - used)
+        return carPlay ? min(total, carPlayRemaining) : total
+    }
 }

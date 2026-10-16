@@ -51,11 +51,20 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func render() {
         let model = MirrorModel.shared
-        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(SourceLibrary.shared.sources.map(\.id))-\(L10n.language)"
+        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(model.viewingLimit?.rawValue ?? "")-\(SourceLibrary.shared.sources.map(\.id))-\(L10n.language)"
         guard signature != lastSignature else { return }
         lastSignature = signature
 
         var items: [CPListItem] = []
+        if let limit = model.viewingLimit {
+            let pro = CPListItem(text: L10n.tr("Mirivo Pro"), detailText: limit.explanation, image: UIImage(systemName: "clock"))
+            pro.handler = { [weak self] _, completion in
+                model.presentViewingLimitOffer()
+                self?.showError(limit.explanation)
+                completion()
+            }
+            items.append(pro)
+        }
         if supportsVideo {
             let mirror = CPListItem(text: L10n.tr("iPhone ekranı"), detailText: model.captureTitle,
                                     image: UIImage(systemName: "iphone.radiowaves.left.and.right"))
@@ -163,7 +172,9 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 let started = MirrorModel.shared.playMedia(channel, presentation: presentation, sourceID: sourceID)
                 completion()
                 if started, #unavailable(iOS 26.4) { self.showNowPlaying() }
-                if !started { self.showError("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.") }
+                if !started {
+                    self.showError(MirrorModel.shared.viewingLimit?.explanation ?? "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
+                }
             }
             return item
         }
