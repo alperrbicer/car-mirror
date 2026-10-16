@@ -457,3 +457,18 @@
 "Tanıtımı yeniden göster" = "Tanıtımı yeniden göster";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "Ücretsiz ve sınırsız geliştirme erişimi";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat.";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "Sevdiğin içerikler, tek yerde.";
+"Kayıtlı kaynaklar" = "Kayıtlı kaynaklar";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "Bir ekran seç, sevdiğin içerikleri daha büyük izle.";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle.";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle.";
+"Dizilerini sezon ve bölümleriyle keşfet." = "Dizilerini sezon ve bölümleriyle keşfet.";
+"Resim İçinde Resim" = "Resim İçinde Resim";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "İndir, sonra izle.";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "Uygun film ve bölümleri indir, internet olmadan izle.";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür.";

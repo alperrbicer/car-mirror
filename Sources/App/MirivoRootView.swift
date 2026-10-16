@@ -18,7 +18,7 @@ struct MirivoRootView: View {
                     header
                     pageNavigation
                     if selectedPage == 0 {
-                        MirrorHomeView(model: model) { selectedPage = 1 }
+                        MirrorHomeView(model: model)
                     } else {
                         LibraryView { showingPlayer = true }
                     }

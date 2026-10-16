@@ -5,7 +5,7 @@ import ImageIO
 @MainActor
 private final class MediaArtworkStore {
     static let shared = MediaArtworkStore()
-    private let cache = NSCache<NSURL, UIImage>()
+    private let cache = NSCache<NSString, UIImage>()
     private let session: URLSession
 
     init() {
@@ -20,15 +20,16 @@ private final class MediaArtworkStore {
         session = URLSession(configuration: configuration)
     }
 
-    func image(at url: URL) async -> UIImage? {
-        if let image = cache.object(forKey: url as NSURL) { return image }
-        guard let image = await Self.fetch(url, session: session), !Task.isCancelled else { return nil }
-        cache.setObject(image, forKey: url as NSURL, cost: (image.cgImage?.bytesPerRow ?? 0) * (image.cgImage?.height ?? 0))
+    func image(at url: URL, maximumPixelSize: Int = 600) async -> UIImage? {
+        let key = "\(maximumPixelSize)|\(url.absoluteString)" as NSString
+        if let image = cache.object(forKey: key) { return image }
+        guard let image = await Self.fetch(url, session: session, maximumPixelSize: maximumPixelSize), !Task.isCancelled else { return nil }
+        cache.setObject(image, forKey: key, cost: (image.cgImage?.bytesPerRow ?? 0) * (image.cgImage?.height ?? 0))
         return image
     }
 
     // Reading and decoding large images must never occupy the UI actor.
-    nonisolated private static func fetch(_ url: URL, session: URLSession) async -> UIImage? {
+    nonisolated private static func fetch(_ url: URL, session: URLSession, maximumPixelSize: Int) async -> UIImage? {
         do {
             var request = URLRequest(url: url)
             request.setValue("Mirivo/1.0", forHTTPHeaderField: "User-Agent")
@@ -47,7 +48,7 @@ private final class MediaArtworkStore {
                   let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
                     kCGImageSourceCreateThumbnailFromImageAlways: true,
                     kCGImageSourceCreateThumbnailWithTransform: true,
-                    kCGImageSourceThumbnailMaxPixelSize: 600,
+                    kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
                     kCGImageSourceShouldCacheImmediately: true
                   ] as CFDictionary) else { return nil }
             return UIImage(cgImage: thumbnail)
@@ -123,7 +124,7 @@ struct ChannelCategoryCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             GeometryReader { geometry in
                 let count = CGFloat(max(preview.count, 1))
                 let coverWidth = min(prominent ? 76.0 : 62.0, max(28, (geometry.size.width - 12 + (count - 1) * 12) / count))
@@ -141,16 +142,15 @@ struct ChannelCategoryCard: View {
                     }
                 }.frame(width: geometry.size.width, height: geometry.size.height)
             }.frame(height: 106).padding(.top, 4).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(name).font(prominent ? .title3.weight(.semibold) : .subheadline.weight(.semibold))
                     .foregroundStyle(.white).lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
-                    .frame(minHeight: prominent || dynamicTypeSize.isAccessibilitySize ? nil : 40, alignment: .topLeading)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
                     Text(String(format: L10n.tr("%d içerik"), count))
                         .font(.caption).foregroundStyle(MirrorStyle.secondary)
                     Spacer(minLength: 4)
-                    Image(systemName: "arrow.up.right").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.accent)
+                    Image(systemName: "chevron.forward").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
                 }
             }
         }
@@ -160,5 +160,146 @@ struct ChannelCategoryCard: View {
         .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(prominent ? MirrorStyle.accent.opacity(0.22) : MirrorStyle.hairline) }
         .contentShape(RoundedRectangle(cornerRadius: 24))
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// Detail posters open using the system zoom transition; catalog cards keep their navigation action.
+struct MediaArtworkPreviewButton: View {
+    let channel: MediaChannel
+    var fallbackArtworkURL: URL?
+    var cornerRadius: CGFloat = 14
+    @Namespace private var transition
+    @State private var showingPreview = false
+    private var url: URL? { channel.metadata.artworkURL ?? fallbackArtworkURL }
+
+    var body: some View {
+        Button { showingPreview = true } label: {
+            MediaArtworkView(channel: channel, fallbackArtworkURL: fallbackArtworkURL, cornerRadius: cornerRadius)
+                .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
+        }
+        .buttonStyle(.plain)
+        .disabled(url == nil)
+        .accessibilityLabel(channel.title)
+        .accessibilityIdentifier("media-artwork-preview-open")
+        .matchedTransitionSource(id: "poster", in: transition)
+        .fullScreenCover(isPresented: $showingPreview) {
+            MediaArtworkPreview(channel: channel, url: url)
+                .navigationTransition(.zoom(sourceID: "poster", in: transition))
+        }
+    }
+}
+
+private struct MediaArtworkPreview: View {
+    let channel: MediaChannel
+    let url: URL?
+    @Environment(\.dismiss) private var dismiss
+    @State private var image: UIImage?
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            if let image {
+                ZoomableArtwork(image: image, title: channel.title)
+                    .ignoresSafeArea()
+            } else {
+                MediaArtworkView(channel: channel, fallbackArtworkURL: url, cornerRadius: 0)
+                    .aspectRatio(2 / 3, contentMode: .fit)
+                    .frame(maxWidth: 400).padding(24)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            Button { dismiss() } label: {
+                Image(systemName: "xmark").font(.body.weight(.semibold))
+                    .foregroundStyle(.white).frame(width: 44, height: 44)
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .buttonStyle(.plain).padding(16)
+            .accessibilityLabel(L10n.tr("Kapat"))
+            .accessibilityIdentifier("media-artwork-preview-close")
+        }
+        .preferredColorScheme(.dark)
+        .accessibilityAction(.escape) { dismiss() }
+        .task(id: url) {
+            guard let url else { return }
+            image = await MediaArtworkStore.shared.image(at: url)
+            guard !Task.isCancelled else { return }
+            if let fullSize = await MediaArtworkStore.shared.image(at: url, maximumPixelSize: 2400), !Task.isCancelled {
+                image = fullSize
+            }
+        }
+    }
+}
+
+private struct ZoomableArtwork: UIViewRepresentable {
+    let image: UIImage
+    let title: String
+
+    func makeUIView(context: Context) -> ArtworkZoomScrollView {
+        let view = ArtworkZoomScrollView()
+        view.imageView.accessibilityLabel = title
+        return view
+    }
+
+    func updateUIView(_ view: ArtworkZoomScrollView, context: Context) {
+        guard view.imageView.image !== image else { return }
+        view.imageView.image = image
+        view.setNeedsLayout()
+    }
+}
+
+/// UIScrollView supplies native pinch, pan, bounce, and zoom gesture arbitration.
+private final class ArtworkZoomScrollView: UIScrollView, UIScrollViewDelegate {
+    let imageView = UIImageView()
+    private var fittedSize: CGSize = .zero
+
+    init() {
+        super.init(frame: .zero)
+        delegate = self
+        minimumZoomScale = 1
+        maximumZoomScale = 4
+        showsVerticalScrollIndicator = false
+        showsHorizontalScrollIndicator = false
+        contentInsetAdjustmentBehavior = .never
+        backgroundColor = .black
+        imageView.contentMode = .scaleAspectFit
+        imageView.isAccessibilityElement = true
+        imageView.accessibilityTraits = .image
+        imageView.accessibilityIdentifier = "media-artwork-preview-image"
+        addSubview(imageView)
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        addGestureRecognizer(doubleTap)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if bounds.size != fittedSize, bounds.width > 0, bounds.height > 0, let image = imageView.image {
+            fittedSize = bounds.size
+            setZoomScale(1, animated: false)
+            let scale = min(bounds.width / image.size.width, bounds.height / image.size.height)
+            let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+            imageView.frame = CGRect(origin: .zero, size: size)
+            contentSize = size
+        }
+        centerImage()
+    }
+
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? { imageView }
+    func scrollViewDidZoom(_ scrollView: UIScrollView) { centerImage() }
+
+    private func centerImage() {
+        let vertical = max(0, (bounds.height - contentSize.height) / 2)
+        let horizontal = max(0, (bounds.width - contentSize.width) / 2)
+        let inset = UIEdgeInsets(top: vertical, left: horizontal, bottom: vertical, right: horizontal)
+        if contentInset != inset { contentInset = inset }
+    }
+
+    @objc private func doubleTapped(_ gesture: UITapGestureRecognizer) {
+        guard zoomScale < 1.1 else { setZoomScale(1, animated: true); return }
+        let point = gesture.location(in: imageView)
+        let size = CGSize(width: bounds.width / 2.5, height: bounds.height / 2.5)
+        zoom(to: CGRect(x: point.x - size.width / 2, y: point.y - size.height / 2, width: size.width, height: size.height), animated: true)
     }
 }

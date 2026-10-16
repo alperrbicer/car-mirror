@@ -82,7 +82,8 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         if (mediaPlayer.state != .stopped && mediaPlayer.state != .nothingSpecial) || pipActive || pipStarting {
             stoppingRetention = self
         }
-        pip?.stopPictureInPicture()
+        if let controller = pip as? CompatibilityPictureInPicture { controller.stopForPlaybackReplacement() }
+        else { pip?.stopPictureInPicture() }
         mediaPlayer.stop()
         finishStoppingIfReady()
     }
@@ -119,7 +120,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         guard active else { return }
         if let current = pip as? CompatibilityPictureInPicture {
             guard current.controller.contentSource?.sampleBufferDisplayLayer !== layer,
-                  !pipActive, !current.starting else { return }
+                  !pipActive, !current.starting, !current.stopping else { return }
         } else if pip != nil { return }
         guard let controller = CompatibilityPictureInPicture(engine: self, layer: layer) else { return }
         configurePiP(controller)
@@ -284,6 +285,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         if queuedSeek != nil { scheduleSeek() }
     }
     func configurePiP(_ controller: any VLCPictureInPictureWindowControlling) {
+        if pip !== controller { (pip as? CompatibilityPictureInPicture)?.stopForPlaybackReplacement() }
         pip = controller
         controller.stateChangeEventHandler = { [weak self, weak controller] started in
             let update = { @MainActor [weak self, weak controller] in
@@ -489,7 +491,7 @@ final class CompatibilityVideoSurface: UIView {
 /// The drawable deliberately does not adopt VLCPictureInPictureDrawable: there
 /// must be only one PiP controller for the existing VLC sample-buffer layer.
 @MainActor
-private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLCPictureInPictureWindowControlling,
+final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLCPictureInPictureWindowControlling,
     @preconcurrency AVPictureInPictureControllerDelegate, @preconcurrency AVPictureInPictureSampleBufferPlaybackDelegate {
     private let layer: AVSampleBufferDisplayLayer
     private(set) lazy var controller = AVPictureInPictureController(
@@ -523,6 +525,12 @@ private final class CompatibilityPictureInPicture: NSObject, @preconcurrency VLC
     func stopPictureInPicture() {
         guard !stopping else { return }
         controller.stopPictureInPicture()
+    }
+    func stopForPlaybackReplacement() {
+        // VLC can keep the old renderer alive while its asynchronous stop
+        // drains. It must no longer compete for automatic PiP on backgrounding.
+        controller.canStartPictureInPictureAutomaticallyFromInline = false
+        stopPictureInPicture()
     }
     func invalidatePlaybackState() {
         controller.requiresLinearPlayback = engine?.isMediaSeekable() != true

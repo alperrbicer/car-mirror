@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "แสดงคำแนะนำอีกครั้ง";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "สิทธิ์พัฒนาแบบฟรีและไม่จำกัด";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "ใช้ได้เฉพาะรุ่น Debug ปิดเมื่อทดสอบการซื้อ";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "เนื้อหาโปรดของคุณ รวมไว้ในที่เดียว";
+"Kayıtlı kaynaklar" = "แหล่งสื่อที่บันทึกไว้";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "เลือกหน้าจอ แล้วเพลิดเพลินกับเนื้อหาโปรดบนจอที่ใหญ่ขึ้น";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "ดูภาพยนตร์หรือซีรีส์ต่อจากจุดที่ค้างไว้ ดาวน์โหลดเนื้อหาที่รองรับเพื่อดูได้แม้ไม่มีอินเทอร์เน็ต";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "แชร์หน้าจอ วิดีโอ และรูปภาพของคุณ ดูบนจอใหญ่ผ่าน Google Cast, AirPlay หรือ CarPlay ในรถที่รองรับ";
+"Dizilerini sezon ve bölümleriyle keşfet." = "เลือกดูซีรีส์ตามซีซันและตอน";
+"Resim İçinde Resim" = "หน้าต่างย่อยในหน้าต่างหลัก";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "ดาวน์โหลดไว้ ดูทีหลัง";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "ดาวน์โหลดภาพยนตร์และตอนที่รองรับเพื่อดูแบบออฟไลน์";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "แตะปุ่มดาวน์โหลดในรายการภาพยนตร์หรือตอน เนื้อหาที่ดาวน์โหลดจะปรากฏที่นี่";

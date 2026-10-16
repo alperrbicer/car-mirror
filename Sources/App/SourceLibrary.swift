@@ -77,7 +77,8 @@ final class LastPlaybackStore: ObservableObject {
             if let saved = try? JSONDecoder().decode(Snapshot.self, from: data) {
                 record = saved.record
                 var seen: Set<String> = []
-                entries = Array(saved.entries.filter { $0.isInProgress }.sorted { $0.updatedAt > $1.updatedAt }
+                entries = Array((saved.entries + [saved.record].compactMap { $0 }).filter { $0.isInProgress }
+                    .sorted { $0.updatedAt > $1.updatedAt }
                     .filter { seen.insert($0.id).inserted }.prefix(Self.maximumEntries))
             } else if let legacy = try? JSONDecoder().decode(LastPlaybackRecord.self, from: data) {
                 record = legacy

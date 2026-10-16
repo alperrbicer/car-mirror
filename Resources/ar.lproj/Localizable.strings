@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "عرض المقدمة مجددًا";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "وصول تطوير مجاني وغير محدود";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "متاح في إصدارات Debug فقط. أوقفه عند اختبار عمليات الشراء.";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "محتواك المفضل، في مكان واحد.";
+"Kayıtlı kaynaklar" = "المصادر المحفوظة";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "اختر شاشة واستمتع بمحتواك المفضل على شاشة أكبر.";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "تابع فيلمك أو مسلسلك من حيث توقفت. نزّل المحتوى المدعوم لمشاهدته دون إنترنت.";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "شارك شاشتك وفيديوهاتك وصورك. شاهد على شاشة أكبر عبر Google Cast أو AirPlay أو CarPlay في السيارات المتوافقة.";
+"Dizilerini sezon ve bölümleriyle keşfet." = "تصفّح مسلسلاتك حسب الموسم والحلقة.";
+"Resim İçinde Resim" = "صورة داخل صورة";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "نزّل الآن، وشاهد لاحقًا.";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "نزّل الأفلام والحلقات المدعومة لمشاهدتها دون إنترنت.";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "اضغط على زر التنزيل في قائمة الأفلام أو الحلقات. ستظهر تنزيلاتك هنا.";

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct MirrorHomeView: View {
     @ObservedObject var model: MirrorModel
-    var openLibrary: () -> Void = {}
     @ObservedObject private var playback = MirrorModel.shared.playback
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
@@ -15,7 +14,6 @@ struct MirrorHomeView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             connectionCard
-            destinations
             actions
             MediaSharingView(model: model)
             Button { showingGuide = true } label: {
@@ -53,79 +51,113 @@ struct MirrorHomeView: View {
 
     private var connectionCard: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 8) {
-                Circle().fill(playback.displayConnection.isConnected ? MirrorStyle.accent : MirrorStyle.secondary).frame(width: 6, height: 6)
-                Text(playback.displayConnection.isConnected ? playback.displayConnection.connectedSummary : "IPTV · SMART TV · CARPLAY")
-                    .font(.system(.caption2, design: .monospaced, weight: .medium))
-                    .tracking(L10n.appLanguage.allowsLetterSpacing ? 1.2 : 0)
-                    .fixedSize(horizontal: false, vertical: true)
+            if playback.displayConnection.isConnected {
+                HStack(spacing: 8) {
+                    Circle().fill(MirrorStyle.accent).frame(width: 6, height: 6)
+                    Text(playback.displayConnection.connectedSummary)
+                        .font(.caption.weight(.medium))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .foregroundStyle(MirrorStyle.accent)
+                .padding(.bottom, 14)
             }
-            .foregroundStyle(playback.displayConnection.isConnected ? MirrorStyle.accent : MirrorStyle.secondary)
-            .padding(.bottom, 18)
-            Text(model.broadcasting ? model.captureTitle : L10n.tr("Kaynakların, her ekranda."))
-                .font(.system(.largeTitle, design: .default, weight: .semibold))
-                .tracking(L10n.appLanguage.allowsLetterSpacing ? -1 : 0)
+            VStack(alignment: .leading, spacing: 8) {
+                Group {
+                    if model.broadcasting {
+                        Text(model.captureTitle)
+                    } else {
+                        Text("Smart TV.") + Text("\nCarPlay.").foregroundColor(MirrorStyle.accent)
+                    }
+                }
+                .font(.system(.largeTitle, design: .default, weight: .bold))
+                .tracking(L10n.appLanguage.allowsLetterSpacing ? -1.2 : 0)
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
-            Text(model.broadcasting ? detail : L10n.tr("IPTV listelerini düzenle. iPhone’da, Smart TV’de ve uyumlu CarPlay ekranında izle."))
-                .font(.subheadline)
-                .foregroundStyle(MirrorStyle.secondary)
-                .lineSpacing(4)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 10)
-            if !model.broadcasting {
-                Button(action: openLibrary) {
-                    Label(L10n.tr("Kaynakları aç"), systemImage: "play.rectangle.on.rectangle")
-                }
-                .buttonStyle(MirivoButtonStyle(prominent: true))
-                .padding(.top, 22).accessibilityIdentifier("home-open-library")
+                Text(model.broadcasting ? detail : L10n.tr("Büyük ekranda daha fazlası."))
+                    .font(.subheadline)
+                    .foregroundStyle(Color.white.opacity(0.72))
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            if model.broadcasting && !dynamicTypeSize.isAccessibilitySize {
-                ScreenLinkIllustration(active: model.sessionState == .presenting)
-                    .padding(.top, 14)
-                    .padding(.bottom, -8)
+            .padding(.horizontal, 4)
+            if !dynamicTypeSize.isAccessibilitySize {
+                ScreenLinkIllustration(active: playback.displayConnection.isConnected || model.sessionState == .presenting)
+                    .padding(.top, 8)
+                    .padding(.bottom, 14)
             }
+            destinations
+                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 22 : 0)
         }
-        .padding(24)
+        .padding(20)
+        .padding(.top, 4)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
-            RoundedRectangle(cornerRadius: 28)
-                .fill(LinearGradient(colors: [MirrorStyle.raised.opacity(0.75), MirrorStyle.surface.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing))
+            RoundedRectangle(cornerRadius: 30)
+                .fill(LinearGradient(colors: [Color(red: 0.075, green: 0.16, blue: 0.15), MirrorStyle.surface, Color(red: 0.045, green: 0.07, blue: 0.075)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
         }
-        .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline).allowsHitTesting(false) }
+        .overlay {
+            RoundedRectangle(cornerRadius: 30)
+                .strokeBorder(LinearGradient(colors: [MirrorStyle.accent.opacity(0.42), MirrorStyle.hairline, MirrorStyle.accent.opacity(0.12)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+                .allowsHitTesting(false)
+        }
     }
 
     private var destinations: some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout = dynamicTypeSize >= .xxxLarge
             ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
         return layout {
             Button { showingDisplays = true } label: {
-                destination("Smart TV", detail: "Google Cast · AirPlay", symbol: "tv")
+                destination("Smart TV", detail: "Cast · AirPlay", symbol: "tv")
             }
             .accessibilityLabel("Smart TV")
             .accessibilityValue(playback.displayConnection.primaryRoute == .carPlay ? "" : playback.displayConnection.connectedSummary)
             .accessibilityIdentifier("tv-connection")
             Button { showingCarPlay = true } label: {
-                destination("CarPlay", detail: L10n.tr("Park halindeyken"), symbol: "car.side")
+                destination("CarPlay", detail: L10n.tr("Park halindeyken"), symbol: "car.side.fill", prominent: true)
             }.accessibilityIdentifier("home-carplay")
         }.buttonStyle(MirivoPressButtonStyle())
     }
 
-    private func destination(_ title: String, detail: String, symbol: String) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+    private func destination(_ title: String, detail: String, symbol: String, prominent: Bool = false) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: symbol).font(.title2).foregroundStyle(MirrorStyle.accent)
-                Spacer()
-                Image(systemName: "chevron.forward").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
-            }.accessibilityHidden(true)
-            Text(title).font(.headline).foregroundStyle(.white)
-            Text(detail).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                Image(systemName: symbol)
+                    .font(.system(size: 25, weight: .medium))
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.up.forward")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 26, height: 26)
+                    .background(prominent ? Color.black.opacity(0.08) : MirrorStyle.accent.opacity(0.10), in: Circle())
+            }
+            .frame(height: 30)
+            .foregroundStyle(prominent ? MirrorStyle.background : MirrorStyle.accent)
+            .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(prominent ? MirrorStyle.background : .white)
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(prominent ? MirrorStyle.background.opacity(0.75) : Color.white.opacity(0.72))
+            }
         }
         .fixedSize(horizontal: false, vertical: true)
-        .padding(18).frame(maxWidth: .infinity, minHeight: 124, alignment: .topLeading)
-        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 22))
-        .overlay { RoundedRectangle(cornerRadius: 22).strokeBorder(MirrorStyle.hairline) }
+        .padding(14).frame(maxWidth: .infinity, minHeight: 114, alignment: .topLeading)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(LinearGradient(colors: prominent
+                                     ? [Color(red: 0.65, green: 0.97, blue: 0.85), MirrorStyle.accent]
+                                     : [Color(red: 0.10, green: 0.25, blue: 0.22), Color(red: 0.055, green: 0.15, blue: 0.14)],
+                                     startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .strokeBorder(prominent ? Color.white.opacity(0.3) : MirrorStyle.accent.opacity(0.32))
+                .allowsHitTesting(false)
+        }
+        .contentShape(RoundedRectangle(cornerRadius: 20))
     }
 
     @ViewBuilder
@@ -156,6 +188,7 @@ struct MirrorHomeView: View {
                     Text(L10n.tr("Ekranını paylaş"))
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(.white)
+                        .accessibilityIdentifier("home-share-title")
                     Text(L10n.tr("Başlatmak için dokun"))
                         .font(.footnote)
                         .foregroundStyle(MirrorStyle.secondary)

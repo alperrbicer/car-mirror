@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "Tampilkan pengantar lagi";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "Akses pengembangan gratis tanpa batas";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "Hanya tersedia pada build Debug. Nonaktifkan saat menguji pembelian.";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "Konten favoritmu, dalam satu tempat.";
+"Kayıtlı kaynaklar" = "Sumber tersimpan";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "Pilih layar dan nikmati konten favoritmu di layar yang lebih besar.";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "Lanjutkan film atau serial dari bagian terakhir yang ditonton. Unduh konten yang didukung untuk ditonton tanpa internet.";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "Bagikan layar, video, dan fotomu. Tonton di layar lebih besar dengan Google Cast, AirPlay, atau CarPlay di kendaraan yang kompatibel.";
+"Dizilerini sezon ve bölümleriyle keşfet." = "Jelajahi serial berdasarkan musim dan episode.";
+"Resim İçinde Resim" = "Gambar dalam Gambar";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "Unduh sekarang, tonton nanti.";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "Unduh film dan episode yang didukung untuk ditonton tanpa internet.";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "Ketuk tombol unduh di daftar film atau episode. Unduhanmu akan muncul di sini.";

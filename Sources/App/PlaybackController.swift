@@ -92,6 +92,7 @@ final class PlaybackController: ObservableObject {
     private(set) var pendingAutomaticPiP = false
     @Published private var startingPiP = false
     @Published private var stoppingPiP = false
+    private var retiringPiPSources: Set<ObjectIdentifier> = []
     private var enteredBackgroundWithVideo = false
     private var restorePiPOnStart = false
     private var foregroundPiPRestoreID: UUID?
@@ -107,7 +108,7 @@ final class PlaybackController: ObservableObject {
     var canStartPictureInPicture: Bool {
         guard hasActivePlayback, !screenCaptureBlocked, request?.presentation == .video, tvDevice == nil,
               !externalPlaybackActive, !externalDisplayConnected,
-              !startingPiP, !stoppingPiP, !pictureInPictureActiveOrStarting else { return false }
+              retiringPiPSources.isEmpty, !startingPiP, !stoppingPiP, !pictureInPictureActiveOrStarting else { return false }
         // Only the decoder currently rendering the video can supply its PiP source.
         if let compatibility { return compatibility.pipPossible }
         return currentNativePiP?.isPictureInPicturePossible == true &&
@@ -187,6 +188,13 @@ final class PlaybackController: ObservableObject {
         restorePiPOnStart = false
         foregroundPiPRestoreID = nil
     }
+    func pictureInPictureSourceStopped(_ source: AnyObject) {
+        guard retiringPiPSources.remove(ObjectIdentifier(source)) != nil else { return }
+        // A replacement decoder can become ready before AVKit finishes closing
+        // the previous window. Start it only after that handoff has completed.
+        startPendingPictureInPicture()
+        objectWillChange.send()
+    }
     func applicationDidEnterBackground() {
         restorePiPOnStart = false
         foregroundPiPRestoreID = nil
@@ -198,7 +206,11 @@ final class PlaybackController: ObservableObject {
         startPendingPictureInPicture()
     }
     func applicationDidBecomeActive() {
+        let returningFromBackground = enteredBackgroundWithVideo
         enteredBackgroundWithVideo = false
+        // Alerts and system overlays also reactivate the app. They must not
+        // close PiP that the user explicitly opened while the app was visible.
+        guard returningFromBackground else { return }
         // The PiP return button already owns this stop. Sending another one
         // during activation interrupts the system's return to the inline view.
         guard !stoppingPiP else { return }
@@ -480,7 +492,8 @@ final class PlaybackController: ObservableObject {
         // STOP first adds an avoidable round trip and makes channel changes
         // visibly stall on the TV.
         let replacingCastMedia = tvDevice != nil && casting != nil && !url.isFileURL
-        let resumePiPAfterReplacement = presentation == .video && pictureInPictureActiveOrStarting && tvDevice == nil &&
+        let resumePiPAfterReplacement = presentation == .video && !stoppingPiP && !restorePiPOnStart &&
+            (pictureInPictureActiveOrStarting || pendingAutomaticPiP) && tvDevice == nil &&
             !externalPlaybackActive && !externalDisplayConnected
         stop(stopRemoteCastMedia: !replacingCastMedia)
         pendingAutomaticPiP = resumePiPAfterReplacement
@@ -590,8 +603,9 @@ final class PlaybackController: ObservableObject {
                 self.pictureInPictureStarted()
             }
             engine.onPiPStopped = { [weak self, weak engine] in
-                guard let self, self.compatibility === engine else { return }
-                self.pictureInPictureStopped()
+                guard let self, let engine else { return }
+                if self.compatibility === engine { self.pictureInPictureStopped() }
+                self.pictureInPictureSourceStopped(engine)
             }
             engine.onPiPWillStop = { [weak self, weak engine] in
                 guard let self, self.compatibility === engine else { return }
@@ -714,8 +728,18 @@ final class PlaybackController: ObservableObject {
     func stop(stopRemoteCastMedia: Bool = true) {
         playbackID = UUID()
         foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
-        let previousNativeController = retainedPiPController as? NativeVideoController
         let previousNativePiP = currentNativePiP
+        let previousNativeController = (retainedPiPController as? NativeVideoController) ??
+            (previousNativePiP?.delegate as? NativeVideoController)
+        let previousCompatibility = compatibility
+        if let previousNativeController,
+           previousNativeController.startingPiP || previousNativePiP?.isPictureInPictureActive == true {
+            retiringPiPSources.insert(ObjectIdentifier(previousNativeController))
+        }
+        if let previousCompatibility,
+           previousCompatibility.pipActive || previousCompatibility.pipStarting || startingPiP {
+            retiringPiPSources.insert(ObjectIdentifier(previousCompatibility))
+        }
         retainedPiPController = nil
         nativePiP = nil
         trackLoadingTask?.cancel(); trackLoadingTask = nil
@@ -740,7 +764,6 @@ final class PlaybackController: ObservableObject {
         durationObservation = nil
         pendingSeek = nil
         casting?.stop(stopRemoteMedia: stopRemoteCastMedia); casting = nil
-        let previousCompatibility = compatibility
         compatibility = nil
         previousCompatibility?.stop()
         currentTime = 0; duration = 0

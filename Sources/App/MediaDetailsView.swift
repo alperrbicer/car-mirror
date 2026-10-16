@@ -95,10 +95,11 @@ struct MediaDetailsView: View {
     let channel: MediaChannel
     let source: MediaSource?
     var series: MediaSeries?
+    var playChannel: MediaChannel?
+    var onPlay: (() -> Void)?
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var loadedMetadata: MediaMetadata?
-    @State private var expanded = false
+    @State private var showingDetails = false
     @State private var loading = true
     @State private var failed = false
     @State private var retry = 0
@@ -106,39 +107,43 @@ struct MediaDetailsView: View {
     private var contentID: String { "\(channel.id)|\(source?.id.uuidString ?? "")|\(series?.id ?? "")" }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            header
-            Button {
-                withAnimation(reduceMotion ? nil : .smooth(duration: 0.35)) { expanded.toggle() }
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "info.circle").accessibilityHidden(true)
-                    Text(L10n.tr(expanded ? "Bilgileri gizle" : "İçerik bilgileri"))
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 8)
-                    Image(systemName: "chevron.down").font(.caption.weight(.semibold))
-                        .rotationEffect(.degrees(expanded ? 180 : 0)).accessibilityHidden(true)
+        Group {
+            if let series {
+                SeriesDetailHero(series: series, channel: channel, metadata: metadata,
+                                 playChannel: playChannel, onPlay: onPlay,
+                                 showDetails: { showingDetails = true })
+            } else {
+                VStack(alignment: .leading, spacing: 20) {
+                    header
+                    Button { showingDetails = true } label: {
+                        HStack(spacing: 10) {
+                            Label(L10n.tr("İçerik bilgileri"), systemImage: "info.circle")
+                            Spacer(minLength: 8)
+                            Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
+                                .accessibilityHidden(true)
+                        }
+                        .font(.subheadline.weight(.medium)).foregroundStyle(MirrorStyle.accent)
+                        .padding(.horizontal, 14).padding(.vertical, 12)
+                        .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
+                        .background(MirrorStyle.raised, in: RoundedRectangle(cornerRadius: 14))
+                        .contentShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .buttonStyle(.plain).accessibilityIdentifier("media-details-toggle")
                 }
-                .font(.subheadline.weight(.medium)).foregroundStyle(MirrorStyle.accent)
-                .padding(.horizontal, 14).padding(.vertical, 12)
-                .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
-                .background(MirrorStyle.raised, in: RoundedRectangle(cornerRadius: 14))
-                .contentShape(RoundedRectangle(cornerRadius: 14))
-            }
-            // Automatic buttons inside List can make the entire row tappable.
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("media-details-toggle")
-            if expanded {
-                details.transition(.opacity)
+                .padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
+                .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
             }
         }
-        .padding(20).frame(maxWidth: .infinity, alignment: .leading)
-        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
-        .clipShape(RoundedRectangle(cornerRadius: 28))
-        .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
-        .animation(expanded && !reduceMotion ? .smooth(duration: 0.3) : nil, value: loading)
         .accessibilityElement(children: .contain).accessibilityIdentifier("media-details")
-        .onChange(of: contentID) { _, _ in expanded = false }
+        // Present details independently of the scroll layout. Animating a List
+        // row's height while metadata arrives caused repeated offset corrections.
+        // Read these states in the presenting body as well: a failed request
+        // does not change metadata, so a lazy sheet must not retain "loading".
+        .sheet(isPresented: $showingDetails) { [loading, failed] in
+            informationSheet(loading: loading, failed: failed)
+        }
+        .onChange(of: contentID) { _, _ in showingDetails = false }
         .task(id: "\(contentID)|\(retry)") {
             loadedMetadata = nil; loading = true; failed = false
             defer { if !Task.isCancelled { loading = false } }
@@ -154,7 +159,33 @@ struct MediaDetailsView: View {
         }
     }
 
-    private var details: some View {
+    private func informationSheet(loading: Bool, failed: Bool) -> some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 28) {
+                    header
+                    Rectangle().fill(MirrorStyle.hairline).frame(height: 1)
+                    details(loading: loading, failed: failed)
+                }
+                .padding(24).frame(maxWidth: 640).frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .background(MirrorStyle.background)
+            .navigationTitle(L10n.tr("İçerik bilgileri"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.tr("Kapat"), systemImage: "xmark") { showingDetails = false }
+                        .labelStyle(.iconOnly).tint(.white).accessibilityIdentifier("media-details-close")
+                }
+            }
+        }
+        .tint(MirrorStyle.accent).preferredColorScheme(.dark)
+        .presentationDetents([.large]).presentationDragIndicator(.visible)
+        .presentationCornerRadius(30)
+        .accessibilityIdentifier("media-details-sheet")
+    }
+
+    private func details(loading: Bool, failed: Bool) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             if let summary = metadata.summary {
                 VStack(alignment: .leading, spacing: 10) {
@@ -202,7 +233,7 @@ struct MediaDetailsView: View {
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
             : AnyLayout(HStackLayout(alignment: .top, spacing: 16))
         return layout {
-            MediaArtworkView(channel: channel, fallbackArtworkURL: metadata.artworkURL)
+            MediaArtworkPreviewButton(channel: channel, fallbackArtworkURL: metadata.artworkURL)
                 .frame(width: 76, height: channel.isLive || channel.isAudio ? 76 : 108)
             VStack(alignment: .leading, spacing: 9) {
                 Text(series?.title ?? channel.title).font(.title3.weight(.semibold)).fixedSize(horizontal: false, vertical: true)

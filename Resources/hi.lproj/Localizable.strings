@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "परिचय फिर दिखाएँ";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "निःशुल्क, असीमित विकास पहुँच";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "केवल Debug बिल्ड में उपलब्ध। खरीदारी का परीक्षण करते समय बंद करें।";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "आपकी पसंदीदा सामग्री, एक ही जगह।";
+"Kayıtlı kaynaklar" = "सहेजे गए स्रोत";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "एक स्क्रीन चुनें और अपनी पसंदीदा सामग्री बड़े पर्दे पर देखें।";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "अपनी फ़िल्म या सीरीज़ वहीं से आगे देखें जहाँ छोड़ी थी। समर्थित सामग्री डाउनलोड करें और बिना इंटरनेट के भी देखें।";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "अपनी स्क्रीन, वीडियो और फ़ोटो साझा करें। Google Cast, AirPlay या संगत वाहनों में CarPlay से बड़ी स्क्रीन पर देखें।";
+"Dizilerini sezon ve bölümleriyle keşfet." = "अपनी सीरीज़ सीज़न और एपिसोड के हिसाब से देखें।";
+"Resim İçinde Resim" = "पिक्चर इन पिक्चर";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "अभी डाउनलोड करें, बाद में देखें।";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "ऑफ़लाइन देखने के लिए समर्थित फ़िल्में और एपिसोड डाउनलोड करें।";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "फ़िल्म या एपिसोड की सूची में डाउनलोड बटन पर टैप करें। आपके डाउनलोड यहाँ दिखाई देंगे।";

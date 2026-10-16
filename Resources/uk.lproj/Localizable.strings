@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "Показати вступ знову";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "Безкоштовний необмежений доступ для розробки";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "Доступно лише у збірках Debug. Вимкніть під час тестування покупок.";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "Улюблений контент в одному місці.";
+"Kayıtlı kaynaklar" = "Збережені джерела";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "Виберіть екран і дивіться улюблений контент у великому форматі.";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "Продовжуйте фільм або серіал із того місця, де зупинилися. Завантажуйте підтримуваний вміст і дивіться без інтернету.";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "Діліться екраном, відео й фотографіями. Дивіться на великому екрані через Google Cast, AirPlay або CarPlay у сумісних автомобілях.";
+"Dizilerini sezon ve bölümleriyle keşfet." = "Переглядайте серіали за сезонами й епізодами.";
+"Resim İçinde Resim" = "Картинка в картинці";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "Завантаж зараз, дивись потім.";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "Завантажуй доступні для завантаження фільми й серії та дивись без інтернету.";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "Натисни кнопку завантаження в списку фільмів або серій. Завантажені матеріали з’являться тут.";

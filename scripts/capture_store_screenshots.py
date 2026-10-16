@@ -60,8 +60,23 @@ class Handler(BaseHTTPRequestHandler):
     def serve(self, body):
         request = urlsplit(self.path)
         path = request.path
-        if path in ["/catalog/get.php", "/catalog.m3u", "/catalog-movie-episodes.m3u"]:
+        if path == "/live-picker.m3u":
+            count = min(15348, max(4, int(parse_qs(request.query).get("count", ["4"])[0])))
+            # Finite local clips with live route metadata exercise channel UI
+            # without depending on a provider or an external broadcast.
+            extra = "".join(
+                f'#EXTINF:-1 group-title="Grup {i % 15 + 1:02}",Kanal {i:05}\n'
+                f'http://127.0.0.1:{PORT}/live/artwork/fixture/{i}.mp4\n'
+                for i in range(5, count + 1)
+            ).encode()
+            data = CATALOG.replace(b".m3u8", b".mp4") + extra
+            mime = "application/vnd.apple.mpegurl"
+        elif path.startswith("/live/artwork/fixture/") and path.endswith(".mp4"):
+            data, mime = VIDEO, "video/mp4"
+        elif path in ["/catalog/get.php", "/catalog.m3u", "/catalog-movie-episodes.m3u", "/catalog-single-season.m3u"]:
             data = CATALOG.replace(b"/series/artwork/fixture/", b"/movie/artwork/fixture/") if path == "/catalog-movie-episodes.m3u" else CATALOG
+            if path == "/catalog-single-season.m3u":
+                data = re.sub(rb"#EXTINF:[^\n]* S02-E\d+\n[^\n]+\n", b"", data)
             mime = "application/vnd.apple.mpegurl"
         elif path in ["/catalog/player_api.php", "/player_api.php"]:
             query = parse_qs(request.query)

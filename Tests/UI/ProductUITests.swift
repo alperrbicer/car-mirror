@@ -71,6 +71,7 @@ final class ProductUITests: XCTestCase {
     }
 
     func testOnboardingFinishesWithOptionalProAndDoesNotRepeat() {
+        continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-onboarding", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
         XCUIDevice.shared.orientation = .portrait
@@ -78,16 +79,21 @@ final class ProductUITests: XCTestCase {
         defer { app.terminate() }
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["open-settings"].exists)
-        capture("onboarding-01-library-tr", app: app)
+        XCTAssertTrue(app.pageIndicators["onboarding-pages"].isHittable)
+        capture("onboarding-01-display-tr", app: app)
         app.swipeLeft()
         XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
-        capture("onboarding-02-continue-tr", app: app)
+        capture("onboarding-02-downloads-tr", app: app)
         app.swipeRight()
+        XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 5))
+        app.pageIndicators["onboarding-pages"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
+        app.buttons["onboarding-back"].tap()
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 5))
         app.buttons["onboarding-next"].tap()
         app.swipeLeft()
         XCTAssertTrue(app.staticTexts["onboarding-title-2"].waitForExistence(timeout: 5))
-        capture("onboarding-03-display-tr", app: app)
+        capture("onboarding-03-library-tr", app: app)
         app.buttons["onboarding-next"].tap()
         let free = app.buttons["onboarding-continue-free"]
         XCTAssertTrue(free.waitForExistence(timeout: 10))
@@ -105,7 +111,27 @@ final class ProductUITests: XCTestCase {
         XCTAssertFalse(app.buttons["onboarding-continue-free"].exists)
     }
 
+    func testOnboardingIsCompletedAsSoonAsProAppears() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-onboarding",
+                               "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.buttons["onboarding-skip"].waitForExistence(timeout: 10))
+        app.buttons["onboarding-skip"].tap()
+        XCTAssertTrue(app.buttons["pro-close"].waitForExistence(timeout: 10))
+        // Completion must persist before the offer is dismissed.
+        app.terminate()
+        app.launchArguments.append("-mirivo-ui-preserve-onboarding")
+        app.launch()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["onboarding-skip"].exists)
+        XCTAssertFalse(app.buttons["pro-close"].exists)
+    }
+
     func testOnboardingCanBeSkippedAndProClosedWithLargeRightToLeftText() {
+        continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-onboarding", "-AppleLanguages", "(ar)",
                                "-AppleLocale", "ar", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
@@ -115,9 +141,17 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["onboarding-next"].isHittable)
         capture("onboarding-large-ar", app: app)
-        app.swipeRight()
+        app.collectionViews["onboarding-pager"].swipeRight()
         XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
-        app.swipeLeft()
+        XCTAssertTrue(app.buttons["onboarding-next"].isHittable)
+        capture("onboarding-02-large-ar", app: app)
+        app.buttons["onboarding-next"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-2"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["onboarding-next"].isHittable)
+        capture("onboarding-03-large-ar", app: app)
+        app.buttons["onboarding-back"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
+        app.collectionViews["onboarding-pager"].swipeLeft()
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 5))
         app.buttons["onboarding-skip"].tap()
         XCTAssertTrue(app.buttons["onboarding-continue-free"].waitForExistence(timeout: 10))
@@ -178,13 +212,17 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.buttons["page-mirror"].waitForExistence(timeout: 10))
         app.buttons["page-mirror"].tap()
         XCTAssertTrue(app.buttons["home-carplay"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["home-open-library"].exists)
         capture("design-home-tr", app: app)
+        app.buttons["tv-connection"].tap()
+        XCTAssertTrue(app.navigationBars["Ekran bağlantısı"].waitForExistence(timeout: 5))
+        app.buttons["Kapat"].tap()
         app.buttons["home-carplay"].tap()
         XCTAssertTrue(app.buttons["guide-CarPlay"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["guide-CarPlay"].isSelected)
         capture("design-carplay-guide-tr", app: app)
         app.buttons["Kapat"].tap()
-        app.buttons["home-open-library"].tap()
+        app.buttons["page-library"].tap()
         let xtream = app.buttons["add-source-xtream"]
         reveal(xtream, in: app)
         XCTAssertTrue(xtream.isHittable)
@@ -210,6 +248,12 @@ final class ProductUITests: XCTestCase {
             capture("design-source-\(kind)-tr", app: app)
             app.buttons["Vazgeç"].tap()
         }
+        app.terminate()
+        app.launchArguments.append("-mirivo-ui-continue-watching")
+        app.launch()
+        app.buttons["page-library"].tap()
+        XCTAssertTrue(app.buttons["add-source"].waitForExistence(timeout: 5))
+        capture("design-library-continue-tr", app: app)
     }
 
     func testPhysicalNativePiPReturnInline() throws { try physicalPiPReturn(kind: "mp4", fullscreen: false) }
@@ -318,6 +362,52 @@ final class ProductUITests: XCTestCase {
         XCTAssertFalse(app.otherElements["continue-watching-section"].exists)
         app.buttons["now-playing-open"].tap()
         XCTAssertTrue(video.waitForExistence(timeout: 5))
+    }
+
+    func testStoppingPlaybackHidesResumeBarWithoutRemovingHistoryOrRelaunchResume() {
+        continueAfterFailure = false
+        let app = launch(continuations: true)
+        defer { app.terminate() }
+        app.buttons["page-library"].tap()
+        let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
+        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
+        let savedCardID = cards.firstMatch.identifier
+        app.buttons[savedCardID].tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        let resumed = NSPredicate { _, _ in
+            let parts = (app.sliders["Oynatma konumu"].value as? String ?? "").split(separator: ":").compactMap { Double($0) }
+            return parts.count == 2 && parts[0] * 60 + parts[1] >= 42
+        }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
+        let stop = app.buttons["stop-player-playback"]
+        reveal(stop, in: app)
+        stop.tap()
+        XCTAssertTrue(app.buttons[savedCardID].waitForExistence(timeout: 5), "Stopping must keep the item in the sources history")
+        app.buttons["page-mirror"].tap()
+        XCTAssertFalse(app.buttons["now-playing-open"].exists)
+        XCTAssertFalse(app.buttons["last-watched-open"].exists, "Stopping must hide the bottom resume bar for this session")
+        capture("stopped-playback-no-resume-bar", app: app)
+
+        app.terminate()
+        app.launchArguments.append("-mirivo-ui-preserve-library")
+        app.launch()
+        app.buttons["page-mirror"].tap()
+        let resumeBar = app.buttons["last-watched-open"]
+        XCTAssertTrue(resumeBar.waitForExistence(timeout: 10), "A new app session must show the saved resume bar again")
+        XCTAssertFalse(app.buttons["now-playing-open"].exists, "Relaunch must not start playback automatically")
+        capture("relaunched-playback-resume-bar", app: app)
+        resumeBar.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["now-playing-open"].waitForExistence(timeout: 5))
+
+        app.terminate()
+        app.launch()
+        app.buttons["page-mirror"].tap()
+        XCTAssertTrue(resumeBar.waitForExistence(timeout: 10), "Closing the app during playback must preserve the existing resume behavior")
+        app.buttons["page-library"].tap()
+        XCTAssertTrue(app.buttons[savedCardID].waitForExistence(timeout: 5))
     }
 
     func testColdStartContinuationAutomaticallyPlaysNativeInline() {
@@ -830,6 +920,99 @@ final class ProductUITests: XCTestCase {
         capture("store-\(language)-05-xtream", app: editor)
         editor.terminate()
     }
+    func testPortraitFullscreenExitFromPlaybackButtonWorksOnFirstDrag() {
+        let (app, video) = openPausedPortraitFullscreenPlayer()
+        defer { app.terminate() }
+        let pause = app.buttons["player-play-pause"]
+        let start = pause.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        start.press(forDuration: 0.02, thenDragTo: start.withOffset(CGVector(dx: 0, dy: 140)),
+                    withVelocity: .slow, thenHoldForDuration: 0)
+        let inline = NSPredicate { _, _ in video.frame.height < video.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: inline, object: app)], timeout: 5), .completed,
+                       "The first downward drag must exit even when it starts over the playback button")
+        XCTAssertEqual(pause.label, "Oynat", "Dragging over the playback button must not resume the paused video")
+        capture("portrait-fullscreen-exit-from-playback-button", app: app)
+    }
+
+    func testPortraitFullscreenExitAcceptsShortFastSwipe() {
+        let (app, video) = openPausedPortraitFullscreenPlayer()
+        defer { app.terminate() }
+        let start = video.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.28))
+        start.press(forDuration: 0.02, thenDragTo: start.withOffset(CGVector(dx: 4, dy: 55)),
+                    withVelocity: .fast, thenHoldForDuration: 0)
+        let inline = NSPredicate { _, _ in video.frame.height < video.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: inline, object: app)], timeout: 5), .completed,
+                       "A deliberate fast downward swipe must not require an 80-point drag")
+        capture("portrait-fullscreen-exit-short-swipe", app: app)
+    }
+
+    func testPortraitFullscreenGesturesPreservePlaybackAndTimelineControls() {
+        let (app, video) = openPausedPortraitFullscreenPlayer()
+        defer { app.terminate() }
+        let pause = app.buttons["player-play-pause"]
+        pause.tap()
+        let playing = NSPredicate(format: "label == %@", "Duraklat")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: playing, object: pause)], timeout: 5), .completed,
+                       "An ordinary tap must still control playback")
+        pause.tap()
+        let paused = NSPredicate(format: "label == %@", "Oynat")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: paused, object: pause)], timeout: 5), .completed)
+        for offset in [CGVector(dx: 120, dy: 8), CGVector(dx: 0, dy: 16), CGVector(dx: 0, dy: -120)] {
+            let start = video.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.28))
+            start.press(forDuration: 0.02, thenDragTo: start.withOffset(offset), withVelocity: .slow, thenHoldForDuration: 0)
+            XCTAssertGreaterThan(video.frame.height, video.frame.width, "Incidental or non-downward drags must not exit fullscreen")
+        }
+        let timeline = app.sliders["Oynatma konumu"]
+        if !timeline.exists { app.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.28)).tap() }
+        XCTAssertTrue(timeline.waitForExistence(timeout: 5))
+        let thumb = timeline.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        thumb.press(forDuration: 0.02, thenDragTo: thumb.withOffset(CGVector(dx: 0, dy: 120)), withVelocity: .slow, thenHoldForDuration: 0)
+        XCTAssertGreaterThan(video.frame.height, video.frame.width, "A timeline drag belongs to the seek control")
+        XCTAssertEqual(pause.label, "Oynat")
+
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.18, dy: 0.28)).tap()
+        XCTAssertTrue(pause.waitForNonExistence(timeout: 5))
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.4))
+        start.press(forDuration: 0.02, thenDragTo: start.withOffset(CGVector(dx: 0, dy: 140)), withVelocity: .slow, thenHoldForDuration: 0)
+        let inline = NSPredicate { _, _ in video.frame.height < video.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: inline, object: app)], timeout: 5), .completed,
+                       "The first downward drag must also exit with controls hidden")
+        capture("portrait-fullscreen-exit-hidden-controls", app: app)
+    }
+
+    private func openPausedPortraitFullscreenPlayer() -> (XCUIApplication, XCUIElement) {
+        continueAfterFailure = false
+        let app = launch()
+        let home = app.buttons["page-mirror"]
+        XCTAssertTrue(home.waitForExistence(timeout: 10))
+        for _ in 0..<3 {
+            if home.isSelected { break }
+            home.tap()
+            let selected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == true"), object: home)
+            if XCTWaiter.wait(for: [selected], timeout: 2) == .completed { break }
+        }
+        XCTAssertTrue(home.isSelected)
+        reveal(app.buttons["share-link"], in: app)
+        app.buttons["share-link"].tap()
+        let url = app.textFields["quick-media-url"]
+        XCTAssertTrue(url.waitForExistence(timeout: 5))
+        url.tap(); url.typeText("http://127.0.0.1:8769/tracks/options.mp4")
+        app.buttons["quick-media-play"].tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        let pause = app.buttons["player-play-pause"]
+        XCTAssertTrue(pause.waitForExistence(timeout: 10))
+        let playing = NSPredicate(format: "label == %@", "Duraklat")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: playing, object: pause)], timeout: 10), .completed)
+        pause.tap()
+        let paused = NSPredicate(format: "label == %@", "Oynat")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: paused, object: pause)], timeout: 5), .completed)
+        app.buttons["player-fullscreen"].tap()
+        let fullscreen = NSPredicate { _, _ in app.frame.height > app.frame.width && video.frame.height > video.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: fullscreen, object: app)], timeout: 5), .completed)
+        return (app, video)
+    }
+
     func testPortraitPlayerOptionsTimeoutRestartsWhenReopened() {
         continueAfterFailure = false
         let app = launch()
@@ -1034,6 +1217,7 @@ final class ProductUITests: XCTestCase {
         app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
         app.buttons["Ekle"].tap()
         XCTAssertTrue(app.buttons["add-source"].waitForExistence(timeout: 10))
+        capture("design-library-saved-tr", app: app)
         app.buttons["add-source"].tap()
         XCTAssertTrue(app.textFields["source-name"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["pro-close"].exists)
@@ -1429,6 +1613,8 @@ final class ProductUITests: XCTestCase {
         row.swipeLeft(); app.buttons["Sil"].tap()
         XCTAssertTrue(app.staticTexts["Henüz indirilen içerik yok"].waitForExistence(timeout: 5))
         capture("audit-downloads-empty", app: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertFalse(app.buttons["offline-downloads-open"].exists, "An empty downloads section must be hidden")
     }
 
     private func launch(language: String = "tr", large: Bool = false, continuations: Bool = false) -> XCUIApplication {
@@ -1762,16 +1948,18 @@ final class ProductUITests: XCTestCase {
     }
     func testEnglishLargeTextKeepsHomePortraitAndControlsReachable() {
         let app = launch(language: "en", large: true)
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
         XCTAssertTrue(app.buttons["page-mirror"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Share your screen"].exists)
+        let shareTitle = app.staticTexts["home-share-title"]
+        XCTAssertTrue(shareTitle.exists)
         capture("09-mirivo-large-text-en", app: app)
         XCUIDevice.shared.orientation = .landscapeLeft
         // Only the player rotates; the home screen stays portrait on iPhone.
         XCTAssertGreaterThan(app.frame.height, app.frame.width)
         // All controls remain reachable by scrolling at accessibility sizes.
-        reveal(app.staticTexts["Share your screen"], in: app)
+        reveal(shareTitle, in: app)
         capture("10-mirivo-large-text-share-en", app: app)
-        XCTAssertTrue(app.staticTexts["Share your screen"].isHittable, app.debugDescription)
+        XCTAssertTrue(shareTitle.isHittable, app.debugDescription)
         app.swipeUp()
         capture("11-mirivo-large-text-scrolled-en", app: app)
         XCUIDevice.shared.orientation = .portrait

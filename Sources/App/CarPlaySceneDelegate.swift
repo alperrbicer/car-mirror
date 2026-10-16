@@ -91,7 +91,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
         let stop = CPListItem(text: L10n.tr(model.mediaTitle == nil ? "Paylaşımı durdur" : "Oynatmayı durdur"), detailText: nil, image: UIImage(systemName: "stop.circle"))
         stop.isEnabled = model.broadcasting || model.probeStartedAt != nil || model.mediaTitle != nil
-        stop.handler = { _, completion in model.stopBroadcast(); model.stopProbe(); model.stopPlayback(); completion() }
+        stop.handler = { _, completion in model.stopBroadcast(hideSavedPlaybackBar: true); model.stopProbe(); model.stopPlayback(); completion() }
         if stop.isEnabled || supportsVideo { items.append(stop) }
         #if DEBUG
         if supportsVideo {

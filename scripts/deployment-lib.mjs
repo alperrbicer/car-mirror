@@ -116,7 +116,11 @@ export function physicalPhones(inventory) {
     const hardware = device.hardwareProperties || device.properties?.hardware || {}
     const connection = device.connectionProperties || device.properties?.connection || {}
     const state = device.deviceProperties || device.properties?.state || {}
-    if (hardware.reality !== 'physical' || connection.pairingState !== 'paired' || !/iphone/i.test(`${hardware.productType} ${hardware.deviceType}`)) return []
+    // Xcode 27.1 omits reality for physical devices. ECID plus a hardware UDID
+    // identifies those devices without admitting UUID-based simulators.
+    const physical = hardware.reality === 'physical' || (hardware.reality == null && hardware.ecid &&
+      /^(?:[0-9a-f]{8}-[0-9a-f]{16}|[0-9a-f]{40})$/i.test(hardware.udid || ''))
+    if (!physical || connection.pairingState !== 'paired' || !/iphone/i.test(`${hardware.productType} ${hardware.deviceType}`)) return []
     return [{ id: device.identifier, udid: hardware.udid, name: state.name || 'iPhone' }]
   })
 }

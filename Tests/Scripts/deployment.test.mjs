@@ -88,6 +88,19 @@ function isolatedCLI(t) {
     APP_STORE_CONNECT_KEY_ID: '', APP_STORE_CONNECT_ISSUER_ID: '', APP_STORE_CONNECT_PRIVATE_KEY_PATH: '' } }
 }
 
+test('Xcode 27.1 physical iPhones without reality retain hardware identification', () => {
+  const physical = phone()
+  delete physical.hardwareProperties.reality
+  physical.hardwareProperties.ecid = 4047173700321308
+  physical.hardwareProperties.udid = '00008140-000E60E20EC0801C'
+  const simulator = structuredClone(physical)
+  simulator.hardwareProperties.reality = 'simulated'
+  simulator.hardwareProperties.udid = 'B952AA0F-C81F-49A2-83F3-CEBE9D048739'
+  const unidentified = structuredClone(simulator)
+  delete unidentified.hardwareProperties.reality
+  assert.deepEqual(physicalPhones({result: {devices: [physical, simulator, unidentified]}}).map(device => device.udid), [physical.hardwareProperties.udid])
+})
+
 test('CLI rejects ambiguous or incompatible arguments before doing work', () => {
   assert.equal(argumentsFor(['install', '--', 'My iPhone']).device, 'My iPhone')
   assert.equal(argumentsFor(['install', '--preview']).preview, true)

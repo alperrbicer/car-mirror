@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "重新显示介绍";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "免费且无限制的开发访问";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "仅适用于 Debug 构建。测试购买时请关闭。";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "喜爱的内容，尽在一处。";
+"Kayıtlı kaynaklar" = "已保存的播放源";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "选择屏幕，在更大的画面上欣赏喜爱的内容。";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "接着上次的进度观看电影或剧集。下载支持的内容，离线也能观看。";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "分享你的屏幕、视频和照片。通过 Google Cast、AirPlay 或兼容车辆中的 CarPlay，在大屏幕上观看。";
+"Dizilerini sezon ve bölümleriyle keşfet." = "按季和集浏览你的剧集。";
+"Resim İçinde Resim" = "画中画";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "先下载，稍后看。";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "下载支持的电影和剧集，离线也能看。";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "轻点电影或剧集列表中的下载按钮。下载的内容会显示在这里。";

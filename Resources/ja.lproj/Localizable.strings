@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "紹介をもう一度表示";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "開発用の無料・無制限アクセス";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "Debugビルドでのみ利用できます。購入のテスト時はオフにしてください。";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "お気に入りのコンテンツを、ひとつの場所に。";
+"Kayıtlı kaynaklar" = "保存済みのソース";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "画面を選んで、お気に入りのコンテンツを大きな画面で楽しもう。";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "映画やシリーズを前回の続きから。対応するコンテンツをダウンロードすれば、オフラインでも楽しめます。";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "画面や動画、写真を共有。Google Cast、AirPlay、対応車両のCarPlayを使って、大きな画面で楽しめます。";
+"Dizilerini sezon ve bölümleriyle keşfet." = "シーズンやエピソードごとにシリーズを探せます。";
+"Resim İçinde Resim" = "ピクチャ・イン・ピクチャ";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "ダウンロードして、あとで観よう。";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "対応する映画やエピソードをダウンロードして、オフラインで楽しもう。";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "映画やエピソードの一覧でダウンロードボタンをタップしてください。ダウンロードした作品がここに表示されます。";

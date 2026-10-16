@@ -17,6 +17,8 @@ final class MirrorModel: ObservableObject {
     @Published private(set) var mediaTitle: String?
     @Published private(set) var selectedMediaChannel: MediaChannel?
     @Published private(set) var mediaErrorMessage: String?
+    // Only hide the saved resume bar for this session; keep viewing history intact.
+    @Published private(set) var hidesSavedPlaybackBar = false
     @Published var presentingPlayer = false
     @Published private(set) var playerScreenVisible = false
     @Published private(set) var playbackQueue: [MediaChannel] = []
@@ -71,7 +73,7 @@ final class MirrorModel: ObservableObject {
                 withTransaction(transaction) { self.presentingPlayer = true }
             }
         }
-        playback.onRemoteStop = { [weak self] in self?.stopBroadcast() }
+        playback.onRemoteStop = { [weak self] in self?.stopBroadcast(hideSavedPlaybackBar: true) }
         playback.onFinished = { [weak self] in
             guard let self else { return }
             if self.resumeRecordingEnabled, let last = LastPlaybackStore.shared.record,
@@ -309,15 +311,19 @@ final class MirrorModel: ObservableObject {
         }
         let shouldAdvance = queue != nil ? advanceAutomatically : (playbackQueue.contains(where: { $0.id == channel.id }) && advancesQueue)
         let keepPlayerPresented = presentingPlayer
-        if playback.tvDevice != nil && playback.hasActivePlayback {
-            // Keep the Cast receiver loaded until PlaybackController submits
-            // the replacement media; stopping playback here forces an extra
-            // STOP/load round trip for every channel selection.
-            stopProbe()
-            stopBroadcastCapture()
-        } else {
-            stopBroadcast()
-        }
+        // PlaybackController owns replacement, including the PiP handoff and
+        // Cast load. Stopping here first loses the previous source's PiP state.
+        stopProbe()
+        saveLastPlayback(force: true)
+        membershipResumePosition = nil
+        // Let play() capture any foreground return in progress before cancelling
+        // its old UI completion; cancellation must not turn it into a PiP start.
+        defer { finishPlayerRestoration(false) }
+        mediaTitle = nil
+        mediaErrorMessage = nil
+        playbackSessionID = nil
+        playbackAttemptFailed = false
+        stopBroadcastCapture()
         presentingPlayer = keepPlayerPresented
         playbackQueue = nextQueue
         advancesQueue = shouldAdvance
@@ -334,6 +340,7 @@ final class MirrorModel: ObservableObject {
                               useCompatibility: channel.requiresCompatibilityPlayback, startAt: startAt)
             guard playback.hasActivePlayback else { return false }
             mediaTitle = channel.title
+            hidesSavedPlaybackBar = false
             return true
         } catch {
             playback.stop()
@@ -432,7 +439,8 @@ final class MirrorModel: ObservableObject {
         if ProcessInfo.processInfo.arguments.contains("-mirivo-pip-probe") { return }
         #endif
         guard resumeRecordingEnabled, let channel = selectedMediaChannel, !channel.isAudio, !channel.url.isFileURL,
-              mediaTitle != nil, playback.state == .playing || playback.state == .paused else { return }
+              mediaTitle != nil, playback.state == .playing || playback.state == .paused ||
+                (force && playback.hasActivePlayback && playback.currentTime > 0) else { return }
         let now = Date()
         guard force || now.timeIntervalSince(resumeCheckpoint) >= 5 else { return }
         let record = LastPlaybackRecord(channel: channel, sourceID: mediaSourceID,
@@ -485,8 +493,9 @@ final class MirrorModel: ObservableObject {
         try? LastPlaybackStore.shared.clear(sourceID: sourceID)
     }
 
-    func stopPlayback() {
+    func stopPlayback(hideSavedPlaybackBar: Bool = false) {
         saveLastPlayback(force: true)
+        if hideSavedPlaybackBar { hidesSavedPlaybackBar = true }
         membershipResumePosition = nil
         finishPlayerRestoration(false)
         PlayerOrientationPolicy.update(playerVisible: false, allowsLandscape: false)
@@ -502,9 +511,9 @@ final class MirrorModel: ObservableObject {
         playbackAttemptFailed = false
     }
 
-    func stopBroadcast() {
+    func stopBroadcast(hideSavedPlaybackBar: Bool = false) {
         stopProbe()
-        stopPlayback()
+        stopPlayback(hideSavedPlaybackBar: hideSavedPlaybackBar)
         stopBroadcastCapture()
     }
 

@@ -12,6 +12,25 @@ import CryptoKit
 
 @MainActor
 final class PlayerTests: XCTestCase {
+    func testPortraitFullscreenExitAcceptsDownwardDragsAndShortFastSwipes() {
+        XCTAssertTrue(PlayerFullscreenExitGesture.shouldExit(translation: CGSize(width: 8, height: 90), velocity: .zero))
+        XCTAssertTrue(PlayerFullscreenExitGesture.shouldExit(translation: CGSize(width: 4, height: 40),
+                                                            velocity: CGSize(width: 30, height: 900)))
+    }
+
+    func testPortraitFullscreenExitRejectsSmallHorizontalAndUpwardMotion() {
+        for (translation, velocity) in [
+            (CGSize(width: 1, height: 12), CGSize(width: 0, height: 1200)),
+            (CGSize(width: 2, height: 40), CGSize.zero),
+            (CGSize(width: 120, height: 65), CGSize(width: 800, height: 100)),
+            (CGSize(width: 4, height: -100), CGSize(width: 0, height: -900)),
+            (CGSize(width: 4, height: 40), CGSize(width: 900, height: 600))
+        ] {
+            XCTAssertFalse(PlayerFullscreenExitGesture.shouldExit(translation: translation, velocity: velocity),
+                           "Motion \(translation), \(velocity) should keep the player fullscreen")
+        }
+    }
+
     func testMembershipIsRequiredOnPhoneAndCarPlayWithoutDailyAllowance() throws {
         let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
         defer { model.stopPlayback() }
@@ -327,6 +346,20 @@ final class PlayerTests: XCTestCase {
         XCTAssertNil(LastPlaybackStore(account: account).record)
     }
 
+    func testContinueWatchingRequiresThirtySecondsAfterReopening() throws {
+        let account = "short-progress-\(UUID())"
+        let store = LastPlaybackStore(account: account)
+        defer { try? store.clear() }
+        let channel = MediaChannel(title: "Partially watched film", url: URL(string: "https://example.com/short.mp4")!)
+        for position in [0.0, 1.0, 5.0, 12.0, 29.0, 29.9, 30.0, 31.0] {
+            let record = LastPlaybackRecord(channel: channel, sourceID: nil, position: position, duration: 900, isLive: false)
+            try store.save(record)
+            let expected = position >= 30 ? [record] : []
+            XCTAssertEqual(store.entries, expected)
+            XCTAssertEqual(LastPlaybackStore(account: account).entries, expected)
+        }
+    }
+
     func testContinueWatchingIsBoundedAndUpdatesWithoutDuplicates() throws {
         let store = LastPlaybackStore(account: "continue-limit-\(UUID())")
         defer { try? store.clear() }
@@ -371,7 +404,7 @@ final class PlayerTests: XCTestCase {
     }
 
     func testRemovingActiveContinuationDoesNotRecreateItAtTheNextCheckpoint() async throws {
-        let model = MirrorModel.shared
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)
         let library = SourceLibrary.shared
         try library.add(name: "Continue QA", kind: .stream,
                         secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/tracks/options.mp4")!),
@@ -417,7 +450,7 @@ final class PlayerTests: XCTestCase {
 
     func testLastPlaybackRestoresPositionAndSourceDeletionClearsIt() async throws {
         let library = SourceLibrary.shared
-        let model = MirrorModel.shared
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)
         try library.add(name: "Resume QA", kind: .stream,
                         secret: SourceSecret(url: URL(string: "http://127.0.0.1:8769/tracks/options.mp4")!),
                         access: ProductAccess(salesEnabled: false, verifiedPro: false))
@@ -431,8 +464,12 @@ final class PlayerTests: XCTestCase {
             try await Task.sleep(for: .milliseconds(50))
         }
         XCTAssertTrue(model.playback.isPlaying)
-        model.stopPlayback()
+        model.stopPlayback(hideSavedPlaybackBar: true)
+        XCTAssertNil(model.activeContinuationID)
+        XCTAssertTrue(model.hidesSavedPlaybackBar)
         let saved = try XCTUnwrap(LastPlaybackStore().record)
+        XCTAssertFalse(LastPlaybackStore.shared.entries.contains { $0.id == saved.id })
+        XCTAssertFalse(LastPlaybackStore().entries.contains { $0.id == saved.id })
         XCTAssertEqual(saved.sourceID, source.id)
         XCTAssertGreaterThanOrEqual(saved.resumePosition, 12)
         XCTAssertTrue(model.resumeLastPlayback())
@@ -1605,7 +1642,7 @@ final class PlayerTests: XCTestCase {
         playback.applicationDidBecomeActive()
         XCTAssertEqual(pip.stopCount, 0)
         pip.stateChangeEventHandler?(true)
-        for _ in 0..<20 {
+        for _ in 0..<150 {
             if pip.stopCount == 1 && !engine.pipActive { break }
             try await Task.sleep(for: .milliseconds(20))
         }
@@ -1618,6 +1655,7 @@ final class PlayerTests: XCTestCase {
         XCTAssertTrue(engine.pipActive, "A later explicit PiP request must remain open")
         XCTAssertEqual(pip.stopCount, 1)
         playback.applicationDidBecomeActive()
+        try await Task.sleep(for: .milliseconds(500))
         XCTAssertEqual(pip.stopCount, 1, "Temporary inactivity without backgrounding must not close explicit PiP")
         var restoration: ((Bool) -> Void)?
         playback.onRestorePlayer = { restoration = $0 }
@@ -1643,6 +1681,138 @@ final class PlayerTests: XCTestCase {
         XCTAssertNil(playback.nativePiP, "The mounted source must register again for the new film")
         XCTAssertNotEqual(playback.playbackID, firstPlaybackID)
         XCTAssertNotNil(playback.player.currentItem)
+    }
+
+    func testChannelSelectionPreservesActiveAndPendingPictureInPicture() throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { model.stopPlayback() }
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "First", url: url)))
+        let firstEngine = try XCTUnwrap(model.playback.compatibility)
+        let firstPiP = PictureInPictureStub()
+        firstPiP.completesStopImmediately = false
+        firstEngine.configurePiP(firstPiP)
+        model.playback.applicationDidEnterBackground()
+        XCTAssertTrue(firstEngine.pipActive)
+
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "Second", url: url)))
+        XCTAssertTrue(model.playback.pendingAutomaticPiP, "Channel selection must hand PiP over before stopping the old source")
+        // Another selection can arrive before the replacement decoder is ready.
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "Third", url: url)))
+        XCTAssertTrue(model.playback.pendingAutomaticPiP, "Rapid channel changes must preserve the pending handoff")
+        let nextEngine = try XCTUnwrap(model.playback.compatibility)
+        let nextPiP = PictureInPictureStub()
+        nextEngine.configurePiP(nextPiP)
+        XCTAssertEqual(nextPiP.startCount, 0, "The new source must wait for the old PiP window to finish closing")
+        firstPiP.stateChangeEventHandler?(false)
+        XCTAssertEqual(nextPiP.startCount, 1)
+        XCTAssertTrue(nextEngine.pipActive)
+        firstEngine.onPiPWillStop?()
+        firstEngine.onPiPStopped?()
+        XCTAssertTrue(nextEngine.pipActive)
+        XCTAssertFalse(model.playback.pendingAutomaticPiP)
+    }
+
+    func testChannelSelectionDuringPiPReturnWaitsForNextBackground() throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { model.stopPlayback() }
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "First", url: url)))
+        let firstEngine = try XCTUnwrap(model.playback.compatibility)
+        let firstPiP = PictureInPictureStub()
+        firstEngine.configurePiP(firstPiP)
+        model.playback.applicationDidEnterBackground()
+        model.playback.applicationDidBecomeActive()
+        XCTAssertTrue(model.presentingPlayer)
+
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "Second", url: url)))
+        let nextEngine = try XCTUnwrap(model.playback.compatibility)
+        let nextPiP = PictureInPictureStub()
+        nextEngine.configurePiP(nextPiP)
+        XCTAssertEqual(nextPiP.startCount, 0, "Returning to the app must not reopen PiP on channel selection")
+        XCTAssertTrue(model.playback.canStartPictureInPicture)
+        model.playback.applicationDidEnterBackground()
+        XCTAssertEqual(nextPiP.startCount, 1, "The replacement must enter PiP when the app is minimized again")
+        XCTAssertTrue(nextEngine.pipActive)
+    }
+
+    func testNativePlaybackStopDisablesAutomaticPiPOnMountedSource() throws {
+        try XCTSkipUnless(AVPictureInPictureController.isPictureInPictureSupported())
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        defer { playback.stop() }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        let source = NativeVideoController(player: playback.player, playback: playback, primary: true)
+        let pip = try XCTUnwrap(source.pip)
+        XCTAssertTrue(pip.canStartPictureInPictureAutomaticallyFromInline)
+        XCTAssertNil(playback.retainedPiPController, "Inline playback has not entered PiP yet")
+        playback.stop()
+        XCTAssertFalse(pip.canStartPictureInPictureAutomaticallyFromInline, "A retiring source must not compete with the next channel")
+
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        source.setPrimary(true) // SwiftUI can reuse this mounted view for the next item.
+        XCTAssertTrue(playback.nativePiP === pip)
+        XCTAssertTrue(pip.canStartPictureInPictureAutomaticallyFromInline)
+    }
+
+    func testCompatibilityPlaybackStopDisablesAutomaticPiPOnRetiringSource() throws {
+        try XCTSkipUnless(AVPictureInPictureController.isPictureInPictureSupported())
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let first = CompatibilityPlayback()
+        let next = CompatibilityPlayback()
+        defer { first.stop(); next.stop() }
+        first.open(url)
+        let firstPiP = try XCTUnwrap(CompatibilityPictureInPicture(engine: first, layer: AVSampleBufferDisplayLayer()))
+        first.configurePiP(firstPiP)
+        XCTAssertTrue(firstPiP.controller.canStartPictureInPictureAutomaticallyFromInline)
+        first.stop()
+        XCTAssertFalse(firstPiP.controller.canStartPictureInPictureAutomaticallyFromInline)
+
+        next.open(url)
+        let nextPiP = try XCTUnwrap(CompatibilityPictureInPicture(engine: next, layer: AVSampleBufferDisplayLayer()))
+        next.configurePiP(nextPiP)
+        XCTAssertTrue(nextPiP.controller.canStartPictureInPictureAutomaticallyFromInline,
+                      "Stopping the previous decoder must leave automatic PiP enabled on the replacement")
+    }
+
+    func testRepeatedChannelChangesKeepTheVisiblePictureInPictureSource() async throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        let nativeURL = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let compatibilityURL = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let window = UIWindow(windowScene: scene)
+        let host = UIHostingController(rootView: MediaVideoView(playback: model.playback))
+        window.rootViewController = host
+        window.isHidden = false
+        defer { model.stopPlayback(); window.isHidden = true; window.rootViewController = nil }
+
+        for (index, url) in [nativeURL, nativeURL, compatibilityURL, compatibilityURL, nativeURL].enumerated() {
+            XCTAssertTrue(model.playMedia(MediaChannel(title: "Channel \(index)", url: url)))
+            for _ in 0..<150 {
+                if model.playback.isPlaying && model.playback.currentTime > 0.1 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertTrue(model.playback.isPlaying, "Channel \(index) must play after replacing its predecessor")
+            window.layoutIfNeeded()
+            if let engine = model.playback.compatibility {
+                XCTAssertTrue(engine.videoView.window === window)
+                XCTAssertNotNil(engine.videoView.pictureInPictureLayer)
+                if AVPictureInPictureController.isPictureInPictureSupported() {
+                    let pip = try XCTUnwrap(engine.pip as? CompatibilityPictureInPicture)
+                    XCTAssertTrue(pip.controller.contentSource?.sampleBufferDisplayLayer === engine.videoView.pictureInPictureLayer)
+                    XCTAssertTrue(pip.controller.canStartPictureInPictureAutomaticallyFromInline)
+                }
+            } else {
+                let source = try XCTUnwrap(nativeVideoController(in: host))
+                XCTAssertTrue(source.view.window === window)
+                XCTAssertTrue(source.videoLayer.player?.currentItem === model.playback.player.currentItem)
+                if AVPictureInPictureController.isPictureInPictureSupported() {
+                    let pip = try XCTUnwrap(source.pip)
+                    XCTAssertTrue(model.playback.nativePiP === pip)
+                    XCTAssertTrue(pip.canStartPictureInPictureAutomaticallyFromInline)
+                }
+            }
+        }
     }
 
     func testNativePiPReadinessNotifiesControlsWithoutTimelineUpdates() async throws {
@@ -2210,7 +2380,7 @@ final class PlayerTests: XCTestCase {
     }
 
     func testChannelSelectionKeepsPiPRestoredPlayerPresented() throws {
-        let model = MirrorModel.shared
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
         let url = try audioFixture()
         defer { model.stopPlayback(); try? FileManager.default.removeItem(at: url) }
         XCTAssertTrue(model.playMedia(MediaChannel(title: "First", url: url)))

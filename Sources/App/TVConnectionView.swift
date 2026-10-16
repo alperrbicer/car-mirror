@@ -208,7 +208,7 @@ struct TVConnectionStatusView: View {
                         routeStatus(route)
                     }
                     if playback.hasActivePlayback || model.broadcasting || model.probeStartedAt != nil {
-                        Button { model.stopBroadcast() } label: {
+                        Button { model.stopBroadcast(hideSavedPlaybackBar: true) } label: {
                             Label(L10n.tr("Oynatmayı durdur"), systemImage: "stop.fill")
                         }
                         .buttonStyle(MirivoButtonStyle())

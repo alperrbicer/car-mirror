@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "Visa introduktionen igen";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "Kostnadsfri, obegränsad utvecklingsåtkomst";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "Endast tillgängligt i Debug-versioner. Stäng av när du testar köp.";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "Ditt favoritinnehåll, på ett ställe.";
+"Kayıtlı kaynaklar" = "Sparade källor";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "Välj en skärm och njut av dina favoriter i större format.";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "Fortsätt med filmen eller serien där du slutade. Hämta innehåll som stöds och titta utan internet.";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "Dela din skärm, dina videor och bilder. Titta på en större skärm med Google Cast, AirPlay eller CarPlay i kompatibla bilar.";
+"Dizilerini sezon ve bölümleriyle keşfet." = "Utforska dina serier efter säsong och avsnitt.";
+"Resim İçinde Resim" = "Bild i bild";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "Ladda ner nu, titta senare.";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "Ladda ner filmer och avsnitt som stöds och titta utan internet.";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "Tryck på nedladdningsknappen i en film- eller avsnittslista. Dina nedladdningar visas här.";

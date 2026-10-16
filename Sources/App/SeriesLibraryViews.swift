@@ -35,39 +35,201 @@ struct SeriesPosterCard: View {
     }
 }
 
-struct SeriesLibraryHeader: View {
+struct SeriesDetailHero: View {
     let series: MediaSeries
-    let sourceID: UUID?
-    var showsDescription = true
+    let channel: MediaChannel
+    let metadata: MediaMetadata
+    let playChannel: MediaChannel?
+    let onPlay: (() -> Void)?
+    let showDetails: () -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        if showsDescription, let channel = series.artworkChannel {
-            MediaDetailsView(channel: channel,
-                             source: SourceLibrary.shared.sources.first { $0.id == sourceID }, series: series)
-        } else {
-            compactHeader
+        VStack(spacing: 0) {
+            posterStage
+            VStack(spacing: 8) {
+                if !series.group.isEmpty {
+                    Text(series.group)
+                        .font(.caption2.weight(.semibold))
+                        .tracking(L10n.appLanguage.allowsLetterSpacing ? 2 : 0)
+                        .foregroundStyle(MirrorStyle.accent)
+                        .multilineTextAlignment(.center)
+                }
+                Text(series.title)
+                    .font(.largeTitle.weight(.bold))
+                    .tracking(L10n.appLanguage.allowsLetterSpacing ? -1 : 0)
+                    .foregroundStyle(.white).multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 12) { facts }
+                    VStack(spacing: 8) { facts }
+                }
+                .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                .frame(minHeight: 22)
+                actions.padding(.top, 4)
+            }
+            .padding(.horizontal, 24).padding(.top, 2).padding(.bottom, 12)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var posterStage: some View {
+        ZStack {
+            GeometryReader { geometry in
+                let blurRadius: CGFloat = 28
+                // Keep the artwork's edges outside the visible blur, then crop
+                // the result to the stage. The blur needs transparent edges.
+                MediaArtworkView(channel: channel, fallbackArtworkURL: metadata.artworkURL, cornerRadius: 0)
+                    .frame(width: geometry.size.width + blurRadius * 6,
+                           height: geometry.size.height + blurRadius * 6)
+                    .compositingGroup()
+                    .blur(radius: blurRadius).saturation(1.25).opacity(0.65)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .overlay {
+                        LinearGradient(colors: [MirrorStyle.background.opacity(0.15), .clear, MirrorStyle.background],
+                                       startPoint: .top, endPoint: .bottom)
+                    }
+            }
+            .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.18),
+                                         .init(color: .black, location: 0.6), .init(color: .clear, location: 1)],
+                                 startPoint: .top, endPoint: .bottom))
+            .clipped()
+            .allowsHitTesting(false)
+            MediaArtworkPreviewButton(channel: channel, fallbackArtworkURL: metadata.artworkURL, cornerRadius: 16)
+                .frame(width: 108, height: 156)
+                .shadow(color: .black.opacity(0.55), radius: 24, y: 16)
+                .overlay(alignment: .bottomTrailing) {
+                    if let rating = metadata.rating {
+                        Label(rating.formatted(.number.precision(.fractionLength(1))), systemImage: "star.fill")
+                            .font(.caption.weight(.bold)).foregroundStyle(.white)
+                            .fixedSize()
+                            .padding(.horizontal, 10).padding(.vertical, 7)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .overlay { Capsule().strokeBorder(.white.opacity(0.18)) }
+                            .offset(x: 18, y: -12)
+                            .accessibilityLabel(rating.formatted(.number.precision(.fractionLength(1))) + "/10")
+                            .accessibilityIdentifier("media-rating")
+                    }
+                }
+        }
+        .frame(height: 172)
+    }
+
+    @ViewBuilder private var facts: some View {
+        if let year = metadata.year { Text(year) }
+        Text(SeriesText.counts(series))
+        if let duration = metadata.duration {
+            Text(String(format: L10n.tr("%d dk"), Int(ceil(duration / 60))))
         }
     }
 
-    private var compactHeader: some View {
+    private var actions: some View {
         let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
-            : AnyLayout(HStackLayout(alignment: .top, spacing: 18))
+            ? AnyLayout(VStackLayout(spacing: 12))
+            : AnyLayout(HStackLayout(spacing: 12))
         return layout {
-            if let channel = series.artworkChannel {
-                MediaArtworkView(channel: channel).frame(width: 88, height: 132)
-            }
-            VStack(alignment: .leading, spacing: 10) {
-                Text(series.title).font(.title2.weight(.semibold)).fixedSize(horizontal: false, vertical: true)
-                if !series.group.isEmpty { Text(series.group).font(.caption).foregroundStyle(MirrorStyle.secondary) }
-                Text(SeriesText.counts(series)).font(.caption).foregroundStyle(MirrorStyle.accent)
+            if let onPlay {
+                Button(action: onPlay) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "play.fill").font(.title3)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(L10n.tr("Oynat")).font(.headline)
+                            if let episode = playChannel?.episode {
+                                Text(SeriesText.episode(episode)).font(.caption)
+                            }
+                        }
+                    }
                     .fixedSize(horizontal: false, vertical: true)
-            }.frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .padding(.horizontal, 12).padding(.vertical, 4)
+                    .foregroundStyle(MirrorStyle.background)
+                    .background(MirrorStyle.accent, in: RoundedRectangle(cornerRadius: 18))
+                }
+                .buttonStyle(.plain).accessibilityIdentifier("series-play")
+            }
+            Button(action: showDetails) {
+                VStack(spacing: 5) {
+                    Image(systemName: "info.circle").font(.title3)
+                    Text(L10n.tr("İçerik bilgileri")).font(.caption.weight(.medium))
+                }
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .padding(.horizontal, 12).padding(.vertical, 4)
+                .foregroundStyle(.white)
+                .background(.white.opacity(0.065), in: RoundedRectangle(cornerRadius: 18))
+                .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
+            }
+            .buttonStyle(.plain).accessibilityIdentifier("media-details-toggle")
         }
-        .padding(18).frame(maxWidth: .infinity, alignment: .leading)
-        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 24))
-        .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(MirrorStyle.hairline) }
-        .accessibilityElement(children: .combine)
+    }
+}
+
+struct SeriesEpisodeRow<Download: View>: View {
+    let channel: MediaChannel
+    let play: () -> Void
+    @ViewBuilder let download: () -> Download
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Button(action: play) {
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                    : AnyLayout(HStackLayout(spacing: 16))
+                layout {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(colors: [MirrorStyle.raised, MirrorStyle.surface],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+                        if let episode = channel.episode {
+                            Text(episode.number.formatted(.number.precision(.integerLength(2))))
+                                .font(.system(size: 28, weight: .light, design: .rounded)).monospacedDigit()
+                                .foregroundStyle(.white.opacity(0.75))
+                        } else {
+                            Image(systemName: "play.fill").foregroundStyle(MirrorStyle.accent)
+                        }
+                    }
+                    .frame(width: dynamicTypeSize.isAccessibilitySize ? 64 : 52,
+                           height: dynamicTypeSize.isAccessibilitySize ? 72 : 52)
+                    .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text(channel.episode.map { SeriesText.episode($0.number) } ?? channel.title)
+                            .font(.headline).foregroundStyle(.white)
+                        if let title = channel.episode?.title {
+                            Text(title).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                        }
+                        if let duration = channel.metadata.duration {
+                            Text(String(format: L10n.tr("%d dk"), Int(ceil(duration / 60))))
+                                .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                        }
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityLabel(channel.title)
+            HStack(spacing: 0) {
+                if channel.isDownloadableVideo {
+                    download().frame(width: 44, height: 44)
+                }
+                Button(action: play) {
+                    Image(systemName: "play.fill").font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9)).frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.tr("Oynat") + ": " + channel.title)
+                .accessibilityIdentifier("series-episode-play-" + channel.id)
+            }
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+        }
+        .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 8)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5)
+                .padding(.leading, dynamicTypeSize.isAccessibilitySize ? 80 : 68)
+        }
     }
 }
 

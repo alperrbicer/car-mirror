@@ -456,3 +456,18 @@
 "Tanıtımı yeniden göster" = "Hiển thị lại giới thiệu";
 "Ücretsiz ve sınırsız geliştirme erişimi" = "Quyền phát triển miễn phí, không giới hạn";
 "Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat." = "Chỉ có trong bản Debug. Tắt khi kiểm tra giao dịch mua.";
+
+/* Library and display overview */
+"Sevdiğin içerikler, tek yerde." = "Nội dung yêu thích, tất cả ở một nơi.";
+"Kayıtlı kaynaklar" = "Nguồn đã lưu";
+"Bir ekran seç, sevdiğin içerikleri daha büyük izle." = "Chọn màn hình và thưởng thức nội dung yêu thích trên màn hình lớn hơn.";
+// Refreshed introduction
+"Filmini ya da dizini kaldığın yerden sürdür. Uygun içerikleri indir, internet olmadan da izle." = "Xem tiếp phim hoặc phim bộ từ chỗ bạn đã dừng. Tải nội dung được hỗ trợ để xem khi không có mạng.";
+"Ekranını, videolarını ve fotoğraflarını paylaş. Google Cast, AirPlay veya uyumlu araçlarda CarPlay ile büyük ekranda izle." = "Chia sẻ màn hình, video và ảnh của bạn. Xem trên màn hình lớn hơn qua Google Cast, AirPlay hoặc CarPlay trên xe tương thích.";
+"Dizilerini sezon ve bölümleriyle keşfet." = "Duyệt phim bộ theo mùa và tập.";
+"Resim İçinde Resim" = "Hình trong hình";
+
+/* Offline viewing discovery */
+"İndir, sonra izle." = "Tải ngay, xem sau.";
+"Uygun film ve bölümleri indir, internet olmadan izle." = "Tải phim và tập phim được hỗ trợ để xem khi không có mạng.";
+"Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür." = "Nhấn nút tải xuống trong danh sách phim hoặc tập phim. Nội dung đã tải sẽ xuất hiện ở đây.";

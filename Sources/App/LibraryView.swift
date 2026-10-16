@@ -33,6 +33,16 @@ private enum PlayerGestureAdjustment: Equatable {
     var icon: String { self == .volume ? "speaker.wave.2.fill" : "sun.max.fill" }
 }
 
+enum PlayerFullscreenExitGesture {
+    static func shouldExit(translation: CGSize, velocity: CGSize) -> Bool {
+        guard translation.height > abs(translation.width) * 1.3 else { return false }
+        let draggedDown = translation.height >= 64
+        let flickedDown = translation.height >= 24 && velocity.height >= 550 &&
+            velocity.height > abs(velocity.width) * 1.3
+        return draggedDown || flickedDown
+    }
+}
+
 struct LibraryView: View {
     let openPlayer: () -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -46,28 +56,38 @@ struct LibraryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(L10n.tr(library.sources.isEmpty ? "Kaynakların burada" : "Kaynaklar"))
-                    .font(.largeTitle.weight(.semibold)).tracking(L10n.appLanguage.allowsLetterSpacing ? -1 : 0)
-                    .accessibilityAddTraits(.isHeader)
-                Text(L10n.tr("Bir oynatma listesi, yayın bağlantısı veya IPTV sunucusu ekle."))
-                    .font(.subheadline).foregroundStyle(MirrorStyle.secondary).lineSpacing(4)
-            }.fixedSize(horizontal: false, vertical: true)
-            if !library.sources.isEmpty { addSourceButton }
+            libraryHeader
             ContinueWatchingSection(openPlayer: openPlayer)
             OfflineDownloadsSection()
             if library.sources.isEmpty {
                 emptyLibrary
             } else {
-                VStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 10) {
+                        Text(L10n.tr("Kayıtlı kaynaklar")).font(.headline)
+                            .accessibilityAddTraits(.isHeader)
+                        Text(library.sources.count, format: .number)
+                            .font(.caption.weight(.semibold)).monospacedDigit()
+                            .foregroundStyle(MirrorStyle.accent)
+                            .padding(.horizontal, 9).padding(.vertical, 4)
+                            .background(MirrorStyle.accent.opacity(0.1), in: Capsule())
+                    }.accessibilityElement(children: .combine)
                     ForEach(library.sources) { source in
                         HStack(spacing: 0) {
                             NavigationLink { ChannelListView(source: source) } label: {
                                 HStack(spacing: 16) {
-                                    Image(systemName: source.kind == .xtream ? "server.rack" : "play.rectangle")
-                                        .font(.title3).foregroundStyle(MirrorStyle.accent)
-                                        .frame(width: 48, height: 52)
-                                        .background(MirrorStyle.accent.opacity(0.07), in: RoundedRectangle(cornerRadius: 14))
+                                    if !dynamicTypeSize.isAccessibilitySize {
+                                        Image(systemName: source.kind == .xtream ? "server.rack" : "play.rectangle")
+                                            .font(.title3).foregroundStyle(MirrorStyle.accent)
+                                            .frame(width: 48, height: 56)
+                                            .background {
+                                                RoundedRectangle(cornerRadius: 16)
+                                                    .fill(LinearGradient(colors: [MirrorStyle.accent.opacity(0.18), MirrorStyle.accent.opacity(0.04)],
+                                                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                                            }
+                                            .overlay { RoundedRectangle(cornerRadius: 16).strokeBorder(MirrorStyle.accent.opacity(0.16)) }
+                                            .accessibilityHidden(true)
+                                    }
                                     VStack(alignment: .leading, spacing: 6) {
                                         Text(source.name).font(.headline).foregroundStyle(.white)
                                         Text(L10n.tr(source.kind == .xtream ? "IPTV sunucusu" : source.kind == .stream ? "Yayın bağlantısı" : "Oynatma listesi"))
@@ -75,6 +95,11 @@ struct LibraryView: View {
                                         SourceExpiryView(source: source)
                                     }
                                     Spacer(minLength: 4)
+                                    if !dynamicTypeSize.isAccessibilitySize {
+                                        Image(systemName: "chevron.forward")
+                                            .font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
+                                            .accessibilityHidden(true)
+                                    }
                                 }
                                 .padding(.leading, 16).padding(.vertical, 18)
                                 .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
@@ -108,7 +133,7 @@ struct LibraryView: View {
                                         ProgressView().tint(MirrorStyle.accent)
                                             .accessibilityLabel(L10n.tr("Bitiş tarihi alınıyor…"))
                                     } else {
-                                        Image(systemName: "ellipsis").font(.body.weight(.semibold))
+                                        Image(systemName: "ellipsis").font(.system(size: 18, weight: .semibold))
                                             .foregroundStyle(MirrorStyle.secondary)
                                     }
                                 }.frame(width: 48, height: 58).contentShape(Rectangle())
@@ -145,6 +170,39 @@ struct LibraryView: View {
         .alert(BrandIdentity.name, isPresented: Binding(get: { library.message != nil }, set: { if !$0 { library.message = nil } })) {
             Button(L10n.tr("Tamam")) { library.message = nil }
         } message: { Text(library.message ?? "") }
+    }
+
+    private var libraryHeader: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout(alignment: .center, spacing: 12))
+            layout {
+                Text(L10n.tr(library.sources.isEmpty ? "Kaynakların burada" : "Kaynaklar"))
+                    .font(.largeTitle.weight(.semibold))
+                    .tracking(L10n.appLanguage.allowsLetterSpacing ? -1 : 0)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityAddTraits(.isHeader)
+                if !library.sources.isEmpty {
+                    Button { add() } label: {
+                        Label(L10n.tr("Ekle"), systemImage: "plus")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(MirrorStyle.accent)
+                            .padding(.horizontal, 16).frame(minHeight: 44)
+                            .background(MirrorStyle.accent.opacity(0.1), in: Capsule())
+                            .overlay { Capsule().strokeBorder(MirrorStyle.accent.opacity(0.2)) }
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(MirivoPressButtonStyle())
+                    .accessibilityLabel(L10n.tr("Kaynak ekle"))
+                    .accessibilityIdentifier("add-source")
+                }
+            }
+            Text(L10n.tr(library.sources.isEmpty
+                         ? "Bir oynatma listesi, yayın bağlantısı veya IPTV sunucusu ekle."
+                         : "Sevdiğin içerikler, tek yerde."))
+                .font(.subheadline).foregroundStyle(MirrorStyle.secondary).lineSpacing(4)
+        }.fixedSize(horizontal: false, vertical: true)
     }
 
     private var emptyLibrary: some View {
@@ -346,13 +404,24 @@ private struct OfflineDownloadsSection: View {
             NavigationLink { OfflineDownloadsView() } label: {
                 HStack(spacing: 14) {
                     Image(systemName: "arrow.down.circle.fill").font(.title2).foregroundStyle(MirrorStyle.accent)
+                        .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(L10n.tr("İndirilenler")).font(.headline).foregroundStyle(.white)
-                        Text(downloads.items.count.formatted()).font(.caption.monospacedDigit())
-                            .foregroundStyle(MirrorStyle.secondary)
+                        HStack(spacing: 8) {
+                            Text(L10n.tr("İndirilenler")).font(.headline).foregroundStyle(.white)
+                            if !downloads.items.isEmpty {
+                                Text(downloads.items.count.formatted()).font(.caption.monospacedDigit())
+                                    .foregroundStyle(MirrorStyle.accent)
+                                    .padding(.horizontal, 7).padding(.vertical, 3)
+                                    .background(MirrorStyle.accent.opacity(0.1), in: Capsule())
+                            }
+                        }
+                        Text(L10n.tr("Uygun film ve bölümleri indir, internet olmadan izle."))
+                            .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    Spacer()
+                    Spacer(minLength: 0)
                     Image(systemName: "chevron.forward").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
+                        .accessibilityHidden(true)
                 }
                 .padding(16).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
                 .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
@@ -367,6 +436,11 @@ private struct OfflineDownloadsView: View {
     @State private var showingPlayer = false
     var body: some View {
         List {
+            if downloads.items.isEmpty {
+                ContentUnavailableView(L10n.tr("Henüz indirilen içerik yok"), systemImage: "arrow.down.circle",
+                                       description: Text(L10n.tr("Film veya bölüm listesindeki indirme düğmesine dokun. İndirdiklerin burada görünür.")))
+                    .listRowBackground(Color.clear).listRowSeparator(.hidden)
+            }
             Text(L10n.tr("Yalnızca sağlayıcının indirmeye izin verdiği içerikleri indir. DRM korumalı yayınlar desteklenmez."))
                 .font(.footnote).foregroundStyle(MirrorStyle.secondary).listRowBackground(Color.clear)
             ForEach(downloads.items) { item in
@@ -404,11 +478,6 @@ private struct OfflineDownloadsView: View {
                 .swipeActions(edge: .trailing) {
                     Button(role: .destructive) { downloads.delete(item) } label: { Label(L10n.tr("Sil"), systemImage: "trash") }
                 }
-            }
-        }
-        .overlay {
-            if downloads.items.isEmpty {
-                ContentUnavailableView(L10n.tr("Henüz indirilen içerik yok"), systemImage: "arrow.down.circle")
             }
         }
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
@@ -741,6 +810,7 @@ private struct ChannelListView: View {
 private struct ChannelSearchBar: View {
     @Binding var text: String
     let prompt: String
+    var onEditingChanged: ((Bool) -> Void)?
     @State private var isEditing = false
 
     var body: some View {
@@ -763,6 +833,7 @@ private struct ChannelSearchBar: View {
             }
         }
         .padding(.horizontal, 20).padding(.vertical, 10)
+        .onChange(of: isEditing) { _, editing in onEditingChanged?(editing) }
         .onDisappear { isEditing = false }
     }
 }
@@ -895,12 +966,13 @@ private struct ChannelBrowserView: View {
     }
     var body: some View {
         ZStack {
-            if !showsChannelRows { categoryGrid }
+            if let series { seriesPage(series) }
+            else if !showsChannelRows { categoryGrid }
             else if !seriesCatalog.series.isEmpty { seriesGrid }
             else { channelList }
         }
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
-        .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(series != nil && onSelectChannel == nil ? "" : title).navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .toolbar {
             if #available(iOS 26.0, *) {
@@ -917,8 +989,8 @@ private struct ChannelBrowserView: View {
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
                 if onSelectChannel == nil { NowPlayingBar { showingPlayer = true } }
-                if showsSearch {
-                    ChannelSearchBar(text: $query, prompt: L10n.tr(series != nil ? "Bölüm ara" : !seriesCatalog.series.isEmpty ? "Dizi ara" : "Kanal veya grup ara"))
+                if showsSearch && series == nil {
+                    ChannelSearchBar(text: $query, prompt: L10n.tr(!seriesCatalog.series.isEmpty ? "Dizi ara" : "Kanal veya grup ara"))
                 }
             }.background(MirrorStyle.background)
         }
@@ -940,8 +1012,12 @@ private struct ChannelBrowserView: View {
                                        showsCategories: false, playlistChannels: playlistChannels ?? channels,
                                        onSelectChannel: onSelectChannel)
                 } label: {
-                    ChannelCategoryCard(name: L10n.tr("Tüm kanallar"), channels: channels, prominent: true)
-                }.buttonStyle(MirivoPressButtonStyle()).accessibilityIdentifier("browse-all-channels")
+                    allChannelsRow
+                }
+                .buttonStyle(MirivoPressButtonStyle())
+                .accessibilityLabel(L10n.tr("Tüm kanallar"))
+                .accessibilityValue(String(format: L10n.tr("%d içerik"), channels.count))
+                .accessibilityIdentifier("browse-all-channels")
                 HStack {
                     Text(L10n.tr("Kategoriler")).font(.headline)
                     Spacer()
@@ -961,6 +1037,34 @@ private struct ChannelBrowserView: View {
                 }
             }.padding(20).frame(maxWidth: 760).frame(maxWidth: .infinity)
         }.accessibilityIdentifier("channel-categories")
+    }
+
+    private var allChannelsRow: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "list.bullet.rectangle")
+                .font(.body).foregroundStyle(MirrorStyle.accent)
+                .accessibilityHidden(true)
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                : AnyLayout(HStackLayout(spacing: 12))
+            layout {
+                Text(L10n.tr("Tüm kanallar"))
+                    .font(.body.weight(.medium)).foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(channels.count, format: .number)
+                    .font(.subheadline.monospacedDigit()).foregroundStyle(MirrorStyle.secondary)
+                    .fixedSize()
+            }
+            Image(systemName: "chevron.forward")
+                .font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 14)
+        .frame(maxWidth: .infinity, minHeight: 56)
+        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 16))
+        .overlay { RoundedRectangle(cornerRadius: 16).strokeBorder(MirrorStyle.hairline) }
+        .contentShape(RoundedRectangle(cornerRadius: 16))
     }
 
     private var seriesGrid: some View {
@@ -1008,31 +1112,67 @@ private struct ChannelBrowserView: View {
         .accessibilityIdentifier("channel-search-empty")
     }
 
+    private func seriesPage(_ series: MediaSeries) -> some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                if onSelectChannel == nil, let channel = series.artworkChannel {
+                    MediaDetailsView(channel: channel,
+                                     source: SourceLibrary.shared.sources.first { $0.id == sourceID },
+                                     series: series, playChannel: filtered.first,
+                                     onPlay: { if let first = filtered.first { selectChannel(first) } })
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    if series.seasons.count > 1 {
+                        ScrollView(.horizontal) {
+                            HStack(spacing: 24) {
+                                ForEach(series.seasons) { season in
+                                    Button {
+                                        selectedSeason = season.number
+                                    } label: {
+                                        Text(SeriesText.season(season.number))
+                                            .font(.headline)
+                                            .foregroundStyle(selectedSeason == season.number ? .white : MirrorStyle.secondary)
+                                            .padding(.vertical, 10)
+                                            .frame(minHeight: 44)
+                                            .overlay(alignment: .bottom) {
+                                                Capsule().fill(selectedSeason == season.number ? MirrorStyle.accent : .clear)
+                                                    .frame(height: 3)
+                                            }
+                                    }
+                                    .buttonStyle(.plain).accessibilityIdentifier("series-season-\(season.number)")
+                                    .accessibilityAddTraits(selectedSeason == season.number ? .isSelected : [])
+                                }
+                            }
+                        }
+                        .scrollIndicators(.hidden)
+                        .overlay(alignment: .bottom) { Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5) }
+                    }
+                    HStack(alignment: .firstTextBaseline) {
+                        if series.seasons.count == 1 {
+                            Text(SeriesText.season(selectedSeason)).font(.title2.weight(.bold))
+                                .accessibilityAddTraits(.isHeader)
+                        }
+                        Spacer(minLength: 8)
+                        Text(String(format: L10n.tr("%d bölüm"), filtered.count))
+                            .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                    }.padding(.top, series.seasons.count == 1 ? 8 : 4).padding(.bottom, 2)
+                    LazyVStack(spacing: 0) {
+                        ForEach(filtered) { channel in
+                            SeriesEpisodeRow(channel: channel, play: { selectChannel(channel) }) {
+                                if channel.isDownloadableVideo { downloadControl(for: channel) }
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24).padding(.bottom, 12)
+            }
+            .frame(maxWidth: 760).frame(maxWidth: .infinity)
+        }
+        .accessibilityIdentifier("channel-list")
+    }
+
     private var channelList: some View {
         List {
-            if let series {
-                if onSelectChannel == nil {
-                SeriesLibraryHeader(series: series, sourceID: sourceID, showsDescription: onSelectChannel == nil)
-                        .listRowInsets(EdgeInsets()).listRowBackground(Color.clear).listRowSeparator(.hidden)
-                }
-                if series.seasons.count > 1 {
-                    ScrollView(.horizontal) {
-                        HStack(spacing: 10) {
-                            ForEach(series.seasons) { season in
-                                Button {
-                                    selectedSeason = season.number; query = ""
-                                } label: {
-                                    Text(SeriesText.season(season.number)).font(.subheadline.weight(.semibold))
-                                        .padding(.horizontal, 16).frame(minHeight: 44)
-                                        .foregroundStyle(selectedSeason == season.number ? MirrorStyle.background : .white)
-                                        .background(selectedSeason == season.number ? MirrorStyle.accent : MirrorStyle.raised, in: Capsule())
-                                }.buttonStyle(.plain).accessibilityIdentifier("series-season-\(season.number)")
-                                    .accessibilityAddTraits(selectedSeason == season.number ? .isSelected : [])
-                            }
-                        }.padding(.vertical, 10)
-                    }.scrollIndicators(.hidden).listRowInsets(EdgeInsets()).listRowBackground(Color.clear).listRowSeparator(.hidden)
-                }
-            }
             Section {
                 if !searchTerm.isEmpty && filtered.isEmpty {
                     searchEmptyState
@@ -1096,7 +1236,7 @@ private struct ChannelBrowserView: View {
         if let item = downloads.items.first(where: { $0.assetKey == OfflineDownloadStore.assetKey(for: channel.url) }) {
             if item.state == .finished {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(MirrorStyle.accent)
-                    .padding(.leading, 6).frame(width: 44, height: 44).accessibilityLabel(L10n.tr("İndirildi"))
+                    .frame(width: 44, height: 44).accessibilityLabel(L10n.tr("İndirildi"))
             } else if item.state == .preparing || item.state == .downloading {
                 Button { downloads.cancel(item) } label: {
                     Group {
@@ -1106,7 +1246,7 @@ private struct ChannelBrowserView: View {
                             ProgressView(value: item.progress).progressViewStyle(.circular).tint(MirrorStyle.accent)
                         }
                     }
-                    .padding(.leading, 6).frame(width: 44, height: 44)
+                    .frame(width: 44, height: 44).contentShape(Rectangle())
                 }.buttonStyle(.plain)
                     .accessibilityLabel(L10n.tr("İndirmeyi iptal et"))
                     .accessibilityValue(L10n.tr(item.state == .preparing ? "İçerik kontrol ediliyor…" : "İndiriliyor"))
@@ -1116,18 +1256,18 @@ private struct ChannelBrowserView: View {
                         Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.orange)
                         Text(L10n.tr("Başarısız")).font(.system(size: 9)).foregroundStyle(.orange).lineLimit(1)
                     }
-                    .padding(.leading, 6).frame(width: 44, height: 44)
+                    .frame(width: 44, height: 44).contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityLabel(L10n.tr("İndirme başarısız. Yeniden dene."))
             } else {
                 Button { startDownload(for: channel) } label: {
                     Image(systemName: "arrow.down.circle").foregroundStyle(MirrorStyle.accent)
-                        .padding(.leading, 6).frame(width: 44, height: 44)
+                        .frame(width: 44, height: 44).contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityLabel(L10n.tr("Yeniden indir"))
             }
         } else {
             Button { startDownload(for: channel) } label: {
                 Image(systemName: "arrow.down.circle").font(.title3).foregroundStyle(MirrorStyle.accent)
-                    .padding(.leading, 6).frame(width: 44, height: 44)
+                    .frame(width: 44, height: 44).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityLabel(L10n.tr("İndir"))
                 .accessibilityIdentifier("download-" + OfflineDownloadStore.assetKey(for: channel.url))
         }
@@ -1150,6 +1290,7 @@ private struct ChannelBrowserView: View {
 }
 
 struct NowPlayingBar: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var model = MirrorModel.shared
     @ObservedObject private var playback = MirrorModel.shared.playback
     @ObservedObject private var history = LastPlaybackStore.shared
@@ -1161,35 +1302,39 @@ struct NowPlayingBar: View {
             HStack(spacing: 12) {
                 Button(action: open) {
                     HStack(spacing: 12) {
-                        Group {
-                            if playback.hasRemoteVideoOutput {
-                                Image(systemName: playback.displayConnection.symbol).foregroundStyle(MirrorStyle.accent)
-                                    .accessibilityLabel(playback.displayConnection.destinationName)
-                                    .accessibilityIdentifier("now-playing-route")
-                            } else if visible && !model.playerScreenVisible {
-                                if let engine = playback.compatibility { CompatibilityVideoView(engine: engine, role: .preview) }
-                                else { NativeVideoView(player: playback.player, playback: playback) }
-                            } else { Color.black }
-                        }.frame(width: 88, height: 50).clipped()
-                            .allowsHitTesting(false)
+                        if !dynamicTypeSize.isAccessibilitySize || playback.hasRemoteVideoOutput {
+                            Group {
+                                if playback.hasRemoteVideoOutput {
+                                    Image(systemName: playback.displayConnection.symbol).foregroundStyle(MirrorStyle.accent)
+                                        .accessibilityLabel(playback.displayConnection.destinationName)
+                                        .accessibilityIdentifier("now-playing-route")
+                                } else if visible && !model.playerScreenVisible {
+                                    if let engine = playback.compatibility { CompatibilityVideoView(engine: engine, role: .preview) }
+                                    else { NativeVideoView(player: playback.player, playback: playback) }
+                                } else { Color.black }
+                            }.frame(width: dynamicTypeSize.isAccessibilitySize ? 40 : 88, height: 50).clipped()
+                                .allowsHitTesting(false)
+                        }
                         VStack(alignment: .leading, spacing: 3) {
                             Text(playback.hasRemoteVideoOutput ? playback.displayPlaybackStatus()
                                  : L10n.tr(playback.state == .playing ? "Şimdi oynatılıyor" : playback.state == .loading ? "Yayın hazırlanıyor" : "Yayın duraklatıldı"))
-                                .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                                .font(.caption).foregroundStyle(MirrorStyle.secondary).lineLimit(1)
                                 .accessibilityIdentifier("now-playing-output-status")
                             Text(title).font(.subheadline.weight(.semibold)).lineLimit(1)
                         }
                         Spacer(minLength: 0)
-                        Image(systemName: "chevron.up")
+                        Image(systemName: "chevron.up").font(.system(size: 14, weight: .semibold))
+                            .accessibilityHidden(true)
                     }.contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityIdentifier("now-playing-open")
                 Button { playback.togglePlayPause() } label: {
-                    Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill").frame(width: 44, height: 44)
+                    Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 20, weight: .semibold)).frame(width: 44, height: 44)
                 }.buttonStyle(.plain).accessibilityLabel(L10n.tr(playback.isPlaying ? "Duraklat" : "Oynat"))
             }.padding(.horizontal, 18).padding(.vertical, 10)
                 .background(MirrorStyle.surface).foregroundStyle(.white)
                 .onAppear { visible = true }.onDisappear { visible = false }
-        } else if let last = history.record, !last.isFinished, (!hidesSavedProgress || !last.isInProgress),
+        } else if !model.hidesSavedPlaybackBar, let last = history.record, !last.isFinished, (!hidesSavedProgress || !last.isInProgress),
                   !playback.hasActivePlayback, !model.playerScreenVisible, !model.broadcasting {
             Button {
                 if model.resumeLastPlayback() { open() }
@@ -1198,7 +1343,7 @@ struct NowPlayingBar: View {
                     Image(systemName: "play.circle.fill").font(.system(size: 34))
                         .foregroundStyle(MirrorStyle.accent).frame(width: 50, height: 50)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.tr("İzlemeye devam et")).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                        Text(L10n.tr("İzlemeye devam et")).font(.caption).foregroundStyle(MirrorStyle.secondary).lineLimit(1)
                         Text(last.title).font(.subheadline.weight(.semibold)).lineLimit(1)
                         if !last.isLive, last.resumePosition > 0 {
                             Text(PlaybackTimeDisplay.timestamp(last.resumePosition))
@@ -1206,7 +1351,8 @@ struct NowPlayingBar: View {
                         }
                     }
                     Spacer(minLength: 0)
-                    Image(systemName: "chevron.up")
+                    Image(systemName: "chevron.up").font(.system(size: 14, weight: .semibold))
+                        .accessibilityHidden(true)
                 }.padding(.horizontal, 18).padding(.vertical, 10).contentShape(Rectangle())
             }.buttonStyle(.plain).foregroundStyle(.white).background(MirrorStyle.surface)
                 .accessibilityIdentifier("last-watched-open")
@@ -1348,6 +1494,7 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
             setPrimary(true)
             playback?.nativePictureInPictureAvailabilityChanged(controller)
         }
+        playback?.pictureInPictureSourceStopped(self)
     }
     func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
         startingPiP = false
@@ -1362,6 +1509,7 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
             setPrimary(true)
             playback?.nativePictureInPictureAvailabilityChanged(controller)
         }
+        playback?.pictureInPictureSourceStopped(self)
     }
     func pictureInPictureController(_ controller: AVPictureInPictureController,
         restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
@@ -1673,12 +1821,12 @@ struct MediaPlayerScreen: View {
                         Label(L10n.tr("TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut."), systemImage: "iphone.radiowaves.left.and.right")
                             .font(.footnote).foregroundStyle(MirrorStyle.secondary).fixedSize(horizontal: false, vertical: true)
                     }
-                    Button(role: .destructive) { model.stopPlayback() } label: {
+                    Button(role: .destructive) { model.stopPlayback(hideSavedPlaybackBar: true) } label: {
                         Label(L10n.tr("Oynatmayı durdur"), systemImage: "stop.circle").font(.subheadline).frame(minHeight: 44)
                     }.accessibilityIdentifier("stop-player-playback")
                 }.padding(20).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
             }
-            if let channel = model.selectedMediaChannel {
+            if let channel = model.selectedMediaChannel, !channel.isLive {
                 MediaDetailsView(channel: channel, source: model.playbackSource)
                     .id(channel.id)
             }
@@ -1761,6 +1909,7 @@ private struct PlayerChrome: View {
     @State private var showingOptions = false
     @State private var showingDisplayModes = false
     @State private var isScrubbing = false
+    @State private var timelineFrame: CGRect = .zero
     @State private var hideTask: Task<Void, Never>?
     @State private var awakeLease: UUID?
     @State private var screenInsets = EdgeInsets()
@@ -1781,9 +1930,13 @@ private struct PlayerChrome: View {
     }
     var body: some View {
         GeometryReader { geometry in
+            let portraitExitEnabled = fullscreen && geometry.size.height >= geometry.size.width &&
+                !controlsLocked && !showingEdgeGestureIntro && !showingTVs && !showingChannels &&
+                !showingMediaChoices && !showingOptions && !showingDisplayModes
             ZStack {
                 PlayerGestureSurface(locked: controlsLocked || showingEdgeGestureIntro,
                                      fullscreen: fullscreen,
+                                     landscape: geometry.size.width > geometry.size.height,
                                      singleTap: toggleControls, doubleTap: skip,
                                      swipeDown: exitToPortrait,
                                      adjustBrightness: adjustBrightness,
@@ -1837,6 +1990,9 @@ private struct PlayerChrome: View {
                             if fullscreen {
                                 PlaybackTimelineView(playback: playback) { isScrubbing = $0; revealControls() }
                                     .id(model.selectedMediaChannel?.id)
+                                    .onGeometryChange(for: CGRect.self) { proxy in
+                                        proxy.frame(in: .named("player-chrome"))
+                                    } action: { timelineFrame = $0 }
                             }
                             modeActions(compact: !fullscreen || geometry.size.width > geometry.size.height,
                                         vertical: geometry.size.height > geometry.size.width)
@@ -1850,6 +2006,21 @@ private struct PlayerChrome: View {
                 .padding(.trailing, fullscreen ? screenInsets.trailing : 0)
                 .zIndex(1)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .coordinateSpace(name: "player-chrome")
+            // Observe the whole chrome so a drag beginning on a playback
+            // button can dismiss too. The timeline keeps its own seeking drag.
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 12, coordinateSpace: .named("player-chrome"))
+                    .onEnded { value in
+                        guard portraitExitEnabled, fullscreen,
+                              !(controlsVisible && timelineFrame.contains(value.startLocation)),
+                              PlayerFullscreenExitGesture.shouldExit(translation: value.translation, velocity: value.velocity) else { return }
+                        exitToPortrait()
+                    },
+                including: portraitExitEnabled ? .all : .subviews
+            )
             .onAppear {
                 updateAwakeLease(); scheduleHide()
                 updateEdgeGestureIntro(size: geometry.size)
@@ -1925,7 +2096,7 @@ private struct PlayerChrome: View {
                 }
             }
             optionButton("Kontrolleri kilitle", icon: "lock.fill") { controlsLocked = true }
-            optionButton("Durdur", icon: "stop.fill", destructive: true) { model.stopPlayback() }
+            optionButton("Durdur", icon: "stop.fill", destructive: true) { model.stopPlayback(hideSavedPlaybackBar: true) }
         }.padding(8).frame(minWidth: 240)
             .accessibilityElement(children: .contain).accessibilityIdentifier("player-options-popover")
             .task { @MainActor in
@@ -2037,7 +2208,7 @@ private struct PlayerChrome: View {
                     }.disabled(!playback.canStartPictureInPicture)
                 }
             }
-            modeButton("Oynatma listesi", icon: "list.bullet", id: "player-channel-picker", compact: compact, vertical: vertical, selected: false) {
+            modeButton(model.selectedMediaChannel?.isLive == true ? "Kanallar" : "Oynatma listesi", icon: "list.bullet", id: "player-channel-picker", compact: compact, vertical: vertical, selected: false) {
                 showingChannels = true
             }.disabled(model.playbackQueue.isEmpty)
         }
@@ -2284,11 +2455,13 @@ private struct PlayerSeekFeedback: View {
     }
 }
 
-/// Recognizers share one clear surface, so single taps wait for double taps and
-/// pan/pinch never compete with the timeline or SwiftUI buttons above it.
+/// Single taps wait for double taps on the clear video surface.
+/// Landscape edge pans and pinch stay on the video surface. Portrait exit
+/// drags are observed by the enclosing chrome, including its playback buttons.
 private struct PlayerGestureSurface: UIViewRepresentable {
     var locked: Bool
     var fullscreen: Bool
+    var landscape: Bool
     var singleTap: () -> Void
     var doubleTap: (Int) -> Void
     var swipeDown: () -> Void
@@ -2323,8 +2496,10 @@ private struct PlayerGestureSurface: UIViewRepresentable {
         context.coordinator.parent = self
         view.insetsChanged = safeAreaChanged
         view.gestureRecognizers?.forEach { recognizer in
-                    let fullscreenOnly = recognizer is UIPanGestureRecognizer || recognizer is UIPinchGestureRecognizer
-            recognizer.isEnabled = !locked && (!fullscreenOnly || fullscreen)
+            let isPan = recognizer is UIPanGestureRecognizer
+            let fullscreenOnly = isPan || recognizer is UIPinchGestureRecognizer
+            let enabled = !locked && (!fullscreenOnly || fullscreen) && (!isPan || landscape)
+            if recognizer.isEnabled != enabled { recognizer.isEnabled = enabled }
         }
     }
     @MainActor final class GestureView: UIView {
@@ -2382,7 +2557,7 @@ private struct PlayerGestureSurface: UIViewRepresentable {
                 (otherGestureRecognizer is UIPanGestureRecognizer || otherGestureRecognizer is UIPinchGestureRecognizer)
         }
         @objc func pan(_ gesture: UIPanGestureRecognizer) {
-            guard parent.fullscreen, let view = gesture.view else { return }
+            guard parent.fullscreen, parent.landscape, let view = gesture.view else { return }
             let point = gesture.location(in: view)
             let translation = gesture.translation(in: view)
             switch gesture.state {
@@ -2418,37 +2593,212 @@ private struct PlayerGestureSurface: UIViewRepresentable {
     }
 }
 
+/// A channel switcher opens directly on the current station, without sending
+/// the viewer back through the source library's category cards.
+private struct LiveChannelPicker: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    let channels: [MediaChannel]
+    let currentChannelID: String?
+    let select: (MediaChannel) -> Void
+    let expand: () -> Void
+    private let categories: [MediaChannelCategory]
+    @State private var query = ""
+    @State private var selectedCategory: String?
+
+    init(channels: [MediaChannel], currentChannelID: String?, select: @escaping (MediaChannel) -> Void,
+         expand: @escaping () -> Void) {
+        let liveChannels = channels.filter(\.isLive)
+        self.channels = liveChannels
+        self.currentChannelID = currentChannelID
+        self.select = select
+        self.expand = expand
+        categories = MediaChannelCategory.group(liveChannels)
+    }
+
+    private var filtered: [MediaChannel] {
+        let scoped = selectedCategory.flatMap { name in categories.first { $0.id == name }?.channels } ?? channels
+        let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !term.isEmpty else { return scoped }
+        return scoped.filter { $0.title.localizedStandardContains(term) || $0.group.localizedStandardContains(term) }
+    }
+
+    var body: some View {
+        let visibleChannels = filtered
+        VStack(spacing: 0) {
+            ChannelSearchBar(text: $query, prompt: L10n.tr("Kanal veya grup ara")) { editing in
+                if editing { expand() }
+            }
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 0))
+                : AnyLayout(HStackLayout(spacing: 12))
+            layout {
+                Menu {
+                    Button { selectedCategory = nil } label: {
+                        if selectedCategory == nil { Label(L10n.tr("Tüm kanallar"), systemImage: "checkmark") }
+                        else { Text(L10n.tr("Tüm kanallar")) }
+                    }
+                    ForEach(categories) { category in
+                        Button { selectedCategory = category.id } label: {
+                            if selectedCategory == category.id {
+                                Label(category.name.isEmpty ? L10n.tr("Diğer kanallar") : category.name, systemImage: "checkmark")
+                            } else {
+                                Text(category.name.isEmpty ? L10n.tr("Diğer kanallar") : category.name)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "line.3.horizontal.decrease")
+                        Text(selectedCategory.map { $0.isEmpty ? L10n.tr("Diğer kanallar") : $0 } ?? L10n.tr("Tüm kanallar"))
+                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
+                        Image(systemName: "chevron.down").font(.caption2.weight(.semibold))
+                    }
+                    .font(.subheadline.weight(.medium)).foregroundStyle(MirrorStyle.accent)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+                .accessibilityLabel(L10n.tr("Kategoriler"))
+                .accessibilityValue(selectedCategory.map { $0.isEmpty ? L10n.tr("Diğer kanallar") : $0 } ?? L10n.tr("Tüm kanallar"))
+                .accessibilityIdentifier("live-channel-category")
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                Text(String(format: L10n.tr("%d içerik"), visibleChannels.count))
+                    .font(.caption.monospacedDigit()).foregroundStyle(MirrorStyle.secondary)
+                    .accessibilityIdentifier("live-channel-count")
+            }
+            .padding(.horizontal, 24).padding(.bottom, 8)
+            Divider().overlay(MirrorStyle.hairline)
+            ScrollViewReader { proxy in
+                List {
+                    if visibleChannels.isEmpty {
+                        ContentUnavailableView.search(text: query)
+                            .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                            .accessibilityIdentifier("channel-search-empty")
+                    } else {
+                        ForEach(visibleChannels) { channel in
+                            channelRow(channel)
+                                .id(channel.id)
+                        }
+                    }
+                }
+                .listStyle(.plain).scrollContentBackground(.hidden)
+                .scrollDismissesKeyboard(.interactively)
+                .accessibilityIdentifier("live-channel-list")
+                .onAppear { scrollToCurrent(using: proxy, in: visibleChannels) }
+                .onChange(of: channels) { _, _ in scrollToCurrent(using: proxy, in: visibleChannels) }
+                .onChange(of: selectedCategory) { _, _ in scrollToCurrent(using: proxy, in: visibleChannels) }
+            }
+        }
+        .background(MirrorStyle.background)
+        .onAppear { if dynamicTypeSize.isAccessibilitySize { expand() } }
+    }
+
+    private func scrollToCurrent(using proxy: ScrollViewProxy, in channels: [MediaChannel]) {
+        if let current = channels.first(where: { $0.id == currentChannelID }) {
+            proxy.scrollTo(current.id, anchor: .center)
+        } else if let first = channels.first {
+            proxy.scrollTo(first.id, anchor: .top)
+        }
+    }
+
+    private func channelRow(_ channel: MediaChannel) -> some View {
+        let isCurrent = channel.id == currentChannelID
+        return Button { select(channel) } label: {
+            HStack(spacing: 12) {
+                MediaArtworkView(channel: channel, cornerRadius: 10)
+                    .frame(width: 44, height: 44)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(channel.title).font(.subheadline.weight(.semibold))
+                        .foregroundStyle(isCurrent ? MirrorStyle.accent : .white)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                    if isCurrent {
+                        Text(L10n.tr("Şimdi oynatılıyor")).foregroundStyle(MirrorStyle.accent)
+                            .font(.caption)
+                    } else if !channel.group.isEmpty {
+                        Text(channel.group).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                Spacer(minLength: 0)
+                Image(systemName: isCurrent ? "speaker.wave.2.fill" : "play.fill")
+                    .font(.system(size: isCurrent ? 16 : 12, weight: .semibold))
+                    .foregroundStyle(isCurrent ? MirrorStyle.accent : MirrorStyle.secondary)
+                    .frame(width: 24)
+                    .accessibilityHidden(true)
+            }
+            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+            .padding(.vertical, 6).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 4, leading: 24, bottom: 4, trailing: 24))
+        .listRowBackground(isCurrent ? MirrorStyle.accent.opacity(0.10) : Color.clear)
+        .listRowSeparatorTint(MirrorStyle.hairline)
+        .accessibilityLabel(channel.title)
+        .accessibilityValue(isCurrent ? L10n.tr("Şimdi oynatılıyor") : channel.group)
+        .accessibilityAddTraits(isCurrent ? .isSelected : [])
+        .accessibilityIdentifier("live-channel-" + channel.id)
+    }
+}
+
 private struct PlaybackQueueSheet: View {
     @ObservedObject var model: MirrorModel
     @Environment(\.dismiss) private var dismiss
     @State private var message: String?
+    @State private var detent: PresentationDetent
+    private let isLive: Bool
+    init(model: MirrorModel) {
+        self.model = model
+        isLive = model.selectedMediaChannel?.isLive == true
+        _detent = State(initialValue: .fraction(0.75))
+    }
     private var currentSeries: MediaSeries? {
         guard let channel = model.selectedMediaChannel, channel.episode != nil else { return nil }
         return MediaSeriesCatalog(model.playbackQueue).series.first { $0.channels.contains { $0.id == channel.id } }
     }
     var body: some View {
         NavigationStack {
-            ChannelBrowserView(channels: model.playbackQueue,
+            if isLive {
+                LiveChannelPicker(channels: model.playbackQueue, currentChannelID: model.selectedMediaChannel?.id,
+                                  select: selectChannel, expand: { detent = .large })
+                    .navigationTitle(L10n.tr("Kanallar")).navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .principal) {
+                            VStack(spacing: 2) {
+                                Text(L10n.tr("Kanallar")).font(.headline)
+                                if let source = model.playbackSource {
+                                    Text(source.name).font(.caption).foregroundStyle(MirrorStyle.secondary).lineLimit(1)
+                                }
+                            }
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(L10n.tr("Kapat"), systemImage: "xmark") { dismiss() }
+                                .labelStyle(.iconOnly).accessibilityIdentifier("close-playback-queue")
+                        }
+                    }
+            } else {
+                ChannelBrowserView(channels: model.playbackQueue,
                                title: currentSeries?.title ?? model.playbackSource?.name ?? L10n.tr("Oynatma listesi"),
                                sourceID: model.playbackSourceID,
                                showsCategories: currentSeries == nil,
                                playlistChannels: model.playbackQueue,
-                               onSelectChannel: { channel in
-                                   if model.playMedia(channel, queue: model.playbackQueue,
-                                                      sourceID: model.playbackSourceID) {
-                                       dismiss()
-                                   } else if let error = model.errorMessage {
-                                       message = error
-                                       model.errorMessage = nil
-                                   }
-                               }, series: currentSeries, initialSeason: model.selectedMediaChannel?.episode?.season,
+                               onSelectChannel: selectChannel,
+                               series: currentSeries, initialSeason: model.selectedMediaChannel?.episode?.season,
                                showsSearch: currentSeries == nil)
+            }
         }.tint(MirrorStyle.accent).preferredColorScheme(.dark)
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.fraction(0.75), .large], selection: $detent)
             .presentationDragIndicator(.visible)
             .task { await model.restorePlaybackQueueFromSource() }
             .alert(BrandIdentity.name, isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) {
                 Button(L10n.tr("Tamam")) { message = nil }
             } message: { Text(message ?? "") }
+    }
+    private func selectChannel(_ channel: MediaChannel) {
+        if model.playMedia(channel, queue: model.playbackQueue, sourceID: model.playbackSourceID) {
+            dismiss()
+        } else if let error = model.errorMessage {
+            message = error
+            model.errorMessage = nil
+        }
     }
 }
