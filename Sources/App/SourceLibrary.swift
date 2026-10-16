@@ -215,7 +215,10 @@ final class SourceLibrary: ObservableObject {
         try persist(next); sources = next
         channelCache.invalidate(source.id)
         accounts.invalidate(source.id)
-        if tracksUserHistory { MirrorModel.shared.discardLastPlayback(sourceID: source.id) }
+        if tracksUserHistory {
+            MirrorModel.shared.discardLastPlayback(sourceID: source.id)
+            try MediaFavorites.shared.clear(sourceID: source.id)
+        }
         removeImportedPlaylist(oldSecret?.url)
     }
     func update(_ source: MediaSource, name: String, kind: MediaSourceKind, secret: SourceSecret) throws {
@@ -235,7 +238,13 @@ final class SourceLibrary: ObservableObject {
         if previousSecret.url != secret.url { removeImportedPlaylist(previousSecret.url) }
         channelCache.invalidate(source.id)
         accounts.invalidate(source.id)
-        if tracksUserHistory { MirrorModel.shared.discardLastPlayback(sourceID: source.id) }
+        if tracksUserHistory {
+            MirrorModel.shared.discardLastPlayback(sourceID: source.id)
+            if source.kind != kind || previousSecret.url != secret.url ||
+                previousSecret.username != secret.username || previousSecret.password != secret.password {
+                try MediaFavorites.shared.clear(sourceID: source.id)
+            }
+        }
         let updatedSource = next[index]
         // Credentials can change while the source's visible name/kind stay identical.
         // In that case a SwiftUI task keyed by MediaSource would not run again.
@@ -250,7 +259,7 @@ final class SourceLibrary: ObservableObject {
         try persist([]); sources = []
         channelCache.removeAll()
         accounts.removeAll()
-        if tracksUserHistory { MirrorModel.shared.discardLastPlayback() }
+        if tracksUserHistory { MirrorModel.shared.discardLastPlayback(); try MediaFavorites.shared.clear() }
         for url in previousFiles { removeImportedPlaylist(url) }
     }
     /// Copy a user-selected file while its security scope is open. The saved source never

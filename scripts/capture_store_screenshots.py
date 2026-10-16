@@ -60,7 +60,11 @@ class Handler(BaseHTTPRequestHandler):
     def serve(self, body):
         request = urlsplit(self.path)
         path = request.path
-        if path == "/live-picker.m3u":
+        if path == "/favorite-lists.m3u":
+            data = CATALOG + (f'#EXTINF:-1 group-title="RADYO: Müzik",Kıyı Radyo\n'
+                              f'http://127.0.0.1:{PORT}/radio/favorite.mp3\n').encode()
+            mime = "application/vnd.apple.mpegurl"
+        elif path == "/live-picker.m3u":
             count = min(15348, max(4, int(parse_qs(request.query).get("count", ["4"])[0])))
             # Finite local clips with live route metadata exercise channel UI
             # without depending on a provider or an external broadcast.

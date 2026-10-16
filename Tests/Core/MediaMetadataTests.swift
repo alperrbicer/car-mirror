@@ -11,6 +11,18 @@ final class MediaMetadataTests: XCTestCase {
         XCTAssertEqual(SeriesMetadataParser.candidates(in: catalog, for: MediaChannel(title: "ISIKLAR S01-E01", url: url)).map(\.id), ["340"])
     }
 
+    func testSpellingVariantsDiscoverCandidatesButStillRequireEpisodeMembership() throws {
+        let catalog = try SeriesMetadataParser.catalog(Data(#"[{"series_id":1,"name":"Adım Başı Kafe"},{"series_id":2,"name":"Adim Basi Cafe"},{"series_id":3,"name":"Unrelated Show"}]"#.utf8), baseURL: base)
+        let channel = MediaChannel(title: "Adim Basi Cafe S01-E01", url: URL(string: "https://provider.example/movie/u/p/987.mp4")!)
+        XCTAssertEqual(SeriesMetadataParser.candidates(in: catalog, for: channel).map(\.id), ["2", "1"])
+        let wrong = Data(#"{"info":{"plot":"Wrong series"},"episodes":{"1":[{"id":"111"}]}}"#.utf8)
+        XCTAssertNil(try SeriesMetadataParser.parseInfo(wrong, episodeID: "987", baseURL: base))
+        let correct = Data(#"{"info":{"plot":"Series synopsis"},"episodes":{"1":[{"id":"987","info":{"plot":"null","duration_secs":1860}}]}}"#.utf8)
+        let metadata = try SeriesMetadataParser.parseInfo(correct, episodeID: "987", baseURL: base)
+        XCTAssertEqual(metadata?.summary, "Series synopsis")
+        XCTAssertEqual(metadata?.duration, 1860)
+    }
+
     func testOptInSanitizedProviderDescriptions() throws {
         guard let path = ProcessInfo.processInfo.environment["MIRIVO_METADATA_OBSERVATIONS"] else { throw XCTSkip("No opt-in provider observations") }
         let root = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: path))) as? [String: Any])

@@ -11,6 +11,7 @@ public final class LocalStreamServer: @unchecked Sendable {
     private let router: StreamHTTPRouter
     private var listener: NWListener?
     private var clients: [UUID: NWConnection] = [:]
+    private var streamingClients: Set<UUID> = []
     private var stopped = false
     public let token = UUID().uuidString.replacingOccurrences(of: "-", with: "")
         + UUID().uuidString.replacingOccurrences(of: "-", with: "")
@@ -51,6 +52,10 @@ public final class LocalStreamServer: @unchecked Sendable {
         return components.url!
     }
 
+    public func localStreamURL(port: UInt16) -> URL {
+        url(host: "127.0.0.1", port: port).deletingLastPathComponent().appendingPathComponent("live.mp4")
+    }
+
     public func stop() {
         queue.async { [self] in
             stopped = true
@@ -58,6 +63,7 @@ public final class LocalStreamServer: @unchecked Sendable {
             listener = nil
             clients.values.forEach { $0.cancel() }
             clients.removeAll()
+            streamingClients.removeAll()
         }
     }
 
@@ -73,7 +79,10 @@ public final class LocalStreamServer: @unchecked Sendable {
         }
         connection.start(queue: queue)
         receive(id: id, accumulated: Data())
-        queue.asyncAfter(deadline: .now() + 8) { [weak self] in self?.close(id) }
+        queue.asyncAfter(deadline: .now() + 8) { [weak self] in
+            guard let self, !self.streamingClients.contains(id) else { return }
+            self.close(id)
+        }
     }
 
     private func receive(id: UUID, accumulated: Data) {
@@ -84,6 +93,7 @@ public final class LocalStreamServer: @unchecked Sendable {
             var request = accumulated
             if let data { request.append(data) }
             if request.range(of: Data("\r\n\r\n".utf8)) != nil {
+                if self.beginLocalStream(request, id: id) { return }
                 let response = self.router.respond(to: request)
                 connection.send(content: response.wireData, completion: .contentProcessed { [weak self] _ in
                     self?.close(id)
@@ -97,7 +107,71 @@ public final class LocalStreamServer: @unchecked Sendable {
     }
 
     private func close(_ id: UUID) {
+        streamingClients.remove(id)
         clients.removeValue(forKey: id)?.cancel()
+    }
+
+    /// App-owned screens consume fragments immediately over loopback. HLS stays
+    /// available for Cast/AirPlay receivers that load the playlist themselves.
+    private func beginLocalStream(_ request: Data, id: UUID) -> Bool {
+        guard let connection = clients[id],
+              case let .hostPort(host, _) = connection.endpoint,
+              host == NWEndpoint.Host("127.0.0.1") || host == NWEndpoint.Host("::1"),
+              let line = String(data: request, encoding: .utf8)?.components(separatedBy: "\r\n").first,
+              line == "GET /\(token)/live.mp4 HTTP/1.1" || line == "GET /\(token)/live.mp4 HTTP/1.0" else { return false }
+        streamingClients.insert(id)
+        startFragments(id: id, waitingSince: Date())
+        return true
+    }
+
+    private func startFragments(id: UUID, waitingSince: Date) {
+        guard !stopped, streamingClients.contains(id) else { return }
+        let snapshot = router.buffer.snapshot()
+        guard let initialization = snapshot.initialization, let latest = snapshot.segments.last else {
+            // Rotation briefly replaces the init segment. Keep this valid
+            // reader waiting for the new keyframe instead of returning 404.
+            guard Date().timeIntervalSince(waitingSince) < 3 else { close(id); return }
+            queue.asyncAfter(deadline: .now() + .milliseconds(20)) { [weak self] in
+                self?.startFragments(id: id, waitingSince: waitingSince)
+            }
+            return
+        }
+        let header = Data("HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n".utf8)
+        sendStream(header + initialization + latest.data, id: id) { [weak self] in
+            self?.sendNextFragment(id: id, sequence: latest.sequence + 1, generation: snapshot.generation, waitingSince: Date())
+        }
+    }
+
+    private func sendNextFragment(id: UUID, sequence: Int, generation: Int, waitingSince: Date) {
+        guard !stopped, streamingClients.contains(id) else { return }
+        let snapshot = router.buffer.snapshot()
+        guard snapshot.generation == generation, snapshot.initialization != nil else { close(id); return }
+        guard (snapshot.segments.last?.sequence ?? sequence) - sequence <= 4 else { close(id); return }
+        if let fragment = snapshot.segments.first(where: { $0.sequence == sequence }) {
+            sendStream(fragment.data, id: id) { [weak self] in
+                self?.sendNextFragment(id: id, sequence: sequence + 1, generation: generation, waitingSince: Date())
+            }
+        } else if (snapshot.segments.first?.sequence ?? sequence) > sequence || Date().timeIntervalSince(waitingSince) > 4 {
+            // A slow/stalled reader must reconnect at the live edge instead of
+            // accumulating seconds of stale screen data or unbounded buffers.
+            close(id)
+        } else {
+            queue.asyncAfter(deadline: .now() + .milliseconds(20)) { [weak self] in
+                self?.sendNextFragment(id: id, sequence: sequence, generation: generation, waitingSince: waitingSince)
+            }
+        }
+    }
+
+    private func sendStream(_ data: Data, id: UUID, completion: @escaping @Sendable () -> Void) {
+        guard let connection = clients[id] else { return }
+        // One outstanding fragment per client, with a bounded send deadline.
+        let deadline = DispatchWorkItem { [weak self] in self?.close(id) }
+        queue.asyncAfter(deadline: .now() + 2, execute: deadline)
+        connection.send(content: data, completion: .contentProcessed { [weak self] error in
+            deadline.cancel()
+            guard let self, self.clients[id] != nil else { return }
+            if error != nil { self.close(id) } else { completion() }
+        })
     }
 
     /// Best-effort LAN address. Loopback remains available without Wi-Fi.

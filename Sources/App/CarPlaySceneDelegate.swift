@@ -9,6 +9,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private var timer: Timer?
     private var lastSignature = ""
     private var loading: Task<Void, Never>?
+    private weak var favoritesList: CPListTemplate?
+    private var favoritesOffset = 0
 
     func templateApplicationScene(_ scene: CPTemplateApplicationScene, didConnect interfaceController: CPInterfaceController) {
         CarConnectionReminderStore.shared.connected(sessionID: scene.session.persistentIdentifier)
@@ -41,6 +43,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         timer?.invalidate()
         timer = nil
         list = nil
+        favoritesList = nil
+        favoritesOffset = 0
         lastSignature = ""
         MirrorModel.shared.disconnected()
         loading?.cancel()
@@ -51,7 +55,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func render() {
         let model = MirrorModel.shared
-        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(model.requiresMembership)-\(SourceLibrary.shared.sources.map(\.id))-\(L10n.language)"
+        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(model.requiresMembership)-\(SourceLibrary.shared.sources.map(\.id))-\(MediaFavorites.shared.entries.map(\.id))-\(L10n.language)"
         guard signature != lastSignature else { return }
         lastSignature = signature
 
@@ -83,6 +87,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         sources.isEnabled = !SourceLibrary.shared.sources.isEmpty
         sources.handler = { [weak self] _, completion in self?.showSources(); completion() }
         items.append(sources)
+        let favorites = CPListItem(text: L10n.tr("Favoriler"),
+                                   detailText: String(format: L10n.tr("%d içerik"), MediaFavorites.shared.entries.count),
+                                   image: UIImage(systemName: "heart.fill"))
+        favorites.handler = { [weak self] _, completion in self?.showFavorites(); completion() }
+        items.append(favorites)
         if model.mediaTitle != nil {
             let playing = CPListItem(text: L10n.tr("Şu An Çalıyor"), detailText: model.mediaTitle,
                                      image: UIImage(systemName: "waveform"))
@@ -106,6 +115,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
         #endif
         list?.updateSections([CPListSection(items: items)])
+        if let favoritesList { showFavorites(offset: favoritesOffset, replacing: favoritesList) }
     }
 
     private var supportsVideo: Bool {
@@ -156,7 +166,71 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         if replacing == nil { controller?.pushTemplate(template, animated: true) }
     }
 
-    private func showChannels(_ channels: [MediaChannel], title: String, sourceID: UUID,
+    private func showFavorites(offset: Int = 0, replacing: CPListTemplate? = nil) {
+        let template = replacing ?? CPListTemplate(title: L10n.tr("Favoriler"), sections: [])
+        favoritesList = template
+        favoritesOffset = CarPlayFavoritesMenu.update(template, entries: MediaFavorites.shared.entries,
+            sourceNames: Dictionary(uniqueKeysWithValues: SourceLibrary.shared.sources.map { ($0.id, $0.name) }),
+            offset: offset, supportsVideo: supportsVideo,
+            open: { [weak self] item, completion in
+                guard let self else { completion(); return }
+                self.openFavorite(item, completion: completion)
+            }, page: { [weak self, weak template] page in
+                guard let template else { return }
+                self?.showFavorites(offset: page, replacing: template)
+            })
+        if replacing == nil { controller?.pushTemplate(template, animated: true) }
+    }
+
+    private func openFavorite(_ favorite: FavoriteMedia, completion: @escaping () -> Void) {
+        loading?.cancel()
+        loading = Task { [weak self] in
+            defer { completion() }
+            guard let self else { return }
+            let model = MirrorModel.shared
+            do {
+                let channels: [MediaChannel]
+                if let sourceID = favorite.sourceID {
+                    guard let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) else {
+                        self.showError("İçerik bulunamadı"); return
+                    }
+                    if favorite.series != nil {
+                        channels = try await SourceLibrary.shared.channels(for: source)
+                    } else {
+                        channels = SourceLibrary.shared.cachedChannels(for: source)
+                            ?? favorite.fallbackCatalog(currentChannels: model.playbackQueue, sourceID: model.playbackSourceID)
+                    }
+                } else {
+                    channels = favorite.fallbackCatalog(currentChannels: model.playbackQueue, sourceID: model.playbackSourceID)
+                }
+                guard !Task.isCancelled else { return }
+                if favorite.series != nil {
+                    guard let series = favorite.resolveSeries(in: channels) else {
+                        self.showError("İçerik bulunamadı"); return
+                    }
+                    self.showChannels(series.channels, title: series.title, sourceID: favorite.sourceID)
+                } else {
+                    self.play(favorite.channel, channels: channels, sourceID: favorite.sourceID)
+                }
+            } catch {
+                if !Task.isCancelled { self.showError("İçerikler yüklenemedi.") }
+            }
+        }
+    }
+
+    private func play(_ channel: MediaChannel, channels: [MediaChannel], sourceID: UUID?) {
+        let model = MirrorModel.shared
+        let presentation: MediaPlaybackPresentation = supportsVideo && !channel.isAudio ? .video : .audio
+        model.returnToDisplay()
+        let started = model.playMedia(channel, presentation: presentation,
+            queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels), sourceID: sourceID)
+        if started, #unavailable(iOS 26.4) { showNowPlaying() }
+        if !started {
+            showError(model.requiresMembership ? "Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
+        }
+    }
+
+    private func showChannels(_ channels: [MediaChannel], title: String, sourceID: UUID?,
                               offset: Int = 0, replacing: CPListTemplate? = nil) {
         let template = replacing ?? CPListTemplate(title: title, sections: [])
         let pageSize = max(1, min(90, CPListTemplate.maximumItemCount - 2))
@@ -168,13 +242,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             }
             item.handler = { [weak self] _, completion in
                 guard let self else { completion(); return }
-                let presentation: MediaPlaybackPresentation = self.supportsVideo && !channel.isAudio ? .video : .audio
-                let started = MirrorModel.shared.playMedia(channel, presentation: presentation, sourceID: sourceID)
+                self.play(channel, channels: channels, sourceID: sourceID)
                 completion()
-                if started, #unavailable(iOS 26.4) { self.showNowPlaying() }
-                if !started {
-                    self.showError(MirrorModel.shared.requiresMembership ? "Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
-                }
             }
             return item
         }
@@ -212,5 +281,46 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 self?.controller?.dismissTemplate(animated: true)
             }])
         controller?.presentTemplate(alert, animated: true)
+    }
+}
+
+@MainActor
+enum CarPlayFavoritesMenu {
+    /// Keep navigation items out of the playable list and preserve each favorite's source.
+    @discardableResult
+    static func update(_ template: CPListTemplate, entries: [FavoriteMedia], sourceNames: [UUID: String] = [:],
+                       offset: Int = 0, supportsVideo: Bool,
+                       open: @escaping (FavoriteMedia, @escaping () -> Void) -> Void,
+                       page: @escaping (Int) -> Void) -> Int {
+        let pageSize = max(1, min(90, CPListTemplate.maximumItemCount - 2))
+        let lastPage = max(0, entries.count - 1) / pageSize * pageSize
+        let start = min(max(0, offset) / pageSize * pageSize, lastPage)
+        var items = entries.dropFirst(start).prefix(pageSize).map { favorite in
+            let kind = favorite.series != nil ? "Dizi" : favorite.channel.episode != nil ? "Bölüm"
+                : favorite.channel.isLive ? "Canlı yayın" : favorite.channel.isAudio ? "Ses" : "Video"
+            let details = [L10n.tr(kind), favorite.sourceID.flatMap { sourceNames[$0] }].compactMap { $0 }.joined(separator: " · ")
+            let item = CPListItem(text: favorite.title, detailText: details,
+                                 image: UIImage(systemName: favorite.series != nil ? "rectangle.stack" : "heart.fill"))
+            if #available(iOS 26.4, *), favorite.series == nil {
+                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: supportsVideo && !favorite.channel.isAudio ? .video : .audio,
+                    playbackAction: .play, elapsedTime: .zero, duration: .zero)
+            }
+            item.handler = { _, completion in open(favorite, completion) }
+            return item
+        }
+        if start > 0 {
+            let previous = CPListItem(text: L10n.tr("Önceki sayfa"), detailText: nil)
+            previous.handler = { _, completion in page(start - pageSize); completion() }
+            items.insert(previous, at: 0)
+        }
+        if entries.count > start + pageSize {
+            let next = CPListItem(text: L10n.tr("Sonraki"), detailText: nil)
+            next.handler = { _, completion in page(start + pageSize); completion() }
+            items.append(next)
+        }
+        template.emptyViewTitleVariants = [L10n.tr("Favoriler")]
+        template.emptyViewSubtitleVariants = [L10n.tr("Sevdiğin içerikleri kalp düğmesiyle buraya ekle.")]
+        template.updateSections(items.isEmpty ? [] : [CPListSection(items: items)])
+        return start
     }
 }

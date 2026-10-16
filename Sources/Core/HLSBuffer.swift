@@ -13,6 +13,7 @@ public final class HLSBuffer: @unchecked Sendable {
         public let initialization: Data?
         public let totalSegments: Int
         public let byteCount: Int
+        public let generation: Int
         public var isReady: Bool { initialization != nil && segments.count >= 3 }
     }
 
@@ -22,13 +23,15 @@ public final class HLSBuffer: @unchecked Sendable {
     private var sequence = 0
     private var bytes = 0
     private var accepting = true
-    public let targetDuration = 2
+    private var generation = 0
+    public let targetDuration: Int
     public let maximumBytes: Int
     private let retainedSegments: Int
     private let playlistSegments: Int
 
-    public init(maximumBytes: Int = 8 * 1_024 * 1_024, retainedSegments: Int = 10, playlistSegments: Int = 6) {
+    public init(maximumBytes: Int = 8 * 1_024 * 1_024, retainedSegments: Int = 10, playlistSegments: Int = 6, targetDuration: Int = 2) {
         self.maximumBytes = maximumBytes
+        self.targetDuration = max(1, targetDuration)
         self.retainedSegments = max(3, retainedSegments)
         self.playlistSegments = max(3, min(playlistSegments, retainedSegments))
     }
@@ -66,13 +69,14 @@ public final class HLSBuffer: @unchecked Sendable {
 
     public func snapshot() -> Snapshot {
         lock.lock(); defer { lock.unlock() }
-        return Snapshot(segments: segments, initialization: initialization, totalSegments: sequence, byteCount: bytes)
+        return Snapshot(segments: segments, initialization: initialization, totalSegments: sequence, byteCount: bytes, generation: generation)
     }
 
     public func media(named name: String) -> Data? {
         lock.lock(); defer { lock.unlock() }
         guard accepting else { return nil }
-        if name == "init.mp4" { return initialization }
+        let initializationName = generation == 0 ? "init.mp4" : "init-\(generation).mp4"
+        if name == initializationName { return initialization }
         guard name.hasPrefix("segment-"), name.hasSuffix(".m4s"),
               let number = Int(name.dropFirst(8).dropLast(4)) else { return nil }
         return segments.first { $0.sequence == number }?.data
@@ -82,14 +86,25 @@ public final class HLSBuffer: @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         guard accepting, initialization != nil, segments.count >= 3 else { return nil }
         let visible = Array(segments.suffix(playlistSegments))
+        let initializationName = generation == 0 ? "init.mp4" : "init-\(generation).mp4"
         let lines = ["#EXTM3U", "#EXT-X-VERSION:7", "#EXT-X-TARGETDURATION:\(targetDuration)",
-                     "#EXT-X-MEDIA-SEQUENCE:\(visible[0].sequence)", "#EXT-X-INDEPENDENT-SEGMENTS",
-                     "#EXT-X-MAP:URI=\"init.mp4\""]
+                     "#EXT-X-MEDIA-SEQUENCE:\(visible[0].sequence)", "#EXT-X-DISCONTINUITY-SEQUENCE:\(generation)", "#EXT-X-INDEPENDENT-SEGMENTS",
+                     "#EXT-X-MAP:URI=\"\(initializationName)\""]
         let entries = visible.flatMap { segment in
             [String(format: "#EXTINF:%.4f,", locale: Locale(identifier: "en_US_POSIX"), segment.duration),
              "segment-\(segment.sequence).m4s"]
         }
         return Data((lines + entries).joined(separator: "\n").appending("\n").utf8)
+    }
+
+    /// A new codec configuration (for example rotation) revokes old fragments.
+    public func resetForNewFormat() {
+        lock.lock(); defer { lock.unlock() }
+        guard accepting else { return }
+        initialization = nil
+        segments.removeAll(keepingCapacity: true)
+        bytes = 0
+        generation += 1
     }
 
     /// Permanently revoke this session; late encoder callbacks cannot restore old media.

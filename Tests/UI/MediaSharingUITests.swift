@@ -1,6 +1,24 @@
 import XCTest
 
 final class MediaSharingUITests: XCTestCase {
+    func testHomeTVAndCarPlayOpenDistinctDestinations() {
+        let app = launch()
+        defer { app.terminate() }
+        app.buttons["page-mirror"].tap()
+        reveal(app.buttons["home-carplay"], app: app)
+        app.buttons["home-carplay"].tap()
+        let carPlay = app.buttons["guide-CarPlay"]
+        XCTAssertTrue(carPlay.waitForExistence(timeout: 5))
+        XCTAssertTrue(carPlay.isSelected)
+        XCTAssertFalse(app.buttons["connection-scan-cast"].exists)
+        app.buttons["close-connection-guide"].tap()
+        app.buttons["tv-connection"].tap()
+        XCTAssertTrue(app.buttons["connection-scan-cast"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["guide-CarPlay"].exists)
+        app.buttons["Kapat"].tap()
+        XCTAssertTrue(app.buttons["home-carplay"].waitForExistence(timeout: 5))
+    }
+
     func testQuickLinkPreservesURLWhenMembershipClosed() {
         let app = launch(playbackAccess: false)
         reveal(app.buttons["share-link"], app: app)
@@ -35,11 +53,9 @@ final class MediaSharingUITests: XCTestCase {
         app.buttons["Kapat"].tap()
         reveal(app.buttons["connection-guide"], app: app)
         app.buttons["connection-guide"].tap()
-        XCTAssertTrue(app.buttons["guide-Google Cast"].waitForExistence(timeout: 5))
-        app.buttons["guide-AirPlay"].tap()
-        XCTAssertTrue(app.buttons["guide-AirPlay"].isSelected)
-        capture("sharing-airplay-guide", app: app)
-        XCTAssertTrue(app.buttons["guide-CarPlay"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["connection-airplay"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["connection-scan-cast"].exists)
+        capture("sharing-direct-connections", app: app)
     }
 
     func testPhotoPickerCancelReturnsToHub() {
@@ -98,10 +114,58 @@ final class MediaSharingUITests: XCTestCase {
         capture("sharing-large-type", app: app)
         reveal(app.buttons["connection-guide"], app: app)
         app.buttons["connection-guide"].tap()
-        XCTAssertTrue(app.buttons["guide-AirPlay"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["guide-AirPlay"].isHittable)
-        app.buttons["guide-AirPlay"].tap()
+        let airplay = app.descendants(matching: .any)["connection-airplay"].firstMatch
+        XCTAssertTrue(airplay.waitForExistence(timeout: 5))
+        XCTAssertTrue(airplay.isHittable)
         capture("sharing-guide-large-type", app: app)
+    }
+
+    func testVehiclePhoneHandoffFavoritesAndCompactPlayer() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-carplay", "-mirivo-ui-carplay-display",
+                               "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.buttons["tv-route-status"].waitForExistence(timeout: 15))
+        app.buttons["tv-route-status"].tap()
+        XCTAssertTrue(app.descendants(matching: .any)["connection-airplay"].firstMatch.waitForExistence(timeout: 5))
+        capture("vehicle-connections", app: app)
+        app.buttons["Kapat"].tap()
+        reveal(app.buttons["share-link"], app: app)
+        app.buttons["share-link"].tap()
+        let address = app.textFields["quick-media-url"]
+        XCTAssertTrue(address.waitForExistence(timeout: 5))
+        address.tap(); address.typeText("http://127.0.0.1:18779/Kiyi-Hikayeleri-S01-E01.mp4")
+        app.buttons["quick-media-play"].tap()
+        let phone = app.buttons["player-play-on-phone"]
+        XCTAssertTrue(phone.waitForExistence(timeout: 15))
+        let transport = app.buttons["player-play-pause"]
+        XCTAssertTrue(transport.waitForExistence(timeout: 5))
+        let playing = NSPredicate(format: "label == %@", "Duraklat")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: playing, object: transport)], timeout: 15), .completed)
+        transport.tap()
+        let paused = NSPredicate(format: "label == %@", "Oynat")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: paused, object: transport)], timeout: 5), .completed)
+        let heart = app.buttons["player-favorite"]
+        heart.tap()
+        XCTAssertEqual(heart.label, "Favorilerden çıkar")
+        capture("vehicle-phone-remote", app: app)
+        phone.tap()
+        XCTAssertTrue(phone.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(app.buttons["player-play-pause"].label, "Oynat", "Moving the video must preserve pause")
+        XCTAssertTrue(app.buttons["player-fullscreen"].exists)
+        capture("vehicle-phone-local", app: app)
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let mini = app.buttons["now-playing-open"]
+        XCTAssertTrue(mini.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["now-playing-play-pause"].isHittable)
+        XCTAssertTrue(app.buttons["now-playing-stop"].isHittable)
+        capture("vehicle-mini-player", app: app)
+        app.buttons["page-library"].tap()
+        app.buttons["open-favorites"].tap()
+        XCTAssertTrue(app.buttons["player-favorite"].waitForExistence(timeout: 5))
+        capture("vehicle-favorites", app: app)
     }
 
     private func launch(large: Bool = false, playbackAccess: Bool = true) -> XCUIApplication {
@@ -122,7 +186,11 @@ final class MediaSharingUITests: XCTestCase {
         XCTAssertTrue(element.isHittable)
     }
     private func capture(_ name: String, app: XCUIApplication) {
-        let attachment = XCTAttachment(screenshot: app.screenshot())
+        let screenshot = app.screenshot()
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("mirivo-" + name + ".png")
+        try? screenshot.pngRepresentation.write(to: file)
+        print("MIRIVO_UI_CAPTURE: \(file.path)")
+        let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name; attachment.lifetime = .keepAlways
         add(attachment)
     }

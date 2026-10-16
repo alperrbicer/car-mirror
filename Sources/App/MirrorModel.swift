@@ -17,8 +17,12 @@ final class MirrorModel: ObservableObject {
     @Published private(set) var mediaTitle: String?
     @Published private(set) var selectedMediaChannel: MediaChannel?
     @Published private(set) var mediaErrorMessage: String?
-    // Only hide the saved resume bar for this session; keep viewing history intact.
-    @Published private(set) var hidesSavedPlaybackBar = false
+    // Keep an explicit dismissal across launches without deleting viewing history.
+    private static let savedPlaybackBarHiddenKey = "mirivo.savedPlaybackBarHidden"
+    private let playbackBarDefaults: UserDefaults
+    @Published private(set) var hidesSavedPlaybackBar: Bool {
+        didSet { playbackBarDefaults.set(hidesSavedPlaybackBar, forKey: Self.savedPlaybackBarHiddenKey) }
+    }
     @Published var presentingPlayer = false
     @Published private(set) var playerScreenVisible = false
     @Published private(set) var playbackQueue: [MediaChannel] = []
@@ -58,7 +62,10 @@ final class MirrorModel: ObservableObject {
     var hasTVDisplay: Bool { externalScreens.values.contains { $0 != .carPlay } }
     private var probeTask: Task<Void, Never>?
 
-    init(viewingAccess: @escaping @MainActor () -> ProductAccess = { PurchaseStore.shared.access }, startsTimer: Bool = true) {
+    init(viewingAccess: @escaping @MainActor () -> ProductAccess = { PurchaseStore.shared.access }, startsTimer: Bool = true,
+         playbackBarDefaults: UserDefaults = .standard) {
+        self.playbackBarDefaults = playbackBarDefaults
+        hidesSavedPlaybackBar = playbackBarDefaults.bool(forKey: Self.savedPlaybackBarHiddenKey)
         self.viewingAccess = viewingAccess
         do { store = try BroadcastSessionStore(); storageReady = true }
         catch { errorMessage = L10n.tr("Paylaşım hazırlanamadı. Uygulamayı yeniden açmayı dene.") }
@@ -218,7 +225,9 @@ final class MirrorModel: ObservableObject {
         playbackAttemptFailed = false
         errorMessage = nil
         // A receiver cannot fetch 127.0.0.1 on the phone. Do not silently substitute it.
-        guard let url = externalScreenCount > 0 && playback.tvDevice == nil ? capture.loopbackURL : capture.networkURL else {
+        let localDisplay = externalScreenCount > 0 && playback.tvDevice == nil
+        let lowLatency = localDisplay && capture.localStreamURL != nil
+        guard let url = localDisplay ? (capture.localStreamURL ?? capture.loopbackURL) : capture.networkURL else {
             errorMessage = playback.displayConnection.failureMessage
             playbackAttemptFailed = true
             var values = DiagnosticValues()
@@ -228,10 +237,12 @@ final class MirrorModel: ObservableObject {
             return
         }
         do {
+            playback.setPlaysOnPhone(false)
             record(.playbackRequested)
             mediaTitle = nil
             try playback.play(url: url, muted: capture.audioMode == .source,
-                requiresExternalPlayback: externalScreenCount == 0 && playback.tvDevice == nil)
+                requiresExternalPlayback: externalScreenCount == 0 && playback.tvDevice == nil,
+                useCompatibility: lowLatency, lowLatency: lowLatency)
             playbackSessionID = capture.sessionID
         } catch {
             playback.stop()
@@ -282,6 +293,14 @@ final class MirrorModel: ObservableObject {
         refreshPlaybackAccess()
         updateSessionState()
     }
+
+    func playOnPhone() {
+        if playbackSessionID != nil { stopBroadcast(); return }
+        if playback.tvDevice != nil { disconnectTV() }
+        playback.setPlaysOnPhone(true)
+    }
+
+    func returnToDisplay() { playback.setPlaysOnPhone(false) }
 
     @discardableResult
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil,
@@ -337,9 +356,10 @@ final class MirrorModel: ObservableObject {
         do {
             try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
                               title: channel.title, live: channel.isLive, presentation: resolvedPresentation,
-                              // Live HLS also needs the sample-buffer renderer: AVPlayerLayer
-                              // has no public screenshot-protection property.
-                              useCompatibility: channel.requiresCompatibilityPlayback || (channel.isLive && resolvedPresentation == .video),
+                              // System-managed CarPlay video uses the native HLS route.
+                              // App-owned windows can host the sample-buffer renderer.
+                              useCompatibility: channel.requiresCompatibilityPlayback || (channel.isLive && resolvedPresentation == .video &&
+                                  (!carPlayConnected || hasCarPlayDisplay)),
                               startAt: startAt)
             guard playback.hasActivePlayback else { return false }
             mediaTitle = channel.title

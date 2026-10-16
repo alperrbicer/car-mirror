@@ -14,7 +14,7 @@ struct MirrorSettingsView: View {
     @State private var cleared = false
     @State private var clearingLibrary = false
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
-    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
+    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.high.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
     @AppStorage("player.edgeGestureIntroShown") private var edgeGestureIntroShown = false
     @ObservedObject private var purchases = PurchaseStore.shared
@@ -79,7 +79,7 @@ struct MirrorSettingsView: View {
                     NavigationLink { ConnectionGuideContent() } label: {
                         Label(L10n.tr("Nasıl bağlanırım?"), systemImage: "tv")
                     }
-                    NavigationLink { ConnectionGuideContent(initialRoute: .carPlay) } label: {
+                    NavigationLink { CarPlayGuideContent(model: model) } label: {
                         Label("CarPlay", systemImage: "car.side")
                     }
                 }.listRowBackground(MirrorStyle.surface)

@@ -3,6 +3,35 @@ import CryptoKit
 @testable import CarMirror
 
 final class MediaMetadataIntegrationTests: XCTestCase {
+    func testCafeSpellingVariantLoadsVerifiedSeriesSynopsis() async throws {
+        let loader = MediaMetadataLoader(fetch: { url, _ in
+            let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            let action = query.first { $0.name == "action" }?.value
+            let id = query.first { $0.name == "series_id" }?.value
+            let body: String
+            switch (action, id) {
+            case ("get_series", _):
+                body = #"[{"series_id":1,"name":"Adim Basi Cafe","plot":"Wrong series"},{"series_id":2,"name":"Adım Başı Kafe"}]"#
+            case ("get_series_info", "1"):
+                body = #"{"info":{"plot":"Wrong series"},"episodes":{"1":[{"id":"111"}]}}"#
+            case ("get_series_info", "2"):
+                body = #"{"info":{"plot":"Series synopsis"},"episodes":{"1":[{"id":"987","info":{"plot":"null","duration_secs":1860,"rating":8}}]}}"#
+            default: throw URLError(.badURL)
+            }
+            return (Data(body.utf8), url)
+        })
+        let channel = MediaChannel(title: "Adim Basi Cafe S01-E01", url: URL(string: "https://provider.example/movie/u/p/987.mkv")!)
+        let secret = SourceSecret(url: URL(string: "https://playlist.example/list.m3u")!)
+        for seriesOnly in [false, true] {
+            let metadata = try await loader.load(kind: .playlist, secret: secret, channel: channel, seriesOnly: seriesOnly)
+            XCTAssertEqual(metadata?.summary, "Series synopsis")
+            if !seriesOnly {
+                XCTAssertEqual(metadata?.duration, 1860)
+                XCTAssertEqual(metadata?.rating, 8)
+            }
+        }
+    }
+
     func testASCIIPlaylistEpisodeLoadsTurkishProviderSynopsis() async throws {
         let loader = MediaMetadataLoader(fetch: { url, _ in
             let action = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "action" }?.value

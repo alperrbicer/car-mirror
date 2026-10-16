@@ -194,8 +194,9 @@ public enum SeriesMetadataParser {
             // Provider suffixes can differ between M3U and API names. These are only candidates:
             // the selected episode's stream ID must also occur in the series response.
             let prefix = !name.isEmpty && (title.hasPrefix(name + " ") || name.hasPrefix(title + " "))
-            guard exact || sameArtwork || prefix else { return nil }
-            return (exact ? 0 : prefix ? 1 : 2, index, candidate)
+            let similar = !exact && !prefix && Self.similarTitle(title, name)
+            guard exact || sameArtwork || prefix || similar else { return nil }
+            return (exact ? 0 : prefix ? 1 : sameArtwork ? 2 : 3, index, candidate)
         }.sorted { $0.0 == $1.0 ? $0.1 < $1.1 : $0.0 < $1.0 }.prefix(8).map { $0.2 }
     }
 
@@ -218,6 +219,26 @@ public enum SeriesMetadataParser {
             }
         }
         return nil
+    }
+
+    // Tolerate small provider spelling differences (for example Cafe / Kafe).
+    // This only expands discovery: parseInfo still requires exact episode-ID membership.
+    private static func similarTitle(_ lhs: String, _ rhs: String) -> Bool {
+        let a = Array(lhs), b = Array(rhs)
+        guard min(a.count, b.count) >= 8 else { return false }
+        let limit = min(2, min(a.count, b.count) / 8)
+        guard abs(a.count - b.count) <= limit else { return false }
+        var previous = Array(0...b.count)
+        for (i, character) in a.enumerated() {
+            var current = [i + 1]
+            for (j, other) in b.enumerated() {
+                current.append(min(current[j] + 1, previous[j + 1] + 1,
+                                   previous[j] + (character == other ? 0 : 1)))
+            }
+            guard current.min()! <= limit else { return false }
+            previous = current
+        }
+        return previous[b.count] <= limit
     }
 
     private static func normalized(_ title: String) -> String {

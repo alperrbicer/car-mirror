@@ -4,7 +4,7 @@ struct MirrorHomeView: View {
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback = MirrorModel.shared.playback
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
+    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.high.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
     @State private var showingGuide = false
     @State private var showingCarPlay = false

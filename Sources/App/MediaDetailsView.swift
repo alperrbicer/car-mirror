@@ -109,7 +109,7 @@ struct MediaDetailsView: View {
     var body: some View {
         Group {
             if let series {
-                SeriesDetailHero(series: series, channel: channel, metadata: metadata,
+                SeriesDetailHero(series: series, channel: channel, sourceID: source?.id, metadata: metadata,
                                  playChannel: playChannel, onPlay: onPlay,
                                  showDetails: { showingDetails = true })
             } else {
@@ -135,7 +135,6 @@ struct MediaDetailsView: View {
                 .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
             }
         }
-        .accessibilityElement(children: .contain).accessibilityIdentifier("media-details")
         // Present details independently of the scroll layout. Animating a List
         // row's height while metadata arrives caused repeated offset corrections.
         // Read these states in the presenting body as well: a failed request

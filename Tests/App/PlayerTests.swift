@@ -457,6 +457,26 @@ final class PlayerTests: XCTestCase {
         XCTAssertThrowsError(try store.save(LastPlaybackRecord(channel: MediaChannel(title: "Temporary", url: URL(fileURLWithPath: "/tmp/video.mp4")), sourceID: nil, position: 1, duration: 10, isLive: false)))
     }
 
+    func testSavedPlaybackBarDismissalPersistsUntilPlaybackStarts() throws {
+        let suite = "PlaybackBarTests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let access = ProductAccess(salesEnabled: false, verifiedPro: false)
+        let model = MirrorModel(viewingAccess: { access }, startsTimer: false, playbackBarDefaults: defaults)
+        XCTAssertFalse(model.hidesSavedPlaybackBar)
+        model.stopPlayback(hideSavedPlaybackBar: true)
+        let reopened = MirrorModel(viewingAccess: { access }, startsTimer: false, playbackBarDefaults: defaults)
+        XCTAssertTrue(reopened.hidesSavedPlaybackBar)
+        reopened.stopPlayback()
+        XCTAssertTrue(reopened.hidesSavedPlaybackBar)
+        let channel = MediaChannel(title: "Resume QA", url: URL(string: "http://127.0.0.1:8769/tracks/options.mp4")!)
+        XCTAssertTrue(reopened.playMedia(channel))
+        XCTAssertFalse(reopened.hidesSavedPlaybackBar)
+        reopened.stopPlayback()
+        let relaunched = MirrorModel(viewingAccess: { access }, startsTimer: false, playbackBarDefaults: defaults)
+        XCTAssertFalse(relaunched.hidesSavedPlaybackBar)
+    }
+
     func testLastPlaybackRestoresPositionAndSourceDeletionClearsIt() async throws {
         let library = SourceLibrary.shared
         let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)

@@ -29,6 +29,11 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
     private var firstHostTime: TimeInterval?
     private let quality: StreamQuality
     private let includesAudio: Bool
+    private let segmentInterval: Double
+    private var outputWidth = 0
+    private var outputHeight = 0
+    private var latestSourceTime = CMTime.zero
+    private var writerIdentity: ObjectIdentifier?
     private var audioInput: AVAssetWriterInput?
     private var audioConverter: AVAudioConverter?
     private let audioFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 48_000, channels: 2, interleaved: true)!
@@ -49,10 +54,11 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
     private let context = CIContext(options: [.cacheIntermediates: false, .useSoftwareRenderer: true])
     private let colorSpace = CGColorSpaceCreateDeviceRGB()
 
-    public init(buffer: HLSBuffer, quality: StreamQuality = .balanced, includesAudio: Bool = true) {
+    public init(buffer: HLSBuffer, quality: StreamQuality = .balanced, includesAudio: Bool = true, segmentInterval: Double = 1) {
         self.buffer = buffer
         self.quality = quality
         self.includesAudio = includesAudio
+        self.segmentInterval = max(0.25, min(1, segmentInterval))
     }
 
     public func start() {
@@ -74,6 +80,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
             firstSourceTime = presentationTime.isNumeric ? presentationTime : .zero
         }
         latestFrame = pixelBuffer
+        if presentationTime.isNumeric { latestSourceTime = presentationTime }
         self.orientation = orientation
         statistics.received += 1
     }
@@ -90,6 +97,10 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         lock.unlock()
         queue.async { [self] in
             defer { lock.lock(); queuedAudio -= 1; lock.unlock() }
+            lock.lock()
+            let sameTimeline = firstSourceTime == sourceTime
+            lock.unlock()
+            guard sameTimeline else { return }
             guard isAccepting, let pcm = PCMUtilities.copyPCM(sample),
                   let converted = PCMUtilities.convert(pcm, to: audioFormat, converter: &audioConverter) else { return }
             let relative = CMSampleBufferGetPresentationTimeStamp(sample) - sourceTime
@@ -124,6 +135,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         lock.lock()
         accepting = false
         latestFrame = nil
+        writerIdentity = nil
         lock.unlock()
         buffer.invalidate()
         queue.async { [self] in
@@ -153,6 +165,34 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         guard let frame, let startedAt else { return }
         autoreleasepool {
             do {
+                let source = CIImage(cvPixelBuffer: frame).oriented(orientation)
+                let extent = source.extent
+                let dimensions = Self.outputSize(source: extent.size, maximumEdge: quality.width)
+                let elapsed = ProcessInfo.processInfo.systemUptime - startedAt
+                let resized = outputWidth != dimensions.width || outputHeight != dimensions.height
+                // Suspension or encoder backpressure must not end the whole
+                // broadcast or create a multi-second fragment. Start a fresh
+                // codec timeline; connected readers rejoin its live edge.
+                let videoStalled = lastTime.isValid && elapsed - lastTime.seconds > 1
+                let audioStalled = audioInput != nil && elapsed * 48_000 - Double(audioTimeline.consumed) >= 96_000
+                if resized || videoStalled || audioStalled {
+                    lock.lock(); writerIdentity = nil; lock.unlock()
+                    writer?.cancelWriting()
+                    writer = nil; input = nil; adaptor = nil; audioInput = nil
+                    if outputWidth != 0 {
+                        buffer.resetForNewFormat()
+                        captionRenderer.clear()
+                        audioTimeline = AudioTimeline()
+                        audioConverter = nil
+                        lock.lock()
+                        firstHostTime = ProcessInfo.processInfo.systemUptime
+                        firstSourceTime = resized ? latestSourceTime :
+                            (firstSourceTime ?? .zero) + CMTime(seconds: elapsed, preferredTimescale: 48_000)
+                        lock.unlock()
+                        lastTime = .invalid
+                    }
+                    outputWidth = dimensions.width; outputHeight = dimensions.height
+                }
                 if writer == nil { try configure() }
                 guard let writer, let input, let adaptor else { return }
                 if writer.status == .failed { throw writer.error ?? failure("Video kodlayıcı durdu.") }
@@ -167,16 +207,14 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
                     [kCVPixelBufferPoolAllocationThresholdKey: 3] as CFDictionary, &output)
                 guard result == kCVReturnSuccess, let output else { recordDrop(); return }
 
-                let bounds = CGRect(x: 0, y: 0, width: quality.width, height: quality.height)
-                let source = CIImage(cvPixelBuffer: frame).oriented(orientation)
-                let extent = source.extent
+                let bounds = CGRect(x: 0, y: 0, width: outputWidth, height: outputHeight)
                 let scale = min(bounds.width / extent.width, bounds.height / extent.height)
                 let normalized = source.transformed(by: CGAffineTransform(translationX: -extent.minX, y: -extent.minY))
                 let fitted = normalized.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
                     .transformed(by: CGAffineTransform(translationX: (bounds.width - extent.width * scale) / 2,
                                                       y: (bounds.height - extent.height * scale) / 2))
                 var image = fitted.composited(over: CIImage(color: .black).cropped(to: bounds))
-                if let overlay = captionRenderer.image(text: captionText, width: quality.width, height: quality.height) {
+                if let overlay = captionRenderer.image(text: captionText, width: outputWidth, height: outputHeight) {
                     image = overlay.composited(over: image)
                 }
                 context.render(image, to: output, bounds: bounds, colorSpace: colorSpace)
@@ -194,19 +232,26 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         }
     }
 
+    /// Keep the screen's actual aspect; destination controls own fitting.
+    public static func outputSize(source: CGSize, maximumEdge: Int) -> (width: Int, height: Int) {
+        guard source.width > 0, source.height > 0 else { return (maximumEdge, max(2, maximumEdge * 9 / 16 / 2 * 2)) }
+        let scale = min(1, CGFloat(maximumEdge) / max(source.width, source.height))
+        return (max(2, Int(source.width * scale) / 2 * 2), max(2, Int(source.height * scale) / 2 * 2))
+    }
+
     private func configure() throws {
         let writer = AVAssetWriter(contentType: .mpeg4Movie)
         writer.outputFileTypeProfile = .mpeg4AppleHLS
-        writer.preferredOutputSegmentInterval = CMTime(seconds: 1, preferredTimescale: 600)
+        writer.preferredOutputSegmentInterval = CMTime(seconds: segmentInterval, preferredTimescale: 600)
         writer.initialSegmentStartTime = .zero
         writer.delegate = self
         let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoWidthKey: quality.width, AVVideoHeightKey: quality.height,
+            AVVideoWidthKey: outputWidth, AVVideoHeightKey: outputHeight,
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: quality.bitrate,
-                AVVideoMaxKeyFrameIntervalKey: quality.framesPerSecond,
-                AVVideoMaxKeyFrameIntervalDurationKey: 1.0,
+                AVVideoMaxKeyFrameIntervalKey: max(1, Int(Double(quality.framesPerSecond) * segmentInterval)),
+                AVVideoMaxKeyFrameIntervalDurationKey: segmentInterval,
                 AVVideoExpectedSourceFrameRateKey: quality.framesPerSecond,
                 AVVideoAllowFrameReorderingKey: false,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264MainAutoLevel
@@ -215,8 +260,8 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         input.expectsMediaDataInRealTime = true
         let adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: [
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
-            kCVPixelBufferWidthKey as String: quality.width,
-            kCVPixelBufferHeightKey as String: quality.height,
+            kCVPixelBufferWidthKey as String: outputWidth,
+            kCVPixelBufferHeightKey as String: outputHeight,
             kCVPixelBufferIOSurfacePropertiesKey as String: [:]
         ])
         guard writer.canAdd(input) else { throw failure("H.264 kodlayıcı kullanılamıyor.") }
@@ -231,6 +276,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
             writer.add(audio)
             self.audioInput = audio
         }
+        lock.lock(); writerIdentity = ObjectIdentifier(writer); lock.unlock()
         guard writer.startWriting() else { throw writer.error ?? failure("Video yayını başlatılamadı.") }
         writer.startSession(atSourceTime: .zero)
         self.writer = writer
@@ -256,14 +302,25 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
 
     public func assetWriter(_ writer: AVAssetWriter, didOutputSegmentData segmentData: Data,
                             segmentType: AVAssetSegmentType, segmentReport: AVAssetSegmentReport?) {
-        // Copy out of AVFoundation's delegate-owned backing store to bound its lifetime.
+        // Serializing with rotation prevents a late old-format callback from
+        // inserting its initialization or fragments into the replacement stream.
         let data = segmentData.withUnsafeBytes { Data($0) }
+        queue.async { [weak self] in
+            self?.acceptSegment(data, writer: writer, type: segmentType, report: segmentReport)
+        }
+    }
+
+    private func acceptSegment(_ data: Data, writer: AVAssetWriter, type: AVAssetSegmentType, report: AVAssetSegmentReport?) {
+        lock.lock()
+        let current = accepting && writerIdentity == ObjectIdentifier(writer)
+        lock.unlock()
+        guard current else { return }
         let accepted: Bool
-        switch segmentType {
+        switch type {
         case .initialization:
             accepted = buffer.setInitialization(data)
         case .separable:
-            let duration = segmentReport?.trackReports.first { $0.mediaType == .video }?.duration.seconds ?? .nan
+            let duration = report?.trackReports.first { $0.mediaType == .video }?.duration.seconds ?? .nan
             accepted = buffer.append(data, duration: duration)
         @unknown default: return
         }

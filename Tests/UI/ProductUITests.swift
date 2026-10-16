@@ -204,6 +204,25 @@ final class ProductUITests: XCTestCase {
         }
     }
 
+    func testCarPlayGuideIsSeparateFromTVConnections() {
+        let app = launch()
+        defer { app.terminate() }
+        app.buttons["page-mirror"].tap()
+        app.buttons["home-carplay"].tap()
+        XCTAssertTrue(app.navigationBars["CarPlay"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["guide-Google Cast"].exists)
+        XCTAssertFalse(app.buttons["guide-AirPlay"].exists)
+        capture("carplay-redesign", app: app)
+        app.buttons["close-connection-guide"].tap()
+        app.buttons["tv-connection"].tap()
+        XCTAssertTrue(app.buttons["tv-connection-help"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["CarPlay’e bağlanıp araç ekranında uygulamayı aç."].exists)
+        capture("tv-without-carplay", app: app)
+        app.buttons["tv-connection-help"].tap()
+        XCTAssertTrue(app.buttons["guide-AirPlay"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["guide-CarPlay"].exists)
+    }
+
     func testHomeDestinationsAndSourceTypeShortcuts() {
         let app = launch()
         defer { app.terminate() }
@@ -216,8 +235,9 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Ekran bağlantısı"].waitForExistence(timeout: 5))
         app.buttons["Kapat"].tap()
         app.buttons["home-carplay"].tap()
-        XCTAssertTrue(app.buttons["guide-CarPlay"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["guide-CarPlay"].isSelected)
+        XCTAssertTrue(app.navigationBars["CarPlay"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["guide-Google Cast"].exists)
+        XCTAssertFalse(app.buttons["guide-AirPlay"].exists)
         capture("design-carplay-guide-tr", app: app)
         app.buttons["Kapat"].tap()
         app.buttons["page-library"].tap()
@@ -496,6 +516,16 @@ final class ProductUITests: XCTestCase {
         capture("continue-watching-resumed-after-stop", app: app)
     }
 
+    func testSavedPlaybackBarRemainsVisibleAcrossRootPages() {
+        let app = launch(continuations: true)
+        defer { app.terminate() }
+        for page in ["page-library", "page-mirror", "page-library"] {
+            app.buttons[page].tap()
+            XCTAssertTrue(app.buttons["last-watched-open"].waitForExistence(timeout: 5))
+            XCTAssertTrue(app.buttons["last-watched-open"].isHittable)
+        }
+    }
+
     func testContinueWatchingIsCompactSearchableRemovableAndResumesAfterRelaunch() {
         let app = launch(continuations: true)
         defer { app.terminate() }
@@ -503,7 +533,7 @@ final class ProductUITests: XCTestCase {
         let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
         XCTAssertTrue(app.buttons["continue-watching-all"].waitForExistence(timeout: 10))
         XCTAssertEqual(cards.count, 3, "Only three recent items belong on the sources screen")
-        XCTAssertFalse(app.buttons["last-watched-open"].exists, "The sources page must not duplicate a saved continuation in the bottom bar")
+        XCTAssertTrue(app.buttons["last-watched-open"].exists, "Saved playback must remain available on the sources page")
         capture("continue-watching-compact", app: app)
         app.buttons["continue-watching-all"].tap()
         let rows = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-list-open-"))
@@ -1414,12 +1444,12 @@ final class ProductUITests: XCTestCase {
         capture("audit-tv-picker", app: app)
         reveal(app.buttons["tv-connection-help"], in: app)
         app.buttons["tv-connection-help"].tap()
-        for route in ["Google Cast", "AirPlay", "CarPlay"] {
+        for route in ["Google Cast", "AirPlay"] {
             app.buttons["guide-" + route].tap()
             XCTAssertTrue(app.buttons["guide-" + route].isSelected)
             capture("audit-guide-" + route, app: app)
         }
-        XCTAssertFalse(app.staticTexts["TV bulunamadı"].exists)
+        XCTAssertFalse(app.buttons["guide-CarPlay"].exists)
     }
 
     func testCarPlayStatusUsesVehicleLabelsAndFitsLargeText() {

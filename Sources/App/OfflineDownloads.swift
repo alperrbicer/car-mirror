@@ -24,6 +24,18 @@ struct OfflineDownload: Codable, Identifiable, Equatable {
         guard let localURL else { return nil }
         return MediaChannel(title: title, group: group, url: localURL)
     }
+
+    static func originalChannels(for downloads: [Self], in channels: [MediaChannel], sourceID: UUID) -> [UUID: MediaChannel] {
+        var pending = Dictionary(grouping: downloads.filter { $0.sourceID == sourceID }, by: \.assetKey)
+        var result: [UUID: MediaChannel] = [:]
+        for channel in channels where !channel.url.isFileURL {
+            if pending.isEmpty { break }
+            if let matches = pending.removeValue(forKey: OfflineDownloadStore.assetKey(for: channel.url)) {
+                for download in matches { result[download.id] = channel }
+            }
+        }
+        return result
+    }
 }
 
 enum OfflineDownloadError: LocalizedError {
@@ -218,7 +230,7 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
         persist()
     }
 
-    static func assetKey(for url: URL) -> String {
+    nonisolated static func assetKey(for url: URL) -> String {
         SHA256.hash(data: Data(url.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
     }
     private static func downloadID(from description: String?) -> UUID? {

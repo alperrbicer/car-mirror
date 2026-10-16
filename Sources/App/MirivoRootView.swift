@@ -40,7 +40,7 @@ struct MirivoRootView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .id(language)
-            .safeAreaInset(edge: .bottom) { NowPlayingBar(hidesSavedProgress: selectedPage == 1) { showingPlayer = true } }
+            .safeAreaInset(edge: .bottom) { NowPlayingBar(model: model) { showingPlayer = true } }
             .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
         }
         .modifier(MembershipOfferPresenter(model: model))

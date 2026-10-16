@@ -57,6 +57,12 @@ struct LibraryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             libraryHeader
+            NavigationLink { FavoritesBrowser(model: model) } label: {
+                Label(L10n.tr("Favoriler"), systemImage: "heart.fill")
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(MirrorStyle.accent)
+                    .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+                    .padding(.horizontal, 18).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
+            }.buttonStyle(.plain).accessibilityIdentifier("open-favorites")
             ContinueWatchingSection(openPlayer: openPlayer)
             OfflineDownloadsSection()
             if library.sources.isEmpty {
@@ -313,7 +319,7 @@ private struct ContinueWatchingSection: View {
                                 ContinueWatchingCard(entry: entry, open: { resume(entry) }, remove: { remove(entry) })
                             }
                         }
-                    }.scrollIndicators(.hidden)
+                    }.scrollIndicators(.hidden).accessibilityIdentifier("continue-watching-carousel")
                 }.accessibilityElement(children: .contain).accessibilityIdentifier("continue-watching-section")
             }
         }
@@ -326,7 +332,10 @@ private struct ContinueWatchingSection: View {
                 List {
                     ForEach(filtered) { entry in
                         Button { resume(entry) } label: {
-                            HStack(spacing: 14) {
+                            let layout = dynamicTypeSize.isAccessibilitySize
+                                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 14))
+                                : AnyLayout(HStackLayout(spacing: 14))
+                            layout {
                                 ContinueWatchingArtwork(entry: entry).frame(width: 58, height: 87)
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(entry.seriesTitle ?? entry.title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
@@ -336,13 +345,23 @@ private struct ContinueWatchingSection: View {
                                     }
                                     ContinueWatchingProgress(entry: entry)
                                 }
-                            }.padding(.vertical, 8).contentShape(Rectangle())
-                        }.buttonStyle(.plain).listRowBackground(MirrorStyle.surface)
-                            .accessibilityIdentifier("continue-list-open-\(entry.id)")
+                            }.frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.trailing, dynamicTypeSize.isAccessibilitySize ? 0 : 96)
+                                .padding(.vertical, 8).contentShape(Rectangle())
+                        }.buttonStyle(.plain).accessibilityIdentifier("continue-list-open-\(entry.id)")
+                            .overlay(alignment: dynamicTypeSize.isAccessibilitySize ? .topTrailing : .trailing) {
+                                HStack(spacing: 0) {
+                                    MediaFavoriteButton(channel: entry.channel, sourceID: entry.sourceID, compact: true,
+                                                        identifier: "continue-list-favorite-" + entry.id)
+                                    ContinueWatchingRemoveMenu(entry: entry, identifierPrefix: "continue-list", remove: { remove(entry) })
+                                }.padding(.top, dynamicTypeSize.isAccessibilitySize ? 8 : 0)
+                            }
+                            .listRowBackground(MirrorStyle.surface)
                             .swipeActions {
                                 Button(role: .destructive) { remove(entry) } label: {
                                     Label(L10n.tr("Listeden kaldır"), systemImage: "trash")
                                 }
+                                .tint(.red)
                             }
                     }
                 }
@@ -433,7 +452,9 @@ private struct OfflineDownloadsSection: View {
 private struct OfflineDownloadsView: View {
     @ObservedObject private var downloads = OfflineDownloadStore.shared
     @ObservedObject private var model = MirrorModel.shared
+    @ObservedObject private var library = SourceLibrary.shared
     @State private var showingPlayer = false
+    @State private var favoriteChannels: [UUID: MediaChannel] = [:]
     var body: some View {
         List {
             if downloads.items.isEmpty {
@@ -468,6 +489,10 @@ private struct OfflineDownloadsView: View {
                             else { progressLabel(item) }
                         }.frame(maxWidth: .infinity, minHeight: 54, alignment: .leading)
                     }
+                    if let original = favoriteChannels[item.id] {
+                        MediaFavoriteButton(channel: original, sourceID: item.sourceID, compact: true,
+                                            identifier: "offline-favorite-" + item.id.uuidString)
+                    }
                     if item.state == .downloading || item.state == .preparing {
                         Button { downloads.cancel(item) } label: { Image(systemName: "xmark.circle").font(.title3) }
                             .buttonStyle(.plain).foregroundStyle(MirrorStyle.secondary)
@@ -484,9 +509,33 @@ private struct OfflineDownloadsView: View {
         .navigationTitle(L10n.tr("İndirilenler")).navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
         .safeAreaInset(edge: .bottom) { NowPlayingBar { showingPlayer = true } }
+        .task(id: downloads.items.map(\.id) + library.sources.map(\.id)) {
+            favoriteChannels = [:]
+            let sourceIDs = Set(downloads.items.compactMap(\.sourceID))
+            for source in library.sources where sourceIDs.contains(source.id) {
+                if let cached = library.cachedChannels(for: source) {
+                    resolveFavorites(in: cached, sourceID: source.id)
+                } else {
+                    // The encrypted source cache can resolve old downloads offline,
+                    // without copying provider URLs into the download manifest.
+                    let channels = try? await library.channels(for: source, onCached: { channels in
+                        guard !Task.isCancelled else { return }
+                        resolveFavorites(in: channels, sourceID: source.id)
+                    })
+                    guard !Task.isCancelled else { return }
+                    if let channels { resolveFavorites(in: channels, sourceID: source.id) }
+                }
+            }
+        }
         .alert(BrandIdentity.name, isPresented: Binding(get: { downloads.message != nil }, set: { if !$0 { downloads.clearMessage() } })) {
             Button(L10n.tr("Tamam")) { downloads.clearMessage() }
         } message: { Text(downloads.message ?? "") }
+    }
+    private func resolveFavorites(in channels: [MediaChannel], sourceID: UUID) {
+        let resolved = OfflineDownload.originalChannels(for: downloads.items, in: channels, sourceID: sourceID)
+        for item in downloads.items where item.sourceID == sourceID {
+            favoriteChannels[item.id] = resolved[item.id]
+        }
     }
     @ViewBuilder private func progressLabel(_ item: OfflineDownload) -> some View {
         if item.state == .preparing { Label(L10n.tr("İçerik kontrol ediliyor…"), systemImage: "ellipsis.circle").font(.caption).foregroundStyle(MirrorStyle.secondary) }
@@ -496,6 +545,55 @@ private struct OfflineDownloadsView: View {
                 if item.taskIdentifier == nil { ProgressView().tint(MirrorStyle.accent) }
                 else { ProgressView(value: item.progress).tint(MirrorStyle.accent) }
             }
+        }
+    }
+}
+
+/// Present above the entire card so its sibling favorite control cannot bleed through.
+private struct ContinueWatchingRemoveMenu: View {
+    let entry: LastPlaybackRecord
+    let identifierPrefix: String
+    let remove: () -> Void
+    @State private var isPresented = false
+
+    var body: some View {
+        Button { isPresented = true } label: {
+            Image(systemName: "ellipsis").font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(MirrorStyle.secondary)
+                .frame(width: 32, height: 32)
+                .background(MirrorStyle.raised, in: Circle())
+                .frame(width: 44, height: 44).contentShape(Rectangle())
+        }
+        .buttonStyle(MirivoPressButtonStyle())
+        .accessibilityLabel(entry.title)
+        .accessibilityIdentifier("\(identifierPrefix)-menu-\(entry.id)")
+        .popover(isPresented: $isPresented, arrowEdge: .top) {
+            Button(role: .destructive) {
+                isPresented = false
+                remove()
+            } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: "trash")
+                        .foregroundStyle(MirrorStyle.accent)
+                    Text(L10n.tr("Listeden kaldır"))
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .font(.body)
+                .padding(.horizontal, 22)
+                .padding(.vertical, 16)
+                .frame(minHeight: MirrorStyle.controlHeight, alignment: .leading)
+                .contentShape(Capsule())
+            }
+            .buttonStyle(MirivoPressButtonStyle())
+            .accessibilityIdentifier("\(identifierPrefix)-remove-\(entry.id)")
+            .background(MirrorStyle.raised, in: Capsule())
+            .overlay { Capsule().strokeBorder(MirrorStyle.hairline) }
+            .padding(6)
+            .presentationCompactAdaptation(.popover)
+            .presentationBackground(MirrorStyle.raised)
+            .presentationCornerRadius(36)
+            .preferredColorScheme(.dark)
         }
     }
 }
@@ -528,7 +626,7 @@ private struct ContinueWatchingCard: View {
                                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.trailing, dynamicTypeSize.isAccessibilitySize ? 0 : 20)
+                        .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : 30)
                 }
                 ContinueWatchingProgress(entry: entry)
             }.padding(16).frame(width: 300)
@@ -538,20 +636,11 @@ private struct ContinueWatchingCard: View {
             .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
             .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
             .overlay(alignment: .topTrailing) {
-                Menu {
-                    Button(role: .destructive, action: remove) {
-                        Label(L10n.tr("Listeden kaldır"), systemImage: "trash")
-                    }
-                    .accessibilityIdentifier("continue-watching-remove-\(entry.id)")
-                } label: {
-                    Image(systemName: "ellipsis").font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(MirrorStyle.secondary)
-                        .frame(width: 32, height: 32)
-                        .background(MirrorStyle.raised, in: Circle())
-                        .frame(width: 44, height: 44).contentShape(Rectangle())
-                }.buttonStyle(MirivoPressButtonStyle())
-                    .padding(6).accessibilityLabel(entry.title)
-                    .accessibilityIdentifier("continue-watching-menu-\(entry.id)")
+                HStack(spacing: 0) {
+                    MediaFavoriteButton(channel: entry.channel, sourceID: entry.sourceID,
+                                        compact: true, identifier: "continue-watching-favorite-" + entry.id)
+                    ContinueWatchingRemoveMenu(entry: entry, identifierPrefix: "continue-watching", remove: remove)
+                }.padding(6)
             }
     }
     private var artworkLayout: AnyLayout {
@@ -910,7 +999,7 @@ private struct ChannelSearchTextField: UIViewRepresentable {
     }
 }
 
-private struct ChannelBrowserView: View {
+struct ChannelBrowserView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var downloads = OfflineDownloadStore.shared
     let channels: [MediaChannel]
@@ -1085,6 +1174,13 @@ private struct ChannelBrowserView: View {
                             } label: { SeriesPosterCard(series: item) }
                                 .buttonStyle(MirivoPressButtonStyle())
                                 .accessibilityIdentifier("series-open-" + item.title)
+                                .overlay(alignment: .topTrailing) {
+                                    if let channel = item.artworkChannel {
+                                        MediaFavoriteButton(channel: channel, sourceID: sourceID, scope: .series,
+                                                            compact: true, identifier: "series-favorite-" + item.title)
+                                            .padding(8)
+                                    }
+                                }
                         }
                     }
                 }
@@ -1223,6 +1319,10 @@ private struct ChannelBrowserView: View {
             }.buttonStyle(.plain).accessibilityLabel(channel.title)
             HStack(spacing: 0) {
                 if dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                if channel.isLive || channel.isAudio {
+                    MediaFavoriteButton(channel: channel, sourceID: sourceID, compact: true,
+                                        identifier: "channel-favorite-" + channel.id)
+                }
                 if channel.isDownloadableVideo {
                     downloadControl(for: channel).frame(width: 44, height: 44)
                 }
@@ -1291,71 +1391,81 @@ private struct ChannelBrowserView: View {
 
 struct NowPlayingBar: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @ObservedObject private var model = MirrorModel.shared
-    @ObservedObject private var playback = MirrorModel.shared.playback
+    @ObservedObject private var model: MirrorModel
+    @ObservedObject private var playback: PlaybackController
     @ObservedObject private var history = LastPlaybackStore.shared
-    var hidesSavedProgress = false
     let open: () -> Void
-    @State private var visible = false
+    init(model: MirrorModel = .shared, open: @escaping () -> Void) {
+        self.model = model; playback = model.playback
+        self.open = open
+    }
+    private var active: Bool { model.mediaTitle != nil && playback.hasActivePlayback }
+    private var saved: LastPlaybackRecord? {
+        guard !model.hidesSavedPlaybackBar, !model.broadcasting, let last = history.record,
+              !last.isFinished else { return nil }
+        return last
+    }
     var body: some View {
-        if let title = model.mediaTitle, playback.hasActivePlayback, !model.playerScreenVisible {
-            HStack(spacing: 12) {
-                Button(action: open) {
-                    HStack(spacing: 12) {
-                        if !dynamicTypeSize.isAccessibilitySize || playback.hasRemoteVideoOutput {
-                            Group {
-                                if playback.hasRemoteVideoOutput {
-                                    Image(systemName: playback.displayConnection.symbol).foregroundStyle(MirrorStyle.accent)
-                                        .accessibilityLabel(playback.displayConnection.destinationName)
-                                        .accessibilityIdentifier("now-playing-route")
-                                } else if visible && !model.playerScreenVisible {
-                                    if let engine = playback.compatibility { CompatibilityVideoView(engine: engine, role: .preview) }
-                                    else { NativeVideoView(player: playback.player, playback: playback) }
-                                } else { Color.black }
-                            }.frame(width: dynamicTypeSize.isAccessibilitySize ? 40 : 88, height: 50).clipped()
-                                .allowsHitTesting(false)
-                        }
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(playback.hasRemoteVideoOutput ? playback.displayPlaybackStatus()
-                                 : L10n.tr(playback.state == .playing ? "Şimdi oynatılıyor" : playback.state == .loading ? "Yayın hazırlanıyor" : "Yayın duraklatıldı"))
-                                .font(.caption).foregroundStyle(MirrorStyle.secondary).lineLimit(1)
-                                .accessibilityIdentifier("now-playing-output-status")
-                            Text(title).font(.subheadline.weight(.semibold)).lineLimit(1)
-                        }
-                        Spacer(minLength: 0)
-                        Image(systemName: "chevron.up").font(.system(size: 14, weight: .semibold))
-                            .accessibilityHidden(true)
-                    }.contentShape(Rectangle())
-                }.buttonStyle(.plain).accessibilityIdentifier("now-playing-open")
-                Button { playback.togglePlayPause() } label: {
-                    Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 20, weight: .semibold)).frame(width: 44, height: 44)
-                }.buttonStyle(.plain).accessibilityLabel(L10n.tr(playback.isPlaying ? "Duraklat" : "Oynat"))
-            }.padding(.horizontal, 18).padding(.vertical, 10)
-                .background(MirrorStyle.surface).foregroundStyle(.white)
-                .onAppear { visible = true }.onDisappear { visible = false }
-        } else if !model.hidesSavedPlaybackBar, let last = history.record, !last.isFinished, (!hidesSavedProgress || !last.isInProgress),
-                  !playback.hasActivePlayback, !model.playerScreenVisible, !model.broadcasting {
-            Button {
-                if model.resumeLastPlayback() { open() }
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "play.circle.fill").font(.system(size: 34))
-                        .foregroundStyle(MirrorStyle.accent).frame(width: 50, height: 50)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.tr("İzlemeye devam et")).font(.caption).foregroundStyle(MirrorStyle.secondary).lineLimit(1)
-                        Text(last.title).font(.subheadline.weight(.semibold)).lineLimit(1)
-                        if !last.isLive, last.resumePosition > 0 {
-                            Text(PlaybackTimeDisplay.timestamp(last.resumePosition))
-                                .font(.caption.monospacedDigit()).foregroundStyle(MirrorStyle.secondary)
-                        }
-                    }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.up").font(.system(size: 14, weight: .semibold))
+        if !model.playerScreenVisible, active || saved != nil {
+            VStack(spacing: 0) {
+                HStack(spacing: 10) {
+                    Button {
+                        if active || model.resumeLastPlayback() { open() }
+                    } label: {
+                        HStack(spacing: 12) {
+                            if !dynamicTypeSize.isAccessibilitySize, let channel = active ? model.selectedMediaChannel : saved?.channel {
+                                MediaArtworkView(channel: channel, cornerRadius: 12)
+                                    .frame(width: 54, height: 54)
+                                    .background {
+                                        if active, playback.compatibility == nil, !playback.externalDisplayConnected {
+                                            NativeVideoView(player: playback.player, playback: playback)
+                                        }
+                                    }
+                            }
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(active ? model.mediaTitle ?? "" : saved?.title ?? "")
+                                    .font(.subheadline.weight(.semibold)).lineLimit(1)
+                                HStack(spacing: 5) {
+                                    if active && playback.hasRemoteVideoOutput {
+                                        Image(systemName: playback.displayConnection.symbol)
+                                            .foregroundStyle(MirrorStyle.accent).accessibilityIdentifier("now-playing-route")
+                                    }
+                                    Text(active ? (playback.hasRemoteVideoOutput ? playback.displayPlaybackStatus()
+                                        : L10n.tr(playback.isPlaying ? "Şimdi oynatılıyor" : playback.state == .loading ? "Yayın hazırlanıyor" : "Yayın duraklatıldı"))
+                                        : L10n.tr("İzlemeye devam et"))
+                                        .lineLimit(1).accessibilityIdentifier("now-playing-output-status")
+                                }.font(.caption).foregroundStyle(MirrorStyle.secondary)
+                            }.frame(maxWidth: .infinity, alignment: .leading)
+                        }.contentShape(Rectangle())
+                    }.buttonStyle(.plain).accessibilityIdentifier(active ? "now-playing-open" : "last-watched-open")
+                    Button {
+                        if active { playback.togglePlayPause() }
+                        else if model.resumeLastPlayback() { open() }
+                    } label: {
+                        Image(systemName: active && playback.isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(size: 19, weight: .semibold)).frame(width: 46, height: 46)
+                            .background(.white.opacity(0.09), in: Circle())
+                    }.buttonStyle(.plain)
+                        .accessibilityLabel(L10n.tr(active && playback.isPlaying ? "Duraklat" : "Oynat"))
+                        .accessibilityIdentifier("now-playing-play-pause")
+                    Button { model.stopPlayback(hideSavedPlaybackBar: true) } label: {
+                        Image(systemName: "xmark").font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.secondary).frame(width: 40, height: 46)
+                    }.buttonStyle(.plain).accessibilityLabel(L10n.tr("Oynatmayı durdur"))
+                        .accessibilityIdentifier("now-playing-stop")
+                }.padding(.horizontal, 12).padding(.vertical, 10)
+                if active && playback.duration > 0 {
+                    ProgressView(value: min(1, playback.currentTime / playback.duration))
+                        .tint(MirrorStyle.accent).frame(height: 2).padding(.horizontal, 14)
                         .accessibilityHidden(true)
-                }.padding(.horizontal, 18).padding(.vertical, 10).contentShape(Rectangle())
-            }.buttonStyle(.plain).foregroundStyle(.white).background(MirrorStyle.surface)
-                .accessibilityIdentifier("last-watched-open")
+                }
+            }
+            .foregroundStyle(.white)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24))
+            .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(.white.opacity(0.10)) }
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .shadow(color: .black.opacity(0.18), radius: 12, y: 4)
+            .padding(.horizontal, 12).padding(.bottom, 8)
         }
     }
 }
@@ -1605,7 +1715,7 @@ struct MediaVideoView: View {
 }
 
 /// Shared time and seek controls for the inline and full-screen players.
-private struct PlaybackTimelineView: View {
+struct PlaybackTimelineView: View {
     @ObservedObject var playback: PlaybackController
     var onEditingChanged: (Bool) -> Void = { _ in }
     @State private var scrubTime: Double?
@@ -1657,7 +1767,8 @@ struct PlaybackCaptureGuard: ViewModifier {
         // Scene capture also describes legitimate mirroring. Those routes keep
         // playing; sample-buffer protection covers their decoded picture.
         Self.blocksPlayback(captured: isSceneCaptured, broadcasting: model.broadcasting,
-                            remoteOutput: playback.hasRemoteVideoOutput, audio: model.selectedMediaChannel?.isAudio == true)
+                            remoteOutput: playback.hasRemoteVideoOutput || playback.externalDisplayConnected,
+                            audio: model.selectedMediaChannel?.isAudio == true)
     }
     static func blocksPlayback(captured: Bool, broadcasting: Bool, remoteOutput: Bool, audio: Bool) -> Bool {
         captured && !broadcasting && !remoteOutput && !audio
@@ -1691,7 +1802,9 @@ struct MediaPlayerScreen: View {
                         // Keep this surface mounted in both sizes. A cover used to
                         // remove it and mount another decoder surface during the fade.
                         ZStack {
-                            if model.selectedMediaChannel?.isAudio == true {
+                            if playback.hasRemoteVideoOutput {
+                                RemotePlaybackPanel(model: model)
+                            } else if model.selectedMediaChannel?.isAudio == true {
                                 ZStack {
                                     MirrorStyle.surface
                                     Image(systemName: "waveform").font(.system(size: 54, weight: .light))
@@ -1700,10 +1813,12 @@ struct MediaPlayerScreen: View {
                             } else {
                                 MediaVideoView(playback: playback, role: .inline, displayMode: videoDisplayMode)
                             }
-                            PlayerChrome(model: model, fullscreen: $fullscreen, largeControls: $largeControls,
+                            if !playback.hasRemoteVideoOutput {
+                                PlayerChrome(model: model, fullscreen: $fullscreen, largeControls: $largeControls,
                                          displayMode: $videoDisplayMode, changeFullscreen: setFullscreen,
                                          exitToPortrait: exitFullscreenToPortrait)
                                 .accessibilityHidden(playback.screenCaptureBlocked)
+                            }
                             if playback.screenCaptureBlocked {
                                 Color.black
                                 Label(L10n.tr("Devam etmek için ekran kaydını durdur."), systemImage: "record.circle")
@@ -1711,8 +1826,9 @@ struct MediaPlayerScreen: View {
                                     .accessibilityIdentifier("player-capture-blocked")
                             }
                         }
-                        .frame(height: fullscreen ? geometry.size.height : max(0, min(geometry.size.width - 40, 720)) * 9 / 16)
-                        .background(.black)
+                        .frame(minHeight: playback.hasRemoteVideoOutput ? 210 : nil)
+                        .frame(height: playback.hasRemoteVideoOutput ? nil : fullscreen ? geometry.size.height : max(0, min(geometry.size.width - 40, 720)) * 9 / 16)
+                        .background(playback.hasRemoteVideoOutput ? Color.clear : Color.black)
                         .accessibilityElement(children: .contain)
                         .accessibilityIdentifier("player-video")
                         // A fixed rectangular source avoids animating a second
@@ -1775,6 +1891,10 @@ struct MediaPlayerScreen: View {
             updateOrientationPolicy()
             if playback.externalPlaybackActive { leaveFullscreenAutomatically() }
         }
+        .onChange(of: playback.playsOnPhone) { _, _ in
+            updateOrientationPolicy()
+            if playback.hasRemoteVideoOutput { leaveFullscreenAutomatically() }
+        }
         .onChange(of: model.selectedMediaChannel) { _, channel in
             if channel == nil {
                 playerVisible = false
@@ -1817,6 +1937,11 @@ struct MediaPlayerScreen: View {
             if playback.hasActivePlayback {
                 VStack(spacing: 20) {
                     PlaybackTimelineView(playback: playback).id(model.selectedMediaChannel?.id)
+                    if playback.playsOnPhone && playback.externalDisplayConnected {
+                        Button { model.returnToDisplay() } label: {
+                            Label(L10n.tr("Bu ekranda oynat"), systemImage: playback.displayConnection.symbol)
+                        }.buttonStyle(.borderedProminent).accessibilityIdentifier("player-return-to-display")
+                    }
                     TVConnectionButton(model: model)
                     if playback.tvName != nil && model.selectedMediaChannel?.url.isFileURL == true {
                         Label(L10n.tr("TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut."), systemImage: "iphone.radiowaves.left.and.right")
@@ -1854,7 +1979,7 @@ struct MediaPlayerScreen: View {
     private func exitFullscreenToPortrait() { setFullscreen(false) }
 
     private var fullscreenAllowed: Bool {
-        playback.hasActivePlayback && playback.tvName == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive
+        playback.hasActivePlayback && !playback.hasRemoteVideoOutput
     }
 
     private func updateOrientationPolicy() {
@@ -1882,6 +2007,80 @@ struct MediaPlayerScreen: View {
 }
 
 /// Standalone host used by external previews and rotation regression tests.
+struct RemotePlaybackPanel: View {
+    @ObservedObject var model: MirrorModel
+    @ObservedObject private var playback: PlaybackController
+    @AppStorage("player.externalVideoDisplayMode") private var displayMode = PlayerVideoDisplayMode.normal
+    @State private var showingChannels = false
+    @State private var showingMediaChoices = false
+    init(model: MirrorModel) { self.model = model; playback = model.playback }
+
+    var body: some View {
+        VStack(spacing: 18) {
+            HStack(spacing: 10) {
+                Image(systemName: playback.displayConnection.symbol).font(.title2).foregroundStyle(MirrorStyle.accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(playback.displayConnection.destinationName).font(.subheadline.weight(.semibold))
+                        .accessibilityIdentifier("player-output-destination")
+                    Text(playback.displayPlaybackStatus()).font(.caption).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("player-output-status")
+                }
+                Spacer(minLength: 0)
+                Button { showingMediaChoices = true } label: {
+                    Image(systemName: "captions.bubble").font(.title3).frame(width: 44, height: 48)
+                }
+                .accessibilityLabel(L10n.tr("Ses ve altyazı")).accessibilityIdentifier("player-media-options")
+                if let channel = model.selectedMediaChannel {
+                    MediaFavoriteButton(channel: channel, sourceID: model.playbackSourceID)
+                }
+            }
+            HStack(spacing: 12) {
+                Button { model.playOnPhone() } label: {
+                    Label(L10n.tr("Telefonda oynat"), systemImage: "iphone")
+                        .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 48)
+                        .background(.white, in: Capsule()).foregroundStyle(.black)
+                }.accessibilityIdentifier("player-play-on-phone")
+                Button { playback.togglePlayPause() } label: {
+                    Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.title3).frame(width: 52, height: 48)
+                        .background(.white.opacity(0.12), in: Capsule())
+                }.accessibilityLabel(L10n.tr(playback.isPlaying ? "Duraklat" : "Oynat"))
+                    .accessibilityIdentifier("player-play-pause")
+            }
+            HStack(spacing: 16) {
+                Button { showingChannels = true } label: {
+                    Label(L10n.tr(model.selectedMediaChannel?.episode != nil ? "Bölümler" : "Kanallar"), systemImage: "list.bullet")
+                        .frame(minHeight: 44)
+                }.accessibilityIdentifier("player-channel-picker")
+                Spacer(minLength: 0)
+                if model.playbackQueue.count > 1 {
+                    Button { model.switchChannel(-1) } label: { Image(systemName: "backward.end.fill").frame(width: 44, height: 44) }
+                        .disabled(model.adjacentChannel(-1) == nil).accessibilityLabel(L10n.tr("Önceki bölüm")).accessibilityIdentifier("previous-episode")
+                    Button { model.switchChannel(1) } label: { Image(systemName: "forward.end.fill").frame(width: 44, height: 44) }
+                        .disabled(model.adjacentChannel(1) == nil).accessibilityLabel(L10n.tr("Sonraki bölüm")).accessibilityIdentifier("next-episode")
+                }
+                if playback.canAdjustRemoteVideoDisplayMode {
+                    Menu {
+                        Button(L10n.tr("Sığdır")) { displayMode = .normal }
+                        Button(L10n.tr("Uzat")) { displayMode = .fillScreen }
+                    } label: { Image(systemName: "aspectratio").frame(width: 44, height: 44) }
+                        .accessibilityLabel(L10n.tr("Görüntü boyutu")).accessibilityIdentifier("player-display-mode")
+                }
+            }.font(.subheadline.weight(.medium))
+        }
+        .padding(18).foregroundStyle(.white).buttonStyle(.plain)
+        .background {
+            // System-managed video routes still need a mounted native layer.
+            if playback.compatibility == nil && !playback.externalDisplayConnected {
+                NativeVideoView(player: playback.player, playback: playback)
+            }
+            RoundedRectangle(cornerRadius: 20).fill(MirrorStyle.surface)
+        }
+        .sheet(isPresented: $showingChannels) { PlaybackQueueSheet(model: model) }
+        .sheet(isPresented: $showingMediaChoices) { PlayerMediaChoicesView(playback: playback) }
+    }
+}
+
 struct FullscreenPlayerView: View {
     var largeControls: Bool = true
     @ObservedObject var model: MirrorModel
@@ -2059,37 +2258,83 @@ private struct PlayerChrome: View {
         }
     }
     private func header(isLandscape: Bool) -> some View {
-        HStack(spacing: 4) {
-            if fullscreen && controlsVisible && !controlsLocked {
-                VStack(alignment: .leading, spacing: 3) {
-                    if largeControls {
-                        Text(L10n.tr("Araç modu")).font(.caption).foregroundStyle(MirrorStyle.accent)
-                    }
-                    Text(model.mediaTitle ?? BrandIdentity.name).font(.subheadline.weight(.semibold)).lineLimit(1)
-                }.frame(maxWidth: .infinity, alignment: .leading)
-            } else { Spacer(minLength: 0) }
+        Group {
             if controlsLocked {
-                iconButton("lock.open.fill", label: "Kilidi aç", id: "unlock-player-controls") { controlsLocked = false }
-            } else if controlsVisible {
-                if playback.hasMediaChoices {
-                    iconButton("captions.bubble", label: "Ses ve altyazı", id: "player-media-options") { showingMediaChoices = true }
+                HStack {
+                    Spacer(minLength: 0)
+                    headerButton("lock.open.fill", label: "Kilidi aç", id: "unlock-player-controls") { controlsLocked = false }
+                        .background(.ultraThinMaterial, in: Capsule())
                 }
+            } else if controlsVisible {
                 if fullscreen {
-                    TVConnectionButton(model: model, compact: true, presentPicker: {
-                        showingTVs = true
-                        hideTask?.cancel()
-                    })
-                    iconButton("ellipsis", label: "Video seçenekleri", id: "player-options") { showingOptions.toggle() }
-                        .popover(isPresented: $showingOptions, arrowEdge: .top) {
-                        playerOptions(isLandscape: isLandscape).presentationCompactAdaptation(.popover)
-                        }
-                } else if playback.tvDevice == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive {
-                    iconButton("arrow.up.left.and.arrow.down.right", label: "Tam ekran", id: "player-fullscreen") {
-                        largeControls = false; displayMode = .normal; changeFullscreen(true)
+                    HStack(alignment: .center, spacing: 12) {
+                        headerTitle
+                        headerActions(isLandscape: isLandscape)
+                            .layoutPriority(1)
+                    }
+                } else {
+                    HStack {
+                        Spacer(minLength: 0)
+                        headerActions(isLandscape: isLandscape)
                     }
                 }
             }
-        }.padding(.horizontal, fullscreen ? 16 : 4)
+        }
+        .padding(.horizontal, fullscreen ? 20 : 8)
+    }
+
+    private var headerTitle: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if largeControls {
+                Text(L10n.tr("Araç modu"))
+                    .font(.caption.weight(.medium)).foregroundStyle(.white.opacity(0.7))
+            }
+            Text(model.mediaTitle ?? BrandIdentity.name)
+                .font(.headline)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .shadow(color: .black.opacity(0.5), radius: 8, y: 2)
+        }
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+        .clipped()
+    }
+
+    private func headerActions(isLandscape: Bool) -> some View {
+        HStack(spacing: 0) {
+            if let channel = model.selectedMediaChannel {
+                MediaFavoriteButton(channel: channel, sourceID: model.playbackSourceID, compact: true, playerChrome: true)
+            }
+            headerButton("captions.bubble", label: "Ses ve altyazı", id: "player-media-options") { showingMediaChoices = true }
+            if fullscreen {
+                TVConnectionButton(model: model, compact: true, playerChrome: true, presentPicker: {
+                    showingTVs = true
+                    hideTask?.cancel()
+                })
+                Rectangle().fill(.white.opacity(0.14)).frame(width: 1, height: 18).padding(.horizontal, 3)
+                headerButton("ellipsis", label: "Video seçenekleri", id: "player-options") { showingOptions.toggle() }
+                    .popover(isPresented: $showingOptions, arrowEdge: .top) {
+                        playerOptions(isLandscape: isLandscape).presentationCompactAdaptation(.popover)
+                    }
+            } else if !playback.hasRemoteVideoOutput {
+                headerButton("arrow.up.left.and.arrow.down.right", label: "Tam ekran", id: "player-fullscreen") {
+                    largeControls = false; displayMode = .normal; changeFullscreen(true)
+                }
+            }
+        }
+        .padding(2)
+        .background(.ultraThinMaterial, in: Capsule())
+        .overlay { Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 0.5) }
+        .environment(\.colorScheme, .dark)
+        .fixedSize()
+    }
+
+    private func headerButton(_ icon: String, label: String, id: String, action: @escaping () -> Void) -> some View {
+        Button { action(); revealControls() } label: {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .medium))
+                .frame(width: 40, height: 44).contentShape(Rectangle())
+        }
+        .accessibilityLabel(L10n.tr(label)).accessibilityIdentifier(id)
     }
     private func playerOptions(isLandscape: Bool) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -2330,8 +2575,12 @@ private struct PlayerMediaChoicesView: View {
     var body: some View {
         NavigationStack {
             List {
-                if playback.audioTracks.count > 1 {
-                    Section(L10n.tr("Ses dili")) {
+                Section(L10n.tr("Ses dili")) {
+                    if playback.audioTracks.isEmpty {
+                        Text(L10n.tr("Bu yayında seçilebilir ses parçası yok."))
+                            .foregroundStyle(.secondary).listRowBackground(MirrorStyle.surface)
+                            .accessibilityIdentifier("audio-tracks-empty")
+                    } else {
                         ForEach(playback.audioTracks) { track in
                             choice(track.title, selected: track.isSelected, id: "audio-track-\(track.id)") {
                                 playback.selectAudioTrack(track.id)
@@ -2339,8 +2588,12 @@ private struct PlayerMediaChoicesView: View {
                         }
                     }
                 }
-                if !playback.subtitleTracks.isEmpty {
-                    Section(L10n.tr("Altyazı")) {
+                Section(L10n.tr("Altyazı")) {
+                    if playback.subtitleTracks.isEmpty {
+                        Text(L10n.tr("Bu yayında altyazı bulunmuyor."))
+                            .foregroundStyle(.secondary).listRowBackground(MirrorStyle.surface)
+                            .accessibilityIdentifier("subtitle-tracks-empty")
+                    } else {
                         if playback.canDisableSubtitles {
                             choice(L10n.tr("Kapalı"), selected: !playback.subtitleTracks.contains(where: \.isSelected), id: "subtitles-off") {
                                 playback.selectSubtitleTrack(nil)
@@ -2606,17 +2859,19 @@ private struct LiveChannelPicker: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let channels: [MediaChannel]
     let currentChannelID: String?
+    let sourceID: UUID?
     let select: (MediaChannel) -> Void
     let expand: () -> Void
     private let categories: [MediaChannelCategory]
     @State private var query = ""
     @State private var selectedCategory: String?
 
-    init(channels: [MediaChannel], currentChannelID: String?, select: @escaping (MediaChannel) -> Void,
+    init(channels: [MediaChannel], currentChannelID: String?, sourceID: UUID?, select: @escaping (MediaChannel) -> Void,
          expand: @escaping () -> Void) {
         let liveChannels = channels.filter(\.isLive)
         self.channels = liveChannels
         self.currentChannelID = currentChannelID
+        self.sourceID = sourceID
         self.select = select
         self.expand = expand
         categories = MediaChannelCategory.group(liveChannels)
@@ -2709,41 +2964,45 @@ private struct LiveChannelPicker: View {
 
     private func channelRow(_ channel: MediaChannel) -> some View {
         let isCurrent = channel.id == currentChannelID
-        return Button { select(channel) } label: {
-            HStack(spacing: 12) {
-                MediaArtworkView(channel: channel, cornerRadius: 10)
-                    .frame(width: 44, height: 44)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(channel.title).font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isCurrent ? MirrorStyle.accent : .white)
-                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
-                    if isCurrent {
-                        Text(L10n.tr("Şimdi oynatılıyor")).foregroundStyle(MirrorStyle.accent)
-                            .font(.caption)
-                    } else if !channel.group.isEmpty {
-                        Text(channel.group).font(.caption).foregroundStyle(MirrorStyle.secondary)
-                            .lineLimit(1)
+        return HStack(spacing: 8) {
+            Button { select(channel) } label: {
+                HStack(spacing: 12) {
+                    MediaArtworkView(channel: channel, cornerRadius: 10)
+                        .frame(width: 44, height: 44)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(channel.title).font(.subheadline.weight(.semibold))
+                            .foregroundStyle(isCurrent ? MirrorStyle.accent : .white)
+                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+                        if isCurrent {
+                            Text(L10n.tr("Şimdi oynatılıyor")).foregroundStyle(MirrorStyle.accent)
+                                .font(.caption)
+                        } else if !channel.group.isEmpty {
+                            Text(channel.group).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                                .lineLimit(1)
+                        }
                     }
+                    Spacer(minLength: 0)
+                    Image(systemName: isCurrent ? "speaker.wave.2.fill" : "play.fill")
+                        .font(.system(size: isCurrent ? 16 : 12, weight: .semibold))
+                        .foregroundStyle(isCurrent ? MirrorStyle.accent : MirrorStyle.secondary)
+                        .frame(width: 24)
+                        .accessibilityHidden(true)
                 }
-                Spacer(minLength: 0)
-                Image(systemName: isCurrent ? "speaker.wave.2.fill" : "play.fill")
-                    .font(.system(size: isCurrent ? 16 : 12, weight: .semibold))
-                    .foregroundStyle(isCurrent ? MirrorStyle.accent : MirrorStyle.secondary)
-                    .frame(width: 24)
-                    .accessibilityHidden(true)
+                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+                .padding(.vertical, 6).contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-            .padding(.vertical, 6).contentShape(Rectangle())
+            .buttonStyle(.plain)
+            .accessibilityLabel(channel.title)
+            .accessibilityValue(isCurrent ? L10n.tr("Şimdi oynatılıyor") : channel.group)
+            .accessibilityAddTraits(isCurrent ? .isSelected : [])
+            .accessibilityIdentifier("live-channel-" + channel.id)
+            MediaFavoriteButton(channel: channel, sourceID: sourceID, compact: true,
+                                identifier: "live-channel-favorite-" + channel.id)
         }
-        .buttonStyle(.plain)
         .listRowInsets(EdgeInsets(top: 4, leading: 24, bottom: 4, trailing: 24))
         .listRowBackground(isCurrent ? MirrorStyle.accent.opacity(0.10) : Color.clear)
         .listRowSeparatorTint(MirrorStyle.hairline)
-        .accessibilityLabel(channel.title)
-        .accessibilityValue(isCurrent ? L10n.tr("Şimdi oynatılıyor") : channel.group)
-        .accessibilityAddTraits(isCurrent ? .isSelected : [])
-        .accessibilityIdentifier("live-channel-" + channel.id)
     }
 }
 
@@ -2766,6 +3025,7 @@ private struct PlaybackQueueSheet: View {
         NavigationStack {
             if isLive {
                 LiveChannelPicker(channels: model.playbackQueue, currentChannelID: model.selectedMediaChannel?.id,
+                                  sourceID: model.playbackSourceID,
                                   select: selectChannel, expand: { detent = .large })
                     .navigationTitle(L10n.tr("Kanallar")).navigationBarTitleDisplayMode(.inline)
                     .toolbar {

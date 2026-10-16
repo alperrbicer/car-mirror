@@ -65,6 +65,7 @@
 		6E2F6841432932FF4BC45F3C /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 7DACC8FC588C75A0A432921E /* FirebaseMessaging */; };
 		72C1299184A21949B498EF15 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D454D37DE99ECFD71E30007 /* Foundation.framework */; };
 		72EE0791F7B84D54365869A2 /* MediaSharingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDF13724AE1A130A94B34FD /* MediaSharingUITests.swift */; };
+		730CCCCEF21DCF9798296814 /* MediaFavorites.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F9425F9939DA69DA01E93D /* MediaFavorites.swift */; };
 		7469312474370CFF112FA9F8 /* Notices in Resources */ = {isa = PBXBuildFile; fileRef = BD31D138DE5E176D782C1A16 /* Notices */; };
 		74D5B53B0F355914718F38EF /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5CA813C5FC533AEEA53438F2 /* FirebaseAuth */; };
 		7942F99AD60894BE4173ED4A /* LiveCaptionTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4115CD7ACB9CF6A0A13D372B /* LiveCaptionTranscriber.swift */; };
@@ -95,6 +96,7 @@
 		A6147C6CF1737DA53B841CEB /* TVDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A78EDCBFDDC857C7DC5212F /* TVDiscovery.swift */; };
 		A6970F79D2F27B44226ABFB6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CB32B97378C090A9206ED191 /* InfoPlist.strings */; };
 		A8FBDEF94C194B17A55838EF /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = A52466E0D650D4D00837E5CA /* FirebaseFunctions */; };
+		A9BBEF3FF0E07A668D2284BB /* VehiclePlaybackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0F043A44FF9A96E5D7B411 /* VehiclePlaybackTests.swift */; };
 		ADF3D5B7A8ECA6C203110E83 /* ProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3CD2142BFA547D5B5A4DC6 /* ProView.swift */; };
 		ADF6437F69538D8DC0FB6E88 /* PurchaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0D0C6E43F5A25A3716B2D /* PurchaseStore.swift */; };
 		AE7586412925804E0D65087D /* MediaPlaybackPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F0483BFAB45937B9EABFCE4 /* MediaPlaybackPresentation.swift */; };
@@ -329,11 +331,13 @@
 		DB9F39748C0338B798ED65CE /* PlayerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlayerTests.swift; path = Tests/App/PlayerTests.swift; sourceTree = "<group>"; };
 		E2582CA012F86023833A39E6 /* BroadcastSessionStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BroadcastSessionStore.swift; sourceTree = "<group>"; };
 		E2FED04070E82A8510991F65 /* LanguageSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguageSettingsView.swift; sourceTree = "<group>"; };
+		E3F9425F9939DA69DA01E93D /* MediaFavorites.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MediaFavorites.swift; path = Sources/App/MediaFavorites.swift; sourceTree = "<group>"; };
 		E49BA0B808FBA933A757CF23 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E544085388C70F21054F0366 /* hi */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = hi; path = Resources/hi.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E6836CA8BAC084EBE3E28DC1 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = Resources/es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E73F1875B1A37A0849D090B5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Resources/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E8C62948157C316902053870 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		ED0F043A44FF9A96E5D7B411 /* VehiclePlaybackTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VehiclePlaybackTests.swift; path = Tests/App/VehiclePlaybackTests.swift; sourceTree = "<group>"; };
 		ED66F3170A125869565F40AD /* SessionDiagnostics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SessionDiagnostics.swift; sourceTree = "<group>"; };
 		EE3AA79A17874BDB84990322 /* MediaSeries.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaSeries.swift; sourceTree = "<group>"; };
 		EF6C924F50B8303DC45957B3 /* TVPlaybackTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TVPlaybackTests.swift; path = Tests/App/TVPlaybackTests.swift; sourceTree = "<group>"; };
@@ -447,6 +451,8 @@
 				2457737DF5D5C9AE027ADB50 /* MediaMetadataIntegrationTests.swift */,
 				860AACC60E3734E0A4BF309E /* LibraryArtworkUITests.swift */,
 				4F03EB250C312946048DDD18 /* TrialReminderTests.swift */,
+				E3F9425F9939DA69DA01E93D /* MediaFavorites.swift */,
+				ED0F043A44FF9A96E5D7B411 /* VehiclePlaybackTests.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -773,6 +779,7 @@
 				B44939EC22DB3D5DBF0B34BC /* CarConnectionReminderTests.swift in Sources */,
 				8E1E7FF7F591825464E28B48 /* MediaMetadataIntegrationTests.swift in Sources */,
 				DFBB3D625A297BBF4131A750 /* TrialReminderTests.swift in Sources */,
+				A9BBEF3FF0E07A668D2284BB /* VehiclePlaybackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -870,6 +877,7 @@
 				7A65B2364E40739D5910AD12 /* SeriesLibraryViews.swift in Sources */,
 				588177F326D64489557D1325 /* MirivoOnboardingView.swift in Sources */,
 				995BC198FC460F23864BBFB3 /* TrialReminderStore.swift in Sources */,
+				730CCCCEF21DCF9798296814 /* MediaFavorites.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

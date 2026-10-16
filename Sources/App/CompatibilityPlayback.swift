@@ -25,12 +25,18 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     var onPiPWillStop: (() -> Void)?
     var onPiPStopped: (() -> Void)?
     private var active = false
+    private var lowLatency = false
     private var stoppingRetention: CompatibilityPlayback?
     private var hasPlayed = false
     private var awaitingPause = false
     private var resumeAfterPause = false
     private var errorConfirmationTask: Task<Void, Never>?
     private var videoHosts: [WeakVideoHost] = []
+    private var externalVideoEnabled = true
+    func setExternalVideoEnabled(_ enabled: Bool) {
+        externalVideoEnabled = enabled
+        refreshVideoHost()
+    }
     private struct SeekRequest {
         var target: Double
         var completions: [() -> Void]
@@ -56,10 +62,16 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         mediaPlayer.delegate = self
         mediaPlayer.drawable = videoView
     }
-    func open(_ url: URL) {
+    func open(_ url: URL, lowLatency: Bool = false) {
+        self.lowLatency = lowLatency
         active = true; hasPlayed = false
         awaitingPause = false; resumeAfterPause = false
         let media = VLCMedia(url: url)
+        if lowLatency {
+            media?.addOption(":network-caching=150")
+            media?.addOption(":live-caching=150")
+            media?.addOption(":demux=mp4")
+        }
         if !url.isFileURL && url.pathExtension.lowercased() == "mkv" {
             // Use the Matroska cue index for remote seeks instead of scanning
             // and decoding all preceding clusters over the network.
@@ -197,7 +209,9 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         refreshVideoHost()
     }
     private func refreshVideoHost() {
-        let hosts = videoHosts.compactMap(\.value).filter { $0.isReadyForVideo }
+        let hosts = videoHosts.compactMap(\.value).filter {
+            $0.isReadyForVideo && (externalVideoEnabled || $0.role != .external)
+        }
         // Prefer the most recently mounted host when two destinations overlap
         // during navigation. Updates to older hosts do not change that order.
         let selected = hosts.reversed().max { $0.role.rawValue < $1.role.rawValue }
@@ -205,6 +219,9 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             videoView.removeFromSuperview()
             return
         }
+        // The external window is an authorized presentation surface. Protecting
+        // it against capture also obscures screen-based CarPlay transports.
+        videoView.captureProtectionEnabled = selected.role != .external
         let frame = PlayerVideoGeometry.frame(size: mediaPlayer.videoSize, in: selected.bounds, mode: selected.displayMode)
         if videoView.superview !== selected {
             CATransaction.begin()
@@ -328,7 +345,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
                     // failure if that state survives a meaningful recovery
                     // window; the playback-session identity is checked again
                     // by PlaybackController before showing the alert.
-                    do { try await Task.sleep(for: .seconds(10)) } catch { return }
+                    do { try await Task.sleep(for: self?.lowLatency == true ? .milliseconds(150) : .seconds(10)) } catch { return }
                     guard let self else { return }
                     self.errorConfirmationTask = nil
                     guard self.active, self.mediaPlayer.state == .error else { return }
@@ -438,10 +455,9 @@ final class CompatibilityVideoHost: UIView {
 final class CompatibilityVideoSurface: UIView {
     weak var owner: CompatibilityPlayback?
     private lazy var videoClipping = PlayerVideoClipping(root: layer)
-    // Protect the decoded picture on every renderer, including external output
-    // and PiP. This does not disable screenshots of the app's UIKit controls.
+    // Restore phone/PiP protection when the drawable returns to a local host.
     var captureProtectionEnabled = true {
-        didSet { protectVideoLayers(in: layer) }
+        didSet { if oldValue != captureProtectionEnabled { protectVideoLayers(in: layer) } }
     }
     override func didAddSubview(_ subview: UIView) {
         super.didAddSubview(subview)

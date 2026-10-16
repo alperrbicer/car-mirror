@@ -15,6 +15,7 @@ public struct CaptureStatus: Codable, Equatable, Sendable {
     public var bufferedBytes: Int = 0
     public var loopbackURL: URL?
     public var networkURL: URL?
+    public var localStreamURL: URL?
     public var audioMode: StreamAudioMode?
     public var receivedAudioFrames: Int?
     public var encodedAudioFrames: Int?
@@ -34,7 +35,7 @@ public struct CaptureStatus: Codable, Equatable, Sendable {
     }
 
     public func canPlay(at now: Date = Date()) -> Bool {
-        phase == .live && isFresh(at: now) && segmentCount >= 3 && loopbackURL != nil
+        phase == .live && isFresh(at: now) && segmentCount >= (localStreamURL == nil ? 3 : 1) && loopbackURL != nil
     }
 }
 

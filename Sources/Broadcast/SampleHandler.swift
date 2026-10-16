@@ -112,9 +112,9 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         diagnostics.record(.captureStarted, sessionID: status.sessionID)
         try store?.write(status)
         let sessionID = status.sessionID
-        let buffer = HLSBuffer()
+        let buffer = HLSBuffer(retainedSegments: 24, playlistSegments: 12, targetDuration: 1)
         status.audioMode = options.audioMode
-        let encoder = ScreenStreamEncoder(buffer: buffer, quality: options.quality, includesAudio: options.audioMode == .synchronized)
+        let encoder = ScreenStreamEncoder(buffer: buffer, quality: options.quality, includesAudio: options.audioMode == .synchronized, segmentInterval: 0.5)
         if options.captionsEnabled, #available(iOS 26, *) {
             captionService = LiveCaptionTranscriber(locale: options.captionLocale,
                 onText: { [weak encoder] text in encoder?.setCaption(text) }, onUnavailable: { [weak self] in
@@ -133,6 +133,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
                 guard let self, let server, self.status.sessionID == sessionID,
                       self.status.phase == .preparing else { return }
                 self.status.loopbackURL = server.url(host: "127.0.0.1", port: port)
+                self.status.localStreamURL = server.localStreamURL(port: port)
                 if let address = LocalStreamServer.wifiAddress() {
                     self.status.networkURL = server.url(host: address, port: port)
                 }
@@ -179,7 +180,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         status.encodedAudioFrames = stats.encodedAudioFrames
         status.segmentCount = contents.totalSegments
         status.bufferedBytes = contents.byteCount
-        if contents.isReady && status.loopbackURL != nil && status.phase != .live {
+        if contents.initialization != nil && !contents.segments.isEmpty && status.loopbackURL != nil && status.phase != .live {
             status.phase = .live
             var values = DiagnosticValues()
             values.hasNetworkAddress = status.networkURL != nil
@@ -207,6 +208,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         if [.stopped, .failed, .paused].contains(status.phase) {
             status.loopbackURL = nil
             status.networkURL = nil
+            status.localStreamURL = nil
             status.bufferedBytes = 0
         }
         do { try store?.write(status) }

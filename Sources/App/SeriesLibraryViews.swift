@@ -38,6 +38,7 @@ struct SeriesPosterCard: View {
 struct SeriesDetailHero: View {
     let series: MediaSeries
     let channel: MediaChannel
+    let sourceID: UUID?
     let metadata: MediaMetadata
     let playChannel: MediaChannel?
     let onPlay: (() -> Void)?
@@ -96,6 +97,9 @@ struct SeriesDetailHero: View {
                                  startPoint: .top, endPoint: .bottom))
             .clipped()
             .allowsHitTesting(false)
+            // The oversized blur must not enlarge the hero's accessibility
+            // frame over the episode buttons below it.
+            .accessibilityElement(children: .ignore).accessibilityHidden(true)
             MediaArtworkPreviewButton(channel: channel, fallbackArtworkURL: metadata.artworkURL, cornerRadius: 16)
                 .frame(width: 108, height: 156)
                 .shadow(color: .black.opacity(0.55), radius: 24, y: 16)
@@ -114,6 +118,13 @@ struct SeriesDetailHero: View {
                 }
         }
         .frame(height: 172)
+        .overlay(alignment: .topTrailing) {
+            MediaFavoriteButton(channel: channel, sourceID: sourceID, scope: .series,
+                                identifier: "series-detail-favorite")
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay { Circle().strokeBorder(MirrorStyle.hairline) }
+                .padding(.trailing, 24).padding(.top, 12)
+        }
     }
 
     @ViewBuilder private var facts: some View {

@@ -29,11 +29,15 @@ final class PlaybackController: ObservableObject {
         let live: Bool
         let presentation: MediaPlaybackPresentation
         let useCompatibility: Bool
+        let lowLatency: Bool
     }
     private var request: Request?
     private var nativeResumePosition: Double?
     private var restoringCompatibilityPosition = false
-    @Published var externalDisplayConnected = false
+    @Published var externalDisplayConnected = false {
+        didSet { updateVideoOutput() }
+    }
+    @Published private(set) var playsOnPhone = false
     @Published private(set) var carPlayConnected = false
     @Published private(set) var externalTVDisplayConnected = false
     @Published private(set) var airPlayName = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }?.portName
@@ -43,10 +47,25 @@ final class PlaybackController: ObservableObject {
             externalPlayback: externalPlaybackActive, airPlayAudio: airPlayName != nil),
             castName: tvName, airPlayName: airPlayName)
     }
-    var hasRemoteVideoOutput: Bool { tvDevice != nil || externalDisplayConnected || externalPlaybackActive }
+    var hasRemoteVideoOutput: Bool { !playsOnPhone && (tvDevice != nil || externalDisplayConnected || externalPlaybackActive) }
     // A receiver that loads the URL itself owns its sizing. App-owned CarPlay,
     // HDMI and AirPlay display windows use our video renderer and can be sized.
     var canAdjustRemoteVideoDisplayMode: Bool { externalDisplayConnected && tvDevice == nil }
+
+    /// Move the existing drawable; do not reopen the stream or lose its timeline.
+    func setPlaysOnPhone(_ value: Bool) {
+        playsOnPhone = value
+        updateVideoOutput()
+    }
+
+    private func updateVideoOutput() {
+        // A Mirivo window already renders the video. AVPlayer must not also
+        // take over that screen and leave the app's video surface black.
+        player.usesExternalPlaybackWhileExternalScreenIsActive = false
+        player.allowsExternalPlayback = request?.presentation == .video && !externalDisplayConnected && !playsOnPhone
+        compatibility?.setExternalVideoEnabled(!playsOnPhone)
+        if externalDisplayConnected || playsOnPhone { waitingForExternalPlayback = false }
+    }
     @Published private(set) var screenCaptureBlocked = false
     private var shouldBlockCapturedPlayback: Bool {
         screenCaptureBlocked && !hasRemoteVideoOutput && request?.presentation == .video
@@ -107,7 +126,7 @@ final class PlaybackController: ObservableObject {
     }
     var canStartPictureInPicture: Bool {
         guard hasActivePlayback, !screenCaptureBlocked, request?.presentation == .video, tvDevice == nil,
-              !externalPlaybackActive, !externalDisplayConnected,
+              !hasRemoteVideoOutput,
               retiringPiPSources.isEmpty, !startingPiP, !stoppingPiP, !pictureInPictureActiveOrStarting else { return false }
         // Only the decoder currently rendering the video can supply its PiP source.
         if let compatibility { return compatibility.pipPossible }
@@ -202,7 +221,7 @@ final class PlaybackController: ObservableObject {
         foregroundPiPRestoreID = nil
         enteredBackgroundWithVideo = false
         guard hasActivePlayback, request?.presentation == .video, tvDevice == nil,
-              !externalPlaybackActive, !externalDisplayConnected else { return }
+              !hasRemoteVideoOutput else { return }
         enteredBackgroundWithVideo = true
         pendingAutomaticPiP = true
         startPendingPictureInPicture()
@@ -351,7 +370,7 @@ final class PlaybackController: ObservableObject {
             })
         player.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
         player.allowsExternalPlayback = false
-        player.usesExternalPlaybackWhileExternalScreenIsActive = true
+        player.usesExternalPlaybackWhileExternalScreenIsActive = false
         player.isMuted = true
         notificationTokens.append(NotificationCenter.default.addObserver(forName: AVPlayerItem.mediaSelectionDidChangeNotification,
             object: nil, queue: .main) { [weak self] note in
@@ -377,6 +396,14 @@ final class PlaybackController: ObservableObject {
         playingObservation = player.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] player, _ in
             Task { @MainActor in
                 guard let self, self.compatibility == nil, self.casting == nil else { return }
+                // Mounting a new output or a delayed player callback must not
+                // undo Pause. Only an explicit Play (including AVKit PiP) may.
+                if self.pauseRequested, self.externalDisplayConnected, !self.playsOnPhone,
+                   !self.pictureInPictureActiveOrStarting,
+                   self.player.timeControlStatus == .playing {
+                    self.pause()
+                    return
+                }
                 if self.shouldBlockCapturedPlayback,
                    self.player.timeControlStatus != .paused {
                     self.pause()
@@ -497,14 +524,14 @@ final class PlaybackController: ObservableObject {
     func play(url: URL, preserveSourceAudio: Bool = true, muted: Bool = false,
               requiresExternalPlayback: Bool = true, title: String? = nil, live: Bool = true,
               presentation: MediaPlaybackPresentation = .video, useCompatibility: Bool = false,
-              startAt: Double = 0, startPaused: Bool = false, recoveryAttempt: Int = 0) throws {
+              startAt: Double = 0, startPaused: Bool = false, recoveryAttempt: Int = 0, lowLatency: Bool = false) throws {
         // A Cast load replaces the receiver's current media by itself. Sending
         // STOP first adds an avoidable round trip and makes channel changes
         // visibly stall on the TV.
         let replacingCastMedia = tvDevice != nil && casting != nil && !url.isFileURL
         let resumePiPAfterReplacement = presentation == .video && !stoppingPiP && !restorePiPOnStart &&
             (pictureInPictureActiveOrStarting || pendingAutomaticPiP) && tvDevice == nil &&
-            !externalPlaybackActive && !externalDisplayConnected
+            !hasRemoteVideoOutput
         let wasBackgrounded = enteredBackgroundWithVideo
         stop(stopRemoteCastMedia: !replacingCastMedia, deactivateAudioSession: tvDevice != nil)
         enteredBackgroundWithVideo = wasBackgrounded && presentation == .video && tvDevice == nil
@@ -513,7 +540,7 @@ final class PlaybackController: ObservableObject {
         let attemptID = playbackID
         request = Request(url: url, preserveSourceAudio: preserveSourceAudio, muted: muted,
                           requiresExternalPlayback: requiresExternalPlayback, title: title, live: live,
-                          presentation: presentation, useCompatibility: useCompatibility)
+                          presentation: presentation, useCompatibility: useCompatibility, lowLatency: lowLatency)
         let position = startAt.isFinite ? max(0, startAt) : 0
         currentTime = position
         let startsPaused = startPaused || (screenCaptureBlocked && !hasRemoteVideoOutput && presentation == .video)
@@ -521,9 +548,9 @@ final class PlaybackController: ObservableObject {
         requestedLive = live
         isLive = live
         errorMessage = nil
-        waitingForExternalPlayback = requiresExternalPlayback && presentation == .video && tvDevice == nil
+        waitingForExternalPlayback = requiresExternalPlayback && presentation == .video && tvDevice == nil && !externalDisplayConnected && !playsOnPhone
         player.isMuted = muted
-        player.allowsExternalPlayback = presentation == .video
+        updateVideoOutput()
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
             MPMediaItemPropertyTitle: title ?? L10n.tr("iPhone ekranı"),
             MPMediaItemPropertyArtist: BrandIdentity.name,
@@ -601,6 +628,7 @@ final class PlaybackController: ObservableObject {
         if useCompatibility {
             let engine = CompatibilityPlayback()
             compatibility = engine
+            engine.setExternalVideoEnabled(!playsOnPhone)
             engine.onTracksChanged = { [weak self, weak engine] in
                 guard let self, let engine, self.compatibility === engine else { return }
                 self.audioTracks = engine.audioChoices
@@ -651,12 +679,16 @@ final class PlaybackController: ObservableObject {
                     return
                 }
                 if self.restoringCompatibilityPosition { return }
-                if initialPlayback, self.pauseRequested {
+                if state == .playing, self.pauseRequested,
+                   initialPlayback || (self.externalDisplayConnected && !self.playsOnPhone && !self.pictureInPictureActiveOrStarting) {
                     self.pause()
                     return
                 }
                 // After startup, a direct PiP Play request is authoritative.
-                if state == .playing { self.pauseRequested = false }
+                if state == .playing {
+                    self.pauseRequested = false
+                    if lowLatency { self.liveRecoveryAttempt = 0 }
+                }
                 self.state = state
                 self.isPlaying = state == .playing
                 if self.isPlaying { self.startupTask?.cancel(); self.startupTask = nil }
@@ -664,17 +696,23 @@ final class PlaybackController: ObservableObject {
             }
             engine.onTime = { [weak self, weak engine] time, length in
                 guard let self, let engine, self.compatibility === engine, self.pendingSeek == nil, resumePosition == nil else { return }
-                self.updateTimeline(time: time, length: length, seekable: engine.isMediaSeekable(), live: self.requestedLive)
+                self.updateTimeline(time: time, length: lowLatency ? 0 : length,
+                                    seekable: !lowLatency && engine.isMediaSeekable(), live: self.requestedLive)
             }
             engine.onFinished = { [weak self, weak engine] in
                 guard let self, let engine, self.compatibility === engine else { return }
+                if lowLatency {
+                    self.fail(L10n.tr("Yayın bağlantısı kesildi. Yeniden deneyebilirsin."), reason: .interrupted, expectedPlaybackID: attemptID)
+                    return
+                }
                 self.stop(); self.onFinished?()
             }
             engine.onRestore = { [weak self, weak engine] completion in
                 guard let self, self.compatibility === engine else { completion(false); return }
                 self.restoreUserInterfaceForPictureInPictureStop(completion: completion)
             }
-            engine.open(url)
+            engine.open(url, lowLatency: lowLatency)
+            if lowLatency { engine.mediaPlayer.audio?.isMuted = muted }
             installRemoteCommands(); recordAudioRoute()
             startupTask = Task { [weak self, weak engine] in
                 do { try await Task.sleep(for: .seconds(30)) } catch { return }
@@ -733,8 +771,8 @@ final class PlaybackController: ObservableObject {
             // the first playable segment after a channel switch.
             do { try await Task.sleep(for: .seconds(30)) } catch { return }
             guard let self, let item, self.player.currentItem === item,
-                  (requiresExternalPlayback && presentation == .video ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
-            self.fail(requiresExternalPlayback && presentation == .video ? self.displayConnection.failureMessage : L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
+                  (self.waitingForExternalPlayback ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
+            self.fail(self.waitingForExternalPlayback ? self.displayConnection.failureMessage : L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
         }
     }
 
@@ -846,12 +884,14 @@ final class PlaybackController: ObservableObject {
         let live = isLive
         let paused = state == .paused || pauseRequested
         tvDevice = device
+        if device != nil { playsOnPhone = false }
         if device == nil { casting?.stop(); CastPlayback.disconnect() }
+        if previous?.lowLatency == true { stop(); return }
         guard let previous, hasActivePlayback || state == .failed else { return }
         try play(url: previous.url, preserveSourceAudio: previous.preserveSourceAudio, muted: previous.muted,
                  requiresExternalPlayback: device == nil && previous.requiresExternalPlayback,
                  title: previous.title, live: live, presentation: previous.presentation,
-                 useCompatibility: previous.useCompatibility, startAt: position, startPaused: paused)
+                 useCompatibility: previous.useCompatibility, startAt: position, startPaused: paused, lowLatency: previous.lowLatency)
     }
 
     func togglePlayPause() {
@@ -1015,8 +1055,8 @@ final class PlaybackController: ObservableObject {
         // Reopen a live network source once, after releasing the previous input.
         // Channel selection/Stop cancels this task and invalidates its identity.
         if let retry = request, retry.live, !retry.url.isFileURL, !retry.requiresExternalPlayback,
-           reason == .playback || reason == .unavailable,
-           tvDevice == nil, !hasRemoteVideoOutput, liveRecoveryAttempt < 1 {
+           reason == .playback || reason == .unavailable || (retry.lowLatency && reason == .interrupted),
+           tvDevice == nil, !hasRemoteVideoOutput || retry.lowLatency, liveRecoveryAttempt < (retry.lowLatency ? 3 : 1) {
             let attempt = liveRecoveryAttempt + 1
             let paused = pauseRequested
             stop(deactivateAudioSession: false)
@@ -1027,14 +1067,14 @@ final class PlaybackController: ObservableObject {
             state = .loading
             let id = playbackID
             liveRecoveryTask = Task { @MainActor [weak self] in
-                do { try await Task.sleep(for: .milliseconds(750)) } catch { return }
+                do { try await Task.sleep(for: .milliseconds(retry.lowLatency ? 150 : 750)) } catch { return }
                 guard let self, self.playbackID == id else { return }
                 self.liveRecoveryTask = nil
                 do {
                     try self.play(url: retry.url, preserveSourceAudio: retry.preserveSourceAudio,
                         muted: retry.muted, requiresExternalPlayback: retry.requiresExternalPlayback,
                         title: retry.title, live: true, presentation: retry.presentation,
-                        useCompatibility: retry.useCompatibility, startPaused: self.pauseRequested, recoveryAttempt: attempt)
+                        useCompatibility: retry.useCompatibility, startPaused: self.pauseRequested, recoveryAttempt: attempt, lowLatency: retry.lowLatency)
                 } catch {
                     self.liveRecoveryAttempt = attempt
                     self.fail(message, reason: reason, failure: DiagnosticFailure(error))

@@ -20,7 +20,7 @@ enum SharedPreferences {
     }
     static func options() -> BroadcastOptions {
         var result = BroadcastOptions()
-        result.quality = StreamQuality(rawValue: defaults.string(forKey: "streamQuality") ?? "") ?? .balanced
+        result.quality = StreamQuality(rawValue: defaults.string(forKey: "streamQuality") ?? "") ?? .high
         result.audioMode = StreamAudioMode(rawValue: defaults.string(forKey: "audioMode") ?? "") ?? .synchronized
         result.captionsEnabled = defaults.bool(forKey: "captionsEnabled")
         result.captionLocale = defaults.string(forKey: "captionLocale") ?? "tr-TR"
