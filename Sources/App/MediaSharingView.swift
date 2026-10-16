@@ -9,6 +9,7 @@ struct MediaSharingView: View {
     @State private var video: PhotosPickerItem?
     @State private var pickingFiles = false
     @State private var openingLink = false
+    @State private var showingMembership = false
     @State private var slideshow: SlideshowSelection?
     @State private var showingPlayer = false
     @State private var pendingMedia: [MediaChannel] = []
@@ -51,7 +52,10 @@ struct MediaSharingView: View {
                 }.accessibilityIdentifier("share-link")
             }
             .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 24))
-            .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(.white.opacity(0.055)) }
+            .overlay {
+                RoundedRectangle(cornerRadius: 24).strokeBorder(.white.opacity(0.055))
+                    .allowsHitTesting(false)
+            }
             .buttonStyle(MirivoPressButtonStyle()).disabled(loading)
             if loading {
                 HStack(spacing: 12) {
@@ -85,6 +89,10 @@ struct MediaSharingView: View {
         .sheet(isPresented: $openingLink, onDismiss: playPendingMedia) {
             QuickMediaLinkView { pendingMedia = [$0] }
         }
+        .sheet(isPresented: $showingMembership, onDismiss: {
+            if PurchaseStore.shared.access.fullAccess { playPendingMedia() }
+            else { PersonalMediaFiles.remove(pendingMedia.map(\.url)); pendingMedia = [] }
+        }) { NavigationStack { ProView() } }
         .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
         .onDisappear { importTask?.cancel(); importTask = nil; loading = false }
     }
@@ -222,7 +230,13 @@ struct MediaSharingView: View {
     }
     private func play(_ channels: [MediaChannel]) {
         guard let first = channels.first else { return }
+        guard PurchaseStore.shared.access.fullAccess else {
+            pendingMedia = channels
+            showingMembership = true
+            return
+        }
         if model.playMedia(first, queue: channels, advanceAutomatically: true) { showingPlayer = true }
+        else { PersonalMediaFiles.remove(channels.map(\.url)) }
     }
 }
 
@@ -300,6 +314,7 @@ struct QuickMediaLinkView: View {
     var onPlay: (MediaChannel) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var address = ""
+    @State private var showingMembership = false
     private var url: URL? { try? MediaURL.validate(address) }
 
     var body: some View {
@@ -309,7 +324,7 @@ struct QuickMediaLinkView: View {
                     Image(systemName: "link").font(.system(size: 36)).foregroundStyle(MirrorStyle.accent).padding(.top, 12)
                     Text(L10n.tr("Doğrudan video veya ses bağlantısı gir. Web sayfaları burada oynatılamaz."))
                         .font(.body).foregroundStyle(MirrorStyle.secondary)
-                    TextField("https://", text: $address)
+                    TextField(L10n.tr("Kaynak adresi"), text: $address, prompt: Text(verbatim: "https://"))
                         .keyboardType(.URL).textContentType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
                         .submitLabel(.go).onSubmit(play)
                         .padding(18).frame(minHeight: 58).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
@@ -324,14 +339,16 @@ struct QuickMediaLinkView: View {
                     Button(action: play) { Label(L10n.tr("Oynat"), systemImage: "play.fill") }
                         .buttonStyle(MirivoButtonStyle(prominent: true)).disabled(url == nil)
                         .accessibilityIdentifier("quick-media-play")
-                }.padding(24)
+                }.padding(24).frame(maxWidth: 620).frame(maxWidth: .infinity)
             }.background(MirrorStyle.background)
                 .navigationTitle(L10n.tr("Bağlantı aç")).navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L10n.tr("Kapat")) { dismiss() } } }
         }.tint(MirrorStyle.accent).preferredColorScheme(.dark).presentationDragIndicator(.visible)
+            .sheet(isPresented: $showingMembership) { NavigationStack { ProView() } }
     }
     private func play() {
         guard let url else { return }
+        guard PurchaseStore.shared.access.fullAccess else { showingMembership = true; return }
         // Display only the host; URL paths and query parameters can contain access tokens.
         onPlay(MediaChannel(title: url.host ?? L10n.tr("Yayın bağlantısı"), url: url))
         dismiss()
@@ -345,6 +362,7 @@ private struct SlideshowEditor: View {
     @Environment(\.dismiss) private var dismiss
     @State private var seconds = 5
     @State private var exporting = false
+    @State private var showingMembership = false
     @State private var progress = 0.0
     @State private var failure = false
     @State private var exportTask: Task<Void, Never>?
@@ -369,7 +387,7 @@ private struct SlideshowEditor: View {
                             ForEach(PhotoSlideshow.intervals, id: \.self) { value in
                                 Text(Duration.seconds(value).formatted(.units(allowed: [.seconds], width: .abbreviated))).tag(value)
                             }
-                        }.pickerStyle(.segmented).disabled(exporting)
+                        }.pickerStyle(.menu).disabled(exporting)
                     }
                     Text(L10n.tr("Fotoğraflar cihazında 1080p slayta dönüşür. Asılları değişmez."))
                         .font(.footnote).foregroundStyle(MirrorStyle.secondary)
@@ -378,16 +396,18 @@ private struct SlideshowEditor: View {
                     Button(action: start) { Label(L10n.tr("Slayt gösterisi"), systemImage: "play.fill") }
                         .buttonStyle(MirivoButtonStyle(prominent: true)).disabled(exporting)
                         .accessibilityIdentifier("start-slideshow")
-                }.padding(24)
+                }.padding(24).frame(maxWidth: 620).frame(maxWidth: .infinity)
             }.background(MirrorStyle.background)
                 .navigationTitle(L10n.tr("Fotoğraflar")).navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.tr("Kapat")) { exportTask?.cancel(); dismiss() }
                 } }
         }.tint(MirrorStyle.accent).preferredColorScheme(.dark).presentationDragIndicator(.visible)
+            .sheet(isPresented: $showingMembership) { NavigationStack { ProView() } }
             .onDisappear { exportTask?.cancel() }
     }
     private func start() {
+        guard PurchaseStore.shared.access.fullAccess else { showingMembership = true; return }
         exporting = true; failure = false; progress = 0
         exportTask = Task { @MainActor in
             let awakeLease = MediaScreenAwake.acquire()

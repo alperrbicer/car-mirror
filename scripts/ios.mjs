@@ -159,11 +159,20 @@ function verifyBundle(app, config, { device, distribution = false } = {}) {
   }
 }
 
+function nextBuild(config) {
+  if (dryRun) return options.build || '<next local build number>'
+  const build = reserveBuild(config.build, options.build)
+  const path = join(root, 'Config/Base.xcconfig')
+  const source = readFileSync(path, 'utf8')
+  writeFileSync(path, source.replace(/^CURRENT_PROJECT_VERSION = .*$/m, `CURRENT_PROJECT_VERSION = ${build}`)
+    .replace(/^MARKETING_VERSION = .*$/m, `MARKETING_VERSION = ${config.version}`))
+  return build
+}
+
 function install(simulator = false) {
   const config = settings('Debug')
   config.preview = Boolean(options.preview)
   config.version = options.version || config.version
-  config.build = options.build || config.build
   if (config.preview) console.log('iPhone install compatibility alias; CarPlay Video is enabled for supported vehicles.')
   if (!simulator) requireTeam(config)
   let device = { id: '<device identifier>', udid: options.device || '<device UDID>', name: '<iPhone>', state: 'Shutdown' }
@@ -172,6 +181,7 @@ function install(simulator = false) {
     const booted = devices.filter(item => item.state === 'Booted')
     device = selectDevice(simulator && !options.device && booted.length === 1 ? booted : devices, options.device)
   }
+  config.build = nextBuild(config)
   const directory = runDirectory(simulator ? 'simulator' : config.preview ? 'preview' : 'install', dryRun)
   execute('xcodebuild', [...buildArguments('Debug', `platform=${simulator ? 'iOS Simulator' : 'iOS'},id=${device.udid}`, config, simulator ? 'simulator' : 'device'), 'build'])
   const app = join(derivedDataRoot, `Build/Products/${selectedConfiguration('Debug')}-${simulator ? 'iphonesimulator' : 'iphoneos'}/CarMirror.app`)
@@ -205,7 +215,7 @@ function archive() {
   provisioning()
   suites()
   config.version = options.version || config.version
-  config.build = dryRun ? options.build || '<next local build number>' : reserveBuild(config.build, options.build)
+  config.build = nextBuild(config)
   const directory = runDirectory('archive', dryRun)
   const path = join(directory, 'CarMirror.xcarchive')
   execute('xcodebuild', [...buildArguments('Release', 'generic/platform=iOS', config), '-archivePath', path, 'archive'])

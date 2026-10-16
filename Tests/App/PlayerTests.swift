@@ -12,185 +12,64 @@ import CryptoKit
 
 @MainActor
 final class PlayerTests: XCTestCase {
-    func testCarPlayViewingLimitStopsPlaybackAndSurvivesDisconnectAndRelaunch() async throws {
-        let suite = "mirivo.quota.tests.\(UUID())"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
-        try seedViewingBudget(DailyViewingBudget(now: now, used: 4000, carPlayUsed: 3598), in: defaults)
-        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
-        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+    func testMembershipIsRequiredOnPhoneAndCarPlayWithoutDailyAllowance() throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback() }
+        let channel = MediaChannel(title: "Membership QA", url: try XCTUnwrap(URL(string: "https://example.com/video.mp4")))
+        XCTAssertFalse(model.playMedia(channel))
+        XCTAssertTrue(model.requiresMembership)
+        XCTAssertTrue(model.presentingMembership)
+        XCTAssertFalse(model.playback.hasActivePlayback)
+        model.presentingMembership = false
         model.connected(supportsVideo: true)
-        XCTAssertEqual(model.dailyRemaining, 2)
-        try await startViewingBudgetPlayback(model)
-        now = now.addingTimeInterval(3)
-        model.refresh()
-        XCTAssertEqual(model.viewingLimit, .carPlay)
-        XCTAssertEqual(model.viewingLimitPrompt, .carPlay)
-        XCTAssertEqual(model.playback.state, .idle)
-        XCTAssertFalse(model.playback.isPlaying)
-        let saved = try XCTUnwrap(LastPlaybackStore.shared.record)
-        XCTAssertEqual(saved.title, "Viewing quota QA")
-        XCTAssertGreaterThanOrEqual(saved.position, 32)
-        model.viewingLimitPrompt = nil
+        XCTAssertFalse(model.playMedia(channel))
+        XCTAssertTrue(model.presentingMembership)
         model.disconnected()
-        XCTAssertEqual(model.dailyRemaining, 0)
-        XCTAssertFalse(model.resumePlayback(saved), "Switching to the phone cannot bypass an exhausted CarPlay allowance")
-        let restored = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
-        defer { restored.stopPlayback() }
-        XCTAssertEqual(restored.viewingLimit, .carPlay)
-        XCTAssertFalse(restored.resumePlayback(saved))
-        XCTAssertEqual(restored.viewingLimitPrompt, .carPlay)
-        let budget = try readViewingBudget(defaults)
-        XCTAssertEqual(budget.used, 4002)
-        XCTAssertEqual(budget.carPlayUsed, 3600)
+        XCTAssertFalse(model.playMedia(channel))
     }
 
-    func testOverallViewingLimitCanStopCarPlayFirst() async throws {
-        let suite = "mirivo.quota.tests.\(UUID())"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
-        try seedViewingBudget(DailyViewingBudget(now: now, used: 7198, carPlayUsed: 500), in: defaults)
-        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
-        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
-        model.connected(supportsVideo: true)
-        try await startViewingBudgetPlayback(model)
-        now = now.addingTimeInterval(3)
-        model.refresh()
-        XCTAssertEqual(model.viewingLimit, .daily)
-        XCTAssertEqual(model.viewingLimitPrompt, .daily)
-        XCTAssertEqual(model.playback.state, .idle)
-        let budget = try readViewingBudget(defaults)
-        XCTAssertEqual(budget.used, 7200)
-        XCTAssertEqual(budget.carPlayUsed, 502)
-        XCTAssertFalse(model.playMedia(try viewingBudgetChannel()))
-    }
-
-    func testViewingBudgetTracksDestinationChangesAndExcludesPauses() async throws {
-        let suite = "mirivo.quota.tests.\(UUID())"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
-        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
-        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
-        try await startViewingBudgetPlayback(model)
-        now = now.addingTimeInterval(900)
-        model.refresh()
-        model.connected(supportsVideo: true)
-        now = now.addingTimeInterval(600)
-        model.refresh()
-        let tv = UUID()
-        model.externalScreenConnected(tv, role: .externalNonInteractive, size: CGSize(width: 1920, height: 1080))
-        XCTAssertFalse(model.viewingUsesCarPlay, "A TV destination takes precedence over a connected CarPlay template")
-        now = now.addingTimeInterval(900)
-        model.refresh()
-        model.externalScreenDisconnected(tv)
-        XCTAssertTrue(model.viewingUsesCarPlay)
-        now = now.addingTimeInterval(300)
-        model.refresh()
-        var budget = try readViewingBudget(defaults)
-        XCTAssertEqual(budget.used, 2700)
-        XCTAssertEqual(budget.carPlayUsed, 900)
-        model.playback.togglePlayPause()
-        for _ in 0..<50 {
-            if !model.playback.isPlaying { break }
-            try await Task.sleep(for: .milliseconds(20))
-        }
-        for _ in 0..<5 { await Task.yield() }
-        now = now.addingTimeInterval(600)
-        model.refresh()
-        budget = try readViewingBudget(defaults)
-        XCTAssertEqual(budget.used, 2700)
-        XCTAssertEqual(budget.carPlayUsed, 900)
-        XCTAssertEqual(model.dailyRemaining, 2700)
-    }
-
-    func testProAndSalesDisabledBypassBothViewingLimits() async throws {
-        for access in [ProductAccess(salesEnabled: true, verifiedPro: true), ProductAccess(salesEnabled: false, verifiedPro: false)] {
-            let suite = "mirivo.quota.tests.\(UUID())"
-            let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-            var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
-            try seedViewingBudget(DailyViewingBudget(now: now, used: 7200, carPlayUsed: 3600), in: defaults)
-            let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { access }, startsTimer: false)
-            defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
-            model.connected(supportsVideo: true)
-            try await startViewingBudgetPlayback(model)
-            now = now.addingTimeInterval(900)
-            model.refresh()
-            XCTAssertNil(model.viewingLimit)
-            XCTAssertNil(model.viewingLimitPrompt)
-            XCTAssertTrue(model.playback.isPlaying)
-            let budget = try readViewingBudget(defaults)
-            XCTAssertEqual(budget.used, 7200)
-            XCTAssertEqual(budget.carPlayUsed, 3600)
-        }
-    }
-
-    func testProUpgradeClearsViewingLimitAndKeepsTheStoppedPosition() async throws {
-        let suite = "mirivo.quota.tests.\(UUID())"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
+    func testVerifiedMembershipClearsPromptAndDoesNotUseOldDailyCounters() {
         var access = ProductAccess(salesEnabled: true, verifiedPro: false)
-        try seedViewingBudget(DailyViewingBudget(now: now, used: 4000, carPlayUsed: 3598), in: defaults)
-        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { access }, startsTimer: false)
-        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
-        model.connected(supportsVideo: true)
-        try await startViewingBudgetPlayback(model)
-        now = now.addingTimeInterval(3)
-        model.refresh()
-        let position = try XCTUnwrap(LastPlaybackStore.shared.record).position
-        XCTAssertEqual(model.viewingLimit, .carPlay)
+        let model = MirrorModel(viewingAccess: { access }, startsTimer: false)
+        defer { model.stopPlayback() }
+        model.presentMembershipOffer()
+        XCTAssertTrue(model.requiresMembership)
         access = ProductAccess(salesEnabled: true, verifiedPro: true)
         model.refresh()
-        XCTAssertNil(model.viewingLimit)
-        XCTAssertNil(model.viewingLimitPrompt)
-        XCTAssertNil(model.mediaErrorMessage)
-        model.retryMedia()
-        for _ in 0..<200 {
-            if model.playback.isPlaying && model.playback.currentTime >= position { break }
-            try await Task.sleep(for: .milliseconds(50))
-        }
-        XCTAssertTrue(model.playback.isPlaying)
-        XCTAssertEqual(model.playback.currentTime, position, accuracy: 0.6)
-    }
-
-    func testViewingLimitsResetTogetherOnTheNextDay() throws {
-        let suite = "mirivo.quota.tests.\(UUID())"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        var now = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 3600)
-        try seedViewingBudget(DailyViewingBudget(now: now, used: 6000, carPlayUsed: 3600), in: defaults)
-        let model = MirrorModel(viewingDefaults: defaults, now: { now }, viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: false) }, startsTimer: false)
-        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
-        XCTAssertEqual(model.viewingLimit, .carPlay)
-        now = Calendar.current.date(byAdding: .day, value: 1, to: now)!
-        model.refresh()
-        XCTAssertNil(model.viewingLimit)
-        XCTAssertEqual(model.dailyRemaining, 7200)
+        XCTAssertFalse(model.requiresMembership)
+        XCTAssertFalse(model.presentingMembership)
         model.connected(supportsVideo: true)
-        XCTAssertEqual(model.dailyRemaining, 3600)
-        try seedViewingBudget(DailyViewingBudget(now: now, used: 1000, carPlayUsed: 500), in: defaults)
-        model.resetDailyViewingBudget()
-        let reset = try readViewingBudget(defaults)
-        XCTAssertEqual(reset.used, 0)
-        XCTAssertEqual(reset.carPlayUsed, 0)
+        XCTAssertFalse(model.requiresMembership)
+        access = ProductAccess(salesEnabled: true, verifiedPro: false)
+        model.refresh()
+        XCTAssertTrue(model.requiresMembership)
     }
 
-    private func seedViewingBudget(_ budget: DailyViewingBudget, in defaults: UserDefaults) throws {
-        defaults.set(try JSONEncoder().encode(budget), forKey: "dailyViewingBudget")
-    }
-    private func readViewingBudget(_ defaults: UserDefaults) throws -> DailyViewingBudget {
-        try JSONDecoder().decode(DailyViewingBudget.self, from: XCTUnwrap(defaults.data(forKey: "dailyViewingBudget")))
-    }
-    private func viewingBudgetChannel() throws -> MediaChannel {
-        MediaChannel(title: "Viewing quota QA", url: try XCTUnwrap(URL(string: "http://127.0.0.1:8769/tracks/options.mp4")))
-    }
-    private func startViewingBudgetPlayback(_ model: MirrorModel) async throws {
-        XCTAssertTrue(model.playMedia(try viewingBudgetChannel(), startAt: 32))
-        for _ in 0..<200 {
-            if model.playback.isPlaying && model.playback.currentTime >= 32 { break }
-            try await Task.sleep(for: .milliseconds(50))
+    func testMembershipExpiryStopsActivePlaybackAndRenewalAllowsRetry() async throws {
+        var access = ProductAccess(salesEnabled: true, verifiedPro: true)
+        let model = MirrorModel(viewingAccess: { access }, startsTimer: false)
+        defer { model.stopPlayback() }
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "Membership QA", url: url)))
+        for _ in 0..<100 {
+            if model.playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(30))
         }
-        for _ in 0..<5 { await Task.yield() }
         XCTAssertTrue(model.playback.isPlaying)
-        XCTAssertGreaterThanOrEqual(model.playback.currentTime, 32)
+        access = ProductAccess(salesEnabled: true, verifiedPro: false)
+        model.refresh()
+        XCTAssertFalse(model.playback.hasActivePlayback)
+        XCTAssertTrue(model.requiresMembership)
+        XCTAssertTrue(model.presentingMembership)
+        access = ProductAccess(salesEnabled: true, verifiedPro: true)
+        model.refresh()
+        XCTAssertFalse(model.presentingMembership)
+        model.retryMedia()
+        for _ in 0..<100 {
+            if model.playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(30))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
     }
 
     func testSharedDisplayLabelsDifferentiateCarPlayTVAirPlayAndGenericScreens() {

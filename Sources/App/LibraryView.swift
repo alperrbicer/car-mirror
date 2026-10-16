@@ -38,12 +38,10 @@ struct LibraryView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject private var library = SourceLibrary.shared
-    @ObservedObject private var purchases = PurchaseStore.shared
     @ObservedObject private var model = MirrorModel.shared
     @ObservedObject private var playback = MirrorModel.shared.playback
-    @State private var adding = false
+    @State private var sourceToAdd: SourceCreation?
     @State private var editing: SourceEditDraft?
-    @State private var showingPro = false
     @State private var refreshingSources: Set<UUID> = []
 
     var body: some View {
@@ -55,6 +53,7 @@ struct LibraryView: View {
                 Text(L10n.tr("Bir oynatma listesi, yayın bağlantısı veya IPTV sunucusu ekle."))
                     .font(.subheadline).foregroundStyle(MirrorStyle.secondary).lineSpacing(4)
             }.fixedSize(horizontal: false, vertical: true)
+            if !library.sources.isEmpty { addSourceButton }
             ContinueWatchingSection(openPlayer: openPlayer)
             OfflineDownloadsSection()
             if library.sources.isEmpty {
@@ -126,11 +125,8 @@ struct LibraryView: View {
                     }
                 }
             }
-            Button { add() } label: {
-                HStack { Text(L10n.tr("Kaynak ekle")); Spacer(); Image(systemName: "plus") }
-            }
-            .buttonStyle(MirivoButtonStyle(prominent: true))
-            .accessibilityIdentifier("add-source")
+            if library.sources.isEmpty { addSourceButton }
+
         }
         .overlay {
             if !refreshingSources.isEmpty {
@@ -144,11 +140,8 @@ struct LibraryView: View {
                 .allowsHitTesting(false).accessibilityElement(children: .contain).accessibilityIdentifier("source-refresh-progress")
             }
         }
-        .sheet(isPresented: $adding) { SourceEditorView() }
+        .sheet(item: $sourceToAdd) { draft in SourceEditorView(initialKind: draft.kind) }
         .sheet(item: $editing) { draft in SourceEditorView(source: draft.source, secret: draft.secret) }
-        .sheet(isPresented: $showingPro) {
-            NavigationStack { ProView() }
-        }
         .alert(BrandIdentity.name, isPresented: Binding(get: { library.message != nil }, set: { if !$0 { library.message = nil } })) {
             Button(L10n.tr("Tamam")) { library.message = nil }
         } message: { Text(library.message ?? "") }
@@ -165,41 +158,60 @@ struct LibraryView: View {
                     .frame(width: 158, height: 98).rotationEffect(.degrees(7)).offset(x: 24, y: 10)
                 Image(systemName: "play.fill").font(.system(size: 25, weight: .medium))
                     .foregroundStyle(MirrorStyle.accent).offset(x: 26, y: 10)
-            }.frame(maxWidth: .infinity).frame(height: 180).accessibilityHidden(true)
+            }.frame(maxWidth: .infinity).frame(height: 140).accessibilityHidden(true)
             VStack(spacing: 0) {
-                sourceType("Oynatma listesi", detail: "M3U", icon: "list.bullet.rectangle")
+                sourceType("Oynatma listesi", detail: "M3U", icon: "list.bullet.rectangle", kind: .playlist)
                 Rectangle().fill(MirrorStyle.hairline).frame(height: 1)
-                sourceType("Yayın bağlantısı", detail: "URL", icon: "link")
+                sourceType("Yayın bağlantısı", detail: "URL", icon: "link", kind: .stream)
                 Rectangle().fill(MirrorStyle.hairline).frame(height: 1)
-                sourceType("IPTV sunucusu", detail: "Xtream Codes", icon: "server.rack")
+                sourceType("IPTV sunucusu", detail: "Xtream Codes", icon: "server.rack", kind: .xtream)
+                Divider().overlay(MirrorStyle.hairline)
+                sourceType("Dosyadan oynatma listesi", detail: "M3U / M3U8", icon: "doc", kind: .playlistFile)
             }.padding(.horizontal, 22).padding(.bottom, 8)
         }
         .background(MirrorStyle.surface.opacity(0.65), in: RoundedRectangle(cornerRadius: 28))
         .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
     }
 
-    private func sourceType(_ title: String, detail: String, icon: String) -> some View {
+    private func sourceType(_ title: String, detail: String, icon: String, kind: MediaSourceKind) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
             : AnyLayout(HStackLayout(spacing: 12))
-        return layout {
-            HStack(spacing: 12) {
-                Image(systemName: icon).font(.system(size: 18)).frame(width: 22)
-                    .foregroundStyle(MirrorStyle.accent.opacity(0.8))
-                Text(L10n.tr(title)).font(.subheadline).foregroundStyle(.white.opacity(0.9))
-                    .fixedSize(horizontal: false, vertical: true)
+        return Button { add(kind: kind) } label: {
+            layout {
+                HStack(spacing: 12) {
+                    Image(systemName: icon).font(.system(size: 18)).frame(width: 22)
+                        .foregroundStyle(MirrorStyle.accent).accessibilityHidden(true)
+                    Text(L10n.tr(title)).font(.subheadline).foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 4) }
+                HStack(spacing: 8) {
+                    Text(detail).font(.caption).foregroundStyle(MirrorStyle.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Image(systemName: "plus.circle").foregroundStyle(MirrorStyle.accent).accessibilityHidden(true)
+                }
             }
-            if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 4) }
-            Text(detail).font(.caption).foregroundStyle(MirrorStyle.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }.frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
             .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 12 : 4)
-            .accessibilityElement(children: .combine)
+            .contentShape(Rectangle()).accessibilityElement(children: .combine)
+        }.buttonStyle(.plain).accessibilityIdentifier("add-source-\(kind.rawValue)")
     }
 
-    private func add() {
-        if purchases.access.canAddSource(count: library.sources.count) { adding = true } else { showingPro = true }
+    private var addSourceButton: some View {
+        Button { add() } label: {
+            Label(L10n.tr("Kaynak ekle"), systemImage: "plus")
+        }.buttonStyle(MirivoButtonStyle(prominent: true)).accessibilityIdentifier("add-source")
     }
+
+    private func add(kind: MediaSourceKind = .playlist) {
+        sourceToAdd = SourceCreation(kind: kind)
+    }
+}
+
+private struct SourceCreation: Identifiable {
+    let kind: MediaSourceKind
+    var id: String { kind.rawValue }
 }
 
 private struct ContinueWatchingSection: View {
@@ -316,7 +328,7 @@ private struct ContinueWatchingSection: View {
         }
         if model.resumePlayback(entry) { openPlayer() }
         else {
-            guard !model.isViewingLimited else { return }
+            guard !model.requiresMembership else { return }
             message = model.errorMessage ?? L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
             model.errorMessage = nil
         }
@@ -340,7 +352,7 @@ private struct OfflineDownloadsSection: View {
                             .foregroundStyle(MirrorStyle.secondary)
                     }
                     Spacer()
-                    Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
+                    Image(systemName: "chevron.forward").font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.secondary)
                 }
                 .padding(16).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
                 .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
@@ -553,11 +565,11 @@ private struct SourceEditorView: View {
     @State private var message: String?
     @State private var selectingFile = false
     @State private var selectedFile: URL?
-    init(source: MediaSource? = nil, secret: SourceSecret? = nil) {
+    init(source: MediaSource? = nil, secret: SourceSecret? = nil, initialKind: MediaSourceKind = .playlist) {
         self.source = source
         self.originalSecret = secret
         _name = State(initialValue: source?.name ?? "")
-        _kind = State(initialValue: source?.kind ?? .playlist)
+        _kind = State(initialValue: source?.kind ?? initialKind)
         _address = State(initialValue: secret?.url.absoluteString ?? "")
         _username = State(initialValue: secret?.username ?? "")
         _password = State(initialValue: secret?.password ?? "")
@@ -567,6 +579,13 @@ private struct SourceEditorView: View {
         if kind == .playlistFile { return selectedFile != nil || (source?.kind == .playlistFile && originalSecret != nil) }
         guard let url = try? MediaURL.validate(address) else { return false }
         return kind != .xtream || (try? XtreamEndpoint.playlist(secret: SourceSecret(url: url, username: username, password: password))) != nil
+    }
+    private var addressPlaceholder: String {
+        switch kind {
+        case .xtream: "https://server.example"
+        case .stream: "https://example.com/video.mp4"
+        default: "https://example.com/playlist.m3u"
+        }
     }
     var body: some View {
         NavigationStack {
@@ -589,11 +608,11 @@ private struct SourceEditorView: View {
                                 .lineLimit(2)
                         }.accessibilityIdentifier("source-file")
                     } else {
-                    TextField(kind == .xtream ? "https://server.example" : kind == .stream ? "https://example.com/video.mp4" : "https://example.com/playlist.m3u", text: $address)
-                        .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
-                        .environment(\.layoutDirection, .leftToRight)
-                        .accessibilityLabel(L10n.tr("Kaynak adresi"))
-                        .accessibilityIdentifier("source-url")
+                        TextField(L10n.tr("Kaynak adresi"), text: $address, prompt: Text(verbatim: addressPlaceholder))
+                            .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
+                            .environment(\.layoutDirection, .leftToRight)
+                            .accessibilityLabel(L10n.tr("Kaynak adresi"))
+                            .accessibilityIdentifier("source-url")
                     }
                     if kind == .xtream {
                         TextField(L10n.tr("Kullanıcı adı"), text: $username)
@@ -604,6 +623,8 @@ private struct SourceEditorView: View {
                             .environment(\.layoutDirection, .leftToRight)
                             .accessibilityIdentifier("source-password")
                     }
+                } header: {
+                    Text(L10n.tr(kind == .xtream ? "IPTV sunucusu" : kind == .stream ? "Yayın bağlantısı" : "Oynatma listesi"))
                 } footer: { Text(L10n.tr("Mirivo içerik sağlamaz. Erişim hakkına sahip olduğun kaynakları ekleyebilirsin. Adres ve giriş bilgileri cihazındaki Keychain’de saklanır.")) }
                     .listRowBackground(MirrorStyle.surface)
                 if let message { Section { Text(message).foregroundStyle(.red) }.listRowBackground(MirrorStyle.surface) }
@@ -1117,7 +1138,7 @@ private struct ChannelBrowserView: View {
         } else {
             let model = MirrorModel.shared
             let queue = MediaSeriesCatalog.playbackQueue(for: channel, in: playlistChannels ?? channels)
-            if !model.playMedia(channel, queue: queue, sourceID: sourceID), model.dailyRemaining == 0 {
+            if !model.playMedia(channel, queue: queue, sourceID: sourceID), model.requiresMembership {
                 playbackMessage = model.errorMessage
                 model.errorMessage = nil
             } else { showingPlayer = model.selectedMediaChannel != nil }
@@ -1505,7 +1526,6 @@ struct MediaPlayerScreen: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback: PlaybackController
-    @ObservedObject private var purchases = PurchaseStore.shared
     @State private var largeControls = false
     @State private var fullscreen = false
     @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.normal
@@ -1629,20 +1649,20 @@ struct MediaPlayerScreen: View {
 
     private var playerDetails: some View {
         VStack(spacing: 20) {
-            if let limit = model.viewingLimit {
+            if model.requiresMembership {
                 VStack(alignment: .leading, spacing: 14) {
-                    Label(L10n.tr("Bugünkü ücretsiz süren doldu"), systemImage: "clock").font(.headline)
-                    Text(limit.explanation).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
-                    Button { model.presentViewingLimitOffer() } label: {
+                    Label(L10n.tr("Mirivo Pro"), systemImage: "play.rectangle").font(.headline)
+                    Text(L10n.tr("Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir.")).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                    Button { model.presentMembershipOffer() } label: {
                         Label(L10n.tr("Mirivo Pro"), systemImage: "crown").frame(maxWidth: .infinity)
-                    }.buttonStyle(MirivoButtonStyle(prominent: true)).accessibilityIdentifier("viewing-limit-pro")
+                    }.buttonStyle(MirivoButtonStyle(prominent: true)).accessibilityIdentifier("membership-pro")
                 }.padding(20).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
             } else if let failure = model.mediaErrorMessage, !playback.hasActivePlayback {
                 ContentUnavailableView {
                     Label(L10n.tr("Yayın tamamlanamadı"), systemImage: "exclamationmark.triangle")
                 } description: { Text(failure) }
             }
-            if !model.isViewingLimited, !playback.hasActivePlayback, model.selectedMediaChannel != nil {
+            if !model.requiresMembership, !playback.hasActivePlayback, model.selectedMediaChannel != nil {
                 Button(L10n.tr("Yeniden dene")) { model.retryMedia() }.buttonStyle(MirivoButtonStyle(prominent: true))
             }
             if playback.hasActivePlayback {
@@ -1652,14 +1672,6 @@ struct MediaPlayerScreen: View {
                     if playback.tvName != nil && model.selectedMediaChannel?.url.isFileURL == true {
                         Label(L10n.tr("TV’ye bu iPhone’dan aktarılıyor. Mirivo’yu açık tut."), systemImage: "iphone.radiowaves.left.and.right")
                             .font(.footnote).foregroundStyle(MirrorStyle.secondary).fixedSize(horizontal: false, vertical: true)
-                    }
-                    if !purchases.access.fullAccess {
-                        VStack(spacing: 8) {
-                            ProgressView(value: model.dailyRemaining, total: model.dailyViewingLimit).tint(MirrorStyle.accent)
-                            Text(model.remainingViewingText)
-                                .font(.caption).foregroundStyle(MirrorStyle.secondary)
-                                .accessibilityIdentifier("viewing-time-remaining")
-                        }
                     }
                     Button(role: .destructive) { model.stopPlayback() } label: {
                         Label(L10n.tr("Oynatmayı durdur"), systemImage: "stop.circle").font(.subheadline).frame(minHeight: 44)

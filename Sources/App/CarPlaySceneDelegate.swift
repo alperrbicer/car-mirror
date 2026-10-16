@@ -51,16 +51,16 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func render() {
         let model = MirrorModel.shared
-        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(model.viewingLimit?.rawValue ?? "")-\(SourceLibrary.shared.sources.map(\.id))-\(L10n.language)"
+        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(model.requiresMembership)-\(SourceLibrary.shared.sources.map(\.id))-\(L10n.language)"
         guard signature != lastSignature else { return }
         lastSignature = signature
 
         var items: [CPListItem] = []
-        if let limit = model.viewingLimit {
-            let pro = CPListItem(text: L10n.tr("Mirivo Pro"), detailText: limit.explanation, image: UIImage(systemName: "clock"))
+        if model.requiresMembership {
+            let pro = CPListItem(text: L10n.tr("Mirivo Pro"), detailText: L10n.tr("Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir."), image: UIImage(systemName: "lock"))
             pro.handler = { [weak self] _, completion in
-                model.presentViewingLimitOffer()
-                self?.showError(limit.explanation)
+                model.presentMembershipOffer()
+                self?.showError(L10n.tr("Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir."))
                 completion()
             }
             items.append(pro)
@@ -173,7 +173,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 completion()
                 if started, #unavailable(iOS 26.4) { self.showNowPlaying() }
                 if !started {
-                    self.showError(MirrorModel.shared.viewingLimit?.explanation ?? "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
+                    self.showError(MirrorModel.shared.requiresMembership ? "Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
                 }
             }
             return item

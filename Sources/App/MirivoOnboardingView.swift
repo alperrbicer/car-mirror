@@ -4,28 +4,31 @@ struct MirivoOnboardingView: View {
     let onFinish: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.layoutDirection) private var layoutDirection
     @ObservedObject private var purchases = PurchaseStore.shared
     @State private var step = 0
     @State private var showingPro = false
     @State private var finishing = false
-    @AccessibilityFocusState private var headingFocused: Bool
+    @AccessibilityFocusState private var focusedStep: Int?
 
-    private var title: String {
-        switch step {
+    private var pageOrder: [Int] { layoutDirection == .rightToLeft ? [2, 1, 0] : [0, 1, 2] }
+
+    private func title(for index: Int) -> String {
+        switch index {
         case 0: L10n.tr("Sevdiğin her şey, bir arada.")
         case 1: L10n.tr("İzlemeye devam et")
-        default: L10n.tr("Büyük ekranda daha fazlası.")
+        default: L10n.tr("Kaynakların, her ekranda.")
         }
     }
-    private var detail: String {
-        switch step {
+    private func detail(for index: Int) -> String {
+        switch index {
         case 0: L10n.tr("Oynatma listelerini ve IPTV kaynaklarını ekle. Film, dizi ve canlı yayınlarını tek yerde bul.")
         case 1: L10n.tr("Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar.")
-        default: L10n.tr("İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş.")
+        default: L10n.tr("IPTV listelerini düzenle. iPhone’da, Smart TV’de ve uyumlu CarPlay ekranında izle.")
         }
     }
-    private var section: String {
-        L10n.tr(step == 0 ? "Kaynaklar" : step == 1 ? "İzlemeye devam et" : "Ekranını paylaş")
+    private func section(for index: Int) -> String {
+        L10n.tr(index == 0 ? "Kaynaklar" : index == 1 ? "İzlemeye devam et" : "Ekranlar")
     }
 
     var body: some View {
@@ -41,39 +44,18 @@ struct MirivoOnboardingView: View {
             }
             .padding(.horizontal, 24).padding(.top, 8)
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    OnboardingArtwork(step: step)
-                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 190 : 260)
-                        .padding(.top, 12)
-                    VStack(alignment: .leading, spacing: 18) {
-                        if !dynamicTypeSize.isAccessibilitySize {
-                            Text(section)
-                                .font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.accent)
-                                .padding(.horizontal, 12).padding(.vertical, 7)
-                                .background(MirrorStyle.accent.opacity(0.09), in: Capsule())
-                        }
-                        Text(title)
-                            .font(.system(.largeTitle, design: .default, weight: .bold))
-                            .tracking(L10n.appLanguage.allowsLetterSpacing ? -0.8 : 0)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocused)
-                            .accessibilityIdentifier("onboarding-title-\(step)")
-                        Text(detail)
-                            .font(.body).foregroundStyle(MirrorStyle.secondary).lineSpacing(5)
-                            .fixedSize(horizontal: false, vertical: true)
-                        if step == 0 {
-                            Text(L10n.tr("Mirivo içerik sağlamaz. Kendi kaynağını ekleyerek başlayabilirsin."))
-                                .font(.caption).foregroundStyle(MirrorStyle.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
+            TabView(selection: $step) {
+                ForEach(pageOrder, id: \.self) { index in
+                    page(index)
+                        .environment(\.layoutDirection, layoutDirection)
+                        .tag(index)
+                        .accessibilityHidden(index != step)
                 }
-                .padding(.horizontal, 28).padding(.bottom, 24)
-                .frame(maxWidth: 540).frame(maxWidth: .infinity)
-                .id(step)
-                .transition(.opacity)
-            }.scrollIndicators(.hidden)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            // Keep native paging direction predictable; page content retains its language direction.
+            .environment(\.layoutDirection, .leftToRight)
+            .allowsHitTesting(!finishing)
         }
         .foregroundStyle(.white)
         .background {
@@ -85,11 +67,50 @@ struct MirivoOnboardingView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { controls }
         .fullScreenCover(isPresented: $showingPro, onDismiss: onFinish) {
-            NavigationStack { ProView(allowsFreeContinuation: true) }
+            NavigationStack { ProView(allowsBrowsing: true) }
                 .environment(\.locale, Locale(identifier: L10n.language))
                 .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
         }
-        .onChange(of: step) { _, _ in headingFocused = true }
+        .onChange(of: step) { _, index in focusedStep = index }
+    }
+
+    private func page(_ index: Int) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                OnboardingArtwork(step: index)
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 190 : 260)
+                    .padding(.top, 12)
+                VStack(alignment: .leading, spacing: 18) {
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Text(section(for: index))
+                            .font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.accent)
+                            .padding(.horizontal, 12).padding(.vertical, 7)
+                            .background(MirrorStyle.accent.opacity(0.09), in: Capsule())
+                    }
+                    Text(title(for: index))
+                        .font(.system(.largeTitle, design: .default, weight: .bold))
+                        .tracking(L10n.appLanguage.allowsLetterSpacing ? -0.8 : 0)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityAddTraits(.isHeader).accessibilityFocused($focusedStep, equals: index)
+                        .accessibilityIdentifier("onboarding-title-\(index)")
+                    Text(detail(for: index))
+                        .font(.body).foregroundStyle(MirrorStyle.secondary).lineSpacing(5)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if index == 2 {
+                        Text(L10n.tr("CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir."))
+                            .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if index == 0 {
+                        Text(L10n.tr("Mirivo içerik sağlamaz. Kendi kaynağını ekleyerek başlayabilirsin."))
+                            .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            .padding(.horizontal, 28).padding(.bottom, 24)
+            .frame(maxWidth: 540).frame(maxWidth: .infinity)
+        }.scrollIndicators(.hidden)
     }
 
     private var controls: some View {
@@ -133,7 +154,7 @@ struct MirivoOnboardingView: View {
     }
 
     private func changeStep(to next: Int) {
-        guard (0..<3).contains(next) else { return }
+        guard !finishing, (0..<3).contains(next) else { return }
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) { step = next }
     }
 
@@ -162,7 +183,7 @@ private struct OnboardingArtwork: View {
                     .frame(width: 250, height: 150).blur(radius: 40)
                 if step == 0 { library }
                 else if step == 1 { continuation }
-                else { ScreenLinkIllustration(active: true).frame(width: 320) }
+                else { MirivoScreensArtwork().frame(width: 320, height: 160) }
             }
             .frame(width: 330, height: 240)
             .scaleEffect(min(geometry.size.width / 330, geometry.size.height / 240))

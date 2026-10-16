@@ -19,6 +19,7 @@
     }
   ],
   "settings": {
+    "_disableDialogs": true,
     "_applicationInternalID": "6818560405",
     "_developerTeamID": "3T2VY64864",
     "_failTransactionsEnabled": false,
@@ -49,7 +50,12 @@
           "adHocOffers": [],
           "codeOffers": [],
           "groupNumber": 1,
-          "introductoryOffer": null,
+          "introductoryOffer": {
+            "internalID": "d53c43f1-8177-4cd7-91d7-21aa6398e214",
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D",
+            "numberOfPeriods": 1
+          },
           "recurringSubscriptionPeriod": "P1Y",
           "subscriptionGroupID": "20336421-6912-4c7d-830c-70bdfac8b50e"
         }

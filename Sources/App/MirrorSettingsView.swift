@@ -6,15 +6,13 @@ import AVKit
 
 struct MirrorSettingsView: View {
     @ObservedObject var model: MirrorModel
+    var replayOnboarding: () -> Void = {}
     @Environment(\.dismiss) private var dismiss
     @State private var report: ReportFile?
     @State private var working = false
     @State private var errorMessage: String?
     @State private var cleared = false
     @State private var clearingLibrary = false
-    @State private var showingDailyBudgetReset = false
-    @State private var hiddenResetSequence: [String] = []
-    @State private var hiddenResetLastTap = Date.distantPast
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
     @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
@@ -27,11 +25,7 @@ struct MirrorSettingsView: View {
             Form {
                 Section {
                     HStack(spacing: 14) {
-                        Button { registerHiddenResetTap("brand") } label: {
-                            MirrorMark().frame(width: 48, height: 48)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(L10n.tr("Mirivo"))
+                        MirrorMark().frame(width: 48, height: 48)
                         VStack(alignment: .leading, spacing: 4) {
                             Text(BrandIdentity.name).font(.system(.title2, design: .default, weight: .semibold)).tracking(-0.6)
                             Text(BrandIdentity.tagline).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
@@ -57,6 +51,16 @@ struct MirrorSettingsView: View {
                     NavigationLink { LanguageSettingsView() } label: {
                         LabeledContent(L10n.tr("Dil"), value: language == "system" ? L10n.tr("Sistemi izle") : L10n.appLanguage.nativeName)
                     }.accessibilityIdentifier("settings-language")
+                }.listRowBackground(MirrorStyle.surface)
+                Section {
+                    Button {
+                        replayOnboarding()
+                        dismiss()
+                    } label: {
+                        Label(L10n.tr("Tanıtımı yeniden göster"), systemImage: "sparkles.rectangle.stack")
+                    }.accessibilityIdentifier("settings-replay-onboarding")
+                }.listRowBackground(MirrorStyle.surface)
+                Section(L10n.tr("Ekranını paylaş")) {
                     Picker(L10n.tr("Yayın kalitesi"), selection: $quality) {
                         Text(L10n.tr("Dengeli")).tag(StreamQuality.balanced.rawValue)
                         Text(L10n.tr("Yüksek")).tag(StreamQuality.high.rawValue)
@@ -69,6 +73,14 @@ struct MirrorSettingsView: View {
                         NavigationLink(L10n.tr("Canlı altyazılar")) { CaptionSettingsView() }
                     } else {
                         NavigationLink(L10n.tr("Canlı altyazılar · Pro")) { ProView(showsCloseButton: false) }
+                    }
+                }.listRowBackground(MirrorStyle.surface)
+                Section(L10n.tr("Ekranlar")) {
+                    NavigationLink { ConnectionGuideContent() } label: {
+                        Label(L10n.tr("Nasıl bağlanırım?"), systemImage: "tv")
+                    }
+                    NavigationLink { ConnectionGuideContent(initialRoute: .carPlay) } label: {
+                        Label("CarPlay", systemImage: "car.side")
                     }
                 }.listRowBackground(MirrorStyle.surface)
                 playerGestureIntroSection
@@ -90,10 +102,7 @@ struct MirrorSettingsView: View {
                     Link(L10n.tr("Yardım ve SSS"), destination: BrandIdentity.supportURL)
                         .accessibilityIdentifier("settings-support")
                     Link(L10n.tr("Bize ulaş"), destination: URL(string: "mailto:alperrbicer@gmail.com?subject=Mirivo")!)
-                    Button { registerHiddenResetTap("version") } label: {
-                        LabeledContent(L10n.tr("Sürüm"), value: version)
-                    }
-                    .buttonStyle(.plain)
+                    LabeledContent(L10n.tr("Sürüm"), value: version)
                 }.listRowBackground(MirrorStyle.surface)
                 Section {
                     Button {
@@ -132,8 +141,14 @@ struct MirrorSettingsView: View {
                     Button(L10n.tr("Tüm kaynakları sil"), role: .destructive) { clearingLibrary = true }
                 }.listRowBackground(MirrorStyle.surface)
                 #if DEBUG
-                Section(L10n.tr("Geliştirme")) {
+                Section {
+                    Toggle(L10n.tr("Ücretsiz ve sınırsız geliştirme erişimi"), isOn: $purchases.developmentAccessEnabled)
+                        .accessibilityIdentifier("settings-development-access")
                     NavigationLink(L10n.tr("Ekran bağlantı testi")) { ConnectionTestView(model: model) }.accessibilityIdentifier("settings-connection-test")
+                } header: {
+                    Text(L10n.tr("Geliştirme"))
+                } footer: {
+                    Text(L10n.tr("Yalnızca Debug sürümünde geçerlidir. Satın alma akışını test ederken kapat."))
                 }
                 .listRowBackground(MirrorStyle.surface)
                 #endif
@@ -158,13 +173,6 @@ struct MirrorSettingsView: View {
                     model.stopPlayback()
                     do { try SourceLibrary.shared.clear() } catch { errorMessage = L10n.tr("Kaynaklar silinemedi. Yeniden dene.") }
                 }
-            }
-            .confirmationDialog(L10n.tr("Bugünkü ücretsiz izleme süresi sıfırlansın mı?"), isPresented: $showingDailyBudgetReset, titleVisibility: .visible) {
-                Button(L10n.tr("Sıfırla"), role: .destructive) {
-                    model.resetDailyViewingBudget()
-                    errorMessage = L10n.tr("Bugünkü ücretsiz izleme süren sıfırlandı. Bugün 2 saate kadar izleyebilirsin.")
-                }
-                Button(L10n.tr("İptal"), role: .cancel) { }
             }
             .sheet(item: $report) { file in
                 DiagnosticShareSheet(url: file.url)
@@ -201,26 +209,6 @@ struct MirrorSettingsView: View {
             Text(L10n.tr("Ses, parlaklık ve ekran hareketlerini oynatıcıda tekrar göster."))
         }
         .listRowBackground(MirrorStyle.surface)
-    }
-
-    // Hidden maintenance shortcut: tap the brand mark three times, then the version row twice.
-    private func registerHiddenResetTap(_ key: String) {
-        let now = Date()
-        if now.timeIntervalSince(hiddenResetLastTap) > 4 { hiddenResetSequence = [] }
-        hiddenResetLastTap = now
-
-        let expected = ["brand", "brand", "brand", "version", "version"]
-        guard hiddenResetSequence.count < expected.count,
-              expected[hiddenResetSequence.count] == key else {
-            hiddenResetSequence = key == expected[0] ? [key] : []
-            return
-        }
-
-        hiddenResetSequence.append(key)
-        if hiddenResetSequence == expected {
-            hiddenResetSequence = []
-            showingDailyBudgetReset = true
-        }
     }
 }
 

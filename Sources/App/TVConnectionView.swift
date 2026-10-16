@@ -25,7 +25,7 @@ struct TVConnectionButton: View {
                     Text(playback.displayConnection.actionTitle).font(.subheadline.weight(.medium))
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 8)
-                    Image(systemName: "chevron.right").font(.caption.weight(.semibold))
+                    Image(systemName: "chevron.forward").font(.caption.weight(.semibold))
                 }.padding(16).frame(minHeight: MirrorStyle.controlHeight)
                     .background(MirrorStyle.raised, in: RoundedRectangle(cornerRadius: 18))
                     .contentShape(RoundedRectangle(cornerRadius: 18))
@@ -85,67 +85,69 @@ struct TVConnectionView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("CarPlay") {
-                    if model.carPlayConnected {
-                        Label(L10n.tr("CarPlay bağlı"), systemImage: "car.side")
-                            .foregroundStyle(MirrorStyle.accent)
-                    }
-                    NavigationLink { ConnectionGuideContent(initialRoute: .carPlay) } label: {
-                        Label(L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç."), systemImage: "car.side")
-                    }
-                }
-                Section("Google Cast") {
-                    Text(L10n.tr("iPhone ve TV aynı Wi-Fi ağına bağlı olmalı."))
-                        .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
-                    if let name = playback.tvName {
-                        Label(name, systemImage: "tv.fill").foregroundStyle(MirrorStyle.accent)
-                        Button(L10n.tr("iPhone’da oynat")) { model.disconnectTV(); dismiss() }
-                    }
-                }
-                Section {
-                    ForEach(discovery.devices) { device in
-                        Button {
-                            model.connectTV(device.device)
-                            dismiss()
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: "tv")
-                                Text(device.name).foregroundStyle(.primary)
-                                Spacer()
-                                if playback.tvDevice?.isSameDevice(as: device.device) == true { Image(systemName: "checkmark") }
-                            }.frame(minHeight: 44)
+                Group {
+                    Section("CarPlay") {
+                        if model.carPlayConnected {
+                            Label(L10n.tr("CarPlay bağlı"), systemImage: "car.side")
+                                .foregroundStyle(MirrorStyle.accent)
+                        }
+                        NavigationLink { ConnectionGuideContent(initialRoute: .carPlay) } label: {
+                            Label(L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç."), systemImage: "car.side")
                         }
                     }
-                    if discovery.searching { ProgressView(L10n.tr("TV aranıyor…")) }
-                    else if discovery.unavailable { Label(L10n.tr("Google Cast araması kullanılamıyor."), systemImage: "wifi.exclamationmark").foregroundStyle(.secondary) }
-                    else if discovery.devices.isEmpty { Text(L10n.tr("TV bulunamadı")).foregroundStyle(.secondary) }
-                    Button(L10n.tr("Yeniden dene")) { discovery.start() }
-                } header: { Text("Google Cast") } footer: {
-                    Text(L10n.tr("TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et."))
-                }
-                Section("AirPlay") {
-                    HStack {
-                        Label("AirPlay", systemImage: "airplay.video")
-                        Spacer()
-                        TVAirPlayPicker(onOpen: { model.disconnectTV() }).frame(width: 52, height: 52)
+                    Section {
+                        Text(L10n.tr("iPhone ve TV aynı Wi-Fi ağına bağlı olmalı."))
+                            .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                        if let name = playback.tvName {
+                            Label(name, systemImage: "tv.fill").foregroundStyle(MirrorStyle.accent)
+                            Button(L10n.tr("iPhone’da oynat")) { model.disconnectTV(); dismiss() }
+                        }
+                        ForEach(discovery.devices) { device in
+                            Button {
+                                model.connectTV(device.device)
+                                dismiss()
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "tv")
+                                    Text(device.name).foregroundStyle(.primary)
+                                    Spacer()
+                                    if playback.tvDevice?.isSameDevice(as: device.device) == true { Image(systemName: "checkmark") }
+                                }.frame(minHeight: 44)
+                            }
+                        }
+                        if discovery.searching { ProgressView(L10n.tr("TV aranıyor…")) }
+                        else if discovery.unavailable { Label(L10n.tr("Google Cast araması kullanılamıyor."), systemImage: "wifi.exclamationmark").foregroundStyle(.secondary) }
+                        else if discovery.devices.isEmpty { Text(L10n.tr("TV bulunamadı")).foregroundStyle(.secondary) }
+                        Button(L10n.tr("Yeniden dene")) { discovery.start() }
+                    } header: { Text("Google Cast") } footer: {
+                        Text(L10n.tr("TV’yi açıp Google Cast’i etkinleştir. TV görünmüyorsa iPhone Ayarlar’da Mirivo için Yerel Ağ iznini kontrol et."))
                     }
-                    Text(L10n.tr("Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç."))
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
-                Section {
-                    Text(L10n.tr("Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez."))
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
-                Section {
-                    NavigationLink { ConnectionGuideContent(initialRoute: playback.displayConnection.primaryRoute) } label: {
-                        Label(L10n.tr("Nasıl bağlanırım?"), systemImage: "questionmark.circle")
-                            .frame(minHeight: 44)
-                    }.accessibilityIdentifier("tv-connection-help")
-                    Button(L10n.tr("Ayarları aç"), systemImage: "gearshape") {
-                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-                    }.frame(minHeight: 44)
-                }
+                    Section("AirPlay") {
+                        HStack {
+                            Label("AirPlay", systemImage: "airplay.video")
+                            Spacer()
+                            TVAirPlayPicker(onOpen: { model.disconnectTV() }).frame(width: 52, height: 52)
+                        }
+                        Text(L10n.tr("Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç."))
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                    Section {
+                        Text(L10n.tr("Google Cast ve AirPlay destekli TV’ler kullanılabilir. Yalnızca Miracast veya DLNA destekleyen TV’ler bu listede görünmez."))
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                    Section {
+                        NavigationLink { ConnectionGuideContent(initialRoute: playback.displayConnection.primaryRoute) } label: {
+                            Label(L10n.tr("Nasıl bağlanırım?"), systemImage: "questionmark.circle")
+                                .frame(minHeight: 44)
+                        }.accessibilityIdentifier("tv-connection-help")
+                        Button(L10n.tr("Ayarları aç"), systemImage: "gearshape") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                        }.frame(minHeight: 44)
+                    }
+                }.listRowBackground(MirrorStyle.surface)
             }
+            .listStyle(.insetGrouped)
+            .environment(\.defaultMinListRowHeight, MirrorStyle.controlHeight)
             .scrollContentBackground(.hidden).background(MirrorStyle.background)
             .navigationTitle(L10n.tr("Ekran bağlantısı")).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.tr("Kapat")) { dismiss() } } }
@@ -339,10 +341,11 @@ private struct TVAirPlayPicker: UIViewRepresentable {
 
 struct ConnectionGuideView: View {
     @ObservedObject var model: MirrorModel
+    var initialRoute: ConnectedDisplayRoute? = nil
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack {
-            ConnectionGuideContent(initialRoute: model.playback.displayConnection.primaryRoute)
+            ConnectionGuideContent(initialRoute: initialRoute ?? model.playback.displayConnection.primaryRoute)
                 .safeAreaInset(edge: .bottom) {
                     TVConnectionButton(model: model).padding(20).background(MirrorStyle.background)
                 }

@@ -20,7 +20,7 @@ struct MirivoEntryView: View {
     }
 
     private var home: some View {
-        MirivoRootView(model: model)
+        MirivoRootView(model: model) { onboardingCompleted = false }
             .overlay {
                 if !entered && !reduceMotion {
                     ZStack {

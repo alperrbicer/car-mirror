@@ -25,7 +25,9 @@ try {
       '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, '-resultBundlePath', results,
       ...(uiOnly ? ['-only-testing:MirivoUITests'] : []),
       ...selectedTests.map(test => `-only-testing:${test}`),
-      `MIRIVO_MAIN_APP_ENTITLEMENTS=${join(root, 'Config/App.entitlements')}`, 'CODE_SIGN_IDENTITY=-', 'test'], { stdio: 'inherit' })
+      `MIRIVO_MAIN_APP_ENTITLEMENTS=${join(root, 'Config/App.entitlements')}`,
+      // Simulator purchase tests use local StoreKit only, without RevenueCat sync.
+      'MIRIVO_REVENUECAT_API_KEY=', 'CODE_SIGN_IDENTITY=-', 'test'], { stdio: 'inherit' })
     return run.status ?? 1
   }, { keepCache: flags.includes('--keep-cache') }))
   process.exitCode = status

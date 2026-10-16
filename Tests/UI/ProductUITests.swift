@@ -1,22 +1,91 @@
 import XCTest
 
 final class ProductUITests: XCTestCase {
+    func testDevelopmentAccessAndReplayOnboarding() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        app.launch()
+        defer { app.terminate() }
+        app.buttons["open-settings"].tap()
+        let access = app.switches["settings-development-access"]
+        reveal(access, in: app)
+        app.swipeUp() // Bring the complete switch row above the sheet edge.
+        XCTAssertEqual(access.value as? String, "0")
+        access.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        XCTAssertTrue(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "1"), object: access)], timeout: 5) == .completed)
+        capture("development-unlimited-access", app: app)
+        access.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        XCTAssertTrue(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "0"), object: access)], timeout: 5) == .completed)
+        for _ in 0..<12 {
+            if app.buttons["settings-replay-onboarding"].isHittable { break }
+            app.swipeDown()
+        }
+        app.buttons["settings-replay-onboarding"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
+        capture("settings-replay-onboarding", app: app)
+    }
+
+    func testHomeSharingPreferenceAlignment() {
+        for large in [false, true] {
+            let app = launch(large: large)
+            let audio = app.buttons["home-audio"]
+            reveal(audio, in: app)
+            audio.tap()
+            let source = app.buttons["Kaynak uygulamadan"]
+            XCTAssertTrue(source.waitForExistence(timeout: 3))
+            source.tap()
+            if !source.waitForNonExistence(timeout: 2) { source.tap() }
+            XCTAssertEqual(audio.value as? String, "Kaynak uygulamadan")
+            capture(large ? "sharing-preferences-large" : "sharing-preferences-normal", app: app)
+            audio.tap()
+            let synchronized = app.buttons["Görüntüyle birlikte"]
+            XCTAssertTrue(synchronized.waitForExistence(timeout: 3))
+            synchronized.tap()
+            if !synchronized.waitForNonExistence(timeout: 2) { synchronized.tap() }
+            app.terminate()
+        }
+    }
+
+    func testThreeDayTrialPurchaseFromPaywall() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
+        // Run with StoreKitIntegrationTests first to reset the local purchase history.
+        // The local .storekit fixture auto-confirms purchases; no access fixture is used.
+        app.buttons["open-settings"].tap()
+        app.buttons["settings-pro"].tap()
+        let purchase = app.buttons["pro-purchase"]
+        XCTAssertTrue(purchase.waitForExistence(timeout: 15))
+        XCTAssertTrue(purchase.isEnabled)
+        XCTAssertEqual(purchase.label, "Ücretsiz denemeyi başlat")
+        XCTAssertTrue(app.staticTexts["pro-billing-summary"].label.contains("3 gün ücretsiz"))
+        XCTAssertTrue(app.staticTexts["pro-billing-summary"].label.contains("19.99"))
+        capture("storekit-three-day-trial-before-purchase", app: app)
+        purchase.tap()
+        XCTAssertTrue(app.staticTexts["Pro etkin"].waitForExistence(timeout: 15))
+        XCTAssertFalse(purchase.exists)
+        capture("storekit-three-day-trial-purchased", app: app)
+    }
+
     func testOnboardingFinishesWithOptionalProAndDoesNotRepeat() {
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-onboarding", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-onboarding", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
         XCUIDevice.shared.orientation = .portrait
         app.launch()
         defer { app.terminate() }
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["open-settings"].exists)
         capture("onboarding-01-library-tr", app: app)
-        app.buttons["onboarding-next"].tap()
+        app.swipeLeft()
         XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
         capture("onboarding-02-continue-tr", app: app)
-        app.buttons["onboarding-back"].tap()
+        app.swipeRight()
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 5))
         app.buttons["onboarding-next"].tap()
-        app.buttons["onboarding-next"].tap()
+        app.swipeLeft()
         XCTAssertTrue(app.staticTexts["onboarding-title-2"].waitForExistence(timeout: 5))
         capture("onboarding-03-display-tr", app: app)
         app.buttons["onboarding-next"].tap()
@@ -38,7 +107,7 @@ final class ProductUITests: XCTestCase {
 
     func testOnboardingCanBeSkippedAndProClosedWithLargeRightToLeftText() {
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-onboarding", "-AppleLanguages", "(ar)",
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-onboarding", "-AppleLanguages", "(ar)",
                                "-AppleLocale", "ar", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
         XCUIDevice.shared.orientation = .portrait
         app.launch()
@@ -46,6 +115,10 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["onboarding-next"].isHittable)
         capture("onboarding-large-ar", app: app)
+        app.swipeRight()
+        XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
+        app.swipeLeft()
+        XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 5))
         app.buttons["onboarding-skip"].tap()
         XCTAssertTrue(app.buttons["onboarding-continue-free"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["onboarding-continue-free"].isHittable)
@@ -57,7 +130,7 @@ final class ProductUITests: XCTestCase {
     func testLandscapeColdLaunchStaysPortraitAndPlayerCanStillRotate() {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-AppleLanguages", "(tr)",
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-continue-watching", "-AppleLanguages", "(tr)",
                                "-AppleLocale", "tr_TR", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
         defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
         for orientation in [UIDeviceOrientation.landscapeLeft, .landscapeRight] {
@@ -80,56 +153,63 @@ final class ProductUITests: XCTestCase {
         }
     }
 
-    func testCarPlayDailyViewingLimitShowsProAndBlocksPhoneAfterRelaunch() {
-        checkViewingLimitOffer(limit: "carplay")
-    }
-
-    func testOverallDailyViewingLimitShowsProBeforeCarPlayRunsOut() {
-        checkViewingLimitOffer(limit: "daily")
-    }
-
-    private func checkViewingLimitOffer(limit: String) {
-        let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-mirivo-ui-carplay",
-                               "-mirivo-ui-viewing-limit", limit, "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
-        XCUIDevice.shared.orientation = .portrait
-        app.launch()
-        defer {
-            app.terminate()
-            // The relaunch assertions deliberately leave a spent allowance.
-            // Reset synthetic data so the next test starts with a free budget.
-            app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+    func testMembershipBlocksPlaybackOnPhoneAndCarPlay() {
+        for carPlay in [false, true] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+            if carPlay { app.launchArguments.append("-mirivo-ui-carplay") }
             app.launch()
+            XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 10))
+            app.buttons["page-library"].tap()
+            let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-")).firstMatch
+            XCTAssertTrue(card.waitForExistence(timeout: 10)); card.tap()
+            XCTAssertTrue(app.buttons["pro-close"].waitForExistence(timeout: 10))
+            XCTAssertFalse(app.otherElements["player-video"].exists)
+            capture("membership-required-\(carPlay)", app: app)
+            app.buttons["pro-close"].tap()
+            XCTAssertTrue(card.waitForExistence(timeout: 5))
             app.terminate()
         }
-        let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
-        app.buttons["page-library"].tap()
-        if !cards.firstMatch.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
-        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10))
-        cards.firstMatch.tap()
-        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
-        let offer = app.otherElements["viewing-limit-offer"]
-        XCTAssertTrue(offer.waitForExistence(timeout: 25), "The first exhausted allowance should stop playback and open Pro")
-        let reason = limit == "carplay" ? "Bugünkü 1 saatlik CarPlay süren doldu." : "Bugünkü 2 saatlik ücretsiz izleme süren doldu."
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", reason)).firstMatch.exists)
-        capture("viewing-limit-\(limit)-pro", app: app)
-        app.buttons["pro-close"].tap()
-        let pro = app.buttons["viewing-limit-pro"]
-        XCTAssertTrue(pro.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["player-play-pause"].exists, "Playback controls must be unavailable after the allowance expires")
-        pro.tap()
-        XCTAssertTrue(offer.waitForExistence(timeout: 5))
-        app.buttons["pro-close"].tap()
-        app.terminate()
-        app.launchArguments.removeAll { $0 == "-mirivo-ui-carplay" }
-        app.launchArguments.append("-mirivo-ui-preserve-library")
-        app.launch()
-        app.buttons["page-library"].tap()
-        XCTAssertTrue(cards.firstMatch.waitForExistence(timeout: 10), "Stopping for the allowance must preserve Continue Watching")
-        cards.firstMatch.tap()
-        XCTAssertTrue(offer.waitForExistence(timeout: 10), "Removing CarPlay or relaunching must not restore today's allowance")
-        XCTAssertFalse(app.otherElements["player-video"].exists)
-        capture("viewing-limit-\(limit)-relaunch-phone", app: app)
+    }
+
+    func testHomeDestinationsAndSourceTypeShortcuts() {
+        let app = launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.buttons["page-mirror"].waitForExistence(timeout: 10))
+        app.buttons["page-mirror"].tap()
+        XCTAssertTrue(app.buttons["home-carplay"].waitForExistence(timeout: 10))
+        capture("design-home-tr", app: app)
+        app.buttons["home-carplay"].tap()
+        XCTAssertTrue(app.buttons["guide-CarPlay"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["guide-CarPlay"].isSelected)
+        capture("design-carplay-guide-tr", app: app)
+        app.buttons["Kapat"].tap()
+        app.buttons["home-open-library"].tap()
+        let xtream = app.buttons["add-source-xtream"]
+        reveal(xtream, in: app)
+        XCTAssertTrue(xtream.isHittable)
+        capture("design-library-tr", app: app)
+        xtream.tap()
+        XCTAssertTrue(app.textFields["source-username"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.secureTextFields["source-password"].exists)
+        capture("design-source-xtream-tr", app: app)
+        app.buttons["Vazgeç"].tap()
+        for kind in ["stream", "playlistFile", "playlist"] {
+            let shortcut = app.buttons["add-source-\(kind)"]
+            reveal(shortcut, in: app)
+            shortcut.tap()
+            XCTAssertTrue(app.buttons["source-kind"].waitForExistence(timeout: 5))
+            XCTAssertFalse(app.textFields["source-username"].exists)
+            if kind == "playlistFile" {
+                XCTAssertTrue(app.buttons["source-file"].exists)
+                XCTAssertFalse(app.textFields["source-url"].exists)
+            } else {
+                let expected = kind == "stream" ? "https://example.com/video.mp4" : "https://example.com/playlist.m3u"
+                XCTAssertEqual(app.textFields["source-url"].placeholderValue, expected)
+            }
+            capture("design-source-\(kind)-tr", app: app)
+            app.buttons["Vazgeç"].tap()
+        }
     }
 
     func testPhysicalNativePiPReturnInline() throws { try physicalPiPReturn(kind: "mp4", fullscreen: false) }
@@ -250,7 +330,7 @@ final class ProductUITests: XCTestCase {
 
     private func checkColdStartContinuationAutoplay(compatibility: Bool) {
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-mirivo-ui-delayed-continuation",
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-continue-watching", "-mirivo-ui-delayed-continuation",
                                "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
         if compatibility { app.launchArguments.append("-mirivo-ui-compatibility-continuation") }
@@ -946,25 +1026,17 @@ final class ProductUITests: XCTestCase {
         XCTAssertFalse(app.buttons["pro-close"].exists)
     }
 
-    func testSourceLimitProSheetHasOneCloseButton() {
+    func testSourcesCanBePreparedBeforeMembership() {
         let app = launch()
         defer { app.terminate() }
         guard openSourceEditor(in: app) else { return }
-        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Source Limit QA")
+        app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Source Setup QA")
         app.textFields["source-url"].tap(); app.textFields["source-url"].typeText("http://127.0.0.1:8769/demo.m3u")
         app.buttons["Ekle"].tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Source Limit QA")).firstMatch.waitForExistence(timeout: 10))
-        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertTrue(app.buttons["add-source"].waitForExistence(timeout: 10))
         app.buttons["add-source"].tap()
-        let close = app.buttons["pro-close"]
-        guard close.waitForExistence(timeout: 5) else { XCTFail(app.debugDescription); return }
-        if app.alerts.firstMatch.exists { app.alerts.firstMatch.buttons["Tamam"].tap() }
-        let dismissButtons = app.navigationBars.buttons.matching(NSPredicate(format: "label == %@ OR label == %@", "Kapat", "Bitti"))
-        XCTAssertEqual(dismissButtons.count, 1)
-        capture("source-limit-pro-single-close", app: app)
-        close.tap()
-        XCTAssertTrue(app.buttons["add-source"].waitForExistence(timeout: 5))
-        XCTAssertFalse(close.exists)
+        XCTAssertTrue(app.textFields["source-name"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["pro-close"].exists)
     }
 
     private func openSourceEditor(in app: XCUIApplication) -> Bool {
@@ -1147,7 +1219,7 @@ final class ProductUITests: XCTestCase {
     func testCarPlayStatusUsesVehicleLabelsAndFitsLargeText() {
         for videoSupported in [true, false] {
             let app = XCUIApplication()
-            app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-carplay", "-AppleLanguages", "(tr)",
+            app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-carplay", "-AppleLanguages", "(tr)",
                                    "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
             if !videoSupported { app.launchArguments.append("-mirivo-ui-carplay-no-video") }
             XCUIDevice.shared.orientation = .portrait
@@ -1187,12 +1259,9 @@ final class ProductUITests: XCTestCase {
             if videoSupported {
                 app.buttons["open-settings"].tap()
                 app.buttons["settings-pro"].tap()
-                let lifetime = app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"]
-                XCTAssertTrue(lifetime.waitForExistence(timeout: 15))
-                reveal(lifetime, in: app)
-                let description = app.staticTexts["pro-description-com.alperbicer.carmirror.pro.lifetime"]
-                XCTAssertGreaterThan(description.frame.width, app.frame.width * 0.6,
-                                     "Large text descriptions must not be squeezed beside a fixed-width price")
+                let annual = app.descendants(matching: .any).matching(identifier: "pro-plan-com.alperbicer.carmirror.pro.yearly").firstMatch
+                XCTAssertTrue(annual.waitForExistence(timeout: 15))
+                reveal(annual, in: app)
                 capture("audit-pro-large-text", app: app)
                 reveal(app.buttons["pro-purchase"], in: app)
                 XCTAssertTrue(app.buttons["pro-purchase"].isHittable)
@@ -1205,7 +1274,7 @@ final class ProductUITests: XCTestCase {
     func testExternalCarPlayAndTVStatusOfferTheCorrectDisconnectSteps() {
         for carPlay in [true, false] {
             let app = XCUIApplication()
-            app.launchArguments = ["-mirivo-ui-testing", carPlay ? "-mirivo-ui-carplay-display" : "-mirivo-ui-external-display",
+            app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", carPlay ? "-mirivo-ui-carplay-display" : "-mirivo-ui-external-display",
                                    "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
             app.launch()
             let status = app.buttons["tv-route-status"]
@@ -1231,7 +1300,7 @@ final class ProductUITests: XCTestCase {
 
     func testConnectionStatusButtonMatchesHomeInChannelToolbar() {
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-carplay-display", "-AppleLanguages", "(tr)",
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-carplay-display", "-AppleLanguages", "(tr)",
                                "-AppleLocale", "tr_TR", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
         app.launch()
         defer { app.terminate() }
@@ -1266,7 +1335,7 @@ final class ProductUITests: XCTestCase {
         continueAfterFailure = false
         for carPlay in [true, false] {
             let app = XCUIApplication()
-            app.launchArguments = ["-mirivo-ui-testing", carPlay ? "-mirivo-ui-carplay-display" : "-mirivo-ui-external-display",
+            app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", carPlay ? "-mirivo-ui-carplay-display" : "-mirivo-ui-external-display",
                                    "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                    "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
             XCUIDevice.shared.orientation = .portrait
@@ -1364,7 +1433,7 @@ final class ProductUITests: XCTestCase {
 
     private func launch(language: String = "tr", large: Bool = false, continuations: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(\(language))", "-AppleLocale", language.replacingOccurrences(of: "-", with: "_")]
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-AppleLanguages", "(\(language))", "-AppleLocale", language.replacingOccurrences(of: "-", with: "_")]
         app.launchArguments += ["-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
         if continuations { app.launchArguments.append("-mirivo-ui-continue-watching") }
         XCUIDevice.shared.orientation = .portrait
@@ -1616,7 +1685,7 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.buttons["page-mirror"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.tabBars.count, 0)
         XCTAssertEqual(app.buttons.matching(identifier: "open-settings").count, 1)
-        XCTAssertGreaterThanOrEqual(app.buttons["page-mirror"].frame.height, 58)
+        XCTAssertGreaterThanOrEqual(app.buttons["page-mirror"].frame.height, 44)
         XCTAssertGreaterThanOrEqual(app.buttons["open-settings"].frame.height, 44)
         capture("01-mirivo-home-tr", app: app)
         app.buttons["page-library"].tap()
@@ -1656,45 +1725,38 @@ final class ProductUITests: XCTestCase {
         app.buttons["page-library"].tap()
         XCTAssertTrue(app.staticTexts["İlk kaynağını ekle"].waitForExistence(timeout: 5))
     }
-    func testProAnnualAndLifetimePlans() {
-        for language in ["tr", "en"] {
-            let app = launch(language: language)
+    func testAnnualTrialPriceAndPurchaseRemainVisible() {
+        for language in ["tr", "en", "ar"] {
+            let app = launch(language: language, large: language == "ar")
             XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
             app.buttons["open-settings"].tap()
-            let proSettings = app.buttons["settings-pro"]
-            if !proSettings.waitForExistence(timeout: 3), app.buttons["open-settings"].exists {
-                app.buttons["open-settings"].tap()
-            }
-            guard proSettings.waitForExistence(timeout: 10) else {
-                XCTFail(app.debugDescription)
-                app.terminate()
-                return
-            }
-            // The settings sheet can enter AX before its transition completes.
-            Thread.sleep(forTimeInterval: 0.8)
-            proSettings.tap()
-            let annual = app.buttons["pro-plan-com.alperbicer.carmirror.pro.yearly"]
-            let lifetime = app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"]
-            if !annual.waitForExistence(timeout: 3), proSettings.exists {
-                proSettings.tap()
-            }
-            guard annual.waitForExistence(timeout: 20) else {
-                XCTFail(app.debugDescription)
-                app.terminate()
-                return
-            }
-            XCTAssertTrue(lifetime.exists, app.debugDescription)
+            let pro = app.buttons["settings-pro"]
+            XCTAssertTrue(pro.waitForExistence(timeout: 10)); pro.tap()
+            let annual = app.descendants(matching: .any).matching(identifier: "pro-plan-com.alperbicer.carmirror.pro.yearly").firstMatch
+            XCTAssertTrue(annual.waitForExistence(timeout: 20), app.debugDescription)
+            XCTAssertFalse(app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"].exists)
             XCTAssertFalse(app.buttons["pro-plan-com.alperbicer.carmirror.pro.weekly"].exists)
-            XCTAssertTrue(annual.isSelected)
-            XCTAssertTrue(lifetime.label.contains("49.99"), "StoreKit fixture must use the current lifetime price: \(lifetime.label)")
-            reveal(app.buttons["pro-purchase"], in: app)
-            capture("pro-plans-\(language)", app: app)
-            reveal(lifetime, in: app)
-            lifetime.tap()
-            XCTAssertTrue(lifetime.isSelected)
-            reveal(app.buttons["pro-purchase"], in: app)
-            XCTAssertTrue(app.buttons["pro-purchase"].isEnabled)
-            capture("pro-lifetime-\(language)", app: app)
+            let purchase = app.buttons["pro-purchase"]
+            if language == "ar" { reveal(purchase, in: app) }
+            XCTAssertTrue(purchase.isHittable)
+            XCTAssertTrue(purchase.isEnabled)
+            let billing = app.staticTexts["pro-billing-summary"]
+            XCTAssertTrue(billing.isHittable)
+            XCTAssertTrue(billing.label.contains("19.99"), billing.label)
+            if language == "tr" {
+                if app.otherElements["pro-trial-timeline"].exists {
+                    XCTAssertEqual(purchase.label, "Ücretsiz denemeyi başlat")
+                    XCTAssertTrue(billing.label.contains("3 gün ücretsiz"))
+                } else {
+                    XCTAssertEqual(purchase.label, "Abone ol", "Do not promise a trial that StoreKit has not confirmed")
+                }
+            }
+            capture("design-pro-\(language)", app: app)
+            reveal(app.buttons["pro-restore"], in: app)
+            XCTAssertTrue(app.buttons["pro-restore"].isHittable)
+            if language != "ar" {
+                XCTAssertTrue(purchase.isHittable, "The purchase action stays reachable while reading the terms")
+            }
             app.terminate()
         }
     }

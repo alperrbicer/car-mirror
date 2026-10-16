@@ -93,9 +93,12 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
             self?.stateQueue.async { [weak self] in
                 guard let self, self.generation == token else { return }
                 self.options = SharedPreferences.options()
-                let access = ProductAccess(salesEnabled: SharedPreferences.salesEnabled, verifiedPro: hasPro)
+                let access = SharedPreferences.access(verifiedPro: hasPro)
+                guard access.fullAccess else {
+                    self.fail(L10n.tr("Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir."))
+                    return
+                }
                 self.options.durationLimit = access.broadcastLimit
-                if !access.fullAccess { self.options.captionsEnabled = false }
                 do { try self.begin() } catch { self.fail(L10n.tr("Yayın tamamlanamadı"), error: error) }
             }
         }

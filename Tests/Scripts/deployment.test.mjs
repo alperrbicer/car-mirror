@@ -80,6 +80,8 @@ function temporary(t) {
 
 function isolatedCLI(t) {
   const directory = temporary(t)
+  mkdirSync(join(directory, 'Config'))
+  writeFileSync(join(directory, 'Config/Base.xcconfig'), 'CURRENT_PROJECT_VERSION = 3\n')
   mkdirSync(join(directory, 'scripts'))
   for (const file of ['ios.mjs', 'deployment-lib.mjs', 'archive-symbols.mjs', 'test_app.mjs', 'test_core.mjs', 'clean_build.mjs']) copyFileSync(join(root, 'scripts', file), join(directory, 'scripts', file))
   return { directory, script: join(directory, 'scripts/ios.mjs'), env: { ...process.env, MIRROR_TEAM_ID: '',
@@ -360,6 +362,7 @@ writeFileSync(join(result, 'new'), 'result');
   assert.equal(args[args.indexOf('-derivedDataPath') + 1], join(fixture.directory, 'build/cache/DerivedData'))
   assert.equal(args[args.indexOf('-clonedSourcePackagesDirPath') + 1], join(fixture.directory, 'build/cache/SourcePackages'))
   assert.ok(args.includes('-only-testing:MirivoUITests'))
+  assert.ok(args.includes('MIRIVO_REVENUECAT_API_KEY='), 'Simulator tests must not sync purchases to RevenueCat')
 
   const focused = spawnSync(process.execPath, [join(fixture.directory, 'scripts/test_app.mjs'),
     '00000000-0000-0000-0000-000000000001', '--only-testing=MirivoTests/CarConnectionReminderTests', '--keep-cache'], {
@@ -455,6 +458,9 @@ else if (command === 'xcrun' && args.includes('list') && args.includes('devices'
     calls = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
     const build = calls.find(call => call.command === 'xcodebuild' && call.args.includes('build'))
     assert.ok(build)
+    const expectedBuild = flags.length ? '5' : '4'
+    assert.ok(build.args.includes(`CURRENT_PROJECT_VERSION=${expectedBuild}`))
+    assert.match(readFileSync(join(fixture.directory, 'Config/Base.xcconfig'), 'utf8'), new RegExp(`CURRENT_PROJECT_VERSION = ${expectedBuild}`))
     assert.equal(build.args.includes('MIRIVO_MAIN_APP_ENTITLEMENTS=Config/App.entitlements'), false)
     assert.ok(!calls.some(call => call.args.includes('install') || call.args.includes('launch')))
   }

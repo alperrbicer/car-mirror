@@ -7,6 +7,17 @@ enum SharedPreferences {
         return defaults
     }
     static var salesEnabled: Bool { Bundle.main.object(forInfoDictionaryKey: "CMProPurchasesEnabled") as? String == "YES" }
+    // A local Debug preference; Release ignores even a previously saved value.
+    static var developmentAccessEnabled: Bool {
+        #if DEBUG
+        return defaults.bool(forKey: "developmentUnlimitedAccess")
+        #else
+        return false
+        #endif
+    }
+    static func access(verifiedPro: Bool, salesEnabled: Bool = salesEnabled) -> ProductAccess {
+        ProductAccess(salesEnabled: salesEnabled && !developmentAccessEnabled, verifiedPro: verifiedPro)
+    }
     static func options() -> BroadcastOptions {
         var result = BroadcastOptions()
         result.quality = StreamQuality(rawValue: defaults.string(forKey: "streamQuality") ?? "") ?? .balanced
@@ -14,7 +25,7 @@ enum SharedPreferences {
         result.captionsEnabled = defaults.bool(forKey: "captionsEnabled")
         result.captionLocale = defaults.string(forKey: "captionLocale") ?? "tr-TR"
         // Written by verified StoreKit entitlements, never by a user-facing switch.
-        let access = ProductAccess(salesEnabled: salesEnabled, verifiedPro: defaults.bool(forKey: "verifiedPro"))
+        let access = access(verifiedPro: defaults.bool(forKey: "verifiedPro"))
         result.durationLimit = access.broadcastLimit
         if !access.fullAccess { result.captionsEnabled = false }
         return result

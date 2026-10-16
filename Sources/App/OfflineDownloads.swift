@@ -131,6 +131,10 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
 
     func download(_ channel: MediaChannel, sourceID: UUID?) async {
         clearMessage()
+        guard PurchaseStore.shared.access.fullAccess else {
+            MirrorModel.shared.presentMembershipOffer()
+            return
+        }
         let ext = channel.url.pathExtension.lowercased()
         let hls = ext == "m3u8"
         let downloadableFileExtensions: Set<String> = ["mp4", "m4v", "mov", "mkv", "avi", "webm"]

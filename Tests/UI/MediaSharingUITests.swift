@@ -1,6 +1,24 @@
 import XCTest
 
 final class MediaSharingUITests: XCTestCase {
+    func testQuickLinkPreservesURLWhenMembershipClosed() {
+        let app = launch(playbackAccess: false)
+        reveal(app.buttons["share-link"], app: app)
+        app.buttons["share-link"].tap()
+        let field = app.textFields["quick-media-url"]
+        guard field.waitForExistence(timeout: 5) else { XCTFail("The link form did not open"); return }
+        let address = "https://example.com/video.mp4"
+        field.tap(); field.typeText(address)
+        app.buttons["quick-media-play"].tap()
+        let close = app.buttons["pro-close"]
+        XCTAssertTrue(close.waitForExistence(timeout: 8))
+        close.tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        XCTAssertEqual(field.value as? String, address)
+        XCTAssertFalse(app.otherElements["player-video"].exists)
+        capture("sharing-link-membership-preserves-input", app: app)
+    }
+
     func testQuickLinkValidationAndConnectionGuide() {
         let app = launch()
         capture("sharing-overview", app: app)
@@ -86,10 +104,11 @@ final class MediaSharingUITests: XCTestCase {
         capture("sharing-guide-large-type", app: app)
     }
 
-    private func launch(large: Bool = false) -> XCUIApplication {
+    private func launch(large: Bool = false, playbackAccess: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
+        if playbackAccess { app.launchArguments.append("-mirivo-ui-playback-access") }
         XCUIDevice.shared.orientation = .portrait
         app.launch()
         XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))

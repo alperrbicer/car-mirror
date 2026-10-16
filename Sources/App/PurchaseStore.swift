@@ -9,17 +9,38 @@ final class PurchaseStore: ObservableObject {
     @Published private(set) var verifiedPro = false
     @Published private(set) var activeProductIDs = Set<String>()
     @Published private(set) var busy = false
+    @Published private(set) var trialEligible = false
     @Published var message: String?
     let salesEnabled: Bool
     private let observeRevenueCat: Bool
     private var updates: Task<Void, Never>?
-    var access: ProductAccess { ProductAccess(salesEnabled: salesEnabled, verifiedPro: verifiedPro) }
+    #if DEBUG
+    @Published var developmentAccessEnabled = SharedPreferences.developmentAccessEnabled {
+        didSet { SharedPreferences.defaults.set(developmentAccessEnabled, forKey: "developmentUnlimitedAccess") }
+    }
+    #endif
+    var access: ProductAccess {
+        #if DEBUG
+        // Playback UI fixtures opt in explicitly; purchase tests use real StoreKit state.
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-mirivo-ui-testing") && arguments.contains("-mirivo-ui-playback-access") {
+            return ProductAccess(salesEnabled: salesEnabled, verifiedPro: true)
+        }
+        #endif
+        return SharedPreferences.access(verifiedPro: verifiedPro, salesEnabled: salesEnabled)
+    }
     var lifetimeOwned: Bool { activeProductIDs.contains(ProProduct.lifetime.rawValue) }
     var subscriptionActive: Bool { activeProductIDs.contains(ProProduct.yearly.rawValue) }
 
+    func hasThreeDayTrial(_ product: Product) -> Bool {
+        guard trialEligible, !verifiedPro, let offer = product.subscription?.introductoryOffer else { return false }
+        return offer.paymentMode == .freeTrial && offer.period.unit == .day &&
+            offer.period.value == 3 && offer.periodCount == 1
+    }
+
     func canPurchase(_ product: Product) -> Bool {
         salesEnabled && !busy && !lifetimeOwned && products.contains(where: { $0.id == product.id })
-            && (!verifiedPro || product.id == ProProduct.lifetime.rawValue)
+            && !verifiedPro && ProProduct.forSale.contains(where: { $0.rawValue == product.id })
     }
 
     init(salesEnabled: Bool = SharedPreferences.salesEnabled, observeRevenueCat: Bool = false) {
@@ -39,8 +60,8 @@ final class PurchaseStore: ObservableObject {
                 guard !Task.isCancelled else { return }
                 if case .verified(let transaction) = result,
                    ProProduct(rawValue: transaction.productID) != nil {
-                    await self?.refresh()
                     await transaction.finish()
+                    await self?.refresh()
                     await self?.syncRevenueCat()
                 }
             }
@@ -52,6 +73,9 @@ final class PurchaseStore: ObservableObject {
         activeProductIDs = await ProEntitlements.activeProductIDs()
         verifiedPro = !activeProductIDs.isEmpty
         SharedPreferences.defaults.set(verifiedPro, forKey: "verifiedPro")
+        if let subscription = products.first?.subscription {
+            trialEligible = await subscription.isEligibleForIntroOffer
+        } else { trialEligible = false }
     }
 
     func loadProducts(reportErrors: Bool = true) async {
@@ -73,8 +97,14 @@ final class PurchaseStore: ObservableObject {
         do {
             switch try await product.purchase() {
             case .success(.verified(let transaction)):
-                await refresh()
                 await transaction.finish()
+                // The signed purchase can arrive before StoreKit's entitlement cache.
+                // Keep the purchase pending briefly instead of reporting a false failure.
+                for _ in 0..<20 {
+                    await refresh()
+                    if verifiedPro { break }
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                }
                 await syncRevenueCat()
                 if !verifiedPro { message = L10n.tr("Satın alma henüz doğrulanamadı. Satın alımları geri yükleyebilirsin.") }
             case .success(.unverified): message = L10n.tr("Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et.")

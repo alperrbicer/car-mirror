@@ -18,9 +18,8 @@ struct RequiredUpdateView: View {
                     openURL(url) { accepted in openFailed = !accepted }
                 } label: {
                     Label(L10n.tr("App Store’da güncelle"), systemImage: "arrow.down.circle")
-                        .frame(maxWidth: .infinity, minHeight: 54)
                 }
-                .buttonStyle(.borderedProminent).tint(MirrorStyle.accent).foregroundStyle(.black)
+                .buttonStyle(MirivoButtonStyle(prominent: true))
                 .accessibilityIdentifier("required-update-store")
                 Button(L10n.tr("Yeniden kontrol et")) { Task { await updates.refresh(force: true) } }
                     .frame(minHeight: 48).disabled(updates.checking)

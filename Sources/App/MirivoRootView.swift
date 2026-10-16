@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MirivoRootView: View {
     @ObservedObject var model: MirrorModel
+    var replayOnboarding: () -> Void = {}
+    @State private var requestedOnboarding = false
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
     @SceneStorage("mirivo.root.selectedPage") private var selectedPage = 0
     @State private var showingSettings = false
@@ -12,11 +14,11 @@ struct MirivoRootView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: 22) {
                     header
                     pageNavigation
                     if selectedPage == 0 {
-                        MirrorHomeView(model: model)
+                        MirrorHomeView(model: model) { selectedPage = 1 }
                     } else {
                         LibraryView { showingPlayer = true }
                     }
@@ -41,12 +43,16 @@ struct MirivoRootView: View {
             .safeAreaInset(edge: .bottom) { NowPlayingBar(hidesSavedProgress: selectedPage == 1) { showingPlayer = true } }
             .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
         }
-        .modifier(ViewingLimitOfferPresenter(model: model))
+        .modifier(MembershipOfferPresenter(model: model))
         .fullScreenCover(isPresented: $model.presentingPlayer) {
             NavigationStack { MediaPlayerScreen(model: model) }
-                .modifier(ViewingLimitOfferPresenter(model: model, restoredPlayer: true))
+                .modifier(MembershipOfferPresenter(model: model, restoredPlayer: true))
         }
-        .sheet(isPresented: $showingSettings) { MirrorSettingsView(model: model) }
+        .sheet(isPresented: $showingSettings, onDismiss: {
+            if requestedOnboarding { requestedOnboarding = false; replayOnboarding() }
+        }) {
+            MirrorSettingsView(model: model) { requestedOnboarding = true }
+        }
         .onAppear { FirebaseServices.recordScreen(selectedPage == 0 ? .home : .library) }
         .onChange(of: selectedPage) { _, page in FirebaseServices.recordScreen(page == 0 ? .home : .library) }
         .onChange(of: notifications.pendingNavigation, initial: true) { _, navigation in
@@ -96,30 +102,23 @@ struct MirivoRootView: View {
 
     private var pageNavigation: some View {
         let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
-            : AnyLayout(HStackLayout(alignment: .bottom, spacing: 24))
+            ? AnyLayout(VStackLayout(spacing: 4)) : AnyLayout(HStackLayout(spacing: 4))
         return layout {
-            pageButton(0, title: L10n.tr("Yansıt"), symbol: "rectangle.on.rectangle")
+            pageButton(0, title: L10n.tr("Ekranlar"), symbol: "tv")
             pageButton(1, title: L10n.tr("Kaynaklar"), symbol: "play.rectangle.on.rectangle")
         }
+        .padding(4).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
     }
 
     private func pageButton(_ page: Int, title: String, symbol: String) -> some View {
         Button { selectedPage = page } label: {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 10) {
-                    if !dynamicTypeSize.isAccessibilitySize {
-                        Image(systemName: symbol).font(.system(size: 17, weight: .medium))
-                    }
-                    Text(title).font(.headline).fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
-                }
-                .frame(maxWidth: .infinity, minHeight: MirrorStyle.controlHeight, alignment: .leading)
-                .padding(.vertical, 3)
-                Capsule().fill(selectedPage == page ? MirrorStyle.accent : MirrorStyle.hairline).frame(height: 2)
-            }
-            .foregroundStyle(selectedPage == page ? .white : MirrorStyle.secondary)
-            .contentShape(Rectangle())
+            Label(title, systemImage: symbol)
+                .font(.subheadline.weight(.semibold))
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, minHeight: 44).padding(.horizontal, 10).padding(.vertical, 2)
+                .foregroundStyle(selectedPage == page ? .white : MirrorStyle.secondary)
+                .background(selectedPage == page ? MirrorStyle.raised : .clear, in: RoundedRectangle(cornerRadius: 14))
+                .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(page == 0 ? "page-mirror" : "page-library")

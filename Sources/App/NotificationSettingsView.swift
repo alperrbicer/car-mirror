@@ -49,7 +49,7 @@ struct NotificationSettingsView: View {
                         .foregroundStyle(MirrorStyle.secondary)
                     Button(L10n.tr("Yeniden dene")) { Task { await carReminder.setEnabled(true) } }
                 }
-            } footer: {
+            } header: { Text("CarPlay") } footer: {
                 Text(L10n.tr("Yeni bir CarPlay oturumu algılandığında telefonunda bir kez hatırlatır. Araç bağlantısı bilgisi sunucuya gönderilmez."))
             }
             .listRowBackground(MirrorStyle.surface)

@@ -56,10 +56,35 @@ struct MirivoSectionLabel: View {
     let title: String
     var body: some View {
         Text(title)
-            .font(.caption.weight(.semibold))
-            .tracking(L10n.appLanguage.allowsLetterSpacing ? 1.6 : 0)
+            .font(.subheadline.weight(.semibold))
             .foregroundStyle(MirrorStyle.secondary)
-            .textCase(.uppercase)
+            .accessibilityAddTraits(.isHeader)
+    }
+}
+
+/// The same three destinations introduce the app and its membership.
+struct MirivoScreensArtwork: View {
+    var body: some View {
+        GeometryReader { geometry in
+            HStack(alignment: .center, spacing: 14) {
+                screen("iphone", width: 64, height: 94, rotation: -8)
+                screen("play.tv", width: 142, height: 100, rotation: 0)
+                screen("car.side", width: 80, height: 76, rotation: 8)
+            }
+            .frame(width: 314, height: 120)
+            .scaleEffect(min(geometry.size.width / 314, geometry.size.height / 120))
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }.accessibilityHidden(true)
+    }
+
+    private func screen(_ symbol: String, width: CGFloat, height: CGFloat, rotation: Double) -> some View {
+        Image(systemName: symbol).font(.system(size: 34, weight: .light))
+            .foregroundStyle(MirrorStyle.accent)
+            .frame(width: width, height: height)
+            .background(LinearGradient(colors: [MirrorStyle.raised, MirrorStyle.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: RoundedRectangle(cornerRadius: 20))
+            .overlay { RoundedRectangle(cornerRadius: 20).strokeBorder(MirrorStyle.accent.opacity(0.22)) }
+            .rotationEffect(.degrees(rotation))
     }
 }
 

@@ -14,19 +14,13 @@ struct CarMirrorApp: App {
         FirebaseServices.configure()
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-testing") {
+            SharedPreferences.defaults.removeObject(forKey: "developmentUnlimitedAccess")
             if !ProcessInfo.processInfo.arguments.contains("-mirivo-ui-preserve-onboarding") {
                 UserDefaults.standard.set(!ProcessInfo.processInfo.arguments.contains("-mirivo-ui-onboarding"),
                                           forKey: "mirivo.onboarding.completed")
             }
             if !ProcessInfo.processInfo.arguments.contains("-mirivo-ui-preserve-library") {
                 UserDefaults.standard.removeObject(forKey: "dailyViewingBudget")
-                let arguments = ProcessInfo.processInfo.arguments
-                if let index = arguments.firstIndex(of: "-mirivo-ui-viewing-limit"), arguments.indices.contains(index + 1) {
-                    let carPlay = arguments[index + 1] == "carplay"
-                    let budget = DailyViewingBudget(now: Date(), used: carPlay ? 4000 : DailyViewingBudget.limit - 10,
-                                                    carPlayUsed: carPlay ? DailyViewingBudget.carPlayLimit - 10 : 0)
-                    UserDefaults.standard.set(try? JSONEncoder().encode(budget), forKey: "dailyViewingBudget")
-                }
                 try? SourceLibrary.shared.clear()
                 if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-continue-watching") {
                     seedContinuationTestData()

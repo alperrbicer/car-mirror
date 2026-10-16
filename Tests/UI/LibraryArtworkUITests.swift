@@ -262,7 +262,7 @@ final class LibraryArtworkUITests: XCTestCase {
     private func launchHistory(large: Bool = false) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-artwork-history", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-mirivo-ui-artwork-history", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
         XCUIDevice.shared.orientation = .portrait
         app.launch()
@@ -421,7 +421,7 @@ final class LibraryArtworkUITests: XCTestCase {
     private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false, movieEpisodes: Bool = false, externalRoute: String? = nil) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
         if externalRoute == "carplay" { app.launchArguments += ["-mirivo-ui-carplay", "-mirivo-ui-carplay-display"] }
         else if externalRoute == "tv" { app.launchArguments.append("-mirivo-ui-external-display") }
