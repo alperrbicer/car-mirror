@@ -146,8 +146,10 @@ final class NotificationStore: ObservableObject {
             navigate(userInfo: request.content.userInfo)
         }
     }
-    func presentationOptions(for request: UNNotificationRequest, carReminderEnabled: Bool) -> UNNotificationPresentationOptions {
-        let allowed = CarConnectionReminderStore.isReminder(request) ? carReminderEnabled : enabled
+    func presentationOptions(for request: UNNotificationRequest, carReminderEnabled: Bool,
+                             trialReminderEnabled: Bool = false) -> UNNotificationPresentationOptions {
+        let allowed = TrialReminderStore.isReminder(request) ? trialReminderEnabled
+            : CarConnectionReminderStore.isReminder(request) ? carReminderEnabled : enabled
         return allowed ? [.banner, .list, .sound] : []
     }
     func consumedNavigation() { pendingNavigation = nil }
@@ -267,15 +269,23 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         Task { @MainActor in
             completionHandler(NotificationStore.shared.presentationOptions(for: notification.request,
-                carReminderEnabled: CarConnectionReminderStore.shared.enabled))
+                carReminderEnabled: CarConnectionReminderStore.shared.enabled,
+                trialReminderEnabled: TrialReminderStore.shared.enabled))
         }
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         Task { @MainActor in
             if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-                NotificationStore.shared.navigate(request: response.notification.request,
-                    carReminderEnabled: CarConnectionReminderStore.shared.enabled)
+                if TrialReminderStore.isReminder(response.notification.request) {
+                    if TrialReminderStore.shared.enabled,
+                       let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                } else {
+                    NotificationStore.shared.navigate(request: response.notification.request,
+                        carReminderEnabled: CarConnectionReminderStore.shared.enabled)
+                }
             }
             completionHandler()
         }

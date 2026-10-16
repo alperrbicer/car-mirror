@@ -1,5 +1,7 @@
 # Yerel StoreKit doğrulaması — 16 Ekim 2026
 
+> Bu kayıt, aynı günün önceki üç günlük yıllık teklifine aittir. Sonraki haftalık 3 gün / yıllık 7 gün politikası ve doğrulama sonuçları [PRO_RELEASE.md](PRO_RELEASE.md) içindedir. Güncel satın alma UI testi `ProductUITests.testSevenDayTrialPurchaseFromPaywall` adını kullanır.
+
 Bu çalışma yalnız yerel uygulama, Xcode ve simülatör test ortamını kapsar. RevenueCat veya App Store Connect yapılandırması, canlı fiyat/ürün/teklif değiştirilmedi. Satın alma testlerinde RevenueCat anahtarı derleme argümanıyla boş bırakıldı; aynı koruma `scripts/test_app.mjs` içine eklendi.
 
 ## Kök neden ve düzeltme

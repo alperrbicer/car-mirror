@@ -12,8 +12,8 @@ final class ProductTests: XCTestCase {
             XCTAssertEqual(PlaybackTimeDisplay.timestamp(unavailable), "--:--")
         }
     }
-    func testOnlyAnnualIsSoldAndLegacyLifetimeRemainsRecognized() {
-        XCTAssertEqual(ProProduct.forSale, [.yearly])
+    func testWeeklyAndAnnualAreSoldAndLegacyLifetimeRemainsRecognized() {
+        XCTAssertEqual(ProProduct.forSale, [.yearly, .weekly])
         XCTAssertNotNil(ProProduct(rawValue: "com.alperbicer.carmirror.pro.lifetime"))
     }
 

@@ -4,16 +4,19 @@ import SwiftUI
 
 @MainActor
 final class PurchaseStore: ObservableObject {
-    static let shared = PurchaseStore(observeRevenueCat: true)
+    static let shared = PurchaseStore(observeRevenueCat: true, trialReminders: .shared)
     @Published private(set) var products: [Product] = []
     @Published private(set) var verifiedPro = false
     @Published private(set) var activeProductIDs = Set<String>()
     @Published private(set) var busy = false
-    @Published private(set) var trialEligible = false
+    @Published private(set) var trialEligibleProductIDs = Set<String>()
     @Published var message: String?
     let salesEnabled: Bool
     private let observeRevenueCat: Bool
     private var updates: Task<Void, Never>?
+    private var subscriptionUpdates: Task<Void, Never>?
+    private let trialReminders: TrialReminderStore?
+    private var refreshRevision = 0
     #if DEBUG
     @Published var developmentAccessEnabled = SharedPreferences.developmentAccessEnabled {
         didSet { SharedPreferences.defaults.set(developmentAccessEnabled, forKey: "developmentUnlimitedAccess") }
@@ -30,12 +33,31 @@ final class PurchaseStore: ObservableObject {
         return SharedPreferences.access(verifiedPro: verifiedPro, salesEnabled: salesEnabled)
     }
     var lifetimeOwned: Bool { activeProductIDs.contains(ProProduct.lifetime.rawValue) }
-    var subscriptionActive: Bool { activeProductIDs.contains(ProProduct.yearly.rawValue) }
+    var subscriptionActive: Bool { ProProduct.forSale.contains { activeProductIDs.contains($0.rawValue) } }
 
-    func hasThreeDayTrial(_ product: Product) -> Bool {
-        guard trialEligible, !verifiedPro, let offer = product.subscription?.introductoryOffer else { return false }
-        return offer.paymentMode == .freeTrial && offer.period.unit == .day &&
-            offer.period.value == 3 && offer.periodCount == 1
+    func freeTrialDays(_ product: Product) -> Int? {
+        guard trialEligibleProductIDs.contains(product.id), !verifiedPro,
+              let offer = product.subscription?.introductoryOffer, offer.paymentMode == .freeTrial else { return nil }
+        let days: Int
+        switch offer.period.unit {
+        case .day: days = offer.period.value * offer.periodCount
+        case .week: days = offer.period.value * offer.periodCount * 7
+        default: return nil
+        }
+        return days > 0 ? days : nil
+    }
+
+    func billingRate(_ product: Product) -> String {
+        String(format: L10n.tr(product.id == ProProduct.weekly.rawValue ? "%@ / hafta" : "%@ / yıl"), product.displayPrice)
+    }
+
+    var annualSavingsPercent: Int? {
+        guard let annual = products.first(where: { $0.id == ProProduct.yearly.rawValue }),
+              let weekly = products.first(where: { $0.id == ProProduct.weekly.rawValue }), weekly.price > 0,
+              annual.priceFormatStyle.currencyCode == weekly.priceFormatStyle.currencyCode else { return nil }
+        let savings = NSDecimalNumber(decimal: (1 - annual.price / (weekly.price * 52)) * 100).doubleValue
+        guard savings > 0, savings < 100 else { return nil }
+        return Int(savings.rounded())
     }
 
     func canPurchase(_ product: Product) -> Bool {
@@ -43,8 +65,10 @@ final class PurchaseStore: ObservableObject {
             && !verifiedPro && ProProduct.forSale.contains(where: { $0.rawValue == product.id })
     }
 
-    init(salesEnabled: Bool = SharedPreferences.salesEnabled, observeRevenueCat: Bool = false) {
+    init(salesEnabled: Bool = SharedPreferences.salesEnabled, observeRevenueCat: Bool = false,
+         trialReminders: TrialReminderStore? = nil) {
         self.salesEnabled = salesEnabled
+        self.trialReminders = trialReminders
         let key = (Bundle.main.object(forInfoDictionaryKey: "CMRevenueCatAPIKey") as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         // Apple SDK keys only. Test Store keys must never ship in the App Store app.
         self.observeRevenueCat = observeRevenueCat && salesEnabled && key.hasPrefix("appl_")
@@ -66,16 +90,29 @@ final class PurchaseStore: ObservableObject {
                 }
             }
         }
+        subscriptionUpdates = Task { [weak self] in
+            for await _ in Product.SubscriptionInfo.Status.updates {
+                guard !Task.isCancelled else { return }
+                await self?.refresh()
+            }
+        }
     }
-    deinit { updates?.cancel() }
+    deinit { updates?.cancel(); subscriptionUpdates?.cancel() }
 
     func refresh() async {
-        activeProductIDs = await ProEntitlements.activeProductIDs()
+        refreshRevision += 1
+        let revision = refreshRevision
+        let active = await ProEntitlements.activeProductIDs()
+        var eligible = Set<String>()
+        for product in products {
+            if let subscription = product.subscription, await subscription.isEligibleForIntroOffer { eligible.insert(product.id) }
+        }
+        guard revision == refreshRevision else { return }
+        activeProductIDs = active
         verifiedPro = !activeProductIDs.isEmpty
+        trialEligibleProductIDs = eligible
         SharedPreferences.defaults.set(verifiedPro, forKey: "verifiedPro")
-        if let subscription = products.first?.subscription {
-            trialEligible = await subscription.isEligibleForIntroOffer
-        } else { trialEligible = false }
+        await trialReminders?.refresh()
     }
 
     func loadProducts(reportErrors: Bool = true) async {
@@ -106,6 +143,10 @@ final class PurchaseStore: ObservableObject {
                     try? await Task.sleep(nanoseconds: 100_000_000)
                 }
                 await syncRevenueCat()
+                if verifiedPro, transaction.offer?.type == .introductory,
+                   transaction.offer?.paymentMode == .freeTrial {
+                    await trialReminders?.refresh(requestPermission: true)
+                }
                 if !verifiedPro { message = L10n.tr("Satın alma henüz doğrulanamadı. Satın alımları geri yükleyebilirsin.") }
             case .success(.unverified): message = L10n.tr("Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et.")
             case .pending: message = L10n.tr("Satın alma onay bekliyor. Onaylandığında Pro otomatik açılacak.")

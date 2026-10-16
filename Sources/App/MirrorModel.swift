@@ -337,7 +337,10 @@ final class MirrorModel: ObservableObject {
         do {
             try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
                               title: channel.title, live: channel.isLive, presentation: resolvedPresentation,
-                              useCompatibility: channel.requiresCompatibilityPlayback, startAt: startAt)
+                              // Live HLS also needs the sample-buffer renderer: AVPlayerLayer
+                              // has no public screenshot-protection property.
+                              useCompatibility: channel.requiresCompatibilityPlayback || (channel.isLive && resolvedPresentation == .video),
+                              startAt: startAt)
             guard playback.hasActivePlayback else { return false }
             mediaTitle = channel.title
             hidesSavedPlaybackBar = false

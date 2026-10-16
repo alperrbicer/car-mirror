@@ -34,7 +34,7 @@
       "name": "Mirivo Pro",
       "subscriptions": [
         {
-          "displayPrice": "19.99",
+          "displayPrice": "29.99",
           "familyShareable": false,
           "internalID": "a7e8c78c-e2e4-4ec6-8d71-cadc090be82c",
           "localizations": [
@@ -53,10 +53,36 @@
           "introductoryOffer": {
             "internalID": "d53c43f1-8177-4cd7-91d7-21aa6398e214",
             "paymentMode": "free",
-            "subscriptionPeriod": "P3D",
+            "subscriptionPeriod": "P1W",
             "numberOfPeriods": 1
           },
           "recurringSubscriptionPeriod": "P1Y",
+          "subscriptionGroupID": "20336421-6912-4c7d-830c-70bdfac8b50e"
+        },
+        {
+          "displayPrice": "2.99",
+          "familyShareable": false,
+          "internalID": "664785cc-f1c2-4d82-add0-a23c7b37712e",
+          "localizations": [
+            {
+              "description": "Local test fixture only",
+              "displayName": "Mirivo Pro Weekly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.alperbicer.carmirror.pro.weekly",
+          "referenceName": "Mirivo Pro Weekly",
+          "type": "RecurringSubscription",
+          "adHocOffers": [],
+          "codeOffers": [],
+          "groupNumber": 1,
+          "introductoryOffer": {
+            "internalID": "96f311a3-2e47-41d7-93c5-ae8826e1deda",
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D",
+            "numberOfPeriods": 1
+          },
+          "recurringSubscriptionPeriod": "P1W",
           "subscriptionGroupID": "20336421-6912-4c7d-830c-70bdfac8b50e"
         }
       ]

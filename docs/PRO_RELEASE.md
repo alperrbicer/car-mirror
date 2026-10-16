@@ -1,3 +1,28 @@
+> 16 Ekim 2026 yerel kod güncellemesi: satış ekranı haftalık ve yıllık plana geçirildi. Bu bölümün altındaki 5 Ekim fiyatları ve paketleri tarihsel mağaza kayıtlarıdır. Canlı App Store Connect ve RevenueCat ayarları bu kod çalışmasında değiştirilmedi.
+
+## Haftalık ve yıllık deneme politikası
+
+| Plan | Ürün kimliği | Ücretsiz deneme | ABD hedefi | Türkiye hedefi |
+| --- | --- | --- | --- | --- |
+| Yıllık | `com.alperbicer.carmirror.pro.yearly` | 7 gün | $29.99 / yıl | ₺599.99 / yıl |
+| Haftalık | `com.alperbicer.carmirror.pro.weekly` | 3 gün | $2.99 / hafta | ₺59.99 / hafta |
+
+Euro hedefleri haftalık €2.99, yıllık €29.99; Birleşik Krallık hedefleri haftalık £2.49, yıllık £24.99. Bunlar canlı mağazada doğrulanmış fiyatlar değildir. Yerel StoreKit dosyası ABD tutarlarını ve iki denemeyi içerir. Uygulama fiyatı StoreKit `displayPrice` üzerinden, denemeyi ürünün gerçek ücretsiz teklifi ve hesap uygunluğu üzerinden gösterir. Mağazada bir ürün yüklenmezse sahte fiyat kartı oluşturulmaz.
+
+Yıllık ilk seçenektir. İki plan aynı Pro erişimini sağlar. Yıllık tasarruf yüzdesi, aynı para birimindeki gerçek fiyatlarla 52 haftalık ödeme üzerinden hesaplanır. Ömür boyu ürün satışta değildir; eski hakları ve geri yükleme desteği korunur.
+
+CarPlay video ve çevrimdışı izleme üstte gösterilir. Araç desteği ve park koşulu CarPlay satırında görünür. Kısa faydalar normal yazı boyutunda tek satırdır: “Süre sınırı yok”, “TV’ye aktar”, “Kaldığın yerden”. Erişilebilirlik boyutlarında okunurluk için dikey düzen kullanılır. Yeni metinler 22 dilde bulunur.
+
+Deneme hatırlatması doğrulanmış ücretsiz denemenin gerçek bitişinden 48 saat önce yerel bildirim olarak planlanır. Kullanıcı izni deneme satın alındıktan sonra istenir; ödeme veya erişim izne bağlı değildir. Deneme hakkı olmayan, doğrulanmamış, bekleyen, iptal edilen veya süresi dolmuş işlem için hatırlatma kurulmaz. Yenileme durumu güncellemelerinde ve uygulama ön plana geldiğinde kontrol yenilenir. Bildirim ayarlarındaki ayrı tercih kapatılırsa bekleyen hatırlatma kaldırılır. Bildirime dokunmak App Store abonelik yönetimini açar; genel duyuru/FCM aboneliği gerekmez.
+
+Uygulama çalışmıyorken App Store’dan yapılan iptal, uygulama yeniden durumu okuyana kadar yerel bildirime yansımayabilir. Bu nedenle bildirim metni “İptal etmezsen…” diye başlar. Bildirimin gösterimi iOS izinlerine ve bildirim ayarlarına bağlıdır. Geç geri yüklemelerde hatırlatma saati geçmişse anlık ve yanlış tarihli bildirim gönderilmez.
+
+Canlıya geçmeden önce App Store Connect’te haftalık ürünün hedef bölgeleri, fiyatları ve üç günlük teklifi; yıllığın fiyatları ve yedi günlük teklifi ayarlanmalı. İki ürün aynı abonelik grubunda ve aynı hizmet seviyesinde olmalı; grup başına tek introductory offer hakkı korunmalı. RevenueCat’te haftalık ürün `mirivo_pro` erişimine eklenmeli, aktif offering haftalık/yıllık olarak eşlenmeli; ömür boyu erişimi korunmalı. Bu ayarların ardından sandbox/TestFlight ödeme ve geri yükleme doğrulaması gerekir.
+
+Yerel doğrulama: 22 dilde 454 anahtar / 9.988 çeviri kontrolü hatasız. Swift core paketinde 69 test çalıştı; 1 atlandı, hata yok. iOS simülatöründe 31 uygulama/StoreKit/hatırlatma testi geçti (`build/paywall-verification-20261016/unit.xcresult`). İmzalı Xcode StoreKit işlemi yıllık denemede sıfır ücret ve 604.800 saniye; ilk yenilemede $29.99 ve yıllık dönem gösterdi. Haftalık üç günlük deneme, grup içinde ikinci denemenin engellenmesi, iptal sonrası hatırlatmanın kaldırılması ve izin/tercih değişiklikleri de doğrulandı. Bunlar yerel StoreKit sonuçlarıdır; canlı mağaza veya gerçek cihazda bildirim teslimi kanıtı değildir.
+
+UI doğrulaması kısmi: ayarlardan Pro ekranına giriş ve geri dönüş testi geçti. Türkçe ekranın erişilebilirlik ağacında üç faydanın aynı satırda olduğu, yıllık $29.99 / 7 gün ve haftalık $2.99 / 3 gün bilgilerinin yüklendiği görüldü. Bu koşuda grup kimliğinin çocuk kimliklerini ezmesi düzeltildi; Türkçe oran `%81` olarak yerelleştirildi. Türkçe/İngilizce/büyük yazılı Arapça plan geçişleri ve `testSevenDayTrialPurchaseFromPaywall` için son uçtan uca doğrulama tamamlanmadı. Önce eşzamanlı derleme/simülatör kullanımı, ardından ayrı kopya ve ayrı aygıtta Xcode'un test hazırlığında kalması nedeniyle son koşu durduruldu. `build/paywall-ui-private-layout-20261016.log` bu hazırlık sınırını kaydeder; başarılı UI testi olarak değerlendirilmemeli. Son kaynaklar derlendi; testleri tekrar çalıştırırken önce yerel kataloğu `StoreKitIntegrationTests/testDisabledSalesCannotStartPurchase` ile başlatmak gerekir.
+
 > 15 Ekim 2026 güncellemesi: Apple CarPlay Video yetkisi etkinleştirildi; CarPlay video sahnesi, ekran paylaşımı ve bağlantı hatırlatması geri getirildi. Güncel dağıtım durumu DEPLOYMENT.md içindedir. Aşağıdaki eski build kayıtları tarihseldir.
 
 # Mirivo Pro — 5 Ekim 2026

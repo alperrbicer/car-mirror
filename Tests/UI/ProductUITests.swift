@@ -46,28 +46,26 @@ final class ProductUITests: XCTestCase {
         }
     }
 
-    func testThreeDayTrialPurchaseFromPaywall() throws {
+    func testSevenDayTrialPurchaseFromPaywall() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
         app.launch()
         defer { app.terminate() }
-        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
         // Run with StoreKitIntegrationTests first to reset the local purchase history.
         // The local .storekit fixture auto-confirms purchases; no access fixture is used.
-        app.buttons["open-settings"].tap()
-        app.buttons["settings-pro"].tap()
+        guard openProFromSettings(in: app) else { return }
         let purchase = app.buttons["pro-purchase"]
         XCTAssertTrue(purchase.waitForExistence(timeout: 15))
         XCTAssertTrue(purchase.isEnabled)
-        XCTAssertEqual(purchase.label, "Ücretsiz denemeyi başlat")
-        XCTAssertTrue(app.staticTexts["pro-billing-summary"].label.contains("3 gün ücretsiz"))
-        XCTAssertTrue(app.staticTexts["pro-billing-summary"].label.contains("19.99"))
-        capture("storekit-three-day-trial-before-purchase", app: app)
+        XCTAssertEqual(purchase.label, "7 gün ücretsiz dene")
+        XCTAssertTrue(app.staticTexts["pro-billing-summary"].label.contains("7 gün ücretsiz"))
+        XCTAssertTrue(app.staticTexts["pro-billing-summary"].label.contains("29.99"))
+        capture("storekit-seven-day-trial-before-purchase", app: app)
         purchase.tap()
         XCTAssertTrue(app.staticTexts["Pro etkin"].waitForExistence(timeout: 15))
         XCTAssertFalse(purchase.exists)
-        capture("storekit-three-day-trial-purchased", app: app)
+        capture("storekit-seven-day-trial-purchased", app: app)
     }
 
     func testOnboardingFinishesWithOptionalProAndDoesNotRepeat() {
@@ -623,6 +621,30 @@ final class ProductUITests: XCTestCase {
         channel.tap()
         XCTAssertTrue(app.navigationBars["Mirivo Demo 02"].waitForExistence(timeout: 5))
         capture("audit-player-queue-selected", app: app)
+    }
+
+    func testManualFullscreenExitPreservesPortraitAcrossRotations() {
+        let app = launch(continuations: true)
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
+        app.buttons["page-library"].tap()
+        let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5)); card.tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 10), .completed)
+        XCTAssertGreaterThan(video.frame.height, app.frame.height * 0.9)
+        video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.28))
+            .press(forDuration: 0.05, thenDragTo: video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.78)))
+        let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 10), .completed)
+        XCUIDevice.shared.orientation = .portrait
+        XCUIDevice.shared.orientation = .landscapeRight
+        Thread.sleep(forTimeInterval: 2)
+        XCTAssertGreaterThan(app.frame.height, app.frame.width)
+        XCTAssertLessThan(video.frame.height, video.frame.width)
+        capture("manual-exit-keeps-portrait-after-rotation", app: app)
     }
 
     func testPlayerTVPickerAndManualFullscreenExitPersist() {
@@ -1911,33 +1933,71 @@ final class ProductUITests: XCTestCase {
         app.buttons["page-library"].tap()
         XCTAssertTrue(app.staticTexts["İlk kaynağını ekle"].waitForExistence(timeout: 5))
     }
-    func testAnnualTrialPriceAndPurchaseRemainVisible() {
+    private func openProFromSettings(in app: XCUIApplication) -> Bool {
+        let settings = app.buttons["open-settings"]
+        guard settings.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return false }
+        settings.tap()
+        let pro = app.buttons["settings-pro"]
+        if !pro.waitForExistence(timeout: 3), settings.isHittable { settings.tap() }
+        guard pro.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return false }
+        // Let the settings sheet finish moving before its navigation link is tapped.
+        Thread.sleep(forTimeInterval: 0.8)
+        pro.tap()
+        let title = app.navigationBars["Mirivo Pro"]
+        if !title.waitForExistence(timeout: 3), pro.isHittable { pro.tap() }
+        guard title.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return false }
+        return true
+    }
+
+    func testWeeklyAnnualSelectionAndCompactBenefits() {
+        continueAfterFailure = false
         for language in ["tr", "en", "ar"] {
             let app = launch(language: language, large: language == "ar")
-            XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
-            app.buttons["open-settings"].tap()
-            let pro = app.buttons["settings-pro"]
-            XCTAssertTrue(pro.waitForExistence(timeout: 10)); pro.tap()
+            guard openProFromSettings(in: app) else { app.terminate(); return }
             let annual = app.descendants(matching: .any).matching(identifier: "pro-plan-com.alperbicer.carmirror.pro.yearly").firstMatch
             XCTAssertTrue(annual.waitForExistence(timeout: 20), app.debugDescription)
             XCTAssertFalse(app.buttons["pro-plan-com.alperbicer.carmirror.pro.lifetime"].exists)
-            XCTAssertFalse(app.buttons["pro-plan-com.alperbicer.carmirror.pro.weekly"].exists)
+            let weekly = app.buttons["pro-plan-com.alperbicer.carmirror.pro.weekly"]
+            XCTAssertTrue(weekly.exists)
             let purchase = app.buttons["pro-purchase"]
             if language == "ar" { reveal(purchase, in: app) }
             XCTAssertTrue(purchase.isHittable)
             XCTAssertTrue(purchase.isEnabled)
             let billing = app.staticTexts["pro-billing-summary"]
             XCTAssertTrue(billing.isHittable)
-            XCTAssertTrue(billing.label.contains("19.99"), billing.label)
+            XCTAssertTrue(billing.label.contains("29.99"), billing.label)
+            if language != "ar" {
+                let chips = ["unlimited", "cast", "resume"].map { app.staticTexts["pro-benefit-\($0)"] }
+                XCTAssertTrue(chips.allSatisfy(\.exists))
+                XCTAssertEqual(chips[0].frame.minY, chips[1].frame.minY, accuracy: 1)
+                XCTAssertEqual(chips[1].frame.minY, chips[2].frame.minY, accuracy: 1)
+                XCTAssertLessThan(chips[0].frame.maxX, chips[1].frame.minX)
+                XCTAssertLessThan(chips[1].frame.maxX, chips[2].frame.minX)
+            }
             if language == "tr" {
                 if app.otherElements["pro-trial-timeline"].exists {
-                    XCTAssertEqual(purchase.label, "Ücretsiz denemeyi başlat")
-                    XCTAssertTrue(billing.label.contains("3 gün ücretsiz"))
+                    XCTAssertEqual(purchase.label, "7 gün ücretsiz dene")
+                    XCTAssertTrue(billing.label.contains("7 gün ücretsiz"))
                 } else {
                     XCTAssertEqual(purchase.label, "Abone ol", "Do not promise a trial that StoreKit has not confirmed")
                 }
             }
             capture("design-pro-\(language)", app: app)
+            // At accessibility sizes the inline purchase action is below the plans.
+            for _ in 0..<12 {
+                if weekly.isHittable { break }
+                if weekly.frame.midY < app.frame.midY { app.swipeDown() }
+                else { app.swipeUp() }
+            }
+            XCTAssertTrue(weekly.isHittable)
+            weekly.tap()
+            if language == "ar" { reveal(purchase, in: app) }
+            XCTAssertTrue(billing.label.contains("2.99"), billing.label)
+            if language == "tr", app.otherElements["pro-trial-timeline"].exists {
+                XCTAssertEqual(purchase.label, "3 gün ücretsiz dene")
+                XCTAssertTrue(billing.label.contains("3 gün ücretsiz"))
+            }
+            capture("design-pro-weekly-\(language)", app: app)
             reveal(app.buttons["pro-restore"], in: app)
             XCTAssertTrue(app.buttons["pro-restore"].isHittable)
             if language != "ar" {

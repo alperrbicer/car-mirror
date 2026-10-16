@@ -79,10 +79,11 @@ final class StoreKitIntegrationTests: XCTestCase {
         defer { session.clearTransactions() }
         let store = PurchaseStore(salesEnabled: true)
         await store.loadProducts()
-        XCTAssertEqual(store.products.map(\.id), [ProProduct.yearly.rawValue])
+        XCTAssertEqual(store.products.map(\.id), ProProduct.forSale.map(\.rawValue))
         let annual = try XCTUnwrap(store.products.first)
-        XCTAssertTrue(store.hasThreeDayTrial(annual))
-        XCTAssertEqual(annual.price, Decimal(string: "19.99"))
+        XCTAssertEqual(store.freeTrialDays(annual), 7)
+        XCTAssertEqual(annual.price, Decimal(string: "29.99"))
+        XCTAssertEqual(store.annualSavingsPercent, 81)
         await store.purchase(annual)
         XCTAssertTrue(store.subscriptionActive, store.message ?? "The purchased subscription was not activated")
         let trial = try await verifiedAnnualTransaction()
@@ -90,9 +91,12 @@ final class StoreKitIntegrationTests: XCTestCase {
         XCTAssertEqual(trial.offer?.paymentMode, .freeTrial)
         XCTAssertEqual(trial.price, 0)
         let trialEnd = try XCTUnwrap(trial.expirationDate)
-        XCTAssertEqual(trialEnd.timeIntervalSince(trial.purchaseDate), 3 * 24 * 60 * 60, accuracy: 2)
+        XCTAssertEqual(trialEnd.timeIntervalSince(trial.purchaseDate), 7 * 24 * 60 * 60, accuracy: 2)
+        let reminder = try await StoreKitTrialReminderProvider().activeTrial()
+        XCTAssertEqual(reminder?.expirationDate, trialEnd)
+        XCTAssertEqual(reminder?.fireDate, trialEnd.addingTimeInterval(-48 * 60 * 60))
         print("STOREKIT_EVIDENCE: trial environment=\(trial.environment.rawValue) price=\(trial.price ?? -1) durationSeconds=\(trialEnd.timeIntervalSince(trial.purchaseDate))")
-        XCTAssertFalse(store.hasThreeDayTrial(annual))
+        XCTAssertNil(store.freeTrialDays(annual))
         XCTAssertFalse(store.canPurchase(annual))
         let restored = PurchaseStore(salesEnabled: true)
         await restored.restore()
@@ -111,7 +115,41 @@ final class StoreKitIntegrationTests: XCTestCase {
         let renewalEnd = try XCTUnwrap(renewal.expirationDate)
         XCTAssertEqual(renewalEnd.timeIntervalSince(renewal.purchaseDate), 365 * 24 * 60 * 60, accuracy: 24 * 60 * 60)
         XCTAssertTrue(store.subscriptionActive)
+        let renewedReminder = try await StoreKitTrialReminderProvider().activeTrial()
+        XCTAssertNil(renewedReminder)
         print("STOREKIT_EVIDENCE: annual renewal environment=\(renewal.environment.rawValue) price=\(renewal.price ?? -1) durationSeconds=\(renewalEnd.timeIntervalSince(renewal.purchaseDate))")
+    }
+
+    func testWeeklyTrialAndSharedGroupEligibilityAfterExpiry() async throws {
+        let session = try await session()
+        defer { session.clearTransactions() }
+        let store = PurchaseStore(salesEnabled: true)
+        await store.loadProducts()
+        let weekly = try XCTUnwrap(store.products.first { $0.id == ProProduct.weekly.rawValue })
+        XCTAssertEqual(store.freeTrialDays(weekly), 3)
+        XCTAssertEqual(weekly.price, Decimal(string: "2.99"))
+        await store.purchase(weekly)
+        XCTAssertTrue(store.subscriptionActive)
+        guard case .verified(let trial) = await StoreKit.Transaction.latest(for: weekly.id) else {
+            XCTFail("Expected a verified weekly trial"); return
+        }
+        XCTAssertEqual(trial.offer?.paymentMode, .freeTrial)
+        XCTAssertEqual(try XCTUnwrap(trial.expirationDate).timeIntervalSince(trial.purchaseDate), 3 * 86_400, accuracy: 2)
+        let reminder = try await StoreKitTrialReminderProvider().activeTrial()
+        XCTAssertEqual(reminder?.fireDate, trial.expirationDate?.addingTimeInterval(-48 * 60 * 60))
+        let local = try XCTUnwrap(session.allTransactions().first)
+        try session.disableAutoRenewForTransaction(identifier: local.identifier)
+        var cancelledReminder: TrialReminder? = reminder
+        for _ in 0..<50 {
+            cancelledReminder = try await StoreKitTrialReminderProvider().activeTrial()
+            if cancelledReminder == nil { break }
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
+        XCTAssertNil(cancelledReminder, "Canceling renewal removes the reminder while access remains active")
+        XCTAssertTrue(store.verifiedPro)
+        try session.expireSubscription(productIdentifier: weekly.id)
+        try await refresh(store, until: [])
+        for product in store.products { XCTAssertNil(store.freeTrialDays(product), "A second introductory trial cannot be taken in the same group") }
     }
 
     func testCancelDuringTrialKeepsAccessUntilExpiry() async throws {

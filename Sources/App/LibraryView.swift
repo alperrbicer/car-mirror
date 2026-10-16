@@ -1765,15 +1765,15 @@ struct MediaPlayerScreen: View {
         }
         .onChange(of: playback.tvDevice != nil) { _, connected in
             updateOrientationPolicy()
-            if connected { setFullscreen(false) }
+            if connected { leaveFullscreenAutomatically() }
         }
         .onChange(of: playback.externalDisplayConnected) { _, _ in
             updateOrientationPolicy()
-            if playback.externalDisplayConnected { setFullscreen(false) }
+            if playback.externalDisplayConnected { leaveFullscreenAutomatically() }
         }
         .onChange(of: playback.externalPlaybackActive) { _, _ in
             updateOrientationPolicy()
-            if playback.externalPlaybackActive { setFullscreen(false) }
+            if playback.externalPlaybackActive { leaveFullscreenAutomatically() }
         }
         .onChange(of: model.selectedMediaChannel) { _, channel in
             if channel == nil {
@@ -1784,9 +1784,10 @@ struct MediaPlayerScreen: View {
             }
         }
         .onChange(of: playback.state) { _, state in
-            if state == .failed || state == .idle { setFullscreen(false) }
+            if state == .failed || state == .idle { leaveFullscreenAutomatically() }
         }
         .onChange(of: playback.hasActivePlayback) { _, active in
+            updateOrientationPolicy()
             if active && landscapeLayout && playerVisible && !portraitRequested { setFullscreen(true) }
         }
         .task(id: model.selectedMediaChannel?.id) { await model.restorePlaybackQueueFromSource() }
@@ -1844,10 +1845,16 @@ struct MediaPlayerScreen: View {
         withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.24)) { fullscreen = value }
     }
 
+    private func leaveFullscreenAutomatically() {
+        // Only an explicit user action may latch the portrait preference.
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.24)) { fullscreen = false }
+        updateOrientationPolicy()
+    }
+
     private func exitFullscreenToPortrait() { setFullscreen(false) }
 
     private var fullscreenAllowed: Bool {
-        playback.tvName == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive
+        playback.hasActivePlayback && playback.tvName == nil && !playback.externalDisplayConnected && !playback.externalPlaybackActive
     }
 
     private func updateOrientationPolicy() {

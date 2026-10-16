@@ -177,11 +177,13 @@ final class PlaybackController: ObservableObject {
         if restorePiPOnStart { restorePictureInPictureToApp() }
     }
     func pictureInPictureWillStop() {
+        foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
         stoppingPiP = true
         restorePiPOnStart = false
         foregroundPiPRestoreID = nil
     }
     func pictureInPictureStopped() {
+        foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
         startingPiP = false
         stoppingPiP = false
         pendingAutomaticPiP = false
@@ -224,12 +226,18 @@ final class PlaybackController: ObservableObject {
             restorePictureInPictureToApp()
             // AVKit may finish its automatic start after UIApplication becomes
             // active. Recheck once the activation transition has settled.
+            let id = playbackID
             foregroundPiPRestoreTask = Task { @MainActor [weak self] in
-                do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
-                guard let self, UIApplication.shared.applicationState == .active,
-                      self.pictureInPictureActiveOrStarting else { return }
-                self.restorePiPOnStart = true
-                self.restorePictureInPictureToApp()
+                // The first layout preparation can time out during the app
+                // opening animation. Retry after it, not just while it is pending.
+                for _ in 0..<6 {
+                    do { try await Task.sleep(for: .milliseconds(350)) } catch { return }
+                    guard let self, self.playbackID == id,
+                          UIApplication.shared.applicationState == .active,
+                          self.pictureInPictureActiveOrStarting, !self.stoppingPiP else { return }
+                    self.restorePiPOnStart = true
+                    self.restorePictureInPictureToApp()
+                }
             }
         }
     }
@@ -319,6 +327,8 @@ final class PlaybackController: ObservableObject {
     private var notificationTokens: [NSObjectProtocol] = []
     private var startupTask: Task<Void, Never>?
     private var stallTask: Task<Void, Never>?
+    private var liveRecoveryTask: Task<Void, Never>?
+    private var liveRecoveryAttempt = 0
     private var interruptedPlaybackID: UUID?
     private var resumeAfterInterruption = false
     private var remoteTargets: [(MPRemoteCommand, Any)] = []
@@ -487,7 +497,7 @@ final class PlaybackController: ObservableObject {
     func play(url: URL, preserveSourceAudio: Bool = true, muted: Bool = false,
               requiresExternalPlayback: Bool = true, title: String? = nil, live: Bool = true,
               presentation: MediaPlaybackPresentation = .video, useCompatibility: Bool = false,
-              startAt: Double = 0, startPaused: Bool = false) throws {
+              startAt: Double = 0, startPaused: Bool = false, recoveryAttempt: Int = 0) throws {
         // A Cast load replaces the receiver's current media by itself. Sending
         // STOP first adds an avoidable round trip and makes channel changes
         // visibly stall on the TV.
@@ -495,8 +505,11 @@ final class PlaybackController: ObservableObject {
         let resumePiPAfterReplacement = presentation == .video && !stoppingPiP && !restorePiPOnStart &&
             (pictureInPictureActiveOrStarting || pendingAutomaticPiP) && tvDevice == nil &&
             !externalPlaybackActive && !externalDisplayConnected
-        stop(stopRemoteCastMedia: !replacingCastMedia)
+        let wasBackgrounded = enteredBackgroundWithVideo
+        stop(stopRemoteCastMedia: !replacingCastMedia, deactivateAudioSession: tvDevice != nil)
+        enteredBackgroundWithVideo = wasBackgrounded && presentation == .video && tvDevice == nil
         pendingAutomaticPiP = resumePiPAfterReplacement
+        liveRecoveryAttempt = recoveryAttempt
         let attemptID = playbackID
         request = Request(url: url, preserveSourceAudio: preserveSourceAudio, muted: muted,
                           requiresExternalPlayback: requiresExternalPlayback, title: title, live: live,
@@ -725,8 +738,10 @@ final class PlaybackController: ObservableObject {
         }
     }
 
-    func stop(stopRemoteCastMedia: Bool = true) {
+    func stop(stopRemoteCastMedia: Bool = true, deactivateAudioSession: Bool = true) {
         playbackID = UUID()
+        liveRecoveryTask?.cancel(); liveRecoveryTask = nil
+        liveRecoveryAttempt = 0
         foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil
         let previousNativePiP = currentNativePiP
         let previousNativeController = (retainedPiPController as? NativeVideoController) ??
@@ -784,7 +799,7 @@ final class PlaybackController: ObservableObject {
         errorMessage = nil
         externalPlaybackActive = false
         player.allowsExternalPlayback = false
-        if activatedAudioSession {
+        if activatedAudioSession && deactivateAudioSession {
             try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
             activatedAudioSession = false
         }
@@ -996,6 +1011,37 @@ final class PlaybackController: ObservableObject {
     private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil,
                       expectedPlaybackID: UUID? = nil) {
         guard expectedPlaybackID == nil || expectedPlaybackID == playbackID else { return }
+        // A failed VLC input does not reconnect merely by waiting in .error.
+        // Reopen a live network source once, after releasing the previous input.
+        // Channel selection/Stop cancels this task and invalidates its identity.
+        if let retry = request, retry.live, !retry.url.isFileURL, !retry.requiresExternalPlayback,
+           reason == .playback || reason == .unavailable,
+           tvDevice == nil, !hasRemoteVideoOutput, liveRecoveryAttempt < 1 {
+            let attempt = liveRecoveryAttempt + 1
+            let paused = pauseRequested
+            stop(deactivateAudioSession: false)
+            request = retry
+            pauseRequested = paused
+            requestedLive = true; isLive = true
+            liveRecoveryAttempt = attempt
+            state = .loading
+            let id = playbackID
+            liveRecoveryTask = Task { @MainActor [weak self] in
+                do { try await Task.sleep(for: .milliseconds(750)) } catch { return }
+                guard let self, self.playbackID == id else { return }
+                self.liveRecoveryTask = nil
+                do {
+                    try self.play(url: retry.url, preserveSourceAudio: retry.preserveSourceAudio,
+                        muted: retry.muted, requiresExternalPlayback: retry.requiresExternalPlayback,
+                        title: retry.title, live: true, presentation: retry.presentation,
+                        useCompatibility: retry.useCompatibility, startPaused: self.pauseRequested, recoveryAttempt: attempt)
+                } catch {
+                    self.liveRecoveryAttempt = attempt
+                    self.fail(message, reason: reason, failure: DiagnosticFailure(error))
+                }
+            }
+            return
+        }
         let retry = request
         let position = currentTime
         let live = isLive

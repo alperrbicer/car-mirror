@@ -2,10 +2,11 @@ import Foundation
 
 public enum ProProduct: String, CaseIterable, Sendable {
     case yearly = "com.alperbicer.carmirror.pro.yearly"
+    case weekly = "com.alperbicer.carmirror.pro.weekly"
     case lifetime = "com.alperbicer.carmirror.pro.lifetime"
 
-    // Keep lifetime entitlements restorable, but offer only the annual membership.
-    public static let forSale: [ProProduct] = [.yearly]
+    // Annual is the default offer; legacy lifetime purchases remain restorable.
+    public static let forSale: [ProProduct] = [.yearly, .weekly]
 }
 
 /// One policy for the phone, library and broadcast extension. Preparation builds

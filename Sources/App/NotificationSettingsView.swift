@@ -4,9 +4,34 @@ import UIKit
 struct NotificationSettingsView: View {
     @ObservedObject private var notifications = NotificationStore.shared
     @ObservedObject private var carReminder = CarConnectionReminderStore.shared
+    @ObservedObject private var trialReminder = TrialReminderStore.shared
 
     var body: some View {
         Form {
+            Section {
+                Toggle(L10n.tr("Deneme bitmeden hatırlat"), isOn: Binding(get: { trialReminder.enabled }, set: { value in
+                    Task { await trialReminder.setEnabled(value) }
+                }))
+                .accessibilityIdentifier("trial-reminder-enabled")
+                if trialReminder.enabled {
+                    if trialReminder.authorization == .denied {
+                        Text(L10n.tr("Hatırlatma almak için Ayarlar’dan bildirimleri açabilirsin."))
+                            .foregroundStyle(MirrorStyle.secondary)
+                        Button(L10n.tr("iOS Ayarlarını aç")) {
+                            if let url = URL(string: UIApplication.openNotificationSettingsURLString) { UIApplication.shared.open(url) }
+                        }
+                    } else if trialReminder.status == .scheduled {
+                        Text(L10n.tr("Hatırlatma ayarlandı.")).foregroundStyle(MirrorStyle.secondary)
+                    } else if trialReminder.status == .failed || trialReminder.status == .permission {
+                        Text(L10n.tr(trialReminder.status == .failed ? "Hatırlatma ayarlanamadı. Yeniden dene." : "Bildirim izni bekleniyor."))
+                            .foregroundStyle(MirrorStyle.secondary)
+                        Button(L10n.tr("Yeniden dene")) { Task { await trialReminder.refresh(requestPermission: true) } }
+                    }
+                }
+            } header: { Text(L10n.tr("Deneme hatırlatması")) } footer: {
+                Text(L10n.tr("Bildirimlere izin verirsen denemen bitmeden 2 gün önce hatırlatırız."))
+            }
+            .listRowBackground(MirrorStyle.surface)
             Section {
                 Toggle(L10n.tr("Genel duyurular"), isOn: Binding(get: { notifications.enabled }, set: { value in
                     Task { await notifications.setEnabled(value) }
@@ -57,7 +82,7 @@ struct NotificationSettingsView: View {
         .navigationTitle(L10n.tr("Bildirimler"))
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden).background(MirrorStyle.background)
-        .task { await notifications.refresh(); await carReminder.refreshAuthorization() }
+        .task { await trialReminder.refresh(); await notifications.refresh(); await carReminder.refreshAuthorization() }
         .onAppear { FirebaseServices.recordScreen(.notifications) }
     }
 

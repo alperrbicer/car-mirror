@@ -1462,6 +1462,93 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(completionCount, 1, "A timed-out restoration must not complete again on a later frame")
     }
 
+    func testForegroundPiPReturnRetriesAfterInitialLayoutTimeout() async throws {
+        let playback = PlaybackController()
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        defer { playback.stop() }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false, useCompatibility: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        let window = try mountCompatibilityPiPSource(engine)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        let pip = PictureInPictureStub()
+        engine.configurePiP(pip)
+        playback.applicationDidEnterBackground()
+        window.rootViewController?.view.isHidden = true
+        playback.applicationDidBecomeActive()
+        try await Task.sleep(for: .milliseconds(1200))
+        XCTAssertEqual(pip.stopCount, 0)
+        window.rootViewController?.view.isHidden = false
+        for _ in 0..<80 {
+            if pip.stopCount > 0 { break }
+            try await Task.sleep(for: .milliseconds(25))
+        }
+        XCTAssertEqual(pip.stopCount, 1)
+    }
+
+    func testLiveHLSUsesProtectedRendererAndRecoveryIsBounded() async throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        defer { model.stopPlayback() }
+        let channel = MediaChannel(title: "Live", url: URL(string: "https://127.0.0.1:9/live.m3u8")!)
+        XCTAssertTrue(model.playMedia(channel))
+        let first = try XCTUnwrap(model.playback.compatibility)
+        first.onState?(.failed)
+        XCTAssertEqual(model.playback.state, .loading)
+        XCTAssertNil(model.errorMessage)
+        for _ in 0..<60 {
+            if model.playback.compatibility != nil { break }
+            try await Task.sleep(for: .milliseconds(25))
+        }
+        let replacement = try XCTUnwrap(model.playback.compatibility)
+        XCTAssertFalse(first === replacement)
+        first.onState?(.failed)
+        XCTAssertTrue(model.playback.compatibility === replacement)
+        replacement.onState?(.failed)
+        XCTAssertEqual(model.playback.state, .failed)
+        XCTAssertNotNil(model.errorMessage)
+    }
+
+    func testPlaybackFailureDoesNotLatchManualPortraitPreference() async throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "Rotation recovery", url: url)))
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let previousWindow = scene.windows.first(where: \.isKeyWindow)
+        let window = UIWindow(windowScene: scene)
+        window.rootViewController = UIHostingController(rootView: MediaPlayerScreen(model: model))
+        window.makeKeyAndVisible()
+        defer {
+            model.stopPlayback(); window.isHidden = true; window.rootViewController = nil
+            previousWindow?.makeKeyAndVisible()
+            PlayerOrientationPolicy.update(playerVisible: false, allowsLandscape: false)
+        }
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertTrue(PlayerOrientationPolicy.allowsLandscape)
+        model.playback.compatibility?.onState?(.failed)
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertFalse(PlayerOrientationPolicy.allowsLandscape)
+        model.retryMedia()
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertTrue(PlayerOrientationPolicy.allowsLandscape,
+                      "An automatic exit on failure must not act like the user's portrait lock")
+    }
+
+    func testChangingChannelCancelsLiveRecovery() async throws {
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        try playback.play(url: URL(string: "https://127.0.0.1:9/live.m3u8")!,
+                          requiresExternalPlayback: false, live: true, useCompatibility: true)
+        let engine = try XCTUnwrap(playback.compatibility)
+        engine.onState?(.failed)
+        let url = try audioFixture()
+        defer { try? FileManager.default.removeItem(at: url) }
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        let item = playback.player.currentItem
+        try await Task.sleep(for: .seconds(1))
+        XCTAssertTrue(playback.player.currentItem === item)
+        XCTAssertNil(playback.compatibility)
+        XCTAssertNil(playback.errorMessage)
+    }
+
     func testPiPButtonReturnWaitsForLayoutAndAvoidsASecondStop() async throws {
         let playback = PlaybackController()
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
