@@ -159,13 +159,14 @@ final class SourceLibrary: ObservableObject {
     private let file: URL
     private let importedPlaylists: URL
     private let tracksUserHistory: Bool
-    private let channelCache = SourceChannelCache()
+    private let channelCache: SourceChannelCache
     let accounts: SourceAccountStore
     init(directory: URL? = nil, accountLoad: (@MainActor (MediaSource) async throws -> IPTVAccountInfo?)? = nil) {
         tracksUserHistory = directory == nil
         let directory = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Library", isDirectory: true)
         file = directory.appendingPathComponent("sources.json")
         importedPlaylists = directory.appendingPathComponent("Playlists", isDirectory: true)
+        channelCache = SourceChannelCache(directory: directory.appendingPathComponent("ChannelCache", isDirectory: true))
         accounts = SourceAccountStore(file: directory.appendingPathComponent("account-expiry.json"), load: accountLoad)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -270,9 +271,9 @@ final class SourceLibrary: ObservableObject {
         try JSONEncoder().encode(sources).write(to: file, options: [.atomic, .completeFileProtection])
     }
     func cachedChannels(for source: MediaSource) -> [MediaChannel]? { channelCache.cached(for: source) }
-    func channels(for source: MediaSource, reload: Bool = false) async throws -> [MediaChannel] {
-        if reload { channelCache.invalidate(source.id) }
-        return try await channelCache.channels(for: source) {
+    func channels(for source: MediaSource, reload: Bool = false,
+                  onCached: (@MainActor ([MediaChannel]) -> Void)? = nil) async throws -> [MediaChannel] {
+        return try await channelCache.channels(for: source, reload: reload, onCached: onCached) {
             let secret = try SourceKeychain.read(source.id)
             try self.validate(kind: source.kind, secret: secret)
             return try await SourceLoader.load(source: source, secret: secret)
@@ -432,42 +433,155 @@ enum SourceLoader {
     }
 }
 
-/// Session-only cache: signed media URLs are never written to disk.
+/// Show saved channels immediately, then refresh lists older than 24 hours.
+/// Credential-bearing URLs are encrypted with a device-only Keychain key.
 @MainActor
 final class SourceChannelCache {
-    private var values: [UUID: (MediaSource, [MediaChannel])] = [:]
-    private var pending: [UUID: (UUID, Task<[MediaChannel], Error>)] = [:]
-    func cached(for source: MediaSource) -> [MediaChannel]? {
-        guard let entry = values[source.id], entry.0 == source else { return nil }
-        return entry.1
+    static let lifetime: TimeInterval = 24 * 60 * 60
+    private struct Snapshot: Codable, Sendable {
+        struct Channel: Codable, Sendable {
+            let title: String
+            let group: String
+            let url: URL
+            let metadata: MediaMetadata
+            init(_ channel: MediaChannel) {
+                title = channel.title; group = channel.group; url = channel.url; metadata = channel.metadata
+            }
+            var value: MediaChannel { MediaChannel(title: title, group: group, url: url, metadata: metadata) }
+        }
+        let source: MediaSource
+        let savedAt: Date
+        let channels: [Channel]
     }
-    func channels(for source: MediaSource, load: @escaping @MainActor () async throws -> [MediaChannel]) async throws -> [MediaChannel] {
-        if let channels = cached(for: source) { return channels }
+    private var values: [UUID: (source: MediaSource, channels: [MediaChannel], savedAt: Date)] = [:]
+    private var pending: [UUID: (token: UUID, source: MediaSource, task: Task<[MediaChannel], Error>)] = [:]
+    private var observers: [UUID: [@MainActor ([MediaChannel]) -> Void]] = [:]
+    private var attempts: [UUID: Date] = [:]
+    private let directory: URL?
+    private let key: SymmetricKey?
+
+    init(directory: URL? = nil, encryptionKey: SymmetricKey? = nil) {
+        self.directory = directory
+        key = directory == nil ? nil : (encryptionKey ?? (try? Self.deviceKey()))
+        if let directory {
+            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            var excluded = directory
+            var resources = URLResourceValues(); resources.isExcludedFromBackup = true
+            try? excluded.setResourceValues(resources)
+        }
+    }
+
+    func cached(for source: MediaSource) -> [MediaChannel]? {
+        guard let entry = values[source.id], entry.source == source else { return nil }
+        return entry.channels
+    }
+
+    func channels(for source: MediaSource, reload: Bool = false, now: Date = Date(),
+                  onCached: (@MainActor ([MediaChannel]) -> Void)? = nil,
+                  load: @escaping @MainActor () async throws -> [MediaChannel]) async throws -> [MediaChannel] {
+        if let entry = values[source.id], entry.source != source { invalidate(source.id) }
+        if let entry = pending[source.id], entry.source != source { invalidate(source.id) }
+        if let channels = cached(for: source) {
+            onCached?(channels)
+            if !reload, let saved = values[source.id], isFresh(saved.savedAt, now: now) { return channels }
+        } else if let onCached { observers[source.id, default: []].append(onCached) }
         if let entry = pending[source.id] {
-            let channels = try await entry.1.value
-            guard !entry.1.isCancelled else { throw CancellationError() }
+            let channels = try await entry.task.value
+            guard !entry.task.isCancelled else { throw CancellationError() }
             return channels
         }
         let generation = UUID()
-        let task = Task { try await load() }
-        pending[source.id] = (generation, task)
+        let task = Task {
+            // Decode large playlists away from the UI thread, including on a cold launch.
+            if self.values[source.id] == nil, let file = self.file(source.id), let key = self.key {
+                let snapshot = await Task.detached(priority: .utility) { () -> (Snapshot, [MediaChannel])? in
+                    guard let data = try? Data(contentsOf: file),
+                          let box = try? AES.GCM.SealedBox(combined: data),
+                          let plaintext = try? AES.GCM.open(box, using: key),
+                          let snapshot = try? JSONDecoder().decode(Snapshot.self, from: plaintext),
+                          snapshot.source == source else { return nil }
+                    return (snapshot, snapshot.channels.map(\.value))
+                }.value
+                try Task.checkCancellation()
+                if let (snapshot, channels) = snapshot {
+                    self.values[source.id] = (source, channels, snapshot.savedAt)
+                    self.observers.removeValue(forKey: source.id)?.forEach { $0(channels) }
+                }
+            }
+            let saved = self.values[source.id]
+            if !reload, let saved {
+                if self.isFresh(saved.savedAt, now: now) { return saved.channels }
+                // Avoid retrying on every navigation while offline.
+                if let attempt = self.attempts[source.id], now.timeIntervalSince(attempt) < 300 { return saved.channels }
+            }
+            self.attempts[source.id] = now
+            do {
+                let channels = try await load()
+                try Task.checkCancellation()
+                self.values[source.id] = (source, channels, now)
+                if let file = self.file(source.id), let key = self.key {
+                    let data = await Task.detached(priority: .utility) { () -> Data? in
+                        let snapshot = Snapshot(source: source, savedAt: now, channels: channels.map(Snapshot.Channel.init))
+                        guard let plaintext = try? JSONEncoder().encode(snapshot) else { return nil }
+                        return try? AES.GCM.seal(plaintext, using: key).combined
+                    }.value
+                    try Task.checkCancellation()
+                    if let data { try? data.write(to: file, options: [.atomic, .completeFileProtection]) }
+                }
+                return channels
+            } catch {
+                try Task.checkCancellation()
+                if !reload, let saved { return saved.channels }
+                throw error
+            }
+        }
+        pending[source.id] = (generation, source, task)
         do {
             let channels = try await task.value
-            guard pending[source.id]?.0 == generation else { throw CancellationError() }
-            values[source.id] = (source, channels)
+            guard pending[source.id]?.token == generation else { throw CancellationError() }
             pending[source.id] = nil
+            observers[source.id] = nil
             return channels
         } catch {
-            if pending[source.id]?.0 == generation { pending[source.id] = nil }
+            if pending[source.id]?.token == generation { pending[source.id] = nil; observers[source.id] = nil }
             throw error
         }
     }
+
+    private func isFresh(_ date: Date, now: Date) -> Bool {
+        (0..<Self.lifetime).contains(now.timeIntervalSince(date))
+    }
+    private func file(_ id: UUID) -> URL? { directory?.appendingPathComponent(id.uuidString + ".encrypted") }
     func invalidate(_ id: UUID) {
-        pending.removeValue(forKey: id)?.1.cancel()
-        values[id] = nil
+        pending.removeValue(forKey: id)?.task.cancel()
+        values[id] = nil; attempts[id] = nil; observers[id] = nil
+        if let file = file(id) { try? FileManager.default.removeItem(at: file) }
     }
     func removeAll() {
-        pending.values.forEach { $0.1.cancel() }
-        pending.removeAll(); values.removeAll()
+        pending.values.forEach { $0.task.cancel() }
+        pending.removeAll(); values.removeAll(); attempts.removeAll(); observers.removeAll()
+        if let directory {
+            for file in (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)) ?? [] {
+                try? FileManager.default.removeItem(at: file)
+            }
+        }
+    }
+
+    private static func deviceKey() throws -> SymmetricKey {
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                   kSecAttrService as String: "com.alperbicer.carmirror.channel-cache",
+                                   kSecAttrAccount as String: "encryption-key"]
+        var read = query
+        read[kSecReturnData as String] = true; read[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(read as CFDictionary, &result)
+        if status == errSecSuccess, let data = result as? Data { return SymmetricKey(data: data) }
+        guard status == errSecItemNotFound else { throw LibraryError.storage }
+        let key = SymmetricKey(size: .bits256)
+        var item = query
+        item[kSecValueData as String] = key.withUnsafeBytes { Data($0) }
+        item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        guard SecItemAdd(item as CFDictionary, nil) == errSecSuccess else { throw LibraryError.storage }
+        return key
     }
 }

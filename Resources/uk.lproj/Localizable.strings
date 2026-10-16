@@ -418,3 +418,22 @@
 "Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "Сьогоднішня 1 година перегляду через CarPlay закінчилася. Повертайся завтра або переходь на Pro, щоб дивитися без обмеження часу.";
 
 "Bugünkü ücretsiz süren doldu" = "Безкоштовний час перегляду на сьогодні закінчився";
+"İçerik bilgileri" = "Інформація про вміст";
+"Bilgileri gizle" = "Приховати інформацію";
+"Bağlantı" = "Підключення";
+"Görüntü boyutu" = "Розмір зображення";
+"Önceki bölüm" = "Попередня серія";
+"Sonraki bölüm" = "Наступна серія";
+"Devam etmek için ekran kaydını durdur." = "Зупиніть запис екрана, щоб продовжити.";
+
+// First-launch introduction
+"Sevdiğin her şey, bir arada." = "Усе улюблене — в одному місці.";
+"Oynatma listelerini ve IPTV kaynaklarını ekle. Film, dizi ve canlı yayınlarını tek yerde bul." = "Додай списки відтворення та джерела IPTV. Знаходь фільми, серіали й прямі ефіри в одному місці.";
+"Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar." = "Почни серію, зроби паузу та продовж із того самого місця. Mirivo запам’ятає твій прогрес.";
+"İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş." = "Транслюй вміст на сумісний телевізор або ділися екраном.";
+"Atla" = "Пропустити";
+"Geri" = "Назад";
+"Başlayalım" = "Почнімо";
+"Devam et" = "Продовжити";
+"Ücretsiz devam et" = "Продовжити безкоштовно";
+"Mirivo içerik sağlamaz. Kendi kaynağını ekleyerek başlayabilirsin." = "Mirivo не надає вміст. Додай власне джерело, щоб почати.";

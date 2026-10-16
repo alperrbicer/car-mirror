@@ -1,12 +1,25 @@
 import SwiftUI
 
-/// The home screen is ready immediately; the brief brand transition never intercepts input.
+/// First launch introduces the library before offering an optional Pro upgrade.
 struct MirivoEntryView: View {
     @ObservedObject var model: MirrorModel
+    @AppStorage("mirivo.onboarding.completed") private var onboardingCompleted = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var entered = false
 
     var body: some View {
+        Group {
+            if onboardingCompleted {
+                home
+            } else {
+                MirivoOnboardingView { onboardingCompleted = true }
+                    .environment(\.locale, Locale(identifier: L10n.language))
+                    .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
+            }
+        }
+    }
+
+    private var home: some View {
         MirivoRootView(model: model)
             .overlay {
                 if !entered && !reduceMotion {

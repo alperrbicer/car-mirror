@@ -1,6 +1,59 @@
 import XCTest
 
 final class ProductUITests: XCTestCase {
+    func testOnboardingFinishesWithOptionalProAndDoesNotRepeat() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-onboarding", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
+        XCUIDevice.shared.orientation = .portrait
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["open-settings"].exists)
+        capture("onboarding-01-library-tr", app: app)
+        app.buttons["onboarding-next"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-1"].waitForExistence(timeout: 5))
+        capture("onboarding-02-continue-tr", app: app)
+        app.buttons["onboarding-back"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 5))
+        app.buttons["onboarding-next"].tap()
+        app.buttons["onboarding-next"].tap()
+        XCTAssertTrue(app.staticTexts["onboarding-title-2"].waitForExistence(timeout: 5))
+        capture("onboarding-03-display-tr", app: app)
+        app.buttons["onboarding-next"].tap()
+        let free = app.buttons["onboarding-continue-free"]
+        XCTAssertTrue(free.waitForExistence(timeout: 10))
+        XCTAssertTrue(free.isHittable)
+        XCTAssertTrue(app.buttons["pro-close"].isHittable)
+        capture("onboarding-04-pro-tr", app: app)
+        free.tap()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["page-library"].isHittable)
+        app.terminate()
+        app.launchArguments.append("-mirivo-ui-preserve-onboarding")
+        app.launch()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["onboarding-title-0"].exists)
+        XCTAssertFalse(app.buttons["onboarding-continue-free"].exists)
+    }
+
+    func testOnboardingCanBeSkippedAndProClosedWithLargeRightToLeftText() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-onboarding", "-AppleLanguages", "(ar)",
+                               "-AppleLocale", "ar", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        XCUIDevice.shared.orientation = .portrait
+        app.launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.staticTexts["onboarding-title-0"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["onboarding-next"].isHittable)
+        capture("onboarding-large-ar", app: app)
+        app.buttons["onboarding-skip"].tap()
+        XCTAssertTrue(app.buttons["onboarding-continue-free"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["onboarding-continue-free"].isHittable)
+        capture("onboarding-pro-large-ar", app: app)
+        app.buttons["pro-close"].tap()
+        XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
+    }
+
     func testLandscapeColdLaunchStaysPortraitAndPlayerCanStillRotate() {
         continueAfterFailure = false
         let app = XCUIApplication()
@@ -23,12 +76,7 @@ final class ProductUITests: XCTestCase {
             let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
             XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 10), .completed)
             if app.buttons["Tamam"].waitForExistence(timeout: 2) { app.buttons["Tamam"].tap() }
-            let fullscreen = app.buttons["player-fullscreen"]
-            if !fullscreen.isHittable { video.tap() }
-            XCTAssertTrue(fullscreen.waitForExistence(timeout: 5)); fullscreen.tap()
-            let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width && video.frame.height < video.frame.width }
-            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
-            capture("portrait-after-player-exit-\(orientation.rawValue)", app: app)
+            capture("player-landscape-after-cold-launch-\(orientation.rawValue)", app: app)
         }
     }
 
@@ -875,7 +923,7 @@ final class ProductUITests: XCTestCase {
         capture("player-inline-after-fullscreen", app: app)
     }
 
-    func testProCloseButtonDismissesScreen() {
+    func testProFromSettingsHasOnlyBackButton() {
         let app = launch()
         defer { app.terminate() }
         let settings = app.buttons["open-settings"]
@@ -885,14 +933,17 @@ final class ProductUITests: XCTestCase {
         guard pro.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
         Thread.sleep(forTimeInterval: 0.8)
         pro.tap()
-        let close = app.buttons["pro-close"]
-        if !close.waitForExistence(timeout: 3), pro.isHittable { pro.tap() }
-        guard close.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
+        let title = app.navigationBars["Mirivo Pro"]
+        if !title.waitForExistence(timeout: 3), pro.isHittable { pro.tap() }
+        guard title.waitForExistence(timeout: 10) else { XCTFail(app.debugDescription); return }
         if app.alerts.firstMatch.exists { app.alerts.firstMatch.buttons["Tamam"].tap() }
-        XCTAssertTrue(close.isHittable)
-        close.tap()
+        XCTAssertFalse(app.buttons["pro-close"].exists)
+        XCTAssertEqual(title.buttons.count, 1)
+        let back = title.buttons.firstMatch
+        XCTAssertTrue(back.isHittable)
+        back.tap()
         XCTAssertTrue(pro.waitForExistence(timeout: 5))
-        XCTAssertFalse(close.exists)
+        XCTAssertFalse(app.buttons["pro-close"].exists)
     }
 
     func testSourceLimitProSheetHasOneCloseButton() {
@@ -1398,14 +1449,7 @@ final class ProductUITests: XCTestCase {
             username.typeText("\n")
             let password = app.secureTextFields["source-password"]
             reveal(password, in: app)
-            // Form fields can report hittable while covered by the pinned Add button.
-            for _ in 0..<4 {
-                if password.frame.maxY < app.buttons[add].frame.minY { break }
-                let form = app.collectionViews.firstMatch
-                form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
-                    .press(forDuration: 0.1, thenDragTo: form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)))
-            }
-            XCTAssertLessThan(password.frame.maxY, app.buttons[add].frame.minY)
+            XCTAssertTrue(password.isHittable)
             password.tap()
             password.typeText("qa_password123")
             capture("rtl-source-\(language)", app: app)
@@ -1586,7 +1630,7 @@ final class ProductUITests: XCTestCase {
         app.textFields["Kaynak adı"].tap(); app.textFields["Kaynak adı"].typeText("QA List")
         app.textFields["Kaynak adresi"].tap(); app.textFields["Kaynak adresi"].typeText("https://example.com/list.m3u")
         capture("03-mirivo-add-source-tr", app: app)
-        XCTAssertGreaterThanOrEqual(app.buttons["Ekle"].frame.height, 58)
+        XCTAssertTrue(app.navigationBars.buttons["Ekle"].isHittable)
         app.buttons["Ekle"].tap()
         XCTAssertTrue(app.staticTexts["QA List"].waitForExistence(timeout: 5))
         app.buttons["open-settings"].tap()

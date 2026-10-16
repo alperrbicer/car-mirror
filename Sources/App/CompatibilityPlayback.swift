@@ -436,9 +436,9 @@ final class CompatibilityVideoHost: UIView {
 final class CompatibilityVideoSurface: UIView {
     weak var owner: CompatibilityPlayback?
     private lazy var videoClipping = PlayerVideoClipping(root: layer)
-    // Temporarily allow capture at the user's request to diagnose PiP corner
-    // transitions. Keep it available while validating the fix on the device.
-    var captureProtectionEnabled = false {
+    // Protect the decoded picture on every renderer, including external output
+    // and PiP. This does not disable screenshots of the app's UIKit controls.
+    var captureProtectionEnabled = true {
         didSet { protectVideoLayers(in: layer) }
     }
     override func didAddSubview(_ subview: UIView) {

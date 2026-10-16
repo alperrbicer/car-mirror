@@ -418,3 +418,22 @@
 "Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "今天的1小时CarPlay观看时间已用完。你可以明天继续观看，或升级至Pro，不受时间限制地继续观看。";
 
 "Bugünkü ücretsiz süren doldu" = "今天的免费观看时间已用完";
+"İçerik bilgileri" = "内容信息";
+"Bilgileri gizle" = "收起信息";
+"Bağlantı" = "连接";
+"Görüntü boyutu" = "画面大小";
+"Önceki bölüm" = "上一集";
+"Sonraki bölüm" = "下一集";
+"Devam etmek için ekran kaydını durdur." = "请停止录屏后继续。";
+
+// First-launch introduction
+"Sevdiğin her şey, bir arada." = "所爱内容，尽在一处。";
+"Oynatma listelerini ve IPTV kaynaklarını ekle. Film, dizi ve canlı yayınlarını tek yerde bul." = "添加你的播放列表和 IPTV 来源，在一处浏览电影、剧集和直播。";
+"Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar." = "开始看一集，休息一下，再从上次的位置继续。Mirivo 会记住你的观看进度。";
+"İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş." = "将内容投放到兼容的电视，或共享你的屏幕。";
+"Atla" = "跳过";
+"Geri" = "返回";
+"Başlayalım" = "开始使用";
+"Devam et" = "继续";
+"Ücretsiz devam et" = "免费继续";
+"Mirivo içerik sağlamaz. Kendi kaynağını ekleyerek başlayabilirsin." = "Mirivo 不提供内容。添加你自己的来源即可开始。";

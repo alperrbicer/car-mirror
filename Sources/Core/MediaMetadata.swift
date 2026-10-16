@@ -222,6 +222,7 @@ public enum SeriesMetadataParser {
 
     private static func normalized(_ title: String) -> String {
         title.folding(options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive], locale: Locale(identifier: "en_US_POSIX"))
+            .replacingOccurrences(of: "ı", with: "i")
             .components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }.joined(separator: " ")
     }
 }

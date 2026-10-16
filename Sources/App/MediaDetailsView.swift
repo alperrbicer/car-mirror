@@ -96,27 +96,73 @@ struct MediaDetailsView: View {
     let source: MediaSource?
     var series: MediaSeries?
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var loadedMetadata: MediaMetadata?
     @State private var expanded = false
     @State private var loading = true
     @State private var failed = false
     @State private var retry = 0
     private var metadata: MediaMetadata { channel.metadata.merging(loadedMetadata ?? MediaMetadata()) }
+    private var contentID: String { "\(channel.id)|\(source?.id.uuidString ?? "")|\(series?.id ?? "")" }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             header
+            Button {
+                withAnimation(reduceMotion ? nil : .smooth(duration: 0.35)) { expanded.toggle() }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "info.circle").accessibilityHidden(true)
+                    Text(L10n.tr(expanded ? "Bilgileri gizle" : "İçerik bilgileri"))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.down").font(.caption.weight(.semibold))
+                        .rotationEffect(.degrees(expanded ? 180 : 0)).accessibilityHidden(true)
+                }
+                .font(.subheadline.weight(.medium)).foregroundStyle(MirrorStyle.accent)
+                .padding(.horizontal, 14).padding(.vertical, 12)
+                .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
+                .background(MirrorStyle.raised, in: RoundedRectangle(cornerRadius: 14))
+                .contentShape(RoundedRectangle(cornerRadius: 14))
+            }
+            // Automatic buttons inside List can make the entire row tappable.
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("media-details-toggle")
+            if expanded {
+                details.transition(.opacity)
+            }
+        }
+        .padding(20).frame(maxWidth: .infinity, alignment: .leading)
+        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
+        .clipShape(RoundedRectangle(cornerRadius: 28))
+        .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
+        .animation(expanded && !reduceMotion ? .smooth(duration: 0.3) : nil, value: loading)
+        .accessibilityElement(children: .contain).accessibilityIdentifier("media-details")
+        .onChange(of: contentID) { _, _ in expanded = false }
+        .task(id: "\(contentID)|\(retry)") {
+            loadedMetadata = nil; loading = true; failed = false
+            defer { if !Task.isCancelled { loading = false } }
+            guard let source else { return }
+            do {
+                let loaded = try await MediaMetadataLoader.load(source: source, channel: channel, seriesOnly: series != nil)
+                guard !Task.isCancelled else { return }
+                loadedMetadata = loaded
+            } catch {
+                guard !Task.isCancelled else { return }
+                failed = true
+            }
+        }
+    }
+
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 20) {
             if let summary = metadata.summary {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L10n.tr("İçerik hakkında")).font(.subheadline.weight(.semibold))
                     Text(summary).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
-                        .lineSpacing(4).lineLimit(expanded || dynamicTypeSize.isAccessibilitySize || summary.count <= 180 ? nil : 4)
+                        .lineSpacing(4)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier("media-synopsis")
-                    if summary.count > 180 {
-                        Button(L10n.tr(expanded ? "Daha az göster" : "Devamını oku")) { expanded.toggle() }
-                            .font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.accent).frame(minHeight: 44)
-                    }
                 }
             } else if loading {
                 HStack(spacing: 10) {
@@ -129,6 +175,7 @@ struct MediaDetailsView: View {
                         .font(.footnote).foregroundStyle(MirrorStyle.secondary)
                         .accessibilityIdentifier("media-details-error")
                     Button(L10n.tr("Yeniden dene")) { retry += 1 }
+                        .buttonStyle(.plain)
                         .font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.accent).frame(minHeight: 44)
                         .accessibilityIdentifier("media-details-retry")
                 }
@@ -147,23 +194,7 @@ struct MediaDetailsView: View {
                 .overlay(alignment: .top) { Rectangle().fill(MirrorStyle.hairline).frame(height: 1) }
             }
         }
-        .padding(20).frame(maxWidth: .infinity, alignment: .leading)
-        .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 28))
-        .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
-        .accessibilityElement(children: .contain).accessibilityIdentifier("media-details")
-        .task(id: "\(channel.id)|\(source?.id.uuidString ?? "")|\(series?.id ?? "")|\(retry)") {
-            loadedMetadata = nil; expanded = false; loading = true; failed = false
-            defer { if !Task.isCancelled { loading = false } }
-            guard let source else { return }
-            do {
-                let loaded = try await MediaMetadataLoader.load(source: source, channel: channel, seriesOnly: series != nil)
-                guard !Task.isCancelled else { return }
-                loadedMetadata = loaded
-            } catch {
-                guard !Task.isCancelled else { return }
-                failed = true
-            }
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var header: some View {
@@ -202,8 +233,12 @@ struct MediaDetailsView: View {
                 .font(.caption).foregroundStyle(MirrorStyle.secondary)
         }
         if let rating = metadata.rating {
-            Label(rating.formatted(.number.precision(.fractionLength(1))) + "/10", systemImage: "star.fill")
-                .font(.caption).foregroundStyle(.yellow)
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill").accessibilityHidden(true)
+                Text(rating.formatted(.number.precision(.fractionLength(1))) + "/10")
+            }
+            .font(.caption).foregroundStyle(.yellow).fixedSize()
+            .accessibilityElement(children: .combine).accessibilityIdentifier("media-rating")
         }
     }
 

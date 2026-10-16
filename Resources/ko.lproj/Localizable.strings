@@ -418,3 +418,22 @@
 "Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "오늘 CarPlay 무료 시청 시간 1시간을 모두 사용했어요. 내일 다시 시청하거나 Pro로 업그레이드해 시간 제한 없이 계속 시청하세요.";
 
 "Bugünkü ücretsiz süren doldu" = "오늘의 무료 시청 시간을 모두 사용했어요";
+"İçerik bilgileri" = "콘텐츠 정보";
+"Bilgileri gizle" = "정보 접기";
+"Bağlantı" = "연결";
+"Görüntü boyutu" = "화면 크기";
+"Önceki bölüm" = "이전 에피소드";
+"Sonraki bölüm" = "다음 에피소드";
+"Devam etmek için ekran kaydını durdur." = "계속하려면 화면 녹화를 중지하세요.";
+
+// First-launch introduction
+"Sevdiğin her şey, bir arada." = "좋아하는 모든 것을 한곳에.";
+"Oynatma listelerini ve IPTV kaynaklarını ekle. Film, dizi ve canlı yayınlarını tek yerde bul." = "재생목록과 IPTV 소스를 추가하세요. 영화, 시리즈, 실시간 방송을 한곳에서 찾을 수 있어요.";
+"Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar." = "에피소드를 시작하고 잠시 쉬었다가 이어 보세요. Mirivo가 시청 위치를 기억해요.";
+"İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş." = "호환되는 TV로 콘텐츠를 전송하거나 화면을 공유하세요.";
+"Atla" = "건너뛰기";
+"Geri" = "뒤로";
+"Başlayalım" = "시작하기";
+"Devam et" = "계속";
+"Ücretsiz devam et" = "무료로 계속하기";
+"Mirivo içerik sağlamaz. Kendi kaynağını ekleyerek başlayabilirsin." = "Mirivo는 콘텐츠를 제공하지 않아요. 나만의 소스를 추가해 시작하세요.";

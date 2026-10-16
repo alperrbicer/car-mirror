@@ -41,7 +41,7 @@ struct MirrorSettingsView: View {
                 }
                 .listRowBackground(MirrorStyle.surface)
                 Section {
-                    NavigationLink { ProView() } label: {
+                    NavigationLink { ProView(showsCloseButton: false) } label: {
                         HStack {
                             Label(L10n.tr("Mirivo Pro"), systemImage: "sparkles")
                             Spacer()
@@ -68,7 +68,7 @@ struct MirrorSettingsView: View {
                     if purchases.access.fullAccess {
                         NavigationLink(L10n.tr("Canlı altyazılar")) { CaptionSettingsView() }
                     } else {
-                        NavigationLink(L10n.tr("Canlı altyazılar · Pro")) { ProView() }
+                        NavigationLink(L10n.tr("Canlı altyazılar · Pro")) { ProView(showsCloseButton: false) }
                     }
                 }.listRowBackground(MirrorStyle.surface)
                 playerGestureIntroSection

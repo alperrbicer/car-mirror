@@ -44,6 +44,19 @@ final class PlaybackController: ObservableObject {
             castName: tvName, airPlayName: airPlayName)
     }
     var hasRemoteVideoOutput: Bool { tvDevice != nil || externalDisplayConnected || externalPlaybackActive }
+    // A receiver that loads the URL itself owns its sizing. App-owned CarPlay,
+    // HDMI and AirPlay display windows use our video renderer and can be sized.
+    var canAdjustRemoteVideoDisplayMode: Bool { externalDisplayConnected && tvDevice == nil }
+    @Published private(set) var screenCaptureBlocked = false
+    private var shouldBlockCapturedPlayback: Bool {
+        screenCaptureBlocked && !hasRemoteVideoOutput && request?.presentation == .video
+    }
+
+    func setScreenCaptureBlocked(_ blocked: Bool) {
+        guard screenCaptureBlocked != blocked else { return }
+        screenCaptureBlocked = blocked
+        if shouldBlockCapturedPlayback && hasActivePlayback { pause() }
+    }
 
     func displayPlaybackStatus(for route: ConnectedDisplayRoute? = nil) -> String {
         displayConnection.playbackStatus(hasRemoteVideoOutput ? state : .idle, for: route)
@@ -92,7 +105,7 @@ final class PlaybackController: ObservableObject {
             (retainedPiPController as? NativeVideoController)?.startingPiP == true
     }
     var canStartPictureInPicture: Bool {
-        guard hasActivePlayback, request?.presentation == .video, tvDevice == nil,
+        guard hasActivePlayback, !screenCaptureBlocked, request?.presentation == .video, tvDevice == nil,
               !externalPlaybackActive, !externalDisplayConnected,
               !startingPiP, !stoppingPiP, !pictureInPictureActiveOrStarting else { return false }
         // Only the decoder currently rendering the video can supply its PiP source.
@@ -342,6 +355,11 @@ final class PlaybackController: ObservableObject {
         playingObservation = player.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] player, _ in
             Task { @MainActor in
                 guard let self, self.compatibility == nil, self.casting == nil else { return }
+                if self.shouldBlockCapturedPlayback,
+                   self.player.timeControlStatus != .paused {
+                    self.pause()
+                    return
+                }
                 self.isPlaying = self.player.currentItem != nil && self.player.timeControlStatus == .playing
                 if self.player.currentItem != nil {
                     switch self.player.timeControlStatus {
@@ -472,7 +490,8 @@ final class PlaybackController: ObservableObject {
                           presentation: presentation, useCompatibility: useCompatibility)
         let position = startAt.isFinite ? max(0, startAt) : 0
         currentTime = position
-        pauseRequested = startPaused
+        let startsPaused = startPaused || (screenCaptureBlocked && !hasRemoteVideoOutput && presentation == .video)
+        pauseRequested = startsPaused
         requestedLive = live
         isLive = live
         errorMessage = nil
@@ -520,7 +539,7 @@ final class PlaybackController: ObservableObject {
                 server.start(onReady: { [weak self, weak cast] address in
                     Task { @MainActor in
                         guard let self, let cast, self.casting === cast else { return }
-                        cast.open(url: address, device: device, title: title, live: false, startAt: position, paused: startPaused)
+                        cast.open(url: address, device: device, title: title, live: false, startAt: position, paused: startsPaused)
                     }
                 }, onFailure: { [weak self, weak cast] in
                     Task { @MainActor in
@@ -529,7 +548,7 @@ final class PlaybackController: ObservableObject {
                     }
                 })
             } else {
-                cast.open(url: url, device: device, title: title, live: live, startAt: position, paused: startPaused)
+                cast.open(url: url, device: device, title: title, live: live, startAt: position, paused: startsPaused)
             }
             guard casting === cast else { return }
             installRemoteCommands()
@@ -583,6 +602,10 @@ final class PlaybackController: ObservableObject {
             var startingPlayback = true
             engine.onState = { [weak self, weak engine] state in
                 guard let self, let engine, self.compatibility === engine else { return }
+                if state == .playing, self.shouldBlockCapturedPlayback {
+                    self.pause()
+                    return
+                }
                 if state == .failed {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .playback, expectedPlaybackID: attemptID)
                     return
@@ -634,7 +657,7 @@ final class PlaybackController: ObservableObject {
             return
         }
         let item = AVPlayerItem(url: url)
-        nativeResumePosition = position > 0 || startPaused ? position : nil
+        nativeResumePosition = position > 0 || startsPaused ? position : nil
         item.preferredForwardBufferDuration = 2
         itemObservation = item.observe(\.status, options: [.new]) { [weak self, weak item] _, _ in
             Task { @MainActor [weak self, weak item] in
@@ -849,6 +872,7 @@ final class PlaybackController: ObservableObject {
     }
 
     func resume() {
+        guard !shouldBlockCapturedPlayback else { return }
         pauseRequested = false
         if interruptedPlaybackID == playbackID {
             resumeAfterInterruption = true

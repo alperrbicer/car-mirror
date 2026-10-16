@@ -419,3 +419,22 @@
 "Bugünkü 1 saatlik CarPlay süren doldu. Yarın yeniden izleyebilir veya Pro ile sınırsız devam edebilirsin." = "You’ve used today’s 1 hour of CarPlay viewing. Watch again tomorrow, or go Pro to keep watching without limits.";
 
 "Bugünkü ücretsiz süren doldu" = "Your free viewing time is up for today";
+"İçerik bilgileri" = "Content details";
+"Bilgileri gizle" = "Hide details";
+"Bağlantı" = "Connection";
+"Görüntü boyutu" = "Picture size";
+"Önceki bölüm" = "Previous episode";
+"Sonraki bölüm" = "Next episode";
+"Devam etmek için ekran kaydını durdur." = "Stop screen recording to continue.";
+
+// First-launch introduction
+"Sevdiğin her şey, bir arada." = "Everything you love, together.";
+"Oynatma listelerini ve IPTV kaynaklarını ekle. Film, dizi ve canlı yayınlarını tek yerde bul." = "Add your playlists and IPTV sources. Find your movies, series and live streams in one place.";
+"Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar." = "Start an episode, take a break and pick up where you left off. Mirivo remembers your progress.";
+"İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş." = "Cast your content to a compatible TV or share your screen.";
+"Atla" = "Skip";
+"Geri" = "Back";
+"Başlayalım" = "Let’s get started";
+"Devam et" = "Continue";
+"Ücretsiz devam et" = "Continue for free";
+"Mirivo içerik sağlamaz. Kendi kaynağını ekleyerek başlayabilirsin." = "Mirivo doesn’t provide content. Add your own source to get started.";

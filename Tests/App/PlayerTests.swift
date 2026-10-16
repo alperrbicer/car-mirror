@@ -6,6 +6,7 @@ import MediaPlayer
 import SwiftUI
 import Security
 import Combine
+import CryptoKit
 @preconcurrency import VLCKit
 @testable import CarMirror
 
@@ -1222,7 +1223,7 @@ final class PlayerTests: XCTestCase {
             return layer.sublayers?.lazy.compactMap { videoLayer(in: $0) }.first
         }
         let video = try XCTUnwrap(videoLayer(in: engine.videoView.layer))
-        XCTAssertFalse(video.preventsCapture, "Capture remains available for the user's device examples")
+        XCTAssertTrue(video.preventsCapture, "Decoded video must stay protected during PiP transitions")
         // The simulator's VLC build has no system PiP controller. Exercise its
         // didStart/didStop callback contract against the actual decoding layer.
         let pip = PictureInPictureStub()
@@ -1940,21 +1941,76 @@ final class PlayerTests: XCTestCase {
         XCTAssertFalse(lateVideo.preventsCapture)
     }
 
-    func testCaptureIsTemporarilyAllowedForPiPCornerExamples() {
+    func testLocalCaptureProtectionKeepsMirroringCarPlayAndAudioAvailable() {
+        XCTAssertTrue(PlaybackCaptureGuard.blocksPlayback(captured: true, broadcasting: false, remoteOutput: false, audio: false))
+        XCTAssertFalse(PlaybackCaptureGuard.blocksPlayback(captured: false, broadcasting: false, remoteOutput: false, audio: false))
+        XCTAssertFalse(PlaybackCaptureGuard.blocksPlayback(captured: true, broadcasting: false, remoteOutput: true, audio: false))
+        XCTAssertFalse(PlaybackCaptureGuard.blocksPlayback(captured: true, broadcasting: true, remoteOutput: false, audio: false))
+        XCTAssertFalse(PlaybackCaptureGuard.blocksPlayback(captured: true, broadcasting: false, remoteOutput: false, audio: true))
+    }
+
+    func testScreenCapturePausesNativeVideoAndRejectsResumeUntilCaptureStops() async throws {
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        for _ in 0..<100 {
+            if playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.isPlaying)
+        playback.setScreenCaptureBlocked(true)
+        XCTAssertFalse(playback.isPlaying)
+        XCTAssertEqual(playback.state, .paused)
+        playback.resume()
+        XCTAssertEqual(playback.player.rate, 0)
+        playback.player.play() // AVKit PiP can send Play directly to AVPlayer.
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(playback.player.rate, 0)
+        XCTAssertFalse(playback.isPlaying)
+        try playback.play(url: url, requiresExternalPlayback: false, live: false)
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertEqual(playback.player.rate, 0, "Changing the video must not bypass capture protection")
+        playback.setScreenCaptureBlocked(false)
+        XCTAssertEqual(playback.player.rate, 0, "Ending capture should leave the video paused")
+        playback.resume()
+        for _ in 0..<100 {
+            if playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.isPlaying)
+        playback.externalDisplayConnected = true
+        playback.setScreenCaptureBlocked(true)
+        XCTAssertTrue(playback.isPlaying, "A newly attached CarPlay or TV window must keep playing during capture-state updates")
+    }
+
+    func testAppOwnedExternalScreensSupportVideoSizing() {
+        let playback = PlaybackController()
+        XCTAssertFalse(playback.canAdjustRemoteVideoDisplayMode)
+        playback.externalDisplayConnected = true
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false)
+        XCTAssertTrue(playback.canAdjustRemoteVideoDisplayMode)
+        playback.updateConnectedDisplays(carPlay: false, externalTV: true)
+        XCTAssertTrue(playback.canAdjustRemoteVideoDisplayMode)
+        playback.externalDisplayConnected = false
+        XCTAssertFalse(playback.canAdjustRemoteVideoDisplayMode)
+    }
+
+    func testCaptureProtectionIsEnabledByDefaultAndSurvivesPiPRestoration() {
         let surface = CompatibilityVideoSurface()
         let renderer = UIView()
         let video = AVSampleBufferDisplayLayer()
-        video.preventsCapture = true
+        video.preventsCapture = false
         renderer.layer.addSublayer(video)
         surface.addSubview(renderer)
-        XCTAssertFalse(video.preventsCapture, "Diagnostic builds must allow examples from the device")
+        XCTAssertTrue(video.preventsCapture)
         let lateVideo = AVSampleBufferDisplayLayer()
-        lateVideo.preventsCapture = true
+        lateVideo.preventsCapture = false
         renderer.layer.addSublayer(lateVideo)
         surface.setNeedsLayout(); surface.layoutIfNeeded()
         surface.restoreAfterPictureInPicture()
-        XCTAssertFalse(lateVideo.preventsCapture)
-        XCTAssertFalse(video.preventsCapture)
+        XCTAssertTrue(lateVideo.preventsCapture)
+        XCTAssertTrue(video.preventsCapture)
     }
 
     private final class PictureInPictureStub: NSObject, VLCPictureInPictureWindowControlling {
@@ -2468,6 +2524,106 @@ final class PlayerTests: XCTestCase {
         await failed.refresh(for: source)
         XCTAssertEqual(failed.state(for: source), .failed)
         XCTAssertEqual(channels.cached(for: source), [channel])
+    }
+
+    func testSourceCachePersistsEncryptedChannelsAndReusesThemAfterRelaunch() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let key = SymmetricKey(size: .bits256)
+        let source = MediaSource(name: "Persistent", kind: .playlist)
+        let channel = MediaChannel(title: "Private channel", group: "Films", url: URL(string: "https://example.com/movie/private-user/private-password/1.mp4")!)
+        let now = Date()
+        let first = SourceChannelCache(directory: directory, encryptionKey: key)
+        _ = try await first.channels(for: source, now: now) { [channel] }
+        let file = directory.appendingPathComponent(source.id.uuidString + ".encrypted")
+        let data = try Data(contentsOf: file)
+        XCTAssertNil(data.range(of: Data("private-password".utf8)))
+        XCTAssertNil(data.range(of: Data("Private channel".utf8)))
+        let restored = SourceChannelCache(directory: directory, encryptionKey: key)
+        var cached: [MediaChannel]?
+        let result = try await restored.channels(for: source, now: now.addingTimeInterval(SourceChannelCache.lifetime - 1), onCached: { cached = $0 }) {
+            XCTFail("A fresh disk snapshot must not download again")
+            return []
+        }
+        XCTAssertEqual(cached, [channel])
+        XCTAssertEqual(result, [channel])
+    }
+
+    func testSourceCacheShowsExpiredDiskSnapshotBeforeRefreshing() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let key = SymmetricKey(size: .bits256)
+        let source = MediaSource(name: "Daily", kind: .playlist)
+        let old = MediaChannel(title: "Old", url: URL(string: "https://example.com/old.m3u8")!)
+        let fresh = MediaChannel(title: "New", url: URL(string: "https://example.com/new.m3u8")!)
+        let now = Date()
+        let first = SourceChannelCache(directory: directory, encryptionKey: key)
+        _ = try await first.channels(for: source, now: now) { [old] }
+        let restored = SourceChannelCache(directory: directory, encryptionKey: key)
+        var displayed: [MediaChannel]?
+        let result = try await restored.channels(for: source, now: now.addingTimeInterval(SourceChannelCache.lifetime), onCached: { displayed = $0 }) {
+            XCTAssertEqual(displayed, [old], "Saved content must be displayed before waiting for the provider")
+            return [fresh]
+        }
+        XCTAssertEqual(result, [fresh])
+        XCTAssertEqual(restored.cached(for: source), [fresh])
+    }
+
+    func testSourceCacheKeepsSavedListOnFailureAndThrottlesAutomaticRetries() async throws {
+        let cache = SourceChannelCache()
+        let source = MediaSource(name: "Offline", kind: .playlist)
+        let channel = MediaChannel(title: "Saved", url: URL(string: "https://example.com/live.m3u8")!)
+        let now = Date()
+        _ = try await cache.channels(for: source, now: now) { [channel] }
+        let expired = now.addingTimeInterval(SourceChannelCache.lifetime)
+        var requests = 0
+        let result = try await cache.channels(for: source, now: expired) {
+            requests += 1
+            throw LibraryError.invalidResponse
+        }
+        XCTAssertEqual(result, [channel])
+        _ = try await cache.channels(for: source, now: expired.addingTimeInterval(1)) {
+            XCTFail("Reopening an offline source must not immediately retry")
+            return []
+        }
+        do {
+            _ = try await cache.channels(for: source, reload: true, now: expired.addingTimeInterval(2)) {
+                requests += 1
+                throw LibraryError.invalidResponse
+            }
+            XCTFail("Manual refresh must report its failure")
+        } catch LibraryError.invalidResponse { }
+        XCTAssertEqual(requests, 2)
+        XCTAssertEqual(cache.cached(for: source), [channel])
+    }
+
+    func testSourceCacheManualRefreshBypassesFreshSnapshot() async throws {
+        let cache = SourceChannelCache()
+        let source = MediaSource(name: "Manual", kind: .playlist)
+        let old = MediaChannel(title: "Old", url: URL(string: "https://example.com/old.m3u8")!)
+        _ = try await cache.channels(for: source) { [old] }
+        let result = try await cache.channels(for: source, reload: true) { [] }
+        XCTAssertTrue(result.isEmpty)
+        XCTAssertEqual(cache.cached(for: source), [])
+    }
+
+    func testSourceCacheInvalidationRemovesPersistedCredentialsAndRejectsCorruptFiles() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let key = SymmetricKey(size: .bits256)
+        let source = MediaSource(name: "Delete", kind: .playlist)
+        let channel = MediaChannel(title: "Saved", url: URL(string: "https://example.com/live.m3u8")!)
+        let cache = SourceChannelCache(directory: directory, encryptionKey: key)
+        _ = try await cache.channels(for: source) { [channel] }
+        let file = directory.appendingPathComponent(source.id.uuidString + ".encrypted")
+        cache.invalidate(source.id)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file.path))
+        try Data("damaged cache".utf8).write(to: file)
+        let restored = SourceChannelCache(directory: directory, encryptionKey: key)
+        let result = try await restored.channels(for: source) { [channel] }
+        XCTAssertEqual(result, [channel])
+        restored.removeAll()
+        XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: directory.path).isEmpty)
     }
 
     func testSourceCacheCoalescesConcurrentLoads() async throws {

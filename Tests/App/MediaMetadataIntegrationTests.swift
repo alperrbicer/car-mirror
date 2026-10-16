@@ -3,6 +3,22 @@ import CryptoKit
 @testable import CarMirror
 
 final class MediaMetadataIntegrationTests: XCTestCase {
+    func testASCIIPlaylistEpisodeLoadsTurkishProviderSynopsis() async throws {
+        let loader = MediaMetadataLoader(fetch: { url, _ in
+            let action = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "action" }?.value
+            let body: String
+            switch action {
+            case "get_series": body = #"[{"series_id":339,"name":"Aşk Kumardır"}]"#
+            case "get_series_info": body = #"{"info":{"plot":"Provider series synopsis"},"episodes":{"1":[{"id":"987","info":{"duration_secs":1533}}]}}"#
+            default: throw URLError(.badURL)
+            }
+            return (Data(body.utf8), url)
+        })
+        let channel = MediaChannel(title: "Ask Kumardir S01-E01", url: URL(string: "https://provider.example/movie/u/p/987.mkv")!)
+        let metadata = try await loader.load(kind: .playlist, secret: SourceSecret(url: URL(string: "https://playlist.example/list.m3u")!), channel: channel)
+        XCTAssertEqual(metadata?.summary, "Provider series synopsis")
+        XCTAssertEqual(metadata?.duration, 1533)
+    }
     func testSeriesEpisodeExportedAsMovieUsesOnlySeriesWithTheSameEpisodeID() async throws {
         let fixture = MetadataFixture()
         let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })

@@ -95,13 +95,14 @@ private struct ExternalDisplayProbeView: View {
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback = MirrorModel.shared.playback
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
+    @AppStorage("player.videoDisplayMode") private var videoDisplayMode = PlayerVideoDisplayMode.normal
 
     var body: some View {
         ZStack {
             Color.black
             if let started = model.probeStartedAt { ConnectionPatternView(startedAt: started) }
             else if model.readyToPlay || model.mediaTitle != nil {
-                MediaVideoView(playback: playback, role: .external, showsControls: false)
+                MediaVideoView(playback: playback, role: .external, displayMode: videoDisplayMode, showsControls: false)
             } else {
                 VStack(spacing: 16) {
                     MirrorMark().frame(width: 72, height: 72)

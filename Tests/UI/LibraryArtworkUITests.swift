@@ -2,6 +2,101 @@ import XCTest
 
 /// Run the artwork fixture server with MIRIVO_FIXTURE_PORT=8774.
 final class LibraryArtworkUITests: XCTestCase {
+    func testCarPlayEpisodeControlsAndPictureSizing() { verifyExternalEpisodeControls(route: "carplay") }
+    func testTVEpisodeControlsAndPictureSizing() { verifyExternalEpisodeControls(route: "tv") }
+
+    private func verifyExternalEpisodeControls(route: String) {
+        let app = openCatalog(ordinaryPlaylist: true, externalRoute: route)
+        defer { app.terminate() }
+        openSeriesCategory(app)
+        app.buttons["series-open-Kıyı Hikâyeleri"].tap()
+        app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch.tap()
+        let video = app.otherElements["player-video"]
+        XCTAssertTrue(video.waitForExistence(timeout: 10))
+        pause(app)
+        XCTAssertFalse(app.buttons["player-large-controls"].exists)
+        XCTAssertFalse(app.buttons["previous-episode"].isEnabled)
+        XCTAssertTrue(app.buttons["next-episode"].isEnabled)
+        XCTAssertTrue(app.buttons["skip-backward"].exists)
+        XCTAssertTrue(app.buttons["skip-forward"].exists)
+        capture("\(route)-episode-controls")
+        app.buttons["next-episode"].tap()
+        XCTAssertTrue(app.navigationBars["Kıyı Hikâyeleri S01-E02"].waitForExistence(timeout: 10))
+        pause(app)
+        XCTAssertTrue(app.buttons["previous-episode"].isEnabled)
+        app.buttons["previous-episode"].tap()
+        XCTAssertTrue(app.navigationBars["Kıyı Hikâyeleri S01-E01"].waitForExistence(timeout: 10))
+        pause(app)
+        app.buttons["player-display-mode"].tap()
+        let modes = app.descendants(matching: .any)["player-display-mode-popover"].firstMatch
+        XCTAssertTrue(modes.waitForExistence(timeout: 5))
+        for title in ["Normal", "Görüntüyü sığdır", "Ekranı doldur"] { XCTAssertTrue(app.buttons[title].exists) }
+        capture("\(route)-picture-size-options")
+        let selectedMode = route == "carplay" ? "Ekranı doldur" : "Görüntüyü sığdır"
+        app.buttons[selectedMode].tap()
+        XCTAssertTrue(modes.waitForNonExistence(timeout: 5))
+        app.buttons["player-display-mode"].tap()
+        XCTAssertTrue(modes.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons[selectedMode].isSelected)
+        app.buttons["Normal"].tap()
+        XCTAssertTrue(modes.waitForNonExistence(timeout: 5))
+        app.buttons["player-display-connection"].tap()
+        let connected = app.buttons["connect-another-display"].waitForExistence(timeout: 5)
+        capture("\(route)-working-connection-button")
+        XCTAssertTrue(connected)
+        app.buttons["Kapat"].tap()
+        app.buttons["player-channel-picker"].tap()
+        XCTAssertTrue(app.buttons["Kıyı Hikâyeleri S01-E02"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.searchFields["channel-search-field"].exists)
+        capture("\(route)-episode-list-without-search")
+    }
+
+    func testContentDetailsOnlyOpenWithDisclosureButtonAndStartCollapsed() {
+        verifyDetailsDisclosure(large: false)
+    }
+
+    func testContentDetailsDisclosureWithLargeText() {
+        verifyDetailsDisclosure(large: true)
+    }
+
+    private func verifyDetailsDisclosure(large: Bool) {
+        let app = openCatalog(large: large, ordinaryPlaylist: true)
+        defer { app.terminate() }
+        openSeriesCategory(app)
+        app.buttons["series-open-Kıyı Hikâyeleri"].tap()
+        let details = app.otherElements["media-details"]
+        let toggle = app.buttons["media-details-toggle"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        // Loaded facts must not automatically expand the description.
+        XCTAssertTrue(app.staticTexts["2024"].waitForExistence(timeout: 15))
+        XCTAssertEqual(toggle.label, "İçerik bilgileri")
+        XCTAssertFalse(app.staticTexts["media-synopsis"].exists)
+        let title = details.staticTexts["Kıyı Hikâyeleri"]
+        XCTAssertTrue(title.exists); title.tap()
+        XCTAssertEqual(toggle.label, "İçerik bilgileri")
+        XCTAssertFalse(app.staticTexts["media-synopsis"].exists)
+        capture("details-collapsed-\(large)")
+        if !toggle.isHittable { app.swipeUp() }
+        let collapsedHeight = details.frame.height
+        toggle.tap()
+        let summary = app.staticTexts["media-synopsis"]
+        XCTAssertTrue(summary.waitForExistence(timeout: 5))
+        XCTAssertTrue(summary.label.hasSuffix("birlikte ortaya çıkarırlar."), "The disclosure shows the complete synopsis")
+        XCTAssertEqual(toggle.label, "Bilgileri gizle")
+        XCTAssertGreaterThan(details.frame.height, collapsedHeight)
+        XCTAssertGreaterThanOrEqual(summary.frame.minY, toggle.frame.maxY)
+        XCTAssertFalse(app.buttons["Devamını oku"].exists)
+        capture("details-expanded-\(large)")
+        // Tapping noninteractive text must not collapse the panel either.
+        if title.isHittable { title.tap() }
+        XCTAssertEqual(toggle.label, "Bilgileri gizle")
+        for _ in 0..<8 { if toggle.isHittable { break }; app.swipeDown() }
+        XCTAssertTrue(toggle.isHittable); toggle.tap()
+        XCTAssertTrue(summary.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(toggle.label, "İçerik bilgileri")
+        capture("details-collapsed-again-\(large)")
+    }
+
     func testEpisodeSearchEmptyStateStaysBelowSeriesDetails() {
         verifyEpisodeSearchEmptyState(large: false)
     }
@@ -220,6 +315,7 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Yolun Ötesi"].firstMatch.exists)
         movie.tap()
         XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        showDetails(in: app)
         for _ in 0..<4 {
             if app.staticTexts["media-synopsis"].isHittable { break }
             app.swipeUp()
@@ -247,15 +343,24 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(series.waitForExistence(timeout: 10))
         capture(movieEpisodes ? "series-movie-route-catalog-poster" : "series-catalog-poster")
         series.tap()
+        showDetails(in: app)
         let summary = app.staticTexts["media-synopsis"]
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("Bir kıyı kasabasında"))
         capture(movieEpisodes ? "series-movie-route-general-synopsis" : "series-general-synopsis")
         let episode = app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch
-        for _ in 0..<5 { if episode.isHittable { break }; app.swipeUp() }
+        // List can expose a button behind the bottom search inset as hittable.
+        for _ in 0..<8 {
+            let top = app.navigationBars.firstMatch.frame.maxY + 12
+            let bottom = app.searchFields["channel-search-field"].frame.minY - 12
+            if episode.isHittable && episode.frame.midY > top && episode.frame.midY < bottom { break }
+            app.swipeUp()
+        }
         XCTAssertTrue(episode.waitForExistence(timeout: 5))
+        XCTAssertLessThan(episode.frame.midY, app.searchFields["channel-search-field"].frame.minY - 12)
         episode.tap()
         XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        showDetails(in: app)
         for _ in 0..<6 { if summary.isHittable { break }; app.swipeUp() }
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("Kasabaya dönen bir mektup"))
@@ -273,6 +378,7 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(movie.waitForExistence(timeout: 10))
         movie.tap()
         XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        showDetails(in: app)
         let retry = app.buttons["media-details-retry"]
         for _ in 0..<6 { if retry.isHittable { break }; app.swipeUp() }
         XCTAssertTrue(retry.waitForExistence(timeout: 15))
@@ -295,6 +401,7 @@ final class LibraryArtworkUITests: XCTestCase {
         capture("library-artwork-missing-image")
         movie.tap()
         XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        showDetails(in: app)
         let empty = app.staticTexts["media-details-empty"]
         for _ in 0..<8 {
             if empty.isHittable { break }
@@ -304,11 +411,20 @@ final class LibraryArtworkUITests: XCTestCase {
         capture("library-artwork-missing-details")
     }
 
-    private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false, movieEpisodes: Bool = false) -> XCUIApplication {
+    private func showDetails(in app: XCUIApplication) {
+        let toggle = app.buttons["media-details-toggle"]
+        for _ in 0..<8 { if toggle.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+        if toggle.label == "İçerik bilgileri" { toggle.tap() }
+    }
+
+    private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false, movieEpisodes: Bool = false, externalRoute: String? = nil) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
+        if externalRoute == "carplay" { app.launchArguments += ["-mirivo-ui-carplay", "-mirivo-ui-carplay-display"] }
+        else if externalRoute == "tv" { app.launchArguments.append("-mirivo-ui-external-display") }
         XCUIDevice.shared.orientation = .portrait
         app.launch()
         openLibrary(app)

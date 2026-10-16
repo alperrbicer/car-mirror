@@ -24,6 +24,8 @@ struct ViewingLimitOfferPresenter: ViewModifier {
 
 struct ProView: View {
     let viewingLimit: DailyViewingBudget.Limit?
+    let allowsFreeContinuation: Bool
+    let showsCloseButton: Bool
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ObservedObject private var store = PurchaseStore.shared
@@ -35,7 +37,12 @@ struct ProView: View {
         ("rectangle.on.rectangle", "Sınırsız yayın", "Ekran paylaşımını Mirivo süre sınırı olmadan kullan.")
     ]
     private var selected: Product? { store.products.first { $0.id == selectedID } }
-    init(viewingLimit: DailyViewingBudget.Limit? = nil) { self.viewingLimit = viewingLimit }
+    init(viewingLimit: DailyViewingBudget.Limit? = nil, allowsFreeContinuation: Bool = false,
+         showsCloseButton: Bool = true) {
+        self.viewingLimit = viewingLimit
+        self.allowsFreeContinuation = allowsFreeContinuation
+        self.showsCloseButton = showsCloseButton
+    }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
@@ -63,13 +70,18 @@ struct ProView: View {
                 }
                 VStack(spacing: 24) {
                     ForEach(benefits, id: \.0) { icon, title, subtitle in
-                        HStack(alignment: .top, spacing: 16) {
-                            Image(systemName: icon).font(.title2).frame(width: 32).foregroundStyle(MirrorStyle.accent)
+                        let layout = dynamicTypeSize.isAccessibilitySize
+                            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 14))
+                            : AnyLayout(HStackLayout(alignment: .top, spacing: 16))
+                        layout {
+                            Image(systemName: icon).font(.title2)
+                                .frame(width: dynamicTypeSize.isAccessibilitySize ? nil : 32)
+                                .foregroundStyle(MirrorStyle.accent)
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(L10n.tr(title)).font(.headline)
                                 Text(L10n.tr(subtitle)).font(.subheadline).foregroundStyle(MirrorStyle.secondary).fixedSize(horizontal: false, vertical: true)
                             }
-                            Spacer(minLength: 0)
+                            if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
                         }
                     }
                 }.padding(22).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 26))
@@ -118,6 +130,10 @@ struct ProView: View {
                         }.buttonStyle(MirivoButtonStyle(prominent: true)).disabled(!store.canPurchase(selected))
                             .accessibilityIdentifier("pro-purchase")
                     } else if !store.busy {
+                        if allowsFreeContinuation {
+                            Text(L10n.tr("Planlar yüklenemedi. Biraz sonra yeniden dene."))
+                                .font(.footnote).foregroundStyle(MirrorStyle.secondary)
+                        }
                         Button(L10n.tr("Planları yeniden yükle")) { Task { await store.loadProducts() } }
                             .buttonStyle(MirivoButtonStyle())
                             .accessibilityIdentifier("pro-reload")
@@ -145,21 +161,36 @@ struct ProView: View {
             }.padding(24).frame(maxWidth: 580).frame(maxWidth: .infinity)
         }
         .background(MirrorStyle.background).tint(MirrorStyle.accent)
+        .safeAreaInset(edge: .bottom) {
+            if allowsFreeContinuation {
+                Button(L10n.tr("Ücretsiz devam et")) { dismiss() }
+                    .buttonStyle(MirivoButtonStyle())
+                    .accessibilityIdentifier("onboarding-continue-free")
+                    .padding(.horizontal, 24).padding(.vertical, 12)
+                    .frame(maxWidth: 580).frame(maxWidth: .infinity)
+                    .background(MirrorStyle.background)
+            }
+        }
         .navigationTitle(L10n.tr("Mirivo Pro")).navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark").font(.body.weight(.semibold)).frame(width: 44, height: 44)
-                }.accessibilityLabel(L10n.tr("Kapat")).accessibilityIdentifier("pro-close")
+            if showsCloseButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark").font(.body.weight(.semibold)).frame(width: 44, height: 44)
+                    }.accessibilityLabel(L10n.tr("Kapat")).accessibilityIdentifier("pro-close")
+                }
             }
         }
         .task {
-            await store.loadProducts()
+            await store.loadProducts(reportErrors: !allowsFreeContinuation)
             if store.subscriptionActive { selectedID = ProProduct.lifetime.rawValue }
             else if selected == nil, let first = store.products.first { selectedID = first.id }
         }
         .onChange(of: store.subscriptionActive) { _, active in
             if active { selectedID = ProProduct.lifetime.rawValue }
+        }
+        .onChange(of: store.verifiedPro) { _, active in
+            if active && allowsFreeContinuation { dismiss() }
         }
         .alert(L10n.tr("Mirivo Pro"), isPresented: Binding(get: { store.message != nil }, set: { if !$0 { store.message = nil } })) {
             Button(L10n.tr("Tamam")) { store.message = nil }

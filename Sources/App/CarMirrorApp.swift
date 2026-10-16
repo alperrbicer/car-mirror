@@ -14,6 +14,10 @@ struct CarMirrorApp: App {
         FirebaseServices.configure()
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-testing") {
+            if !ProcessInfo.processInfo.arguments.contains("-mirivo-ui-preserve-onboarding") {
+                UserDefaults.standard.set(!ProcessInfo.processInfo.arguments.contains("-mirivo-ui-onboarding"),
+                                          forKey: "mirivo.onboarding.completed")
+            }
             if !ProcessInfo.processInfo.arguments.contains("-mirivo-ui-preserve-library") {
                 UserDefaults.standard.removeObject(forKey: "dailyViewingBudget")
                 let arguments = ProcessInfo.processInfo.arguments
@@ -81,6 +85,7 @@ struct CarMirrorApp: App {
                 }
             }
                 .preferredColorScheme(.dark)
+                .modifier(PlaybackCaptureGuard(model: model))
                 .task {
                     #if DEBUG
                     // Device-only QA uses local fixtures or an explicitly supplied

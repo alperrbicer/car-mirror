@@ -50,6 +50,7 @@
 		4F3D1C2414D5E1080866C282 /* Mirivo.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 5DB7F759BDCF25D093DDE9AE /* Mirivo.storekit */; };
 		5264B0B0D11EA9207BD73BF7 /* ProductUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1290E078A907F5C847B3F135 /* ProductUITests.swift */; };
 		58792016A32A933939C98DE0 /* HLSBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065C0CB1578CC200E9B27345 /* HLSBuffer.swift */; };
+		588177F326D64489557D1325 /* MirivoOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90790345060E3C9361DD821A /* MirivoOnboardingView.swift */; };
 		59250381DDD15DEBE9488094 /* CaptureStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1582D1C372DF3729F4EE241 /* CaptureStatus.swift */; };
 		593946CCB053A5A8D5C87F94 /* ProductPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDE7CF99F3A1DCD9735A8CF /* ProductPolicy.swift */; };
 		5CBC013F2F79DC8DB5D72653 /* AudioTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A495B4F17F132168381EC7B2 /* AudioTimeline.swift */; };
@@ -280,6 +281,7 @@
 		8D454D37DE99ECFD71E30007 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		8FC1A0405961F6E21B40E4BD /* PersonalMediaIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersonalMediaIntegrationTests.swift; path = Tests/App/PersonalMediaIntegrationTests.swift; sourceTree = "<group>"; };
 		903106E8A0203BE3CFF42F5E /* AppUpdateStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppUpdateStore.swift; sourceTree = "<group>"; };
+		90790345060E3C9361DD821A /* MirivoOnboardingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MirivoOnboardingView.swift; sourceTree = "<group>"; };
 		9141B016614B9CFF558CBCDE /* zh-Hans */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Resources/zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		94E4E4446C8E871F9F2B67D0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Config/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		95A95DC1B1520DC4CDB4B6BA /* he */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = he; path = Resources/he.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -502,6 +504,7 @@
 				DB3EC44F078B03DFA1A403B9 /* MediaArtwork.swift */,
 				D3EFDE3B0871F186ADDB47FC /* MediaDetailsView.swift */,
 				C3FA64D05A323E4A66EB000B /* SeriesLibraryViews.swift */,
+				90790345060E3C9361DD821A /* MirivoOnboardingView.swift */,
 			);
 			name = App;
 			path = Sources/App;
@@ -858,6 +861,7 @@
 				C130FD6946CE1D4675B7E2C6 /* MediaDetailsView.swift in Sources */,
 				7ECEA7757A4240A19420ABC7 /* MediaSeries.swift in Sources */,
 				7A65B2364E40739D5910AD12 /* SeriesLibraryViews.swift in Sources */,
+				588177F326D64489557D1325 /* MirivoOnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -19,6 +19,10 @@ PLAYLIST = ("#EXTM3U\n" + "".join(
     f"http://127.0.0.1:{PORT}/demo.mp4?clip={i}\n" for i in range(1, 7)
 )).encode()
 VIDEO = (ROOT / "Resources/ConnectionProbe.mp4").read_bytes()
+SERIES_SYNOPSIS = ("Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir. "
+                   "Yıllar sonra gelen bir mektup onları yeniden bir araya getirir. Eski dostluklar sınanırken "
+                   "her biri ailesi ve geleceği hakkında zor kararlar vermek zorunda kalır. Kasabanın sakin "
+                   "görünümünün ardındaki hikâyeyi birlikte ortaya çıkarırlar.")
 CATALOG = ("#EXTM3U\n" + "".join(
     f'#EXTINF:-1 tvg-logo="http://127.0.0.1:{PORT}/catalog/art/{art}.png{f"?episode={number}" if kind == "series" else ""}" group-title="{group}",{title}\n'
     f'http://127.0.0.1:{PORT}/{kind}/artwork/fixture/{number}.{extension}\n'
@@ -71,12 +75,12 @@ class Handler(BaseHTTPRequestHandler):
                 data = json.dumps({"info": info, "movie_data": details} if query.get("vod_id") == ["101"] else {"info": {}}).encode()
             elif query.get("action") == ["get_series"]:
                 data = json.dumps([
-                    {"series_id": 500, "name": "Kıyı Hikâyeleri", "plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "genre": "Drama", "releaseDate": "2024-01-26"},
+                    {"series_id": 500, "name": "Kiyi Hikayeleri", "plot": SERIES_SYNOPSIS, "genre": "Drama", "releaseDate": "2024-01-26"},
                     {"series_id": 600, "name": "Gece Vardiyası", "plot": "Gece çalışan bir ekip, şehrin sessiz saatlerinde yeni hikâyeler keşfeder."},
                 ]).encode()
             elif query.get("action") == ["get_series_info"]:
                 if query.get("series_id") == ["500"]:
-                    info = {"plot": "Bir kıyı kasabasında yolları kesişen üç arkadaş, geçmişten gelen sırlarla yüzleşir.", "cover": f"http://127.0.0.1:{PORT}/catalog/art/light.png", "genre": "Drama", "releaseDate": "2024-01-26"}
+                    info = {"plot": SERIES_SYNOPSIS, "cover": f"http://127.0.0.1:{PORT}/catalog/art/light.png", "genre": "Drama", "releaseDate": "2024-01-26", "rating": "7.9", "director": "Deniz Örnek", "cast": "Ada Örnek, Ege Örnek"}
                     episodes = {"1": [
                         {"id": "201", "description": "Kasabaya dönen bir mektup, üç arkadaşın hayatını değiştirir.", "info": {"plot": None, "duration_secs": 1980}},
                         {"id": "202", "info": {"duration_secs": 2040}},

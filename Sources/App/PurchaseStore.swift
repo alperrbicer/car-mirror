@@ -54,14 +54,16 @@ final class PurchaseStore: ObservableObject {
         SharedPreferences.defaults.set(verifiedPro, forKey: "verifiedPro")
     }
 
-    func loadProducts() async {
+    func loadProducts(reportErrors: Bool = true) async {
         guard salesEnabled, !busy else { return }
         busy = true; message = nil; defer { busy = false }
         do {
             let loaded = try await Product.products(for: ProProduct.forSale.map(\.rawValue))
             products = ProProduct.forSale.compactMap { id in loaded.first { $0.id == id.rawValue } }
-            if products.isEmpty { message = L10n.tr("Planlar yüklenemedi. Biraz sonra yeniden dene.") }
-        } catch { message = L10n.tr("App Store’a bağlanılamadı. Yeniden deneyebilirsin.") }
+            if products.isEmpty && reportErrors { message = L10n.tr("Planlar yüklenemedi. Biraz sonra yeniden dene.") }
+        } catch {
+            if reportErrors { message = L10n.tr("App Store’a bağlanılamadı. Yeniden deneyebilirsin.") }
+        }
         await refresh()
     }
 

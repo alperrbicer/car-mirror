@@ -4,6 +4,34 @@ import XCTest
 final class MediaMetadataTests: XCTestCase {
     private let base = URL(string: "https://provider.example/list.m3u")!
 
+    func testTurkishSeriesNamesMatchASCIIPlaylistTitles() throws {
+        let catalog = try SeriesMetadataParser.catalog(Data(#"[{"series_id":339,"name":"Aşk Kumardır","plot":"A series synopsis"},{"series_id":340,"name":"Işıklar"},{"series_id":341,"name":"Another series"}]"#.utf8), baseURL: base)
+        let url = URL(string: "https://provider.example/movie/u/p/987.mp4")!
+        XCTAssertEqual(SeriesMetadataParser.candidates(in: catalog, for: MediaChannel(title: "Ask Kumardir S01-E01", url: url)).map(\.id), ["339"])
+        XCTAssertEqual(SeriesMetadataParser.candidates(in: catalog, for: MediaChannel(title: "ISIKLAR S01-E01", url: url)).map(\.id), ["340"])
+    }
+
+    func testOptInSanitizedProviderDescriptions() throws {
+        guard let path = ProcessInfo.processInfo.environment["MIRIVO_METADATA_OBSERVATIONS"] else { throw XCTSkip("No opt-in provider observations") }
+        let root = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: path))) as? [String: Any])
+        let rows = try XCTUnwrap(root["series"] as? [[String: Any]])
+        let channels = try XCTUnwrap(root["channels"] as? [[String: String]])
+        let catalog = try SeriesMetadataParser.catalog(JSONSerialization.data(withJSONObject: rows.map { ["series_id": $0["seriesID"]!, "name": $0["title"]!] }), baseURL: base)
+        XCTAssertFalse(channels.isEmpty)
+        for row in channels {
+            let channel = MediaChannel(title: try XCTUnwrap(row["title"]), url: URL(string: "https://provider.example/movie/u/p/\(try XCTUnwrap(row["streamID"])).mkv")!)
+            let candidate = try XCTUnwrap(SeriesMetadataParser.candidates(in: catalog, for: channel).first)
+            let series = try XCTUnwrap(rows.first { String(describing: $0["seriesID"]!) == candidate.id })
+            let info = try XCTUnwrap(series["info"] as? [String: Any])
+            let expected = try XCTUnwrap(MediaMetadata(summary: info["plot"] as? String).summary)
+            let episodes = try XCTUnwrap(series["episodes"] as? [[String: Any]])
+            let payload = try JSONSerialization.data(withJSONObject: ["info": info, "episodes": ["1": episodes]])
+            let metadata = try XCTUnwrap(SeriesMetadataParser.parseInfo(payload, episodeID: row["streamID"]!, baseURL: base))
+            XCTAssertEqual(metadata.summary, expected)
+            print("MIRIVO_PROVIDER_DESCRIPTION: \(channel.title), summaryCharacters=\(metadata.summary?.count ?? 0)")
+        }
+    }
+
     func testSeriesLookupRecognizesEpisodesExportedOnMovieRoutes() throws {
         let secret = SourceSecret(url: URL(string: "https://api.example/get.php?username=u&password=p&type=std_m3u&output=ts")!)
         let episode = MediaChannel(title: "Coast Stories EXXEN S01-E01", url: URL(string: "https://cdn.example/movie/u/p/987.mp4")!)
