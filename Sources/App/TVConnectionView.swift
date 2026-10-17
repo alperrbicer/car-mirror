@@ -73,6 +73,7 @@ struct TVConnectionView: View {
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback: PlaybackController
     @StateObject private var discovery = TVDiscovery()
+    @State private var airPlayPickerRequest = 0
     @Environment(\.dismiss) private var dismiss
     init(model: MirrorModel) { self.model = model; playback = model.playback }
 
@@ -107,18 +108,14 @@ struct TVConnectionView: View {
                                 .font(.subheadline).foregroundStyle(.secondary)
                         }
                         Spacer(minLength: 8)
-                        Color.clear.frame(width: 56, height: 56)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 11)
-                    .accessibilityHidden(true)
-                    .overlay {
-                        TVAirPlayPicker(onOpen: { model.disconnectTV(); model.returnToDisplay() })
+                        TVAirPlayPicker(onOpen: { model.disconnectTV(); model.returnToDisplay() }, request: airPlayPickerRequest)
+                            .frame(width: 56, height: 56)
+                            .allowsHitTesting(false)
                             .accessibilityIdentifier("connection-airplay")
                             .accessibilityLabel(L10n.tr("AirPlay hedefini değiştir"))
-                            .accessibilityValue(playback.airPlayName ?? L10n.tr("Bir ekran seç"))
                     }
-                    .listRowInsets(EdgeInsets())
+                    .contentShape(Rectangle().inset(by: -20))
+                    .onTapGesture { airPlayPickerRequest += 1 }
                 } footer: {
                     Text(L10n.tr("Tüm ekranı veya MKV videolarını paylaşmak için Denetim Merkezi → Ekran Yansıtma yolundan AirPlay TV’ni seç."))
                 }
@@ -203,34 +200,29 @@ struct TVConnectionStatusView: View {
 
 private struct TVAirPlayPicker: UIViewRepresentable {
     var onOpen: () -> Void
+    var request: Int
     func makeCoordinator() -> Coordinator { Coordinator(onOpen: onOpen) }
-    func makeUIView(context: Context) -> FullRowAirPlayPickerView {
-        let view = FullRowAirPlayPickerView()
+    func makeUIView(context: Context) -> AVRoutePickerView {
+        let view = AVRoutePickerView()
         view.prioritizesVideoDevices = true
         view.tintColor = .white
         view.activeTintColor = UIColor(MirrorStyle.accent)
         view.delegate = context.coordinator
         return view
     }
-    func updateUIView(_ view: FullRowAirPlayPickerView, context: Context) { context.coordinator.onOpen = onOpen }
+    func updateUIView(_ view: AVRoutePickerView, context: Context) {
+        context.coordinator.onOpen = onOpen
+        guard context.coordinator.lastRequest != request else { return }
+        context.coordinator.lastRequest = request
+        view.subviews.compactMap { $0 as? UIButton }.first?.sendActions(for: .touchUpInside)
+    }
     final class Coordinator: NSObject, AVRoutePickerViewDelegate {
         var onOpen: () -> Void
+        var lastRequest = 0
         init(onOpen: @escaping () -> Void) { self.onOpen = onOpen }
         func routePickerViewDidEndPresentingRoutes(_ routePickerView: AVRoutePickerView) {
             // Merely opening or cancelling the route picker must not interrupt Cast playback.
             if AVAudioSession.sharedInstance().currentRoute.outputs.contains(where: { $0.portType == .airPlay }) { onOpen() }
-        }
-    }
-}
-
-private final class FullRowAirPlayPickerView: AVRoutePickerView {
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        // Keep the system route action while extending its hit area across the row.
-        for case let button as UIButton in subviews {
-            button.frame = bounds
-            button.contentHorizontalAlignment = .right
-            button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 29)
         }
     }
 }

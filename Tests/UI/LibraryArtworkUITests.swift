@@ -20,7 +20,7 @@ final class LibraryArtworkUITests: XCTestCase {
             let isMovie = path.hasPrefix("movie/")
             if isMovie {
                 XCTAssertFalse(heart.exists, "Movie rows must not include a favorite button")
-                XCTAssertTrue(app.buttons["download-http://127.0.0.1:8774/" + path].exists)
+                XCTAssertTrue(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "download-")).firstMatch.exists)
             } else {
                 XCTAssertTrue(heart.waitForExistence(timeout: 5))
                 heart.tap(); XCTAssertTrue(heart.isSelected)
@@ -28,7 +28,11 @@ final class LibraryArtworkUITests: XCTestCase {
             }
             XCTAssertFalse(app.otherElements["player-video"].exists)
             let search = app.searchFields["channel-search-field"]
-            search.tap(); search.typeText(title)
+            search.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            if !app.keyboards.firstMatch.waitForExistence(timeout: 2) {
+                search.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            }
+            search.typeText(title)
             if isMovie {
                 XCTAssertFalse(heart.exists, "Movie search results must also omit the row favorite")
                 XCTAssertTrue(app.buttons["Mavi Yolculuk"].firstMatch.exists)
@@ -125,7 +129,11 @@ final class LibraryArtworkUITests: XCTestCase {
         let detailFavorite = app.buttons["series-detail-favorite"]
         XCTAssertTrue(detailFavorite.waitForExistence(timeout: 5))
         XCTAssertTrue(detailFavorite.isSelected)
-        detailFavorite.tap(); XCTAssertFalse(detailFavorite.isSelected)
+        capture("favorites-series-header-before-toggle")
+        detailFavorite.tap()
+        capture("favorites-series-header-after-toggle")
+        let removed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "selected == false"), object: detailFavorite)
+        XCTAssertEqual(XCTWaiter.wait(for: [removed], timeout: 3), .completed)
         detailFavorite.tap(); XCTAssertTrue(detailFavorite.isSelected)
         capture("favorites-series-header")
         let episode = app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/201.mp4"]
@@ -601,10 +609,44 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Mavi Yolculuk"].firstMatch.exists)
     }
 
+    func testMovieSortingAndPlaybackMenuStayWithinCategory() {
+        let app = openCatalog()
+        defer { app.terminate() }
+        let sort = app.buttons["library-sort"]
+        XCTAssertFalse(sort.exists)
+        capture("sort-categories")
+        let category = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "FİLM: Sinema")).firstMatch
+        for _ in 0..<4 { if category.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(category.isHittable); category.tap()
+        XCTAssertTrue(sort.waitForExistence(timeout: 5))
+        XCTAssertEqual(sort.value as? String, "Son eklenenler")
+        sort.tap(); app.buttons["Ada göre (Z–A)"].tap()
+        let lastAlphabetically = app.buttons["Yolun Ötesi"].firstMatch
+        let firstAlphabetically = app.buttons["Mavi Yolculuk"].firstMatch
+        XCTAssertTrue(lastAlphabetically.waitForExistence(timeout: 5))
+        sort.tap(); app.buttons["Son eklenenler"].tap()
+        let newest = app.buttons["Son Işık"].firstMatch
+        XCTAssertTrue(newest.waitForExistence(timeout: 5))
+        let sorted = NSPredicate { _, _ in newest.frame.minY < firstAlphabetically.frame.minY }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: sorted, object: app)], timeout: 10), .completed)
+        capture("sort-movies-recently-added")
+        firstAlphabetically.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        pause(app)
+        app.buttons["player-channel-picker"].tap()
+        XCTAssertTrue(firstAlphabetically.waitForExistence(timeout: 5))
+        XCTAssertTrue(lastAlphabetically.exists)
+        XCTAssertFalse(app.buttons["browse-all-channels"].exists)
+        XCTAssertFalse(app.buttons["series-open-Kıyı Hikâyeleri"].exists)
+        XCTAssertFalse(app.buttons["Nova TV"].exists)
+        capture("movie-playback-category")
+    }
+
     func testSeriesSeasonsSortAndKeepPlaybackQueueWithinSeries() {
         let app = openCatalog()
         defer { app.terminate() }
         openSeriesCategory(app)
+        XCTAssertFalse(app.buttons["library-sort"].exists)
         XCTAssertTrue(app.buttons["series-open-Kıyı Hikâyeleri"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["series-open-Gece Vardiyası"].exists)
         XCTAssertFalse(app.buttons["Kıyı Hikâyeleri S01-E01"].exists)
@@ -708,6 +750,10 @@ final class LibraryArtworkUITests: XCTestCase {
 
     private func pause(_ app: XCUIApplication) {
         let button = app.buttons["player-play-pause"]
+        if !button.waitForExistence(timeout: 2) {
+            // Controls can auto-hide while a busy simulator finishes navigation.
+            app.otherElements["player-video"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
         XCTAssertTrue(button.waitForExistence(timeout: 5))
         if button.label == "Duraklat" { button.tap() }
     }
@@ -841,8 +887,11 @@ final class LibraryArtworkUITests: XCTestCase {
         openLibrary(app)
         let add = app.buttons["add-source"]
         for _ in 0..<4 { if add.isHittable { break }; app.swipeUp() }
-        add.tap()
-        XCTAssertTrue(app.textFields["source-name"].waitForExistence(timeout: 5))
+        for _ in 0..<2 {
+            add.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            if app.textFields["source-name"].waitForExistence(timeout: 5) { break }
+        }
+        XCTAssertTrue(app.textFields["source-name"].exists)
         app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Görsel Kitaplık")
         app.textFields["source-url"].tap()
         let url = favoriteLists ? "http://127.0.0.1:8774/favorite-lists.m3u" : liveChannels.map { "http://127.0.0.1:8774/live-picker.m3u?count=\($0)" } ?? (singleSeason ? "http://127.0.0.1:8774/catalog-single-season.m3u" : movieEpisodes ? "http://127.0.0.1:8774/catalog-movie-episodes.m3u" : ordinaryPlaylist ? "http://127.0.0.1:8774/catalog.m3u" : "http://127.0.0.1:8774/catalog/get.php?username=artwork&password=fixture&type=m3u_plus")

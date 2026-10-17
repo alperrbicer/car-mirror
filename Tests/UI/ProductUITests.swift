@@ -665,8 +665,9 @@ final class ProductUITests: XCTestCase {
         let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 10), .completed)
         XCTAssertGreaterThan(video.frame.height, app.frame.height * 0.9)
-        video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.28))
-            .press(forDuration: 0.05, thenDragTo: video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.78)))
+        if app.buttons["Tamam"].waitForExistence(timeout: 2) { app.buttons["Tamam"].tap() }
+        if !app.buttons["player-fullscreen"].isHittable { video.tap() }
+        app.buttons["player-fullscreen"].tap()
         let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 10), .completed)
         XCUIDevice.shared.orientation = .portrait
@@ -697,8 +698,7 @@ final class ProductUITests: XCTestCase {
         capture("tv-picker-stays-open", app: app)
         app.buttons["Kapat"].tap()
         if !app.buttons["player-fullscreen"].isHittable { video.tap() }
-        video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.28))
-            .press(forDuration: 0.05, thenDragTo: video.coordinate(withNormalizedOffset: CGVector(dx: 0.35, dy: 0.78)))
+        app.buttons["player-fullscreen"].tap()
         let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 5), .completed)
         XCUIDevice.shared.orientation = .portrait
@@ -996,6 +996,27 @@ final class ProductUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: inline, object: app)], timeout: 5), .completed,
                        "A deliberate fast downward swipe must not require an 80-point drag")
         capture("portrait-fullscreen-exit-short-swipe", app: app)
+    }
+
+    func testPortraitPinchAndRepeatedRotationKeepVideoInViewport() {
+        let (app, video) = openPausedPortraitFullscreenPlayer()
+        defer { app.terminate(); XCUIDevice.shared.orientation = .portrait }
+        video.pinch(withScale: 2, velocity: 1)
+        XCTAssertGreaterThan(video.frame.height, video.frame.width)
+        for _ in 0..<3 {
+            XCUIDevice.shared.orientation = .landscapeLeft
+            let landscape = NSPredicate { _, _ in app.frame.width > app.frame.height && abs(video.frame.minY - app.frame.minY) < 2 && abs(video.frame.height - app.frame.height) < 2 }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: landscape, object: app)], timeout: 8), .completed)
+            if app.staticTexts["Yatay tam ekran hareketleri"].waitForExistence(timeout: 1) { app.buttons["Tamam"].tap() }
+            app.buttons["player-channel-picker"].tap()
+            let closeSheet = app.buttons["close-playback-queue"]
+            XCTAssertTrue(closeSheet.waitForExistence(timeout: 5))
+            closeSheet.tap()
+            XCUIDevice.shared.orientation = .portrait
+            let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width && abs(video.frame.minY - app.frame.minY) < 2 && abs(video.frame.height - app.frame.height) < 2 }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 8), .completed)
+        }
+        capture("player-rotation-keeps-video-visible", app: app)
     }
 
     func testPortraitFullscreenGesturesPreservePlaybackAndTimelineControls() {

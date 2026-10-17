@@ -1,0 +1,66 @@
+{
+  "capturedDate": "2026-10-17",
+  "resultBundle": "build/store-metadata-20261017/paywall.xcresult",
+  "testPassed": true,
+  "content": "Unmodified screenshots from the current app in local Xcode StoreKit Test. USD prices are local test configuration, not a Turkish storefront capture.",
+  "prices": {
+    "weekly": "USD 2.99/week with eligible 3-day trial",
+    "yearly": "USD 29.99/year with eligible 7-day trial"
+  },
+  "files": [
+    {
+      "file": "weekly-ar.png",
+      "plan": "weekly",
+      "language": "ar",
+      "sha256": "9c708fccc557c4e4c3625da4aee21a3fb33c53a8e9b2081b1109c414fc11c6c1",
+      "sourceAttachment": "7830A8C5-9874-41C1-B7D5-1483AA7A5A87.png",
+      "deviceId": "B952AA0F-C81F-49A2-83F3-CEBE9D048739",
+      "test": "ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits()"
+    },
+    {
+      "file": "yearly-ar.png",
+      "plan": "yearly",
+      "language": "ar",
+      "sha256": "9b45b53740deba2f53964276ca9e832d89bfdcd7b8d514d324a87c60c2ab8373",
+      "sourceAttachment": "98341B20-E945-42DC-A4A3-6BF788E51DFE.png",
+      "deviceId": "B952AA0F-C81F-49A2-83F3-CEBE9D048739",
+      "test": "ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits()"
+    },
+    {
+      "file": "weekly-en.png",
+      "plan": "weekly",
+      "language": "en",
+      "sha256": "80b0cda1fa5c198261149f41c308cada56e46789403db38b29404463252ce29e",
+      "sourceAttachment": "2A6378DD-0326-417D-BB1A-98E4F089A799.png",
+      "deviceId": "B952AA0F-C81F-49A2-83F3-CEBE9D048739",
+      "test": "ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits()"
+    },
+    {
+      "file": "yearly-en.png",
+      "plan": "yearly",
+      "language": "en",
+      "sha256": "f440f471661af7920e3eb952cc20083a7343247a18024ad262424b93ecab4b8e",
+      "sourceAttachment": "722A8A21-6233-43DA-A1BA-CCACF2CA26B3.png",
+      "deviceId": "B952AA0F-C81F-49A2-83F3-CEBE9D048739",
+      "test": "ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits()"
+    },
+    {
+      "file": "weekly-tr.png",
+      "plan": "weekly",
+      "language": "tr",
+      "sha256": "7d6ade8ac9b798630aa413f6744a9c8173572b3c3f2d38aa01c20dd24d48c27d",
+      "sourceAttachment": "AAE7FB0D-E128-4E71-B5B9-40865889D243.png",
+      "deviceId": "B952AA0F-C81F-49A2-83F3-CEBE9D048739",
+      "test": "ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits()"
+    },
+    {
+      "file": "yearly-tr.png",
+      "plan": "yearly",
+      "language": "tr",
+      "sha256": "71c7042670888fca4938af617ceaa32525d3cd021143d568cacba1e684210962",
+      "sourceAttachment": "53096B5B-2B5B-44FA-8E17-7EB3325AC02C.png",
+      "deviceId": "B952AA0F-C81F-49A2-83F3-CEBE9D048739",
+      "test": "ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits()"
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-17",
+  "locale": "tr-TR",
+  "device": "iPhone 17 Pro Max",
+  "runtime": "iOS 26.5",
+  "build": "1.0 (30)",
+  "dimensions": [
+    1320,
+    2868
+  ],
+  "originalScreenshotsEdited": false,
+  "screenshotCount": 13,
+  "recommendedCount": 10,
+  "alternativeCount": 3,
+  "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+  "captureSuiteExitCode": 0,
+  "demoArtworkMode": "built-in image_gen",
+  "demoArtworkPrompts": "ornek-gorseller/imagegen-prompts.json",
+  "demoContent": "Original fictional sample artwork and locally generated scenic video; no provider content or real credentials. The app does not include a catalog.",
+  "appUI": "Unmodified current views in isolated project copy. Only DEBUG seed URLs, source name and sample watch positions/durations were changed.",
+  "files": [
+    {
+      "file": "adaylar/01-buyuk-ekran.png",
+      "sha256": "5638d89b918ac5e41565a092ea7caa37c23f8f48f3a21a4c73ed1350901897c3",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test01Sharing()",
+      "attachment": "04D08783-FA33-463A-B867-753C5677AF50.png",
+      "timestamp": 1792189934.668,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/01-buyuk-ekran.png"
+    },
+    {
+      "file": "adaylar/02-kaldigin-yerden.png",
+      "sha256": "feecc8f6162b7aacb442184729c6162fc73ec0fe5671f2556e1e2454c330e31a",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test06ScreenshotRevisions()",
+      "attachment": "E4313A5A-ECD6-4F4E-9DF1-D748876D3942.png",
+      "timestamp": 1792226942.898,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/revision-r2/capture.xcresult",
+      "recommendedFile": "iphone-6.9-tr/03-kaldigin-yerden.png"
+    },
+    {
+      "file": "adaylar/03-film-dizi-canli.png",
+      "sha256": "3fe75e5b494b34e25a0a9c6a2c30e27bfa4b9013143ce3706c384711e91865ac",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test06ScreenshotRevisions()",
+      "attachment": "7D418EC2-E596-43C3-82E6-0DBA57619A6C.png",
+      "timestamp": 1792226952.55,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/revision-r2/capture.xcresult",
+      "recommendedFile": "iphone-6.9-tr/05-film-dizi-canli.png"
+    },
+    {
+      "file": "adaylar/04-film-kitapligi.png",
+      "sha256": "885c27c512bac5ab72e77326687b1b85810cbd188118b25df7723ad9c4ee5c41",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "AC21BF65-86EB-4080-B5A6-702342322BD5.png",
+      "timestamp": 1792190084.443,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/09-film-kategorisi.png"
+    },
+    {
+      "file": "adaylar/05-dizi-sezon-bolum.png",
+      "sha256": "ff8848176677fcdbc75793760a6a17262826e1fa4296014e20aac6159a34d88b",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test04Series()",
+      "attachment": "9ED99ADC-BF1E-476E-9897-E453112C3587.png",
+      "timestamp": 1792190126.156,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/02-dizi-sezon-bolum.png"
+    },
+    {
+      "file": "adaylar/06-oynatici.png",
+      "sha256": "7b57e3168005bc7fe84e0ef30044dee773fd2d98745d9632d457c40468d34851",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "0867CE8D-B44B-462F-B328-86C10A9B6881.png",
+      "timestamp": 1792190092.834,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/04-oynatici.png"
+    },
+    {
+      "file": "adaylar/07-favoriler.png",
+      "sha256": "748016b14550c44752667b782df490266fb1bb2bb1c20266f6918e25f032be00",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test02ContinueWatching()",
+      "attachment": "591923B4-93B0-43E3-9849-8452253F986E.png",
+      "timestamp": 1792190047.893,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/07-favoriler.png"
+    },
+    {
+      "file": "adaylar/08-kisisel-medya.png",
+      "sha256": "2bd02bb2deb9ad188620a30c11d5dda5755d3f497b036619d5c5d9dfeccefb3e",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test01Sharing()",
+      "attachment": "F2193032-AD68-4B64-A713-1EE63B1FB0DF.png",
+      "timestamp": 1792189940.645,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/08-kisisel-medya.png"
+    },
+    {
+      "file": "adaylar/09-izleme-gecmisi.png",
+      "sha256": "88aeb8da4d37eb2f049c3eebe6007f97c568013fdb778786579b2dcd4e54ec47",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test02ContinueWatching()",
+      "attachment": "E753302E-AC05-4A68-B2CD-5AF60EFF13F3.png",
+      "timestamp": 1792189999.177,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/10-izleme-gecmisi.png"
+    },
+    {
+      "file": "adaylar/10-film-bilgileri.png",
+      "sha256": "9f26de736523589edd8337982aa897d4fa90397f01fd4359eee694be3af55384",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "09CC4EA7-EE9A-4BB7-BC14-73C0232F4B00.png",
+      "timestamp": 1792190097.27,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult"
+    },
+    {
+      "file": "adaylar/11-dizi-kitapligi.png",
+      "sha256": "9af1e98b4c73bc92f40d07a228f17fc2b3ec9ccaff5ab0ee8d4e9d5aa6ff5b95",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test04Series()",
+      "attachment": "3C222134-F280-41FE-96DF-8BF85FE467A0.png",
+      "timestamp": 1792190119.917,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult"
+    },
+    {
+      "file": "adaylar/12-dizi-bilgileri.png",
+      "sha256": "4cc96783a15f1c233e67b40f74c33f9a25701d650072bcfff21e2b04299638f3",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test04Series()",
+      "attachment": "B5FEF3B7-105A-4926-9EC1-B1F896F927BE.png",
+      "timestamp": 1792190130.306,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult"
+    },
+    {
+      "file": "adaylar/13-cevrimdisi-indirilenler.png",
+      "sha256": "147cd65a568e29cf8141fed95b792686f4fdc11da2cbf64c443809e8c321f56d",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test05Downloads()",
+      "attachment": "6ED22F86-A2D4-4874-AFBD-22D7B3B919B4.png",
+      "timestamp": 1792190166.3,
+      "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+      "recommendedFile": "iphone-6.9-tr/06-cevrimdisi-indirilenler.png"
+    }
+  ],
+  "captureSuiteSummary": {
+    "result": "Passed",
+    "passedTests": 5,
+    "failedTests": 0
+  },
+  "concurrentSourceChange": "Current SeriesLibraryViews.swift adds allowsHitTesting(false) and accessibilityHidden(true) to a decorative circle border. Verified no visual change from the capture snapshot.",
+  "revision": {
+    "number": 2,
+    "originalSet": "/Users/alperbicer/Documents/projects/private/car-mirror/Release/AppStore/screenshots/tr-review-20261017",
+    "updatedScreenshots": [
+      "03-film-dizi-canli.png",
+      "02-kaldigin-yerden.png"
+    ],
+    "changes": [
+      "Existing Downloads button made visible in Sources with a completed demo download.",
+      "Third category row added through demo playlist: BELGESEL: Doğa and RADYO: Müzik.",
+      "Original alternatives 04 and 09 appended as main images 09 and 10."
+    ],
+    "unchangedImageBytesPreserved": true,
+    "originalSetUnchanged": true,
+    "captureSuiteSummary": {
+      "result": "Passed",
+      "passedTests": 1,
+      "failedTests": 0
+    },
+    "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/revision-r2/capture.xcresult"
+  }
+}

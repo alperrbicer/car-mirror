@@ -1,0 +1,34 @@
+İzlemek istediklerini tek yerde topla. iPhone’unda izle, Google Cast ve AirPlay ile TV’ye aktar; uyumlu CarPlay sistemlerinde park halindeyken araç ekranında aç.
+
+Mirivo, kendi IPTV kaynakların ve kişisel medyan için reklamsız bir oynatıcı ve ekran paylaşımı uygulamasıdır.
+
+Kendi kitaplığını oluştur
+• M3U oynatma listeni, yayın bağlantını veya Xtream Codes bilgilerini ekle.
+• Film, dizi, canlı yayın ve radyo içeriklerini kaynağındaki kategorilerden bul.
+• Dizilerini sezon ve bölüm sırasıyla takip et; aramayla aradığın içeriğe ulaş.
+• Sevdiklerini favorilerine ekle ve izlemeye kaldığın yerden devam et.
+
+İndir, internet olmadan izle
+Sağlayıcının izin verdiği uygun film ve bölümleri iPhone’una indir. İndirdiklerini tek yerden aç, yönet ve çevrimdışı izle.
+
+Büyük ekrana taşı
+Google Cast ve AirPlay ile desteklenen TV ve alıcılara bağlan. Uyumlu araç ve sistemlerde CarPlay videoyu yalnızca park halindeyken kullan. Araçtaki video desteği, iPhone ve sistem uyumluluğuna bağlıdır.
+
+Fotoğrafların ve dosyaların da yanında
+Fotoğraflarını slayt gösterisine dönüştür, arşivindeki videoları aç, iPhone veya iCloud Drive’dan müzik ve dosya seç. Bir bağlantıyı kitaplığına kaydetmeden oynatabilir, iPhone ekranını ve uygun uygulama sesini paylaşabilirsin.
+
+İzleme deneyimini kendine göre ayarla
+Tam ekran ve görüntü boyutu seçeneklerini kullan. Kaynağın sunduğu ses dili ve altyazılar arasından seçim yap. Cihaz içi canlı altyazılar iOS 26 ile desteklenen cihaz ve dillerde kullanılabilir.
+
+Mirivo Pro
+Kaynak ekleme ve kitaplıkta gezinme üyelik öncesinde kullanılabilir. Oynatma, indirme ve ekran paylaşımı için etkin ücretsiz deneme veya Mirivo Pro gerekir. Haftalık ve yıllık abonelikler aynı Pro özelliklerini açar.
+
+Ücretsiz deneme, varsa yalnızca uygun hesaplara sunulur. Güncel fiyat, dönem, deneme süresi ve deneme sonrası ücret satın alma öncesinde gösterilir. Abonelikler otomatik yenilenir; deneme iptal edilmezse ücretli aboneliğe dönüşür. Ödeme Apple hesabından alınır. Yenilenmesini istemiyorsan deneme veya dönem bitiminden en az 24 saat önce App Store’dan iptal et. Uygulamayı silmek aboneliği iptal etmez. Satın alımlarını geri yükleyebilir ve aboneliğini App Store’dan yönetebilirsin.
+
+İçerik ve uyumluluk
+Mirivo kanal, film, dizi, IPTV hesabı veya içerik aboneliği sağlamaz. İçeriklerini kendi kaynaklarından eklersin. Yalnızca erişme ve indirme hakkın olan içerikleri kullan. Canlı yayınlar ve DRM korumalı içerikler indirilemez. Ekran paylaşımı, kaynak uygulamanın ve alıcı cihazın izin verdiği içeriklerle çalışır; Mirivo DRM veya araç güvenlik kısıtlamalarını kaldırmaz.
+
+Gizlilik: https://mirivo-support.netlify.app/tr/privacy.html
+Kullanım koşulları: https://mirivo-support.netlify.app/tr/terms.html
+Destek: https://mirivo-support.netlify.app/tr/support.html
+Apple Standart EULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/

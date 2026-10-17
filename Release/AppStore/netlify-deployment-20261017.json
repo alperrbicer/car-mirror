@@ -1,0 +1,185 @@
+{
+  "checkedAt": "2026-10-16T22:24:48.355401+00:00",
+  "siteURL": "https://mirivo-support.netlify.app",
+  "siteId": "3f169da4-1d2e-419b-a337-036879d91f9e",
+  "deployId": "6ad2a3a0dd89888e79e8bb1c",
+  "uiPublished": true,
+  "artifact": "Release/mirivo-netlify.zip",
+  "artifactSHA256": "c67d0ecfa487999d66343c78e60a46c29c85be87ce57cd325152e3d5853f5335",
+  "comparison": "HTML tags, text, attributes and resolved links match; Netlify pretty URLs and comments normalized. Assets byte-identical.",
+  "headerRuleApplied": true,
+  "redirectRulesApplied": true,
+  "deployFileBrowserTotal": 17,
+  "files": [
+    {
+      "path": "assets/mark.svg",
+      "url": "https://mirivo-support.netlify.app/assets/mark.svg",
+      "status": 200,
+      "bytes": 670,
+      "sha256": "830901435a90001c9adb7226a95c61d55255755f07031e3420659fee81cff42a",
+      "byteIdentical": true,
+      "contentMatches": true
+    },
+    {
+      "path": "assets/style.css",
+      "url": "https://mirivo-support.netlify.app/assets/style.css",
+      "status": 200,
+      "bytes": 2723,
+      "sha256": "faa65740a7ca4f5677d8823f948a7c36fbb1209541aef982eaa1a45c5a710476",
+      "byteIdentical": true,
+      "contentMatches": true
+    },
+    {
+      "path": "en/index.html",
+      "url": "https://mirivo-support.netlify.app/en/index.html",
+      "status": 200,
+      "bytes": 2031,
+      "sha256": "09b35a32a0e8f91d341616c9f21ca0a967467813fdb33a4ec3c9a2130fd25612",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "en/privacy.html",
+      "url": "https://mirivo-support.netlify.app/en/privacy.html",
+      "status": 200,
+      "bytes": 13055,
+      "sha256": "79edbc539a7050f3ebfee1ee8d617bf19194a5f2e235214f8de7013e17a0f6c4",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "en/support.html",
+      "url": "https://mirivo-support.netlify.app/en/support.html",
+      "status": 200,
+      "bytes": 5796,
+      "sha256": "05463e1cc8077208515cbc38fb38d02c936c6d296374c7d44b91abde17c53030",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "en/terms.html",
+      "url": "https://mirivo-support.netlify.app/en/terms.html",
+      "status": 200,
+      "bytes": 6166,
+      "sha256": "74bb33ef35695e4569dc84ef769ada241f0277cae634db0d4bd9796120cdbc93",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "index.html",
+      "url": "https://mirivo-support.netlify.app/index.html",
+      "status": 200,
+      "bytes": 532,
+      "sha256": "ff8fff09b39faca2d5176d56043c048b2c7e401207f98d4c2b3fc366660b7fa0",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "privacy.html",
+      "url": "https://mirivo-support.netlify.app/privacy.html",
+      "status": 200,
+      "bytes": 13616,
+      "sha256": "6724eee3a2ca5001c26ec80d7dcbf0a4a82e436a99a686a4cfe89ed7885bad00",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "robots.txt",
+      "url": "https://mirivo-support.netlify.app/robots.txt",
+      "status": 200,
+      "bytes": 23,
+      "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+      "byteIdentical": true,
+      "contentMatches": true
+    },
+    {
+      "path": "support.html",
+      "url": "https://mirivo-support.netlify.app/support.html",
+      "status": 200,
+      "bytes": 6276,
+      "sha256": "8e252d977861ccc820b38bf639ceba428db3037162da029c7d5e52e446253eba",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "terms.html",
+      "url": "https://mirivo-support.netlify.app/terms.html",
+      "status": 200,
+      "bytes": 6775,
+      "sha256": "4aa7b52416bc0751a85abdff27215fefa7d5259dec382fa0ac47c294aae6efd3",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "tr/index.html",
+      "url": "https://mirivo-support.netlify.app/tr/index.html",
+      "status": 200,
+      "bytes": 2136,
+      "sha256": "23d01838216d383854628244755feb9d9125180e6b4e217a3f844bfe9ee70010",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "tr/privacy.html",
+      "url": "https://mirivo-support.netlify.app/tr/privacy.html",
+      "status": 200,
+      "bytes": 13625,
+      "sha256": "a8fd75e334651913f06d3309d147c6a50e4ec473d912500d5c77cc153710957c",
+      "byteIdentical": false,
+      "contentMatches": true,
+      "securityHeaders": {
+        "Content-Security-Policy": "default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "no-referrer",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      }
+    },
+    {
+      "path": "tr/support.html",
+      "url": "https://mirivo-support.netlify.app/tr/support.html",
+      "status": 200,
+      "bytes": 6285,
+      "sha256": "08c2067fec532bad90981f623d05f0fed03f28fa549c41efbbb29285870f9984",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "tr/terms.html",
+      "url": "https://mirivo-support.netlify.app/tr/terms.html",
+      "status": 200,
+      "bytes": 6784,
+      "sha256": "77395d24c8f3d3c9027161bcd59d4440f3e21e4594a34bad01231778b9f58d85",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "privacy",
+      "url": "https://mirivo-support.netlify.app/privacy",
+      "status": 200,
+      "bytes": 13616,
+      "sha256": "6724eee3a2ca5001c26ec80d7dcbf0a4a82e436a99a686a4cfe89ed7885bad00",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "terms",
+      "url": "https://mirivo-support.netlify.app/terms",
+      "status": 200,
+      "bytes": 6775,
+      "sha256": "4aa7b52416bc0751a85abdff27215fefa7d5259dec382fa0ac47c294aae6efd3",
+      "byteIdentical": false,
+      "contentMatches": true
+    },
+    {
+      "path": "support",
+      "url": "https://mirivo-support.netlify.app/support",
+      "status": 200,
+      "bytes": 6276,
+      "sha256": "8e252d977861ccc820b38bf639ceba428db3037162da029c7d5e52e446253eba",
+      "byteIdentical": false,
+      "contentMatches": true
+    }
+  ],
+  "passed": true
+}

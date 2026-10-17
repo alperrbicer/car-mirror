@@ -3,6 +3,23 @@ import CryptoKit
 @testable import CarMirror
 
 final class MediaMetadataIntegrationTests: XCTestCase {
+    func testRecencyCatalogMatchesOnlyMovieIDsFromTheSavedAccount() async throws {
+        let loader = MediaMetadataLoader(fetch: { url, limit in
+            XCTAssertEqual(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "action" }?.value, "get_vod_streams")
+            XCTAssertEqual(limit, MediaCatalogRecency.maximumBytes)
+            return (Data(#"[{"stream_id":1,"added":"1700000000"},{"stream_id":2,"added":"1700000100"}]"#.utf8), url)
+        })
+        let channels = [
+            MediaChannel(title: "Movie", url: URL(string: "https://cdn.example/movie/u/p/1.mp4")!),
+            MediaChannel(title: "Other account", url: URL(string: "https://cdn.example/movie/other/account/2.mp4")!),
+            MediaChannel(title: "Show S01E01", url: URL(string: "https://cdn.example/series/u/p/2.mp4")!),
+            MediaChannel(title: "Live", url: URL(string: "https://cdn.example/live/u/p/2.m3u8")!)
+        ]
+        let secret = SourceSecret(url: URL(string: "https://provider.example/get.php?username=u&password=p&type=m3u_plus")!)
+        let dates = try await loader.addedDates(kind: .playlist, secret: secret, channels: channels)
+        XCTAssertEqual(dates, [channels[0].id: Date(timeIntervalSince1970: 1_700_000_000)])
+    }
+
     func testCafeSpellingVariantLoadsVerifiedSeriesSynopsis() async throws {
         let loader = MediaMetadataLoader(fetch: { url, _ in
             let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []

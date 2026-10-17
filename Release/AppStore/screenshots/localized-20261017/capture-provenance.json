@@ -1,0 +1,2410 @@
+{
+  "nativeUneditedScreenshots": true,
+  "devices": {
+    "large": {
+      "tr": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/01-buyuk-ekran.png",
+            "sha256": "5638d89b918ac5e41565a092ea7caa37c23f8f48f3a21a4c73ed1350901897c3",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/02-dizi-sezon-bolum.png",
+            "sha256": "ff8848176677fcdbc75793760a6a17262826e1fa4296014e20aac6159a34d88b",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/03-kaldigin-yerden.png",
+            "sha256": "feecc8f6162b7aacb442184729c6162fc73ec0fe5671f2556e1e2454c330e31a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/04-oynatici.png",
+            "sha256": "7b57e3168005bc7fe84e0ef30044dee773fd2d98745d9632d457c40468d34851",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/05-film-dizi-canli.png",
+            "sha256": "3fe75e5b494b34e25a0a9c6a2c30e27bfa4b9013143ce3706c384711e91865ac",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/06-cevrimdisi-indirilenler.png",
+            "sha256": "147cd65a568e29cf8141fed95b792686f4fdc11da2cbf64c443809e8c321f56d",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/07-favoriler.png",
+            "sha256": "748016b14550c44752667b782df490266fb1bb2bb1c20266f6918e25f032be00",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/08-kisisel-medya.png",
+            "sha256": "2bd02bb2deb9ad188620a30c11d5dda5755d3f497b036619d5c5d9dfeccefb3e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/09-film-kategorisi.png",
+            "sha256": "885c27c512bac5ab72e77326687b1b85810cbd188118b25df7723ad9c4ee5c41",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/10-izleme-gecmisi.png",
+            "sha256": "88aeb8da4d37eb2f049c3eebe6007f97c568013fdb778786579b2dcd4e54ec47",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "existingApprovedSetPreserved": true,
+        "originalCaptureManifest": "Release/AppStore/screenshots/tr-review-20261017-r2/capture-manifest.json",
+        "testPassed": true
+      },
+      "en": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/01-big-screen.png",
+            "sha256": "eda634dc5184c855c067b5ea5cc2e000116890b85bd6e8ecfb9989c0c4bdab55",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/02-series-seasons-episodes.png",
+            "sha256": "95d133ddb8958e4d14e7167e0464be94214cbb1e6d594102a7cd1574a38553f0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/03-continue-watching.png",
+            "sha256": "bc0b59de1b4de2f1fbb5ee158401e1ddaa51b3c939be3663ceec0a61291bd4ae",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/04-player.png",
+            "sha256": "9612f6e0095afd3c04198111f22187cee9eae2061cdc14f3641aeea1e56ba12e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/05-categories.png",
+            "sha256": "2c9e406b591a00017b39cc9374efb5d1245dfc526985840eb2c11a3b78fe0193",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/06-offline-downloads.png",
+            "sha256": "23ef2b70ba5e98cc0ac12567075a2783c92a948edbc5b55dbb2bdb12bf13086a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/07-favorites.png",
+            "sha256": "609a6de08d7688b0a4ee291088a3f9477724981c015435101826f3af90a5a487",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/08-personal-media.png",
+            "sha256": "d56cac5c756037ad06b008a3294e37e7fa12641e39fc647c13416e4b453d3894",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/09-movies.png",
+            "sha256": "4e4c1a7f44051411dc01b98d2ae888eac16c2d28aeaad568f9e3c780540a84e3",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/en/10-watch-history.png",
+            "sha256": "625b8f40779627b86c691c0111794fa33b96d88f895646794c5fa3861d30aa03",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false,
+            "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-en-r8.xcresult"
+          }
+        ],
+        "testPassed": true
+      },
+      "ar": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-01-big-screen.png",
+            "sha256": "f54e20e19ec028dcbbe6113d7678c13c5a430ae95ae104f30d825fe12ea64cdf",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-02-series-seasons-episodes.png",
+            "sha256": "b41f6770e010f513a273725c54baa82a3863e9db372b79dde83e9c0c72afd2f6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-03-continue-watching.png",
+            "sha256": "ae25edef0246c5b744447aaeed064110276aef99b9a957f4246a42d5b46dde11",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-04-player.png",
+            "sha256": "31f0d4102da89e2ae18c14a2d6dd1881cabe7c6cffd9b6d6367da3f6558dc6c7",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-05-categories.png",
+            "sha256": "55c7c62f831166cc4494e9dfa850935c46d4a9509b0e0e8901d440c632592dba",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-06-offline-downloads.png",
+            "sha256": "de76158afe72745b0f4cf8618ce03a7e5dc163398008600529eb8f1b2da8ef22",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-07-favorites.png",
+            "sha256": "a2a39a2a19ff3a645c4d36e13b6f805887f88ee18f3f2a06b608cc843c4f84d1",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-08-personal-media.png",
+            "sha256": "4c0d90440fdb6f80b2298f84a5229da8214083a5ebe4ba7aeffa068fc3db8192",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-09-movies.png",
+            "sha256": "51478cfa2d52f90673621ee0cc1f0db6c2f47b226eb4ddcc1bbfee2451bdeb9c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ar/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ar-10-watch-history.png",
+            "sha256": "d3c05089dd473116c3d9af71001972fa5c32423581a5ab0affb42154f08b419c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_ar",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "de": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-01-big-screen.png",
+            "sha256": "88818835fe6932fc421289d96f89ceeb4e56a56d6b6e807803d2dfcca6cf32d0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-02-series-seasons-episodes.png",
+            "sha256": "093af27e445d9264f4b090ae8a84a26c3a3324d5472c53b855863a92d5df841c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-03-continue-watching.png",
+            "sha256": "3c29bad4f4acbd8d54faef5fa8c494d76c34751c3a130de7e65da7a21b09f8a4",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-04-player.png",
+            "sha256": "0aaa7cef653b0cb9202f069206af564ae77829ff12877a04c5054c7beba9d777",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-05-categories.png",
+            "sha256": "e2fe45243567bb5891762ec3f11c0491a1c2ac0cd361e1362c85968cc1881fdf",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-06-offline-downloads.png",
+            "sha256": "21df5260efa62ca5e017b0292271b4b225051e49663a5ccda1ef70297662ae88",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-07-favorites.png",
+            "sha256": "03411da1f8cb13ae54f3a36425a2655a1aca67850497bd03531f5e48a713ae67",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-08-personal-media.png",
+            "sha256": "2de283d7d207d7946173f44837785b34c6f3aaea0159917650c041f5f850e844",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-09-movies.png",
+            "sha256": "b359c0aeb0a57a18e3f58f3a5a2a507e410aedd9f5aedbd78a6066468026033e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/de/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-de-10-watch-history.png",
+            "sha256": "36358393414b89ac9ecb06a83fd39d13227a6c52ff01478bb5ffec41e86df9a9",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_de",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "es": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-01-big-screen.png",
+            "sha256": "a25e60a29d6a8589fe6115117a6860834a742f6d24affe729e4e3cf7ec6107a5",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-02-series-seasons-episodes.png",
+            "sha256": "bafb2cb2466c7867dc3aa3d639e844d967c3fd76ebe7403c2167aae6502e4aef",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-03-continue-watching.png",
+            "sha256": "eae488ea120de22e8dbb38ad78219c01542d63c862051975d13a41231627dc06",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-04-player.png",
+            "sha256": "26194fbad15a92c0b7ce589498e8b69887eb5393292662b91c110de104225276",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-05-categories.png",
+            "sha256": "65c68bac0ff7bfe57e62eab726352c4f0ab4e02bee57c7c25b817c0f720f27a5",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-06-offline-downloads.png",
+            "sha256": "ef4e1116e2a0455007bdb60c32996f3c59c56bb74ba949b6eeb2becfa1b266ef",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-07-favorites.png",
+            "sha256": "30d6ec794c96fa83a36faf8f9d62624fc921fa2a79d0681cebe6f6766a9f31bc",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-08-personal-media.png",
+            "sha256": "b0e35e4a9c3bfa84d5ccfb5a9f23e2bb00b7e9123a901f931b7508ff825bb9e9",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-09-movies.png",
+            "sha256": "4ce84bd5f348dcd9e6a00b25ede6adc41699738fe7e4d4005d4c7b0ff5d72ce6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/es/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-es-10-watch-history.png",
+            "sha256": "bad5e72196373854bd74b7ba0ae5c8a41b87d0d6fdc662ffd6a6f4e3c2ff74c3",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_es",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "fr": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-01-big-screen.png",
+            "sha256": "2279a2743b221d43d4de78bc900f01b7e51e59eea298ef6f91ea3f93616eb72e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-02-series-seasons-episodes.png",
+            "sha256": "eeb3ac43dd3f7484450c5468817e323cc16014090026115da67aea6388b5d146",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-03-continue-watching.png",
+            "sha256": "3dd2a61178c4a74ded406dbd79fe7b27383b824adc2a2bf57650a10c8ea8ada0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-04-player.png",
+            "sha256": "f8c25967af6559468a25631bdebbc79c99e716284f0904dd7a630fa04e7f483a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-05-categories.png",
+            "sha256": "0a7b83e44e146049dd955d1ceaec1799c52b995eadf60f4cd2406182e7dd1bfa",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-06-offline-downloads.png",
+            "sha256": "8c2ca2ddce9d5f0d71c2cd48d24ce93a3f061e8add2ff252ce7497728ff75701",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-07-favorites.png",
+            "sha256": "cc837d6fb613e67849720b80f8c41ac94a0975aa727f8f546fac29e68c317b55",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-08-personal-media.png",
+            "sha256": "4e41dff1dd813b9a34a1c734d0f23687960e5a629978ed355de4af5b733f0d87",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-09-movies.png",
+            "sha256": "efa310906fd53fb9e90f5941badd76c81b0fa5031450157f5f09e3b0669a7e96",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/fr/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-fr-10-watch-history.png",
+            "sha256": "2e54e987f34e7770bbb84020207d10ff21ef5148692bc99ecd2151d45a83a9f6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_fr",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "he": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-01-big-screen.png",
+            "sha256": "3e8510bfb51e3d481855def263e2a252b7ec03d6dfc61a307972be7545a3d25a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-02-series-seasons-episodes.png",
+            "sha256": "51494f92b4e1da8f117c6b2f4aa7174870a9c5bca4ec57668289618d82f265bd",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-03-continue-watching.png",
+            "sha256": "d4838214d180b5fc5108a5e86428db5a20fea3ad231ad9cfee1b7647f0b7106f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-04-player.png",
+            "sha256": "d4efe939c3381592278b96d24a2e043a47cc3b7af6e9ae05269e0893ef1c1ebe",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-05-categories.png",
+            "sha256": "1bdf1e56ff063c0843714eace23621f022d3ce7c9cd9c917d29bb279f38ecb78",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-06-offline-downloads.png",
+            "sha256": "b75050cc3d8813341c7669916b6842923a4178127f388918f181e36758a5d7aa",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-07-favorites.png",
+            "sha256": "4abb4f278d875a209215b4d59763a92852e2d43f0e5eb177aca9cac68d704e8b",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-08-personal-media.png",
+            "sha256": "59158d7558546a66856f9d43521c7a6522718af6e0bfcf0d64460baa400adb48",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-09-movies.png",
+            "sha256": "08115a557ef8bdc080ecfc261bf213f0af3c33412164a7b3567226ccfdc47e90",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/he/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-he-10-watch-history.png",
+            "sha256": "a3a8e3b486f2c40f2395fd7f54cc05c69749fc68de65368b40a790c1bfb5d4c4",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_he",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "hi": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-01-big-screen.png",
+            "sha256": "fac0d02a5dee743090dc593c9e29d8ddaa33ff754769775ed5c8f4d0224abe5d",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-02-series-seasons-episodes.png",
+            "sha256": "fb780f55e77a01df8a194bde6f0122afc9480a92bad6ee99e9741a5bff0b47f4",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-03-continue-watching.png",
+            "sha256": "76ba6ebff5a6fe09d66f5143155581e52d4eb55bee47dbb1b648c730d5b96d01",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-04-player.png",
+            "sha256": "effd7fa747df2d199d0c8429b7da6b471f7f069d5673dd367d72cec819d015cc",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-05-categories.png",
+            "sha256": "973a8aa53b31a3cccede9951dbf04a722d79563b659ae0d6eb0023c44321e39d",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-06-offline-downloads.png",
+            "sha256": "5583a219b0b69b499e82c02daad7d3bc7913f6a16ab7ef61cbd64742b583fe33",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-07-favorites.png",
+            "sha256": "7ab8487905ca2965dcf43db5ca32c9a127c0545c1009175e5d8020ffb20b5830",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-08-personal-media.png",
+            "sha256": "2586d6dc5949ce1cc5aa96a8191fc2fd617a4e346156cbff637e4afe5be7b7a6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-09-movies.png",
+            "sha256": "8778b429459dbf17d235776a0592947e3316fd8bc02ecbfe45492123ba3950ff",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/hi/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-hi-10-watch-history.png",
+            "sha256": "c414708add65ada0651754bb08f83357dc5b644359957cb2d83d6d37dbb4e48a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_hi",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "id": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-01-big-screen.png",
+            "sha256": "5c03a0982c7d19d352045f6b5b9292687344aa5ebd0851d4c1e0774a78608a55",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-02-series-seasons-episodes.png",
+            "sha256": "3cbbe4cf9dc4e3e21af298a36163f092944534b74a20922b82ae5a7bdd897be4",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-03-continue-watching.png",
+            "sha256": "03e1ca1e9784c80ea4056a2d9769603d87a4234116b8411e49781a6826cfed5c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-04-player.png",
+            "sha256": "51fef973b101306cdc0521bf40552c33116e62f7b204532df9860553b9f20210",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-05-categories.png",
+            "sha256": "fc8fee06d02bad362e6850d3db7aa014791a53dd98ea71a99d6d8c7c7b166b0f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-06-offline-downloads.png",
+            "sha256": "b9dc058cfbbcd0d452e3fe0cc751512e4c2c50ab6f9ec571443f4b7fa986abf7",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-07-favorites.png",
+            "sha256": "6a933a0fd7ff2a28f08453ec75979248a811b535c4960c5cdaa846263ae6ab0f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-08-personal-media.png",
+            "sha256": "5c0c2d337090f4dee1afe08ece250c736f9a86d62145db252f456574b2c0edb5",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-09-movies.png",
+            "sha256": "1053a91d31b0c7b086c055c6d24cf0a47eb691fbf45e094826f9b70847c709cf",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/id/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-id-10-watch-history.png",
+            "sha256": "15bb24bae5d77c9a7064b74e2d8b6862e051ce868d0d5b22385c06e818e84d18",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_id",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "it": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-01-big-screen.png",
+            "sha256": "db4b70fdea42d663f40fb76a47fed936735236638f03e622352c1c44e2282f5d",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-02-series-seasons-episodes.png",
+            "sha256": "cfa5745aa69505b4762da79db8694ef5e79cfaf65a44c3b9d185a42b75ffd033",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-03-continue-watching.png",
+            "sha256": "49460ceaa780ff9a91a027238bd5a515fadc568654fad2b448a9af8a3de400d6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-04-player.png",
+            "sha256": "bd285c4b2e757a9e29d11cc1795733ceed9541446ef132ae7bac960e6f856bc3",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-05-categories.png",
+            "sha256": "9078055b6b7792473d2f32c7eaa8e610f40288ee6930a46744005b28230bc83e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-06-offline-downloads.png",
+            "sha256": "c74a9d572568d28018999ace4e0c3ad170a6d8f65e61a31345ae5ae76f54fd97",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-07-favorites.png",
+            "sha256": "04b1367f6365a3058e7211b62f29c35d32439b42f560e9b80f933f407586d3bc",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-08-personal-media.png",
+            "sha256": "c67d33a8269c6e425e2ffce32b00cd448e836282ce38e89ad2f5de9325a3bc05",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-09-movies.png",
+            "sha256": "38e071e6b9fe7aa0471e18bd2c24ed5ccfae1a3be7bafede62ae1a37ed6238b1",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/it/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-it-10-watch-history.png",
+            "sha256": "61009f8ec64efce4fc10805d323e6c63bb7d40d162c92e9b1570531928eeb09c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_it",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "ja": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-01-big-screen.png",
+            "sha256": "e06a754bb44f984cbe7d42881df5b1395682db9f011e8a9d318219eb9150e17e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-02-series-seasons-episodes.png",
+            "sha256": "1b407dbf80856a5723f40dcb7f45feaab45653e225c2763f149e68e0c0a13137",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-03-continue-watching.png",
+            "sha256": "ca85d0ccb8af2b08aadd8a689fecd5a6f0cf9b308a62a2f7b0a271fb22e7482f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-04-player.png",
+            "sha256": "3267f0f712b81f681e8cef6fef9b45e5dea61fb3efdea97e99978ff4838d9387",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-05-categories.png",
+            "sha256": "0e4e7881d1f68decb49f0992991c630060cc3195fffe418a84288161f90edab6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-06-offline-downloads.png",
+            "sha256": "c30fe39dd20daaac0dcd34369b4d46b43461b7688fe3af2608d7c28fad4d06a0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-07-favorites.png",
+            "sha256": "2b049adb8d28c2eafaa6bb54be07e0ca10a86537bc3cdfa301cc994afcdcca4e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-08-personal-media.png",
+            "sha256": "0c3a40873f9abca115b95d436db19b182e8148ea8b4e2ff0c74576d955616bd3",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-09-movies.png",
+            "sha256": "772daea6bbcca1b83efa4f4e906bd258f821cf5e8f2efe5de5eabad806b74f42",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ja/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ja-10-watch-history.png",
+            "sha256": "8d27fd549577416b7af9275110dc8b20fdfcf94bcee2ace45309bda822ef643a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_ja",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "ko": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-01-big-screen.png",
+            "sha256": "d88c0ae4e75e467f6e87f7422f857a6625270905cb3b5e231484f3e83e35f2d2",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-02-series-seasons-episodes.png",
+            "sha256": "7a5d0721eb713aab87a1fc28b6624f5d3087c249b9b5d4fff66310b4a520f5bd",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-03-continue-watching.png",
+            "sha256": "f30f718f98499006f7ba43a5e75fc5df69c0bd08ed5aea9a41e886ec3a108107",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-04-player.png",
+            "sha256": "80a885d58bc9644f96fbb18575f9e95809d893d8f5f933079dcb3d7cfcd493d5",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-05-categories.png",
+            "sha256": "fff34c125f3f0c5abff1c1dea7f79615e5efacdfe7b9539315470a41369c7e54",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-06-offline-downloads.png",
+            "sha256": "d84ca2bd2a91e30b3807e80501b049d48d4d5f89cfb43b0222203ce30f64e049",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-07-favorites.png",
+            "sha256": "eba55544ea4929c08bfcea5ca4b43280583ff568dff063251b99288f423f8820",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-08-personal-media.png",
+            "sha256": "63db133a155e7c4269d79e5de4a6fa66c8031ffa40872e89d4d9ff0957eb7e55",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-09-movies.png",
+            "sha256": "c4a3a3883c860f0abaf46e1573599e0611cde599bcfbfdf62d0bc7b82220235a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ko/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ko-10-watch-history.png",
+            "sha256": "855c32e7e7623713a714cc1eeeeb923918ebde577b7103f7c524f1108d753639",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_ko",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "nl": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-01-big-screen.png",
+            "sha256": "05758540a9270dcf7728ac3faea10ba6fe0a96af317a1e33771094574b29b9bb",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-02-series-seasons-episodes.png",
+            "sha256": "4578d20b2332c9c4992bb9c242f51628cb6109c7a7100e15a9e769336cf89936",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-03-continue-watching.png",
+            "sha256": "616d6da4c5c6e2199aa3497df603d7975c2d17fc0a0db02f17545833c3fd1250",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-04-player.png",
+            "sha256": "276c4b2a1b61d57e6f5abe6e51042a962b8d77cf4a90897dd0af7f6525110743",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-05-categories.png",
+            "sha256": "529ea2d7a03c6d717b6d17684a1577356cd2ee5a1881afbbd49a2a7a4a0dfdca",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-06-offline-downloads.png",
+            "sha256": "fcbd68dc3a8c5b932610dbe62a49825cef31dc286e0dac517a70777a4f83b1d8",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-07-favorites.png",
+            "sha256": "e16fbf247ac008e47abb2711594857217039d0cde6778edc2cdf896baf845973",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-08-personal-media.png",
+            "sha256": "07cca1894d25117611beaf3e730a5e19df518b65a4ca3280c2ea398c808c2618",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-09-movies.png",
+            "sha256": "f271a545102ad2e0773b6cdba885dbe0264537bc2a12740a0663ff7b552368e8",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/nl/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-nl-10-watch-history.png",
+            "sha256": "eba17533244e178bb2aa0c123c926e4d186476fea5e643d203f8a25cc2486344",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_nl",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "pt-BR": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-01-big-screen.png",
+            "sha256": "c889d71e2e4b659777504adde67c0d422d1f30950ffd9c9e2a5cf07dce598f52",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-02-series-seasons-episodes.png",
+            "sha256": "44c8be1b0c7ce388c6dbdd45def9a009cb84864f9f4f1b21862b22eae0f232db",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-03-continue-watching.png",
+            "sha256": "c89623be7ca9a4a5ed7e94f97d1623c87cf96d4a940a980b7a9c360e74a78d59",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-04-player.png",
+            "sha256": "1c9853772400fbff3e365a646df6da4c514e19c9495d36daf9a6bee37df8a3d7",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-05-categories.png",
+            "sha256": "cb0de8756c9b98bc871a6f847c03eba780b81816503003a7a5a5813b3fc06087",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-06-offline-downloads.png",
+            "sha256": "d008b22297020a4e260f82443e5b1d6e425fc9f2e602f0653b251f08a22c0681",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-07-favorites.png",
+            "sha256": "856f86789ce39120377810b8159cb98c77d9a7354050cb1edf9c2ca59e06d4bf",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-08-personal-media.png",
+            "sha256": "6055354584547febdf72cb15f31761b2c6abce398244c5aeb3fb128a334fa9d8",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-09-movies.png",
+            "sha256": "37e42f385532d0efd1a9089418bb432845a5110eca8545a3b3759df03a251c4c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pt-BR/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-pt-BR-10-watch-history.png",
+            "sha256": "864df1dd895e9b32feddd905807f0c7305a4b38976090bf04c659bb3b34f0e2a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_pt_BR",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "ru": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-01-big-screen.png",
+            "sha256": "8d2eda8d6a1b21024dd09cd5929a931011cca7abd06d0b9483fca2661fc8b8bd",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-02-series-seasons-episodes.png",
+            "sha256": "0b87ae8ef30651f99e519490b563e58f54c35b0ea43c6dc0d022226b87dbcc7e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-03-continue-watching.png",
+            "sha256": "c89515be8ad097f8157461a6e01c9697ce070e340722f089e998394080c8dc8a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-04-player.png",
+            "sha256": "d838c24ee80135a5c6a5df37d111c3c2716fff7c69075bee17ca29fd063cd7ea",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-05-categories.png",
+            "sha256": "7f0e51dcc3e63cccbeff307fd9cbd442a0dd6dd2f693a1dcda04f2bc8f432138",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-06-offline-downloads.png",
+            "sha256": "879c60e5a3f21423a5f5c707ea0564f39d1c5dd8b0be5ecf46f6f8f47953e2fb",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-07-favorites.png",
+            "sha256": "33e68066eacaf317982a593ac531e6549f81c4bcb3668d0451a1289fef7bbd4a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-08-personal-media.png",
+            "sha256": "8f7b2b29509b8716bf1b8ac3313901dbe832f9736c78ebc741f1d10fa93ab225",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-09-movies.png",
+            "sha256": "8ab49e40a90ad1196f451ae0841ff217d9caf28355e42ededdb5813172805601",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/ru/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-ru-10-watch-history.png",
+            "sha256": "bded57bcf23b5f299ffa13ca1886bb6ecc7bdd46d9f1df99429e5d1925519241",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_ru",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "sv": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-01-big-screen.png",
+            "sha256": "9f88db6d7d6018e996a5474dc181c4a16f0d468f5388d4955d12c04963af7364",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-02-series-seasons-episodes.png",
+            "sha256": "3aa8e5a3efa673ec8ba78203b15a302ea9c078c7c24c0c1e4a102d4388686dfe",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-03-continue-watching.png",
+            "sha256": "52e9157c06d49bbe0a687c7d97654a6ae880d97460cc550f7122b4e6dfe2d480",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-04-player.png",
+            "sha256": "951770f57a76529744c6e96df1b885c2403a61a552adff99d90bd5d3b7bfeb26",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-05-categories.png",
+            "sha256": "349489a4c217b52186a486643557e4dfd671a464200683820f583219236a498e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-06-offline-downloads.png",
+            "sha256": "537c90ff88b4f34b7c27d33916cf538ebd8f69335f36cba3e936dc90426f3f4f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-07-favorites.png",
+            "sha256": "a2d79ff8a5e9f564f2c6e93083d172faa41398e23d389a34454aba8479c10064",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-08-personal-media.png",
+            "sha256": "f7039c5b00436543745ae7541a1b635d25cf20d9d2d2458d612c4a6eef6f6ef5",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-09-movies.png",
+            "sha256": "0e3f940078cd2844ffa5dc5c97d922ebca8d5ab393eb693b6c450e8ee4d875ac",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/sv/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-sv-10-watch-history.png",
+            "sha256": "9c0be9d4f09ebd1f2dea2bacf826d86825e3db819df598b9284c451ad6f25641",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_sv",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "th": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-01-big-screen.png",
+            "sha256": "d6ff486b22cbf15f784c69a7708fcd7fb6f61158440e5c44349946fe7dc9f39f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-02-series-seasons-episodes.png",
+            "sha256": "2a481133845c81a4a0d9a1b2b8c348d9159d9f26ec1b9fbad27c6db1d6127240",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-03-continue-watching.png",
+            "sha256": "c4ede807f179e536539f51d5737226cb5df1a0401a5f079ca3db47886db9f295",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-04-player.png",
+            "sha256": "d73be917f191f45759267f871de28de9f697a1d29db371f480651c5a4a58cb79",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-05-categories.png",
+            "sha256": "b18e4f20cfc8996329b30880c9b2fb6aeb92109049587392cc8bfd36be35e09f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-06-offline-downloads.png",
+            "sha256": "46c22b188a4525d651195993371c8738ee40a88f2d0499904b6a6f695023c0c1",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-07-favorites.png",
+            "sha256": "c9e7923d2078bdd4e9ccc4fb050c3ab58cde8984e6d6e51a50a8dd45e0664f60",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-08-personal-media.png",
+            "sha256": "8d820c876801e1becf3194d11ed7dd7b6e19a5853f9c10ba1127a9ed9f2c7cc0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-09-movies.png",
+            "sha256": "08fe1883217967567836de3005adf30546ccd6afb0074808024267fa08901ba2",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/th/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-th-10-watch-history.png",
+            "sha256": "0fbe9962760bbb0215ea5605b293078e7cb8ef63f8471bf3ff37107eb314cbe8",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_th",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "uk": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-01-big-screen.png",
+            "sha256": "82f9574a8a77b1844bd551fa590344e9798edbc5d965a4694a6acc62c6eacd61",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-02-series-seasons-episodes.png",
+            "sha256": "974b316b20ccb16554f6037e0f1156cfcaafc3fd7dfdffc139db8bbee7832f3c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-03-continue-watching.png",
+            "sha256": "9a7850a71a6f55b9b7c6af6a449481fc06bc1575551fcde51590316983ac0494",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-04-player.png",
+            "sha256": "457a8f920424114d4dc693d6bf01421eb5c7ccad525b2eeea95b0f2581e264d8",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-05-categories.png",
+            "sha256": "8c393025c7ed083a00e52dc20a7ff7ee8ac39ea2142f12d8b5c8c449e1627466",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-06-offline-downloads.png",
+            "sha256": "0f0000ceca742564e929b8bc44c1f3486cab8fc69768686e1519db878123495e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-07-favorites.png",
+            "sha256": "66906c5830306bec47d8dbe454a5968ec11304948f408223001b97ce761c89b0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-08-personal-media.png",
+            "sha256": "a4a826903de926afa268c18693cc57acbe395f88bb3504248fd1e067d75a075f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-09-movies.png",
+            "sha256": "1a645a87958e4c0c8b40204abe1a725e133be7e772f07397dd7a28c8b4f45a31",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/uk/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-uk-10-watch-history.png",
+            "sha256": "807652da6c545f5618fe7da13c14069457b235537560e93e6353a6e8bfe4ba4f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_uk",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "vi": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-01-big-screen.png",
+            "sha256": "595323bc3937201f09fa9392ffdcbb875ff5ad700b1f8ed8c6cec75966ee2f6c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-02-series-seasons-episodes.png",
+            "sha256": "65b0f66ed6e8ab990aa0350e99634b23a7ae3280d7ac0caa727c478197e389c4",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-03-continue-watching.png",
+            "sha256": "03017a65a034b94edcefd3839a1497de0f0f9930eb5e2da705a146020589a85e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-04-player.png",
+            "sha256": "24909a4c1d4cc7b6e2b1ec3a58d24f15484486f6de6d920e0784db6ba4fa1d3c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-05-categories.png",
+            "sha256": "d612acdeb059bab21d5c123b028399f1c794f707faf062d0858addc1ff4b2ec0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-06-offline-downloads.png",
+            "sha256": "cf8a4027a7bdd00fbdf9a5dcc579cd74a99446f25eccb01f986868a886337fde",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-07-favorites.png",
+            "sha256": "f745c30835736c7fe663f096c80c4b3cead16a81c979759d8b65321317194243",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-08-personal-media.png",
+            "sha256": "0b79c3fa5619ddabca3515959990e6aba259260f9122b0fd49c106d53cda4ebf",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-09-movies.png",
+            "sha256": "b8f631750a79103893f2550bcfc9a5b03cd8cbf43f3f102db7e40bc1a3756a16",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/vi/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-vi-10-watch-history.png",
+            "sha256": "95d765f86c25e2b63978ea1d7c01b9b76ce2ae920ed56b5e3d2ffc04fe1bfcf0",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_vi",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "zh-Hans": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-01-big-screen.png",
+            "sha256": "fc775318dafd5852d64020d55d410c8d2447567bd616fa37b5512bc7640e5b76",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-02-series-seasons-episodes.png",
+            "sha256": "45fd59245b623e5c1417dbc62d8b912d15f118cf0092e7a0837af25d3d25d844",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-03-continue-watching.png",
+            "sha256": "48b38acba360edf7b02e9f91690a37b6a0fc7d449889e1fb8ace6f3611712912",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-04-player.png",
+            "sha256": "f89ad10b50d6b25f0aed4d7b198bb8195f5f0a3196847764145f157d65db0788",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-05-categories.png",
+            "sha256": "32e3356378f69e790d910b36fcbf44eaf23677561541ea9325bd8f69bbef6d64",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-06-offline-downloads.png",
+            "sha256": "4301b66753d0adfe334e11502d8a81672ad5c9304b22f10b2ba6198e93e7d55f",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-07-favorites.png",
+            "sha256": "b707d9904eb82fe49c5826448b7ffd2969d774839b8b5b61efab0b589aee5da6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-08-personal-media.png",
+            "sha256": "d1a654821eee9a55d6f9c2e71196c5e85e5abcc8c40222c3eb692d94157a5fc7",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-09-movies.png",
+            "sha256": "a7dc0fb1d8a378f4bc37932f4e10ee9accb878a18e066841360cd27e1bfca071",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hans/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hans-10-watch-history.png",
+            "sha256": "b71ef54ecb29d38cf31985f2219aba6609454fb090ffa2a115aa4c31d7c420f7",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_zh_Hans",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "zh-Hant": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-01-big-screen.png",
+            "sha256": "5c7bfedcfed9515099c35381267acbff5be6a05282f75eb258448540acf34ddb",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-02-series-seasons-episodes.png",
+            "sha256": "b7a8080833cc401de683e2b8a2a783175d1deaf0dd9ede17c2d93a8c0b83c629",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-03-continue-watching.png",
+            "sha256": "dc75e4e16b06b45388010dc8d392cd413e1be5f1fd933d617ffed8e6d7f0207a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-04-player.png",
+            "sha256": "a50ca52e38f0bde04d53a544d22beac4bd055fec6cbba9264388a3d1778b6edc",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-05-categories.png",
+            "sha256": "45e930120c9705300ee1c280b2f587ddcd8b09490772194f44bf5f5c3c3f9e64",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-06-offline-downloads.png",
+            "sha256": "803d155f2165cb48ccba32f6f7a34117b43f2ae6f3a5a8617a3cc4ae29e081b4",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-07-favorites.png",
+            "sha256": "73d61df8eb72ba66b528c10520871b83fcc69cdd0984816fb594d388481a4773",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-08-personal-media.png",
+            "sha256": "ea2ea9ba277e720e7dbccd732b34a410fb2baf377f8994a75b5fc8e33612c5e1",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-09-movies.png",
+            "sha256": "f7c9db845d1de067b5c5d0a304ce72356c39109bf15263918b8333d41e9aaf8c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/zh-Hant/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/4F13080B-579B-4781-8190-285E669A51B3/tmp/mirivo-localized-zh-Hant-10-watch-history.png",
+            "sha256": "26b73ea956fb37187a460ce9ae6da14baa086db1e2abba602dac977175f16d3a",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-all-serial.xcresult",
+        "testClass": "StoreScreenshot_zh_Hant",
+        "testResultPending": false,
+        "suiteExitCode": 65,
+        "testPassed": true
+      },
+      "pl": {
+        "files": [
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/01-big-screen.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-01-big-screen.png",
+            "sha256": "c9a31db15328eb86efefdbefec8f5af55cafc5b51140157fcee1fbddd40aa46b",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/02-series-seasons-episodes.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-02-series-seasons-episodes.png",
+            "sha256": "e1c227d17271beb6473fedd7c62ffbd845e17052c61d60f3916aabd23cb54148",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/03-continue-watching.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-03-continue-watching.png",
+            "sha256": "6964eccb884de25f3a97c9df8fd026580e1786caf90a0541648343eac2e0a043",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/04-player.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-04-player.png",
+            "sha256": "27674e2989370a4601d1b0230a2a939d82b2045574327bdf6f8ad57593fc9de6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/05-categories.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-05-categories.png",
+            "sha256": "ec02d1fddab1de4fc3a43f34cec1c3b0a2109c383b5a0a51afc72d53635ab20e",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/06-offline-downloads.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-06-offline-downloads.png",
+            "sha256": "e1b846fdb2a24f81f9aa0a84103a01bd6ff8145d3e6e44033165f191f418dc01",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/07-favorites.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-07-favorites.png",
+            "sha256": "6e653f026fc0f19cb553ab7c3853b242d7998f8c1536a24f150ce6316fbd968c",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/08-personal-media.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-08-personal-media.png",
+            "sha256": "90dd70e4c612768c55783531efaa383b26892a6b7e415a310dcde0398a213ed8",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/09-movies.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-09-movies.png",
+            "sha256": "8938f323ae673406a342acea60c7bb294a1eb38e5d1418dd425027f772e604fe",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          },
+          {
+            "file": "Release/AppStore/screenshots/localized-20261017/iphone-large/pl/10-watch-history.png",
+            "source": "/Users/alperbicer/Library/Developer/CoreSimulator/Devices/0A828BBA-5EB9-4EA3-83A6-9F48F5E64859/data/Containers/Data/Application/8FC92D91-8E60-463E-81D1-5DDF94452A21/tmp/mirivo-localized-pl-10-watch-history.png",
+            "sha256": "44399205485f3b35b4ef757d9bb9b8b17aabff9c739df287bc1584feed1b5af6",
+            "dimensions": [
+              1320,
+              2868
+            ],
+            "edited": false
+          }
+        ],
+        "simulator": "0A828BBA-5EB9-4EA3-83A6-9F48F5E64859",
+        "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-localization-20261017/capture-large-pl-retry.xcresult",
+        "testClass": "StoreScreenshot_pl",
+        "testResultPending": false,
+        "testPassed": true,
+        "suiteExitCode": 0
+      }
+    },
+    "duo": {}
+  }
+}

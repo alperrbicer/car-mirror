@@ -1,4 +1,39 @@
-> 16 Ekim 2026 yerel kod güncellemesi: satış ekranı haftalık ve yıllık plana geçirildi. Bu bölümün altındaki 5 Ekim fiyatları ve paketleri tarihsel mağaza kayıtlarıdır. Canlı App Store Connect ve RevenueCat ayarları bu kod çalışmasında değiştirilmedi.
+> 17 Ekim 2026 canlı güncellemesi: kullanıcı onayıyla haftalık/yıllık fiyatlar, 3/7 günlük denemeler, 175 bölge ve ortak Pro seviyesi App Store Connect’te kaydedildi; RevenueCat varsayılan teklifi yıllık+haftalık olarak güncellendi. Ömür boyu yeni satış kapalı, eski haklar korunuyor. Haftalık ve yıllık inceleme görselleri kullanıcı onayıyla yüklendi ve sayfa yenilenerek doğrulandı; hesap/binary kabulü aşağıdaki açık işlerdir.
+
+## 17 Ekim mağaza metinleri ve yeni inceleme görselleri
+
+Uygulamanın 22 dildeki açıklamaları App Store Connect'e kaydedildi ve yeni sekmeden her dil tekrar açılarak **22/22** eşleşme doğrulandı. Haftalık ürünün 22 dil kaydı yeniden okundu; yıllık ürünün 22 dilde adı/açıklaması aynı dönemsel erişim biçimine geçirildi ve tam sayfa yenilemesinden sonra doğrulandı (**44/44 ürün tanımı**). Güncel dosya `Release/AppStore/subscription-model-20261017.json`; önceki 5 Ekim ürün kayıtları tarihseldir. Uygulama ve ürün inceleme notları yeni üyelik modelini, deneme uygunluğunu, geri yüklemeyi, içerik haklarını ve park halinde CarPlay koşulunu açıklar.
+
+Güncel kaynaklardan iOS 26.5 simülatöründe `StoreKitIntegrationTests/testDisabledSalesCannotStartPurchase` ve `ProductUITests/testWeeklyAnnualSelectionAndCompactBenefits` başarılı oldu. UI koşusu Türkçe, İngilizce ve büyük erişilebilirlik yazılı Arapçada yıllık/haftalık seçimi ve $29.99/$2.99 tutarlarını doğruladı. Bu koşudan alınan değiştirilmemiş altı ekran görüntüsü `Release/AppStore/screenshots/subscriptions-20261017/` altında, kaynak test ve SHA-256 bilgileri `provenance.json` içinde hazır. Sonuç paketi `build/store-metadata-20261017/paywall.xcresult`. Görseller yerel Xcode StoreKit ortamını gösterir; canlı Apple/TestFlight ödeme kanıtı değildir. Kullanıcının açık onayıyla `weekly-en.png` haftalık, `yearly-en.png` yıllık ürünün Review Information > Screenshot alanına yüklendi. Yıllıktaki eski görsel değiştirildi. İki sayfa yenilendikten sonra Apple CDN üzerinde yeni 1320 × 2868 görsellerin korunduğu doğrulandı; kanıt `Release/AppStore/review-screenshot-upload-20261017.json`. Bu işlem review gönderimi yapmadı.
+
+## 17 Ekim sözleşme ve Netlify yayını
+
+Türkçe/İngilizce gizlilik, ürün koşulları, yardım ve ana sayfa güncel haftalık/yıllık erişim modeliyle Netlify'a yayımlandı. Dağıtım `6ad2a3a0dd89888e79e8bb1c` Published; 12 HTML, 2 asset, robots.txt ve 3 kök URL karşılaştırması geçti (18 adres). Kanıt: `Release/AppStore/netlify-deployment-20261017.json`. Gizlilik metnine şifreli kitaplık önbelleği, favoriler, sağlayıcı bilgileri/görselleri, çevrimdışı indirmeler ve yerel deneme hatırlatması eklendi. Kaynak silmenin indirilmiş dosyaları kaldırmadığı açıklanır. Apple Standart EULA, yenileme/iptal/iade ve park halinde CarPlay video koşulları yer alır.
+
+İlk Business kontrolünde Free Apps Agreement **Active**, Paid Apps Agreement **Pending (New Agreement Available)**, banka hesabı boş, U.S. Tax Questionnaire **Missing Tax Info** ve DSA **Active** idi. Son canlı ödeme kontrolünde Paid Apps Agreement **Pending User Info** oldu ve yeni sözleşme kabul uyarısı kalktı; banka/vergi eksikleri sürüyor. Ödeme yapılandırması çalışması sözleşme kabulü veya banka/vergi formu gönderimi yapmadı. Bu çalışma binary yüklemesi veya yeni App Review gönderimi yapmadı. Canlı ticari ayarların ve metadata karşılaştırmasının son durumu aşağıdadır.
+
+## 17 Ekim canlı yapılandırma kontrolü
+
+Kullanıcı hedef fiyatları, denemeleri, 175 bölgeyi, ortak hizmet seviyesini ve ömür boyu yeni satışının kapatılmasını açıkça onayladı. Aşağıdakiler canlı panellerden kaydedilip yeniden okunarak doğrulandı:
+
+- RevenueCat projesi `7d9b6d16`, Apple uygulaması `app8e29ebec6d`: haftalık ürün `prod03f0c01d41` olarak içe aktarıldı ve `mirivo_pro` erişimine bağlandı. Yıllık ve eski ömür boyu ürünler aynı entitlement’a bağlı kalıyor.
+- Varsayılan offering `mirivo_pro` / `ofrng5cc5d706fb`: **ilk yıllık `$rc_annual`, sonra haftalık `$rc_weekly`**. Ömür boyu paket aktif satış teklifinden çıkarıldı; ürün ve erişim eşleştirmesi silinmedi.
+- Apple haftalık ürünü `6818888654`: **175/175 bölge**, 17 Ekim başlangıçlı ve bitiş tarihi olmayan **3 günlük ücretsiz introductory offer**; ABD **$2.99**, Türkiye **₺59.99**, 25 Euro bölgesinde **€2.99**, Birleşik Krallık **£2.49** / hafta.
+- Apple yıllık ürünü `6818889933`: **175/175 bölge**, aynı başlangıç/bitiş politikasıyla **7 günlük ücretsiz introductory offer**; ABD **$29.99**, Türkiye **₺599.99**, 25 Euro bölgesinde **€29.99**, Birleşik Krallık **£24.99** / yıl. Diğer bölgelerde ABD tutarından Apple’ın hesapladığı eşdeğer fiyatlar kullanıldı. Aylık taksitli 12 ay taahhüt kurulmadı.
+- İki abonelik `22438082` grubunda **seviye 1**. İkisi de bireysel **The App Store**, multiseat **Not Allowed**; haftalığın eski Apple Business/School Manager ayarı yıllıkla eşitlendi.
+- Ömür boyu `6818966443`: **Remove from Sale**, **0/175 bölge**; sayfa yenilenerek doğrulandı. Geri yükleme desteği ve RevenueCat entitlement bağlantısı korunuyor.
+- Haftalık ürünün 22 dilde adı/açıklaması kaydedildi; yıllık Türkçe/İngilizce açıklamaları aynı erişim modeliyle eşitlendi. İki ürünün inceleme notları eski kota/ömür boyu satış anlatımından haftalık/yıllık, deneme uygunluğu ve gerçek fiyatlara geçirildi.
+- Mağazanın 22 dildeki açıklamaları hazır güncel metadata dosyalarıyla canlı panelden karşılaştırıldı: **22/22 eşleşti**. Yeni açıklamalarda eski ücretsiz kotalar ve yeni ömür boyu satış iddiası yok. Ana inceleme notunda denemeler artık “configured” olarak belirtiliyor.
+- RevenueCat IAP ve App Store Connect API anahtarları **Valid credentials**. Apple production/sandbox bildirim adresleri RevenueCat adresiyle eşleşiyor; henüz alınmış bildirim ve gerçek sandbox satın alma kanıtı yok. Varsayılan restore davranışı **Transfer to new App User ID**.
+
+Açık işler:
+
+- Haftalık ve yıllık ürün inceleme görselleri, 17 Ekim başarılı UI koşusundan alınan ilgili plan seçili İngilizce karelerle güncellendi. Kullanıcı iki dosyanın App Store Connect’e yüklenmesini açıkça onayladı. Her iki görselin kalıcı kaydı sayfa yenilemesiyle doğrulandı; eski kayıt karesi yerine `Release/AppStore/screenshots/subscriptions-20261017/weekly-en.png` ve `yearly-en.png` kullanıldı.
+- Seçili App Store build **14** ve sürüm/ürünler hâlâ incelemeye hazır yeni binary ile eşleşmiyor. Yeni build seçilmeli; yeni App Review gönderimi yapılmadı.
+- Son Apple Business kontrolünde **Paid Apps Agreement — Pending User Info**; yeni sözleşme kabul uyarısı kalktı. Banka hesabı ve **U.S. Tax Questionnaire — Missing Tax Info** hâlâ eksik. Bu çalışma sözleşme kabulü, banka/vergi formu doldurma veya gerçek para işlemi yapmadı.
+- RevenueCat hesap uyarısı $2,500 MTR eşiğinde kart gerektiğini belirtiyor; mevcut MTR $0. Kart eklenmedi.
+
+Kanıtlar: `build/payment-audit-20261017/` içindeki kaydedilmiş haftalık/yıllık fiyat tabloları, ürün DOM kayıtları, 22 dil karşılaştırması ve panel görüntüleri. Yerel StoreKit testleri gerçek Apple sandbox/TestFlight satın alma ve bildirim tesliminin yerine geçmez.
 
 ## Haftalık ve yıllık deneme politikası
 
@@ -7,7 +42,7 @@
 | Yıllık | `com.alperbicer.carmirror.pro.yearly` | 7 gün | $29.99 / yıl | ₺599.99 / yıl |
 | Haftalık | `com.alperbicer.carmirror.pro.weekly` | 3 gün | $2.99 / hafta | ₺59.99 / hafta |
 
-Euro hedefleri haftalık €2.99, yıllık €29.99; Birleşik Krallık hedefleri haftalık £2.49, yıllık £24.99. Bunlar canlı mağazada doğrulanmış fiyatlar değildir. Yerel StoreKit dosyası ABD tutarlarını ve iki denemeyi içerir. Uygulama fiyatı StoreKit `displayPrice` üzerinden, denemeyi ürünün gerçek ücretsiz teklifi ve hesap uygunluğu üzerinden gösterir. Mağazada bir ürün yüklenmezse sahte fiyat kartı oluşturulmaz.
+Euro hedefleri haftalık €2.99, yıllık €29.99; Birleşik Krallık hedefleri haftalık £2.49, yıllık £24.99. Bu fiyatlar 17 Ekim’de canlı mağazada kaydedilip yeniden açılan fiyat tablolarından doğrulandı. Yerel StoreKit dosyası ABD tutarlarını ve iki denemeyi içerir. Uygulama fiyatı StoreKit `displayPrice` üzerinden, denemeyi ürünün gerçek ücretsiz teklifi ve hesap uygunluğu üzerinden gösterir. Mağazada bir ürün yüklenmezse sahte fiyat kartı oluşturulmaz.
 
 Yıllık ilk seçenektir. İki plan aynı Pro erişimini sağlar. Yıllık tasarruf yüzdesi, aynı para birimindeki gerçek fiyatlarla 52 haftalık ödeme üzerinden hesaplanır. Ömür boyu ürün satışta değildir; eski hakları ve geri yükleme desteği korunur.
 
@@ -17,7 +52,7 @@ Deneme hatırlatması doğrulanmış ücretsiz denemenin gerçek bitişinden 48 
 
 Uygulama çalışmıyorken App Store’dan yapılan iptal, uygulama yeniden durumu okuyana kadar yerel bildirime yansımayabilir. Bu nedenle bildirim metni “İptal etmezsen…” diye başlar. Bildirimin gösterimi iOS izinlerine ve bildirim ayarlarına bağlıdır. Geç geri yüklemelerde hatırlatma saati geçmişse anlık ve yanlış tarihli bildirim gönderilmez.
 
-Canlıya geçmeden önce App Store Connect’te haftalık ürünün hedef bölgeleri, fiyatları ve üç günlük teklifi; yıllığın fiyatları ve yedi günlük teklifi ayarlanmalı. İki ürün aynı abonelik grubunda ve aynı hizmet seviyesinde olmalı; grup başına tek introductory offer hakkı korunmalı. RevenueCat’te haftalık ürün `mirivo_pro` erişimine eklenmeli, aktif offering haftalık/yıllık olarak eşlenmeli; ömür boyu erişimi korunmalı. Bu ayarların ardından sandbox/TestFlight ödeme ve geri yükleme doğrulaması gerekir.
+App Store Connect bölge/fiyat/deneme ve ortak seviye ayarları ile RevenueCat haftalık/yıllık eşleştirmesi 17 Ekim’de tamamlandı. Grup başına tek introductory offer hakkı StoreKit uygunluğuyla uygulanır. İnceleme görselleri yüklendi; yeni binary ve hesap engelleri tamamlandıktan sonra gerçek sandbox/TestFlight ödeme, geri yükleme ve bildirim teslimi doğrulanmalı.
 
 Yerel doğrulama: 22 dilde 454 anahtar / 9.988 çeviri kontrolü hatasız. Swift core paketinde 69 test çalıştı; 1 atlandı, hata yok. iOS simülatöründe 31 uygulama/StoreKit/hatırlatma testi geçti (`build/paywall-verification-20261016/unit.xcresult`). İmzalı Xcode StoreKit işlemi yıllık denemede sıfır ücret ve 604.800 saniye; ilk yenilemede $29.99 ve yıllık dönem gösterdi. Haftalık üç günlük deneme, grup içinde ikinci denemenin engellenmesi, iptal sonrası hatırlatmanın kaldırılması ve izin/tercih değişiklikleri de doğrulandı. Bunlar yerel StoreKit sonuçlarıdır; canlı mağaza veya gerçek cihazda bildirim teslimi kanıtı değildir.
 

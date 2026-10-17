@@ -1,0 +1,339 @@
+{
+  "preparedDate": "2026-10-17",
+  "appStoreAppId": "6818560405",
+  "subscriptionGroupId": "22438082",
+  "status": "store_descriptions_saved_and_verified",
+  "products": {
+    "weekly": {
+      "productId": "com.alperbicer.carmirror.pro.weekly",
+      "appleId": "6818888654",
+      "period": "P1W",
+      "freeTrialDays": 3,
+      "serviceLevel": 1,
+      "localizations": {
+        "tr": {
+          "locale": "tr",
+          "name": "Mirivo Pro Haftalık",
+          "description": "Tüm Pro özelliklerine haftalık erişim."
+        },
+        "en": {
+          "locale": "en-US",
+          "name": "Mirivo Pro Weekly",
+          "description": "Weekly access to all Pro features."
+        },
+        "zh-Hans": {
+          "locale": "zh-Hans",
+          "name": "Mirivo Pro 每周",
+          "description": "按周使用全部Pro功能。"
+        },
+        "zh-Hant": {
+          "locale": "zh-Hant",
+          "name": "Mirivo Pro 每週",
+          "description": "按週使用所有Pro功能。"
+        },
+        "ja": {
+          "locale": "ja",
+          "name": "Mirivo Pro 週間",
+          "description": "すべてのPro機能を週単位で利用。"
+        },
+        "ko": {
+          "locale": "ko",
+          "name": "Mirivo Pro 주간",
+          "description": "모든 Pro 기능을 주 단위로 이용하세요."
+        },
+        "fr": {
+          "locale": "fr-FR",
+          "name": "Mirivo Pro Hebdomadaire",
+          "description": "Accès hebdomadaire à toutes les fonctions Pro."
+        },
+        "de": {
+          "locale": "de-DE",
+          "name": "Mirivo Pro Wöchentlich",
+          "description": "Wöchentlicher Zugriff auf alle Pro-Funktionen."
+        },
+        "es": {
+          "locale": "es-ES",
+          "name": "Mirivo Pro Semanal",
+          "description": "Acceso semanal a todas las funciones Pro."
+        },
+        "it": {
+          "locale": "it",
+          "name": "Mirivo Pro Settimanale",
+          "description": "Accesso settimanale a tutte le funzioni Pro."
+        },
+        "pt-BR": {
+          "locale": "pt-BR",
+          "name": "Mirivo Pro Semanal",
+          "description": "Acesso semanal a todos os recursos Pro."
+        },
+        "ru": {
+          "locale": "ru",
+          "name": "Mirivo Pro На неделю",
+          "description": "Доступ ко всем функциям Pro на неделю."
+        },
+        "nl": {
+          "locale": "nl-NL",
+          "name": "Mirivo Pro Wekelijks",
+          "description": "Wekelijks toegang tot alle Pro-functies."
+        },
+        "pl": {
+          "locale": "pl",
+          "name": "Mirivo Pro Tygodniowy",
+          "description": "Tygodniowy dostęp do wszystkich funkcji Pro."
+        },
+        "sv": {
+          "locale": "sv",
+          "name": "Mirivo Pro Veckovis",
+          "description": "Veckotillgång till alla Pro-funktioner."
+        },
+        "uk": {
+          "locale": "uk",
+          "name": "Mirivo Pro На тиждень",
+          "description": "Тижневий доступ до всіх функцій Pro."
+        },
+        "ar": {
+          "locale": "ar-SA",
+          "name": "Mirivo Pro أسبوعي",
+          "description": "وصول أسبوعي إلى جميع ميزات Pro."
+        },
+        "he": {
+          "locale": "he",
+          "name": "Mirivo Pro שבועי",
+          "description": "גישה שבועית לכל תכונות Pro."
+        },
+        "th": {
+          "locale": "th",
+          "name": "Mirivo Pro รายสัปดาห์",
+          "description": "ใช้ทุกฟีเจอร์ Pro แบบรายสัปดาห์"
+        },
+        "vi": {
+          "locale": "vi",
+          "name": "Mirivo Pro Hàng tuần",
+          "description": "Truy cập mọi tính năng Pro theo tuần."
+        },
+        "id": {
+          "locale": "id",
+          "name": "Mirivo Pro Mingguan",
+          "description": "Akses mingguan ke semua fitur Pro."
+        },
+        "hi": {
+          "locale": "hi",
+          "name": "Mirivo Pro साप्ताहिक",
+          "description": "सभी Pro सुविधाओं का साप्ताहिक एक्सेस।"
+        }
+      }
+    },
+    "yearly": {
+      "productId": "com.alperbicer.carmirror.pro.yearly",
+      "appleId": "6818889933",
+      "period": "P1Y",
+      "freeTrialDays": 7,
+      "serviceLevel": 1,
+      "localizations": {
+        "tr": {
+          "locale": "tr",
+          "name": "Mirivo Pro Yıllık",
+          "description": "Tüm Pro özelliklerine yıllık erişim."
+        },
+        "en": {
+          "locale": "en-US",
+          "name": "Mirivo Pro Yearly",
+          "description": "Yearly access to all Pro features."
+        },
+        "zh-Hans": {
+          "locale": "zh-Hans",
+          "name": "Mirivo Pro 每年",
+          "description": "按年使用全部Pro功能。"
+        },
+        "zh-Hant": {
+          "locale": "zh-Hant",
+          "name": "Mirivo Pro 每年",
+          "description": "按年使用所有Pro功能。"
+        },
+        "ja": {
+          "locale": "ja",
+          "name": "Mirivo Pro 年間",
+          "description": "すべてのPro機能を年単位で利用。"
+        },
+        "ko": {
+          "locale": "ko",
+          "name": "Mirivo Pro 연간",
+          "description": "모든 Pro 기능을 연 단위로 이용하세요."
+        },
+        "fr": {
+          "locale": "fr-FR",
+          "name": "Mirivo Pro Annuel",
+          "description": "Accès annuel à toutes les fonctions Pro."
+        },
+        "de": {
+          "locale": "de-DE",
+          "name": "Mirivo Pro Jährlich",
+          "description": "Jährlicher Zugriff auf alle Pro-Funktionen."
+        },
+        "es": {
+          "locale": "es-ES",
+          "name": "Mirivo Pro Anual",
+          "description": "Acceso anual a todas las funciones Pro."
+        },
+        "it": {
+          "locale": "it",
+          "name": "Mirivo Pro Annuale",
+          "description": "Accesso annuale a tutte le funzioni Pro."
+        },
+        "pt-BR": {
+          "locale": "pt-BR",
+          "name": "Mirivo Pro Anual",
+          "description": "Acesso anual a todos os recursos Pro."
+        },
+        "ru": {
+          "locale": "ru",
+          "name": "Mirivo Pro На год",
+          "description": "Доступ ко всем функциям Pro на год."
+        },
+        "nl": {
+          "locale": "nl-NL",
+          "name": "Mirivo Pro Jaarlijks",
+          "description": "Jaarlijks toegang tot alle Pro-functies."
+        },
+        "pl": {
+          "locale": "pl",
+          "name": "Mirivo Pro Roczny",
+          "description": "Roczny dostęp do wszystkich funkcji Pro."
+        },
+        "sv": {
+          "locale": "sv",
+          "name": "Mirivo Pro Årsvis",
+          "description": "Årstillgång till alla Pro-funktioner."
+        },
+        "uk": {
+          "locale": "uk",
+          "name": "Mirivo Pro На рік",
+          "description": "Річний доступ до всіх функцій Pro."
+        },
+        "ar": {
+          "locale": "ar-SA",
+          "name": "Mirivo Pro سنوي",
+          "description": "وصول سنوي إلى جميع ميزات Pro."
+        },
+        "he": {
+          "locale": "he",
+          "name": "Mirivo Pro שנתי",
+          "description": "גישה שנתית לכל תכונות Pro."
+        },
+        "th": {
+          "locale": "th",
+          "name": "Mirivo Pro รายปี",
+          "description": "ใช้ทุกฟีเจอร์ Pro แบบรายปี"
+        },
+        "vi": {
+          "locale": "vi",
+          "name": "Mirivo Pro Hàng năm",
+          "description": "Truy cập mọi tính năng Pro theo năm."
+        },
+        "id": {
+          "locale": "id",
+          "name": "Mirivo Pro Tahunan",
+          "description": "Akses tahunan ke semua fitur Pro."
+        },
+        "hi": {
+          "locale": "hi",
+          "name": "Mirivo Pro वार्षिक",
+          "description": "सभी Pro सुविधाओं का वार्षिक एक्सेस।"
+        }
+      }
+    }
+  },
+  "lifetime": {
+    "productId": "com.alperbicer.carmirror.pro.lifetime",
+    "appleId": "6818966443",
+    "newSales": false,
+    "preserveExistingEntitlements": true
+  },
+  "priceTargets": {
+    "weekly": {
+      "USA": "2.99",
+      "TUR": "59.99",
+      "EUR": "2.99",
+      "GBR": "2.49"
+    },
+    "yearly": {
+      "USA": "29.99",
+      "TUR": "599.99",
+      "EUR": "29.99",
+      "GBR": "24.99"
+    }
+  },
+  "availability": "175 existing App Store territories selected for both subscriptions; verified live",
+  "offering": {
+    "identifier": "mirivo_pro",
+    "packages": {
+      "$rc_weekly": "com.alperbicer.carmirror.pro.weekly",
+      "$rc_annual": "com.alperbicer.carmirror.pro.yearly"
+    },
+    "packageOrder": [
+      "$rc_annual",
+      "$rc_weekly"
+    ]
+  },
+  "portalSaved": true,
+  "reviewSubmitted": false,
+  "appMetadata": {
+    "locales": 22,
+    "descriptionsSavedInAppStoreConnect": true,
+    "verifiedAfterFreshNavigation": true,
+    "verificationFile": "build/store-metadata-20261017/locale-verification.json",
+    "reviewNotesSaved": true,
+    "selectedBuild": "14",
+    "newMatchingBuildStillRequired": true,
+    "paymentAuditVerificationFile": "build/payment-audit-20261017/metadata-verification.json"
+  },
+  "appleBusiness": {
+    "paidAppsAgreement": "Pending User Info",
+    "agreementAcceptedByOwner": true,
+    "bankAccountConfigured": false,
+    "usTaxQuestionnaire": "Missing Tax Info",
+    "checkedDate": "2026-10-17"
+  },
+  "commercialConfigurationHandledInThread": "01a146c4-2c41-7972-b684-440fc30d13d2",
+  "commercialConfiguration": {
+    "verifiedDate": "2026-10-17",
+    "userApproved": true,
+    "appStoreConnectSaved": true,
+    "revenueCatSaved": true,
+    "serviceLevel": 1,
+    "availableTerritories": 175,
+    "euroPriceTerritories": 25,
+    "trialStartDate": "2026-10-17",
+    "trialEndDate": null,
+    "lifetimeNewSales": false,
+    "legacyLifetimeEntitlementPreserved": true,
+    "weeklyProductLocales": 22,
+    "yearlyLocalizedDescriptionsUpdated": [
+      "tr",
+      "en"
+    ],
+    "purchaseChannels": [
+      "The App Store"
+    ],
+    "multiseatAllowed": false,
+    "reviewScreenshotUpload": "pending_user_approval",
+    "evidenceDirectory": "build/payment-audit-20261017"
+  },
+  "productLocalizationsVerified": {
+    "weekly": 22,
+    "yearly": 22,
+    "afterReload": true
+  },
+  "reviewScreenshots": {
+    "directory": "Release/AppStore/screenshots/subscriptions-20261017",
+    "provenance": "Release/AppStore/screenshots/subscriptions-20261017/provenance.json",
+    "prepared": 6,
+    "uploadStatus": "uploaded_and_verified_after_page_reload",
+    "selectedForUpload": {
+      "weekly": "weekly-en.png",
+      "yearly": "yearly-en.png"
+    },
+    "uploaded": 2,
+    "verificationFile": "Release/AppStore/review-screenshot-upload-20261017.json"
+  }
+}

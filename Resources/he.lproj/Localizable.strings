@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "הסדרה והפרק במועדפים";
 "Favorilerde değil" = "לא במועדפים";
 "Bölüm" = "פרק";
+
+"Varsayılan" = "ברירת מחדל";
+"Son eklenenler" = "נוספו לאחרונה";
+"Ada göre (A–Z)" = "שם (א–ת)";
+"Ada göre (Z–A)" = "שם (ת–א)";
+"Sırala" = "מיון";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "פריטים ללא תאריך הוספה שומרים על סדר המקור.";
+"Altyazı konumu" = "מיקום כתוביות";
+"Biraz yukarı" = "מעט גבוה יותר";
+"Daha yukarı" = "גבוה יותר";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "חל על כתוביות טקסט. לא ניתן להזיז טקסט המוטבע בסרטון.";
+"Oynatma seçenekleri" = "אפשרויות הפעלה";
+"Görüntü kalitesi" = "איכות וידאו";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "בחירת איכות אינה זמינה עבור מקור זה.";
+"Otomatik" = "אוטומטי";
+"En fazla %@" = "עד %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "האיכות עשויה לרדת מתחת לרזולוציה שנבחרה בהתאם למהירות החיבור. שינוי האיכות עשוי להימשך רגע.";

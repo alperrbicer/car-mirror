@@ -1,0 +1,193 @@
+{
+  "date": "2026-10-17",
+  "locale": "tr-TR",
+  "device": "iPhone 17 Pro Max",
+  "runtime": "iOS 26.5",
+  "build": "1.0 (30)",
+  "dimensions": [
+    1320,
+    2868
+  ],
+  "originalScreenshotsEdited": false,
+  "screenshotCount": 13,
+  "recommendedCount": 8,
+  "alternativeCount": 5,
+  "resultBundle": "/Users/alperbicer/Documents/projects/private/car-mirror/build/store-capture-20261017/capture-final.xcresult",
+  "captureSuiteExitCode": 0,
+  "demoArtworkMode": "built-in image_gen",
+  "demoArtworkPrompts": "ornek-gorseller/imagegen-prompts.json",
+  "demoContent": "Original fictional sample artwork and locally generated scenic video; no provider content or real credentials. The app does not include a catalog.",
+  "appUI": "Unmodified current views in isolated project copy. Only DEBUG seed URLs, source name and sample watch positions/durations were changed.",
+  "files": [
+    {
+      "file": "adaylar/01-buyuk-ekran.png",
+      "sha256": "5638d89b918ac5e41565a092ea7caa37c23f8f48f3a21a4c73ed1350901897c3",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test01Sharing()",
+      "attachment": "04D08783-FA33-463A-B867-753C5677AF50.png",
+      "timestamp": 1792189934.668,
+      "recommendedFile": "iphone-6.9-tr/01-buyuk-ekran.png"
+    },
+    {
+      "file": "adaylar/02-kaldigin-yerden.png",
+      "sha256": "f95cc24d15b26460e47bd946825f794b597ce5d9bd7fe09f232c2c174df37a22",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test02ContinueWatching()",
+      "attachment": "66D67B66-09D2-4DAE-B633-F75D97998395.png",
+      "timestamp": 1792189974.929,
+      "recommendedFile": "iphone-6.9-tr/03-kaldigin-yerden.png"
+    },
+    {
+      "file": "adaylar/03-film-dizi-canli.png",
+      "sha256": "6f89bbc372b9b90f30f2ab18350ed45c91012b9aa87419a370e1d3e0d0b86b98",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "39C1D857-9D22-4777-9267-CF24CE6257F1.png",
+      "timestamp": 1792190072.954,
+      "recommendedFile": "iphone-6.9-tr/05-film-dizi-canli.png"
+    },
+    {
+      "file": "adaylar/04-film-kitapligi.png",
+      "sha256": "885c27c512bac5ab72e77326687b1b85810cbd188118b25df7723ad9c4ee5c41",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "AC21BF65-86EB-4080-B5A6-702342322BD5.png",
+      "timestamp": 1792190084.443
+    },
+    {
+      "file": "adaylar/05-dizi-sezon-bolum.png",
+      "sha256": "ff8848176677fcdbc75793760a6a17262826e1fa4296014e20aac6159a34d88b",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test04Series()",
+      "attachment": "9ED99ADC-BF1E-476E-9897-E453112C3587.png",
+      "timestamp": 1792190126.156,
+      "recommendedFile": "iphone-6.9-tr/02-dizi-sezon-bolum.png"
+    },
+    {
+      "file": "adaylar/06-oynatici.png",
+      "sha256": "7b57e3168005bc7fe84e0ef30044dee773fd2d98745d9632d457c40468d34851",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "0867CE8D-B44B-462F-B328-86C10A9B6881.png",
+      "timestamp": 1792190092.834,
+      "recommendedFile": "iphone-6.9-tr/04-oynatici.png"
+    },
+    {
+      "file": "adaylar/07-favoriler.png",
+      "sha256": "748016b14550c44752667b782df490266fb1bb2bb1c20266f6918e25f032be00",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test02ContinueWatching()",
+      "attachment": "591923B4-93B0-43E3-9849-8452253F986E.png",
+      "timestamp": 1792190047.893,
+      "recommendedFile": "iphone-6.9-tr/07-favoriler.png"
+    },
+    {
+      "file": "adaylar/08-kisisel-medya.png",
+      "sha256": "2bd02bb2deb9ad188620a30c11d5dda5755d3f497b036619d5c5d9dfeccefb3e",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test01Sharing()",
+      "attachment": "F2193032-AD68-4B64-A713-1EE63B1FB0DF.png",
+      "timestamp": 1792189940.645,
+      "recommendedFile": "iphone-6.9-tr/08-kisisel-medya.png"
+    },
+    {
+      "file": "adaylar/09-izleme-gecmisi.png",
+      "sha256": "88aeb8da4d37eb2f049c3eebe6007f97c568013fdb778786579b2dcd4e54ec47",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test02ContinueWatching()",
+      "attachment": "E753302E-AC05-4A68-B2CD-5AF60EFF13F3.png",
+      "timestamp": 1792189999.177
+    },
+    {
+      "file": "adaylar/10-film-bilgileri.png",
+      "sha256": "9f26de736523589edd8337982aa897d4fa90397f01fd4359eee694be3af55384",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test03Movies()",
+      "attachment": "09CC4EA7-EE9A-4BB7-BC14-73C0232F4B00.png",
+      "timestamp": 1792190097.27
+    },
+    {
+      "file": "adaylar/11-dizi-kitapligi.png",
+      "sha256": "9af1e98b4c73bc92f40d07a228f17fc2b3ec9ccaff5ab0ee8d4e9d5aa6ff5b95",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test04Series()",
+      "attachment": "3C222134-F280-41FE-96DF-8BF85FE467A0.png",
+      "timestamp": 1792190119.917
+    },
+    {
+      "file": "adaylar/12-dizi-bilgileri.png",
+      "sha256": "4cc96783a15f1c233e67b40f74c33f9a25701d650072bcfff21e2b04299638f3",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test04Series()",
+      "attachment": "B5FEF3B7-105A-4926-9EC1-B1F896F927BE.png",
+      "timestamp": 1792190130.306
+    },
+    {
+      "file": "adaylar/13-cevrimdisi-indirilenler.png",
+      "sha256": "147cd65a568e29cf8141fed95b792686f4fdc11da2cbf64c443809e8c321f56d",
+      "dimensions": [
+        1320,
+        2868
+      ],
+      "edited": false,
+      "testCase": "StoreScreenshotUITests/test05Downloads()",
+      "attachment": "6ED22F86-A2D4-4874-AFBD-22D7B3B919B4.png",
+      "timestamp": 1792190166.3,
+      "recommendedFile": "iphone-6.9-tr/06-cevrimdisi-indirilenler.png"
+    }
+  ],
+  "captureSuiteSummary": {
+    "result": "Passed",
+    "passedTests": 5,
+    "failedTests": 0
+  },
+  "concurrentSourceChange": "Current SeriesLibraryViews.swift adds allowsHitTesting(false) and accessibilityHidden(true) to a decorative circle border. Verified no visual change from the capture snapshot."
+}

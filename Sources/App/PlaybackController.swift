@@ -10,6 +10,31 @@ struct PlaybackTrack: Identifiable, Equatable {
     let isSelected: Bool
 }
 
+struct PlaybackVideoQuality: Identifiable, Equatable {
+    let resolution: CGSize
+    var id: String { "\(Int(resolution.width))x\(Int(resolution.height))" }
+    var title: String { "\(Int(min(resolution.width, resolution.height)))p" }
+}
+
+enum PlayerSubtitlePosition: String, CaseIterable, Identifiable {
+    case provider, raised, higher
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .provider: "Varsayılan"
+        case .raised: "Biraz yukarı"
+        case .higher: "Daha yukarı"
+        }
+    }
+    var linePosition: Int? {
+        switch self {
+        case .provider: nil
+        case .raised: 85
+        case .higher: 75
+        }
+    }
+}
+
 @MainActor
 final class PlaybackController: ObservableObject {
     enum State { case idle, loading, playing, paused, failed }
@@ -93,12 +118,32 @@ final class PlaybackController: ObservableObject {
     @Published private(set) var audioTracks: [PlaybackTrack] = []
     @Published private(set) var subtitleTracks: [PlaybackTrack] = []
     @Published private(set) var canDisableSubtitles = false
-    var hasMediaChoices: Bool { audioTracks.count > 1 || !subtitleTracks.isEmpty }
+    @Published private(set) var videoQualities: [PlaybackVideoQuality] = []
+    @Published private(set) var selectedVideoQualityID: String?
+    var showsVideoQuality: Bool {
+        request?.presentation == .video && !isLive && tvDevice == nil && compatibility == nil && videoQualities.count > 1
+    }
+    @Published var subtitlePosition = PlayerSubtitlePosition(rawValue: UserDefaults.standard.string(forKey: "player.subtitlePosition") ?? "") ?? .provider {
+        didSet {
+            UserDefaults.standard.set(subtitlePosition.rawValue, forKey: "player.subtitlePosition")
+            if let item = player.currentItem { applySubtitlePosition(to: item) }
+        }
+    }
+    var canAdjustSubtitlePosition: Bool { compatibility == nil && tvDevice == nil && !subtitleTracks.isEmpty }
+    private func applySubtitlePosition(to item: AVPlayerItem) {
+        guard let position = subtitlePosition.linePosition,
+              let rule = AVTextStyleRule(textMarkupAttributes: [
+                kCMTextMarkupAttribute_OrthogonalLinePositionPercentageRelativeToWritingDirection as String: position
+              ]) else { item.textStyleRules = nil; return }
+        item.textStyleRules = [rule]
+    }
+    var hasMediaChoices: Bool { audioTracks.count > 1 || !subtitleTracks.isEmpty || videoQualities.count > 1 }
     private var audioGroup: AVMediaSelectionGroup?
     private var subtitleGroup: AVMediaSelectionGroup?
     private var nativeAudioOptions: [AVMediaSelectionOption] = []
     private var nativeSubtitleOptions: [AVMediaSelectionOption] = []
     private var trackLoadingTask: Task<Void, Never>?
+    private var qualityLoadingTask: Task<Void, Never>?
     private var timeObserver: Any?
     private var durationObservation: NSKeyValueObservation?
     private var pendingSeek: UUID?
@@ -722,6 +767,7 @@ final class PlaybackController: ObservableObject {
             return
         }
         let item = AVPlayerItem(url: url)
+        applySubtitlePosition(to: item)
         nativeResumePosition = position > 0 || startsPaused ? position : nil
         item.preferredForwardBufferDuration = 2
         itemObservation = item.observe(\.status, options: [.new]) { [weak self, weak item] _, _ in
@@ -732,6 +778,7 @@ final class PlaybackController: ObservableObject {
                               reason: .playback, failure: item.error.map(DiagnosticFailure.init), expectedPlaybackID: attemptID)
                 } else if item.status == .readyToPlay {
                     self.loadNativeTracks(item)
+                    self.loadNativeVideoQualities(item)
                     self.startPendingPictureInPicture()
                     guard let position = self.nativeResumePosition, self.pendingSeek == nil else { self.refreshNativeTimeline(item); return }
                     let seekID = UUID()
@@ -796,6 +843,8 @@ final class PlaybackController: ObservableObject {
         retainedPiPController = nil
         nativePiP = nil
         trackLoadingTask?.cancel(); trackLoadingTask = nil
+        qualityLoadingTask?.cancel(); qualityLoadingTask = nil
+        videoQualities = []; selectedVideoQualityID = nil
         audioGroup = nil; subtitleGroup = nil
         nativeAudioOptions = []; nativeSubtitleOptions = []
         audioTracks = []; subtitleTracks = []; canDisableSubtitles = false
@@ -918,6 +967,42 @@ final class PlaybackController: ObservableObject {
             item.select(nil, in: group)
         }
         refreshNativeTrackSelection(item)
+    }
+
+    func selectVideoQuality(_ id: String?) {
+        guard showsVideoQuality, compatibility == nil, let item = player.currentItem else { return }
+        let quality = videoQualities.first { $0.id == id }
+        guard id == nil || quality != nil else { return }
+        // Keep the master playlist, current item, audio/subtitle selection and
+        // timeline. AVPlayer may adapt below this ceiling as bandwidth changes.
+        item.preferredMaximumResolution = quality?.resolution ?? .zero
+        selectedVideoQualityID = id
+    }
+
+    private func loadNativeVideoQualities(_ item: AVPlayerItem) {
+        guard request?.presentation == .video, let asset = item.asset as? AVURLAsset else { return }
+        qualityLoadingTask?.cancel()
+        qualityLoadingTask = Task { @MainActor [weak self, weak item] in
+            guard let self, let item else { return }
+            let variants = (try? await asset.load(.variants)) ?? []
+            guard !Task.isCancelled, self.player.currentItem === item, self.compatibility == nil else { return }
+            // Only advertise sizes actually declared by the HLS master. A
+            // single MP4/MKV file cannot acquire other encodes through scaling.
+            var qualities: [String: PlaybackVideoQuality] = [:]
+            for variant in variants {
+                guard let size = variant.videoAttributes?.presentationSize,
+                      let width = Int(exactly: size.width), let height = Int(exactly: size.height),
+                      width > 0, height > 0 else { continue }
+                let quality = PlaybackVideoQuality(resolution: size)
+                qualities[quality.id] = quality
+            }
+            let options = qualities.values.sorted {
+                let lhs = $0.resolution.width * $0.resolution.height
+                let rhs = $1.resolution.width * $1.resolution.height
+                return lhs == rhs ? $0.id < $1.id : lhs > rhs
+            }
+            self.videoQualities = options.count > 1 ? options : []
+        }
     }
 
     private func loadNativeTracks(_ item: AVPlayerItem) {

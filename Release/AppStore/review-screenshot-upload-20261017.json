@@ -1,0 +1,32 @@
+{
+  "checkedDate": "2026-10-17",
+  "appStoreAppId": "6818560405",
+  "userApproved": true,
+  "verifiedAfterPageReload": true,
+  "products": {
+    "weekly": {
+      "appleId": "6818888654",
+      "file": "Release/AppStore/screenshots/subscriptions-20261017/weekly-en.png",
+      "image": {
+        "complete": true,
+        "height": 2868,
+        "src": "https://is1-ssl.mzstatic.com/image/thumb/kz9FRi2rmqm_NMu9RIGq0w/1320x2868bb.png",
+        "width": 1320
+      },
+      "proof": "build/store-metadata-20261017/weekly-review-uploaded.jpg"
+    },
+    "yearly": {
+      "appleId": "6818889933",
+      "file": "Release/AppStore/screenshots/subscriptions-20261017/yearly-en.png",
+      "previousImageURL": "https://is1-ssl.mzstatic.com/image/thumb/tHvQw9ElFGRrZX9IFBTkZg/1320x2868bb.png",
+      "image": {
+        "complete": true,
+        "height": 2868,
+        "src": "https://is1-ssl.mzstatic.com/image/thumb/1q92qNVxLRQ9f_tsJAHumw/1320x2868bb.png",
+        "width": 1320
+      },
+      "proof": "build/store-metadata-20261017/yearly-review-uploaded.jpg"
+    }
+  },
+  "submittedForReview": false
+}

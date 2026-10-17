@@ -10,10 +10,11 @@ public struct MediaMetadata: Codable, Equatable, Sendable {
     public let rating: Double?
     public let director: String?
     public let cast: String?
+    public let addedAt: Date?
 
     public init(artworkURL: URL? = nil, summary: String? = nil, genre: String? = nil,
                 year: String? = nil, duration: Double? = nil, rating: Double? = nil,
-                director: String? = nil, cast: String? = nil) {
+                director: String? = nil, cast: String? = nil, addedAt: Date? = nil) {
         self.artworkURL = artworkURL.flatMap { try? MediaURL.validate($0.absoluteString) }
         self.summary = Self.clean(summary, limit: 6_000)
         self.genre = Self.clean(genre, limit: 200)
@@ -23,12 +24,22 @@ public struct MediaMetadata: Codable, Equatable, Sendable {
         self.rating = rating.flatMap { $0.isFinite && $0 > 0 && $0 <= 10 ? $0 : nil }
         self.director = Self.clean(director, limit: 300)
         self.cast = Self.clean(cast, limit: 1_000)
+        self.addedAt = addedAt.flatMap { $0.timeIntervalSince1970.isFinite && $0.timeIntervalSince1970 > 0 ? $0 : nil }
     }
 
     public func merging(_ other: Self) -> Self {
         Self(artworkURL: other.artworkURL ?? artworkURL, summary: other.summary ?? summary,
              genre: other.genre ?? genre, year: other.year ?? year, duration: other.duration ?? duration,
-             rating: other.rating ?? rating, director: other.director ?? director, cast: other.cast ?? cast)
+             rating: other.rating ?? rating, director: other.director ?? director, cast: other.cast ?? cast,
+             addedAt: other.addedAt ?? addedAt)
+    }
+
+    public static func addedDate(_ value: String?) -> Date? {
+        guard let value else { return nil }
+        if let seconds = Double(value), seconds.isFinite, seconds > 0, seconds < 4_102_444_800 {
+            return Date(timeIntervalSince1970: seconds)
+        }
+        return ISO8601DateFormatter().date(from: value)
     }
 
     public static func artworkURL(_ value: String?, relativeTo base: URL) -> URL? {
@@ -49,6 +60,11 @@ public struct MediaMetadata: Codable, Equatable, Sendable {
 }
 
 public extension XtreamEndpoint {
+    static func vodCatalog(kind: MediaSourceKind, secret: SourceSecret, channel: MediaChannel) throws -> URL? {
+        guard let (components, _) = try metadataEndpoint(kind: kind, secret: secret, channel: channel, route: "movie") else { return nil }
+        return metadataURL(components, action: "get_vod_streams")
+    }
+
     static func vodInfo(kind: MediaSourceKind, secret: SourceSecret, channel: MediaChannel) throws -> URL? {
         guard let (components, id) = try metadataEndpoint(kind: kind, secret: secret, channel: channel, route: "movie") else { return nil }
         return metadataURL(components, action: "get_vod_info", id: ("vod_id", id))

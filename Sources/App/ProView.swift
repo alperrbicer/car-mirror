@@ -106,51 +106,130 @@ struct ProView: View {
     }
 
     private var hero: some View {
-        Text(L10n.tr(store.verifiedPro ? "Tüm özellikler seninle." : "Mirivo Pro’yu kendi ekranlarında dene."))
-            .font(.title.bold()).tracking(L10n.appLanguage.allowsLetterSpacing ? -0.6 : 0)
-            .fixedSize(horizontal: false, vertical: true).accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: 14) {
+            Capsule()
+                .fill(LinearGradient(colors: [MirrorStyle.accent, MirrorStyle.accent.opacity(0.35)],
+                                     startPoint: .leading, endPoint: .trailing))
+                .frame(width: 36, height: 3)
+                .accessibilityHidden(true)
+            Text(L10n.tr(store.verifiedPro ? "Tüm özellikler seninle." : "Mirivo Pro’yu kendi ekranlarında dene."))
+                .font(.title.bold())
+                .tracking(L10n.appLanguage.allowsLetterSpacing ? -0.6 : 0)
+                .lineSpacing(3)
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 4)
     }
 
     private var benefits: some View {
-        VStack(spacing: 16) {
-            feature("CarPlay’de video izle", detail: "Destekleyen araçlarda, park halindeyken.", symbol: "car.side")
-            feature("İndir, çevrimdışı izle", detail: "İndirdiğin videoları internet olmadan aç.", symbol: "arrow.down.circle")
-            let layout = dynamicTypeSize.isAccessibilitySize
-                ? AnyLayout(VStackLayout(spacing: 6)) : AnyLayout(HStackLayout(spacing: 6))
-            layout {
-                chip("Süre sınırı yok", accessibility: "Sınırsız izleme", id: "unlimited")
-                chip("TV’ye aktar", accessibility: "İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş.", id: "cast")
-                chip("Kaldığın yerden", accessibility: "Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar.", id: "resume")
-            }.accessibilityElement(children: .contain)
-                .accessibilityIdentifier("pro-secondary-benefits")
+        VStack(spacing: 12) {
+            VStack(spacing: 0) {
+                feature("CarPlay’de video izle", detail: "Destekleyen araçlarda, park halindeyken.", symbol: "car.side")
+                Rectangle()
+                    .fill(MirrorStyle.hairline)
+                    .frame(height: 1)
+                    .padding(.leading, 72)
+                    .padding(.trailing, 16)
+                    .accessibilityHidden(true)
+                feature("İndir, çevrimdışı izle", detail: "İndirdiğin videoları internet olmadan aç.", symbol: "arrow.down.circle")
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(MirrorStyle.surface)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .fill(LinearGradient(colors: [MirrorStyle.accent.opacity(0.08), .clear],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+                    }
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .strokeBorder(LinearGradient(colors: [MirrorStyle.accent.opacity(0.22), MirrorStyle.hairline],
+                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .allowsHitTesting(false)
+            }
+            secondaryBenefits
         }
     }
 
-    private func feature(_ title: String, detail: String, symbol: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol).font(.title2).foregroundStyle(MirrorStyle.accent)
-                .frame(width: 44, height: 44)
-                .background(MirrorStyle.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.tr(title)).font(.headline)
-                Text(L10n.tr(detail)).font(.caption).foregroundStyle(MirrorStyle.secondary)
-            }.fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-        }.accessibilityElement(children: .combine)
+    private var secondaryBenefits: some View {
+        let layout = dynamicTypeSize >= .xxxLarge
+            ? AnyLayout(VStackLayout(spacing: 8))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
+        return layout {
+            chip("Süre sınırı yok", symbol: "infinity", accessibility: "Sınırsız izleme", id: "unlimited")
+            chip("TV’ye aktar", symbol: "tv", accessibility: "İçeriklerini uyumlu bir TV’ye aktar veya ekranını paylaş.", id: "cast")
+            chip("Kaldığın yerden", symbol: "play.circle", accessibility: "Bir bölüme başla, ara ver, kaldığın yerden sürdür. Mirivo izleme ilerlemeni hatırlar.", id: "resume")
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("pro-secondary-benefits")
     }
 
-    private func chip(_ title: String, accessibility: String, id: String) -> some View {
-        Text(L10n.tr(title))
-            .font(.caption2.weight(.medium))
-            .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
-            .minimumScaleFactor(0.8)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 7).padding(.vertical, 7)
-            .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 9))
-            .foregroundStyle(MirrorStyle.secondary)
-            .accessibilityLabel(L10n.tr(accessibility))
-            .accessibilityIdentifier("pro-benefit-\(id)")
+    private func feature(_ title: String, detail: String, symbol: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: symbol)
+                .font(.system(size: 22, weight: .medium))
+                .foregroundStyle(MirrorStyle.accent)
+                .frame(width: 44, height: 44)
+                .background {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(LinearGradient(colors: [MirrorStyle.accent.opacity(0.18), MirrorStyle.accent.opacity(0.05)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(MirrorStyle.accent.opacity(0.16))
+                }
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 5) {
+                Text(L10n.tr(title))
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                Text(L10n.tr(detail))
+                    .font(.footnote)
+                    .foregroundStyle(MirrorStyle.secondary)
+                    .lineSpacing(2)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(16)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func chip(_ title: String, symbol: String, accessibility: String, id: String) -> some View {
+        let stacked = dynamicTypeSize >= .xxxLarge
+        let layout = stacked
+            ? AnyLayout(HStackLayout(spacing: 12))
+            : AnyLayout(VStackLayout(spacing: 8))
+        return layout {
+            Image(systemName: symbol)
+                .font(.body.weight(.medium))
+                .foregroundStyle(MirrorStyle.accent)
+                .frame(minWidth: 22, minHeight: 22)
+                .accessibilityHidden(true)
+            Text(L10n.tr(title))
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.white.opacity(0.88))
+                .multilineTextAlignment(stacked ? .leading : .center)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityLabel(L10n.tr(accessibility))
+                .accessibilityIdentifier("pro-benefit-\(id)")
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, maxHeight: stacked ? nil : .infinity,
+               alignment: stacked ? .leading : .top)
+        .background(MirrorStyle.surface.opacity(0.7), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(MirrorStyle.hairline)
+                .allowsHitTesting(false)
+        }
     }
 
     private func plan(_ product: Product) -> some View {

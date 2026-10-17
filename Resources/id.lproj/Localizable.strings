@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "Serial dan episode ada di favorit";
 "Favorilerde değil" = "Tidak ada di favorit";
 "Bölüm" = "Episode";
+
+"Varsayılan" = "Default";
+"Son eklenenler" = "Baru ditambahkan";
+"Ada göre (A–Z)" = "Judul (A–Z)";
+"Ada göre (Z–A)" = "Judul (Z–A)";
+"Sırala" = "Urutkan";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Konten tanpa tanggal penambahan tetap mengikuti urutan sumber.";
+"Altyazı konumu" = "Posisi subtitel";
+"Biraz yukarı" = "Sedikit lebih tinggi";
+"Daha yukarı" = "Lebih tinggi";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Berlaku untuk subtitel teks. Teks yang menyatu dengan video tidak dapat dipindahkan.";
+"Oynatma seçenekleri" = "Opsi pemutaran";
+"Görüntü kalitesi" = "Kualitas video";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "Pilihan kualitas tidak tersedia untuk sumber ini.";
+"Otomatik" = "Otomatis";
+"En fazla %@" = "Hingga %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Kualitas dapat turun di bawah resolusi yang dipilih tergantung kecepatan koneksi. Perubahan kualitas mungkin memerlukan waktu sebentar.";

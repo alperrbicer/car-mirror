@@ -122,7 +122,7 @@ struct SeriesDetailHero: View {
             MediaFavoriteButton(channel: channel, sourceID: sourceID, scope: .series,
                                 identifier: "series-detail-favorite")
                 .background(.ultraThinMaterial, in: Circle())
-                .overlay { Circle().strokeBorder(MirrorStyle.hairline) }
+                .overlay { Circle().strokeBorder(MirrorStyle.hairline).allowsHitTesting(false).accessibilityHidden(true) }
                 .padding(.trailing, 24).padding(.top, 12)
         }
     }

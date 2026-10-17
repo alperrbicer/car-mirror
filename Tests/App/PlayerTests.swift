@@ -12,6 +12,42 @@ import CryptoKit
 
 @MainActor
 final class PlayerTests: XCTestCase {
+    func testZoomModesAreAppliedOnlyInLandscapeFullscreen() {
+        for mode in PlayerVideoDisplayMode.allCases {
+            XCTAssertEqual(mode.effective(fullscreen: false, landscape: false), .normal)
+            XCTAssertEqual(mode.effective(fullscreen: true, landscape: false), .normal)
+            XCTAssertEqual(mode.effective(fullscreen: false, landscape: true), .normal)
+            XCTAssertEqual(mode.effective(fullscreen: true, landscape: true), mode)
+        }
+    }
+
+    func testLandscapeFullscreenExitSuppressesRotationWhilePortraitExitAllowsIt() {
+        // Both the exit button and the downward gesture use this policy.
+        XCTAssertTrue(PlayerFullscreenRotationPolicy.suppressAutomaticLandscape(fullscreen: true, landscape: true))
+        XCTAssertFalse(PlayerFullscreenRotationPolicy.suppressAutomaticLandscape(fullscreen: true, landscape: false))
+        XCTAssertFalse(PlayerFullscreenRotationPolicy.suppressAutomaticLandscape(fullscreen: false, landscape: true))
+    }
+
+    func testNativeSubtitlePositionUpdatesCurrentAndReplacementItems() throws {
+        let playback = PlaybackController()
+        let originalPosition = playback.subtitlePosition
+        defer { playback.stop(); playback.subtitlePosition = originalPosition }
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        try playback.play(url: url, title: "Subtitle position")
+        let first = try XCTUnwrap(playback.player.currentItem)
+        playback.subtitlePosition = .raised
+        let key = kCMTextMarkupAttribute_OrthogonalLinePositionPercentageRelativeToWritingDirection as String
+        XCTAssertEqual(first.textStyleRules?.first?.textMarkupAttributes[key] as? Int, 85)
+        playback.subtitlePosition = .higher
+        XCTAssertEqual(first.textStyleRules?.first?.textMarkupAttributes[key] as? Int, 75)
+        try playback.play(url: url, title: "Replacement")
+        let replacement = try XCTUnwrap(playback.player.currentItem)
+        XCTAssertFalse(first === replacement)
+        XCTAssertEqual(replacement.textStyleRules?.first?.textMarkupAttributes[key] as? Int, 75)
+        playback.subtitlePosition = .provider
+        XCTAssertTrue(replacement.textStyleRules?.isEmpty != false)
+    }
+
     private func assertCarPlayFileProtection(_ url: URL, file: StaticString = #filePath, line: UInt = #line) throws {
         // Simulator does not expose NSFileProtectionKey. Content migration is tested on both platforms.
         #if !targetEnvironment(simulator)
@@ -1003,7 +1039,7 @@ final class PlayerTests: XCTestCase {
     }
 
     private func checkFullscreenRotation(useCompatibility: Bool) async throws {
-        let model = MirrorModel.shared
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
         let url = try XCTUnwrap(useCompatibility
             ? Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv")
             : Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))

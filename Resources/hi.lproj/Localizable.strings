@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "सीरीज़ और एपिसोड पसंदीदा में हैं";
 "Favorilerde değil" = "पसंदीदा में नहीं है";
 "Bölüm" = "एपिसोड";
+
+"Varsayılan" = "डिफ़ॉल्ट";
+"Son eklenenler" = "हाल में जोड़े गए";
+"Ada göre (A–Z)" = "शीर्षक (A–Z)";
+"Ada göre (Z–A)" = "शीर्षक (Z–A)";
+"Sırala" = "क्रम बदलें";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "जिन आइटम की जोड़ने की तारीख नहीं है, उनका स्रोत क्रम बना रहता है।";
+"Altyazı konumu" = "उपशीर्षक की स्थिति";
+"Biraz yukarı" = "थोड़ा ऊपर";
+"Daha yukarı" = "और ऊपर";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "टेक्स्ट उपशीर्षकों पर लागू होता है। वीडियो में स्थायी रूप से जुड़े टेक्स्ट को नहीं हिलाया जा सकता।";
+"Oynatma seçenekleri" = "प्लेबैक विकल्प";
+"Görüntü kalitesi" = "वीडियो की गुणवत्ता";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "इस स्रोत के लिए गुणवत्ता चुनना उपलब्ध नहीं है।";
+"Otomatik" = "अपने आप";
+"En fazla %@" = "अधिकतम %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "कनेक्शन की गति के अनुसार गुणवत्ता चुने गए रिज़ॉल्यूशन से कम हो सकती है। गुणवत्ता बदलने में थोड़ा समय लग सकता है।";

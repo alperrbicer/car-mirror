@@ -538,3 +538,20 @@
 "Dizi ve bölüm favorilerde" = "Dizi ve bölüm favorilerde";
 "Favorilerde değil" = "Favorilerde değil";
 "Bölüm" = "Bölüm";
+
+"Varsayılan" = "Varsayılan";
+"Son eklenenler" = "Son eklenenler";
+"Ada göre (A–Z)" = "Ada göre (A–Z)";
+"Ada göre (Z–A)" = "Ada göre (Z–A)";
+"Sırala" = "Sırala";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur.";
+"Altyazı konumu" = "Altyazı konumu";
+"Biraz yukarı" = "Biraz yukarı";
+"Daha yukarı" = "Daha yukarı";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz.";
+"Oynatma seçenekleri" = "Oynatma seçenekleri";
+"Görüntü kalitesi" = "Görüntü kalitesi";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "Bu kaynakta kalite seçimi kullanılamıyor.";
+"Otomatik" = "Otomatik";
+"En fazla %@" = "En fazla %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir.";

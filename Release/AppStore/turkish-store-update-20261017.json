@@ -1,0 +1,99 @@
+{
+  "checkedDate": "2026-10-17",
+  "appStoreAppId": "6818560405",
+  "appVersion": "1.0",
+  "locale": "tr",
+  "appStoreConnectURL": "https://appstoreconnect.apple.com/apps/6818560405/distribution/ios/version/inflight",
+  "screenshots": [
+    {
+      "position": 1,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/01-buyuk-ekran.png",
+      "sha256": "5638d89b918ac5e41565a092ea7caa37c23f8f48f3a21a4c73ed1350901897c3"
+    },
+    {
+      "position": 2,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/02-dizi-sezon-bolum.png",
+      "sha256": "ff8848176677fcdbc75793760a6a17262826e1fa4296014e20aac6159a34d88b"
+    },
+    {
+      "position": 3,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/03-kaldigin-yerden.png",
+      "sha256": "feecc8f6162b7aacb442184729c6162fc73ec0fe5671f2556e1e2454c330e31a"
+    },
+    {
+      "position": 4,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/04-oynatici.png",
+      "sha256": "7b57e3168005bc7fe84e0ef30044dee773fd2d98745d9632d457c40468d34851"
+    },
+    {
+      "position": 5,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/05-film-dizi-canli.png",
+      "sha256": "3fe75e5b494b34e25a0a9c6a2c30e27bfa4b9013143ce3706c384711e91865ac"
+    },
+    {
+      "position": 6,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/06-cevrimdisi-indirilenler.png",
+      "sha256": "147cd65a568e29cf8141fed95b792686f4fdc11da2cbf64c443809e8c321f56d"
+    },
+    {
+      "position": 7,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/07-favoriler.png",
+      "sha256": "748016b14550c44752667b782df490266fb1bb2bb1c20266f6918e25f032be00"
+    },
+    {
+      "position": 8,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/08-kisisel-medya.png",
+      "sha256": "2bd02bb2deb9ad188620a30c11d5dda5755d3f497b036619d5c5d9dfeccefb3e"
+    },
+    {
+      "position": 9,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/09-film-kategorisi.png",
+      "sha256": "885c27c512bac5ab72e77326687b1b85810cbd188118b25df7723ad9c4ee5c41"
+    },
+    {
+      "position": 10,
+      "file": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/10-izleme-gecmisi.png",
+      "sha256": "88aeb8da4d37eb2f049c3eebe6007f97c568013fdb778786579b2dcd4e54ec47"
+    }
+  ],
+  "screenshotsVerifiedAfterReload": true,
+  "largeDisplayScreenshotCount": 10,
+  "mediumDisplayUsesExistingLargeDisplayAssets": true,
+  "savedFields": {
+    "subtitle": "IPTV, AirPlay ve CarPlay",
+    "promotionalText": "IPTV ve medyanı tek yerde topla. Kaldığın yerden devam et, çevrimdışı izle; Google Cast ve AirPlay ile TV’ye aktar. Uyumlu CarPlay ile park halindeyken araç ekranında aç.",
+    "description": "İzlemek istediklerini tek yerde topla. iPhone’unda izle, Google Cast ve AirPlay ile TV’ye aktar; uyumlu CarPlay sistemlerinde park halindeyken araç ekranında aç.\n\nMirivo, kendi IPTV kaynakların ve kişisel medyan için reklamsız bir oynatıcı ve ekran paylaşımı uygulamasıdır.\n\nKendi kitaplığını oluştur\n• M3U oynatma listeni, yayın bağlantını veya Xtream Codes bilgilerini ekle.\n• Film, dizi, canlı yayın ve radyo içeriklerini kaynağındaki kategorilerden bul.\n• Dizilerini sezon ve bölüm sırasıyla takip et; aramayla aradığın içeriğe ulaş.\n• Sevdiklerini favorilerine ekle ve izlemeye kaldığın yerden devam et.\n\nİndir, internet olmadan izle\nSağlayıcının izin verdiği uygun film ve bölümleri iPhone’una indir. İndirdiklerini tek yerden aç, yönet ve çevrimdışı izle.\n\nBüyük ekrana taşı\nGoogle Cast ve AirPlay ile desteklenen TV ve alıcılara bağlan. Uyumlu araç ve sistemlerde CarPlay videoyu yalnızca park halindeyken kullan. Araçtaki video desteği, iPhone ve sistem uyumluluğuna bağlıdır.\n\nFotoğrafların ve dosyaların da yanında\nFotoğraflarını slayt gösterisine dönüştür, arşivindeki videoları aç, iPhone veya iCloud Drive’dan müzik ve dosya seç. Bir bağlantıyı kitaplığına kaydetmeden oynatabilir, iPhone ekranını ve uygun uygulama sesini paylaşabilirsin.\n\nİzleme deneyimini kendine göre ayarla\nTam ekran ve görüntü boyutu seçeneklerini kullan. Kaynağın sunduğu ses dili ve altyazılar arasından seçim yap. Cihaz içi canlı altyazılar iOS 26 ile desteklenen cihaz ve dillerde kullanılabilir.\n\nMirivo Pro\nKaynak ekleme ve kitaplıkta gezinme üyelik öncesinde kullanılabilir. Oynatma, indirme ve ekran paylaşımı için etkin ücretsiz deneme veya Mirivo Pro gerekir. Haftalık ve yıllık abonelikler aynı Pro özelliklerini açar.\n\nÜcretsiz deneme, varsa yalnızca uygun hesaplara sunulur. Güncel fiyat, dönem, deneme süresi ve deneme sonrası ücret satın alma öncesinde gösterilir. Abonelikler otomatik yenilenir; deneme iptal edilmezse ücretli aboneliğe dönüşür. Ödeme Apple hesabından alınır. Yenilenmesini istemiyorsan deneme veya dönem bitiminden en az 24 saat önce App Store’dan iptal et. Uygulamayı silmek aboneliği iptal etmez. Satın alımlarını geri yükleyebilir ve aboneliğini App Store’dan yönetebilirsin.\n\nİçerik ve uyumluluk\nMirivo kanal, film, dizi, IPTV hesabı veya içerik aboneliği sağlamaz. İçeriklerini kendi kaynaklarından eklersin. Yalnızca erişme ve indirme hakkın olan içerikleri kullan. Canlı yayınlar ve DRM korumalı içerikler indirilemez. Ekran paylaşımı, kaynak uygulamanın ve alıcı cihazın izin verdiği içeriklerle çalışır; Mirivo DRM veya araç güvenlik kısıtlamalarını kaldırmaz.\n\nGizlilik: https://mirivo-support.netlify.app/tr/privacy.html\nKullanım koşulları: https://mirivo-support.netlify.app/tr/terms.html\nDestek: https://mirivo-support.netlify.app/tr/support.html\nApple Standart EULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+    "keywords": "m3u,xtream,cast,oynatıcı,video,film,dizi,canlı,yayın,radyo,altyazı,ekran,yansıtma,indir,medya"
+  },
+  "metadataVerifiedAfterReload": true,
+  "existingLinksVerified": {
+    "privacyPolicyURL": "https://mirivo-support.netlify.app/tr/privacy.html",
+    "termsURL": "https://mirivo-support.netlify.app/tr/terms.html",
+    "supportURL": "https://mirivo-support.netlify.app/tr/support.html",
+    "marketingURL": "https://mirivo-support.netlify.app/tr/index.html"
+  },
+  "otherLocalesChangedByThisTask": false,
+  "selectedBuild": "14",
+  "reviewSubmissionPerformed": false,
+  "releasePerformed": false,
+  "proofFiles": [
+    "Release/AppStore/evidence/tr-20261017/screenshots-uploaded.jpg",
+    "Release/AppStore/evidence/tr-20261017/turkish-store-saved.jpg",
+    "Release/AppStore/evidence/tr-20261017/subtitle-saved.jpg",
+    "Release/AppStore/evidence/tr-20261017/promotion-text-revised.jpg",
+    "Release/AppStore/evidence/tr-20261017/promotion-text-cast-airplay.jpg"
+  ],
+  "notes": [
+    "The current binary still needs to be selected before review; build 14 remains selected.",
+    "Existing App Privacy declarations, Content Rights and account/legal settings were not modified.",
+    "The existing whatsNew metadata is retained locally; this first-version portal has no Whats New field."
+  ],
+  "promotionalTextRevision": {
+    "verifiedAfterReload": true,
+    "characters": 170,
+    "includesCarPlay": true,
+    "includesContinueWatching": true,
+    "includesGoogleCast": true,
+    "includesAirPlay": true
+  }
+}

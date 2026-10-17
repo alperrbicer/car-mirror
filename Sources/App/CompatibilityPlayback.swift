@@ -7,7 +7,7 @@ import AVKit
 /// MKV/WebM playback uses VideoLAN; HLS and Apple-native media stay on AVPlayer.
 @MainActor
 final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDelegate, @preconcurrency VLCPictureInPictureMediaControlling {
-    let mediaPlayer = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show"])
+    let mediaPlayer = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show", "--sub-margin=48"])
     lazy var videoView: CompatibilityVideoSurface = {
         let view = CompatibilityVideoSurface()
         view.owner = self

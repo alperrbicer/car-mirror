@@ -6,8 +6,44 @@ actor MediaMetadataLoader {
     static let shared = MediaMetadataLoader()
     private let fetch: Fetch
     private var catalogs: [URL: (date: Date, entries: [SeriesMetadataCandidate])] = [:]
+    private var recencyCatalogs: [URL: (date: Date, entries: [String: Date])] = [:]
 
     init(fetch: @escaping Fetch = MediaMetadataLoader.request) { self.fetch = fetch }
+
+    static func addedDates(source: MediaSource, channels: [MediaChannel]) async throws -> [String: Date] {
+        let secret = try SourceKeychain.read(source.id)
+        return try await shared.addedDates(kind: source.kind, secret: secret, channels: channels)
+    }
+
+    func addedDates(kind: MediaSourceKind, secret: SourceSecret, channels: [MediaChannel]) async throws -> [String: Date] {
+        var catalogURL: URL?
+        for movie in channels where !movie.isLive && !movie.isAudio && movie.episode == nil {
+            if let url = try XtreamEndpoint.vodCatalog(kind: kind, secret: secret, channel: movie) {
+                catalogURL = url; break
+            }
+        }
+        guard let url = catalogURL else { return [:] }
+        let dates: [String: Date]
+        if let cached = recencyCatalogs[url], Date().timeIntervalSince(cached.date) < 900 {
+            dates = cached.entries
+        } else {
+            let response = try await fetch(url, MediaCatalogRecency.maximumBytes)
+            try Task.checkCancellation()
+            dates = try MediaCatalogRecency.parse(response.data)
+            if recencyCatalogs.count >= 3, let oldest = recencyCatalogs.min(by: { $0.value.date < $1.value.date })?.key {
+                recencyCatalogs.removeValue(forKey: oldest)
+            }
+            recencyCatalogs[url] = (Date(), dates)
+        }
+        var result: [String: Date] = [:]
+        for channel in channels where !channel.isLive && !channel.isAudio && channel.episode == nil {
+            // Only apply IDs from the saved account's movie route.
+            guard try XtreamEndpoint.vodCatalog(kind: kind, secret: secret, channel: channel) == url,
+                  let date = dates[channel.url.deletingPathExtension().lastPathComponent] else { continue }
+            result[channel.id] = date
+        }
+        return result
+    }
 
     static func load(source: MediaSource, channel: MediaChannel, seriesOnly: Bool = false) async throws -> MediaMetadata? {
         let secret = try SourceKeychain.read(source.id)

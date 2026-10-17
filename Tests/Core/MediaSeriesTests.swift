@@ -91,6 +91,48 @@ final class MediaSeriesTests: XCTestCase {
         XCTAssertEqual(catalog.ungrouped, [movie, live, audio, unknown])
         XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: same, in: [other, same, movie, first, live]), [first, same])
         XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: first, in: [movie]), [first])
-        XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: movie, in: [movie, live]), [movie, live])
+        XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: movie, in: [movie, live]), [movie])
+    }
+
+    func testMovieQueueExcludesOtherCategoriesLiveAudioAndEpisodes() {
+        let movie = channel("Movie", 1, group: "  Films ", route: "movie")
+        let sameCategory = channel("Other film", 2, group: "Films", route: "movie")
+        let otherCategory = channel("Other category", 3, group: "New", route: "movie")
+        let episode = channel("Show S01E01", 4, group: "Films")
+        let live = channel("Live", 5, group: "Films", route: "live")
+        let audio = channel("Audio", 6, group: "Films", route: "movie", extension: "mp3")
+        let input = [otherCategory, sameCategory, live, movie, episode, audio]
+        XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: movie, in: input), [sameCategory, movie])
+        XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: live, in: input), input)
+        XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: movie, in: [otherCategory]), [movie])
+        let uncategorized = channel("Uncategorized", 7, group: "", route: "movie")
+        XCTAssertEqual(MediaSeriesCatalog.playbackQueue(for: uncategorized, in: input + [uncategorized]), [uncategorized])
+    }
+
+    func testLibrarySortUsesRealDatesAndPreservesOrderForMissingDatesAndEqualTitles() {
+        let dates: [Int: Date] = [2: Date(timeIntervalSince1970: 200), 3: Date(timeIntervalSince1970: 300)]
+        let names = [1: "Film 10", 2: "Film 2", 3: "Film 2", 4: "Film 1"]
+        let items = [1, 2, 3, 4]
+        XCTAssertEqual(MediaLibrarySort.provider.sorted(items, title: { names[$0]! }, addedAt: { dates[$0] }), items)
+        XCTAssertEqual(MediaLibrarySort.recentlyAdded.sorted(items, title: { names[$0]! }, addedAt: { dates[$0] }), [3, 2, 1, 4])
+        XCTAssertEqual(MediaLibrarySort.titleAscending.sorted(items, title: { names[$0]! }, addedAt: { dates[$0] }), [4, 2, 3, 1])
+        XCTAssertEqual(MediaLibrarySort.titleDescending.sorted(items, title: { names[$0]! }, addedAt: { dates[$0] }), [1, 2, 3, 4])
+    }
+
+    func testPlaylistAndXtreamRecencyDoNotUseYearsOrStreamIDsAsDates() throws {
+        let list = #"""
+        #EXTM3U
+        #EXTINF:-1 tvg-added="1700000000",Old release 1983
+        https://example.com/movie/u/p/1.mp4
+        #EXTINF:-1,New release 2026
+        https://example.com/movie/u/p/99999.mp4
+        """#
+        let channels = try M3UParser.parse(Data(list.utf8), baseURL: URL(string: "https://example.com/list.m3u")!, fallbackTitle: "Test")
+        XCTAssertEqual(channels[0].metadata.addedAt, Date(timeIntervalSince1970: 1_700_000_000))
+        XCTAssertNil(channels[1].metadata.addedAt)
+        let catalog = Data(#"[{"stream_id":1,"added":"1700000000"},{"stream_id":"2","added":1700000010},{"stream_id":99999},{"stream_id":3,"added":"NaN"}]"#.utf8)
+        XCTAssertEqual(try MediaCatalogRecency.parse(catalog), ["1": Date(timeIntervalSince1970: 1_700_000_000), "2": Date(timeIntervalSince1970: 1_700_000_010)])
+        let legacy = Data(#"{"year":"2026"}"#.utf8)
+        XCTAssertNil(try JSONDecoder().decode(MediaMetadata.self, from: legacy).addedAt)
     }
 }

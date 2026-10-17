@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "影集和本集均已收藏";
 "Favorilerde değil" = "未收藏";
 "Bölüm" = "單集";
+
+"Varsayılan" = "預設";
+"Son eklenenler" = "最近加入";
+"Ada göre (A–Z)" = "名稱升冪";
+"Ada göre (Z–A)" = "名稱降冪";
+"Sırala" = "排序";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "沒有加入日期的內容會保留來源順序。";
+"Altyazı konumu" = "字幕位置";
+"Biraz yukarı" = "稍微上移";
+"Daha yukarı" = "再上移";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "適用於文字字幕。已嵌入影片畫面的文字無法移動。";
+"Oynatma seçenekleri" = "播放選項";
+"Görüntü kalitesi" = "影片畫質";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "此來源不支援選擇畫質。";
+"Otomatik" = "自動";
+"En fazla %@" = "最高%@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "畫質可能會因連線速度而低於所選解析度。切換畫質可能需要片刻。";

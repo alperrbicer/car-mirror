@@ -84,8 +84,61 @@ public struct MediaSeriesCatalog: Sendable {
     }
 
     public static func playbackQueue(for channel: MediaChannel, in channels: [MediaChannel]) -> [MediaChannel] {
-        guard !channel.isLive, !channel.isAudio, let episode = channel.episode else { return channels }
+        guard !channel.isLive, !channel.isAudio else { return channels }
+        guard let episode = channel.episode else {
+            let group = channel.group.trimmingCharacters(in: .whitespacesAndNewlines)
+            let matching = channels.filter {
+                !$0.isLive && !$0.isAudio && $0.episode == nil &&
+                    $0.group.trimmingCharacters(in: .whitespacesAndNewlines) == group
+            }
+            return matching.contains(where: { $0.id == channel.id }) ? matching : [channel]
+        }
         let matching = channels.filter { $0.group == channel.group && $0.episode?.seriesKey == episode.seriesKey }
         return Self(matching).series.first?.channels ?? [channel]
+    }
+}
+
+public enum MediaLibrarySort: String, CaseIterable, Identifiable {
+    case provider, recentlyAdded, titleAscending, titleDescending
+    public var id: String { rawValue }
+    public var title: String {
+        switch self {
+        case .provider: "Varsayılan"
+        case .recentlyAdded: "Son eklenenler"
+        case .titleAscending: "Ada göre (A–Z)"
+        case .titleDescending: "Ada göre (Z–A)"
+        }
+    }
+
+    /// Missing dates and equal keys retain their provider order. Never infer
+    /// an addition date from a release year or a provider's numeric stream ID.
+    public func sorted<Item>(_ items: [Item], title: (Item) -> String, addedAt: (Item) -> Date?) -> [Item] {
+        guard self != .provider else { return items }
+        return items.enumerated().sorted { a, b in
+            if self == .recentlyAdded {
+                let left = addedAt(a.element), right = addedAt(b.element)
+                if left != right { return (left ?? .distantPast) > (right ?? .distantPast) }
+            } else {
+                let order = title(a.element).localizedStandardCompare(title(b.element))
+                if order != .orderedSame { return order == (self == .titleAscending ? .orderedAscending : .orderedDescending) }
+            }
+            return a.offset < b.offset
+        }.map(\.element)
+    }
+}
+
+public enum MediaCatalogRecency {
+    public static let maximumBytes = 16 * 1_024 * 1_024
+    public static func parse(_ data: Data) throws -> [String: Date] {
+        guard data.count <= maximumBytes else { throw LibraryError.tooLarge }
+        guard let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { throw LibraryError.invalidResponse }
+        var result: [String: Date] = [:]
+        for row in rows.prefix(M3UParser.maximumChannels) {
+            let id = (row["stream_id"] as? String) ?? (row["stream_id"] as? NSNumber)?.stringValue
+            let added = (row["added"] as? String) ?? (row["added"] as? NSNumber)?.stringValue
+            guard let id, let date = MediaMetadata.addedDate(added) else { continue }
+            result[id] = max(result[id] ?? .distantPast, date)
+        }
+        return result
     }
 }

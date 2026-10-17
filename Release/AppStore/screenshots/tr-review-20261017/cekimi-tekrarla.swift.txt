@@ -1,0 +1,155 @@
+import XCTest
+
+final class StoreScreenshotUITests: XCTestCase {
+    private func launch(history: Bool = true) -> XCUIApplication {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access",
+                               "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
+                               "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryM"]
+        if history { app.launchArguments.append("-mirivo-ui-artwork-history") }
+        XCUIDevice.shared.orientation = .portrait
+        app.launch()
+        XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 15))
+        if app.buttons["now-playing-stop"].exists { app.buttons["now-playing-stop"].tap() }
+        return app
+    }
+    private func library(_ app: XCUIApplication) {
+        let tab = app.buttons["page-library"]
+        if !tab.isSelected { tab.tap() }
+        XCTAssertTrue(app.buttons["continue-watching-all"].waitForExistence(timeout: 15))
+    }
+    private func catalog(_ app: XCUIApplication) {
+        library(app)
+        let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Kişisel Kitaplığım", "Oynatma listesi")).firstMatch
+        for _ in 0..<5 { if source.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(source.waitForExistence(timeout: 10))
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["browse-all-channels"].waitForExistence(timeout: 15))
+    }
+    private func category(_ name: String, _ app: XCUIApplication) {
+        let button = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", name)).firstMatch
+        for _ in 0..<7 {
+            if button.isHittable && button.frame.midY < app.frame.maxY - 100 { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(button.waitForExistence(timeout: 10)); button.tap()
+        let nav = app.navigationBars[name]
+        if !nav.waitForExistence(timeout: 4), button.isHittable { button.tap() }
+        XCTAssertTrue(nav.waitForExistence(timeout: 10))
+    }
+    private func capture(_ name: String) {
+        Thread.sleep(forTimeInterval: 1.2)
+        let shot = XCUIScreen.main.screenshot()
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent("mirivo-store-tr-\(name).png")
+        try! shot.pngRepresentation.write(to: path)
+        print("MIRIVO_STORE_CAPTURE: \(path.path)")
+        let attachment = XCTAttachment(screenshot: shot)
+        attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
+    }
+    func test01Sharing() {
+        let app = launch(history: false); defer { app.terminate() }
+        app.buttons["page-mirror"].tap()
+        XCTAssertTrue(app.buttons["home-carplay"].waitForExistence(timeout: 10))
+        capture("01-buyuk-ekran")
+        let photos = app.buttons["share-photos"]
+        for _ in 0..<5 { if photos.isHittable && photos.frame.maxY < app.frame.maxY - 80 { break }; app.swipeUp() }
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.55))
+        start.press(forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: -70)))
+        capture("08-kisisel-medya")
+    }
+    func test02ContinueWatching() {
+        let app = launch(); defer { app.terminate() }
+        library(app)
+        XCTAssertTrue(app.staticTexts["Kıyı Hikâyeleri"].waitForExistence(timeout: 15))
+        Thread.sleep(forTimeInterval: 3)
+        capture("02-kaldigin-yerden")
+        app.buttons["continue-watching-all"].tap()
+        XCTAssertTrue(app.buttons["close-continue-watching"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2)
+        capture("09-izleme-gecmisi")
+        let hearts = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-list-favorite-"))
+        for i in 0..<min(hearts.count, 4) {
+            let heart = hearts.element(boundBy: i)
+            if heart.isHittable && !heart.isSelected { heart.tap() }
+        }
+        app.buttons["close-continue-watching"].tap()
+        catalog(app)
+        category("FİLM: Sinema", app)
+        for title in ["Son Işık", "Saklı Vadi"] {
+            let movie = app.buttons[title].firstMatch
+            for _ in 0..<4 { if movie.isHittable { break }; app.swipeUp() }
+            movie.tap()
+            XCTAssertTrue(app.buttons["player-favorite"].waitForExistence(timeout: 15))
+            if !app.buttons["player-favorite"].isSelected { app.buttons["player-favorite"].tap() }
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        if app.buttons["now-playing-stop"].exists { app.buttons["now-playing-stop"].tap() }
+        let favorites = app.buttons["open-favorites"]
+        for _ in 0..<5 { if favorites.isHittable { break }; app.swipeDown() }
+        favorites.tap()
+        XCTAssertTrue(app.scrollViews["favorites-grid"].waitForExistence(timeout: 10))
+        capture("07-favoriler")
+    }
+    func test03Movies() {
+        let app = launch(); defer { app.terminate() }
+        catalog(app)
+        Thread.sleep(forTimeInterval: 3)
+        capture("03-film-dizi-canli")
+        category("FİLM: Sinema", app)
+        XCTAssertTrue(app.buttons["Mavi Yolculuk"].firstMatch.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2)
+        capture("04-film-kitapligi")
+        app.buttons["Mavi Yolculuk"].firstMatch.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 15))
+        let pause = app.buttons["player-play-pause"]
+        XCTAssertTrue(pause.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2)
+        if pause.label == "Duraklat" { pause.tap() }
+        capture("06-oynatici")
+        let info = app.buttons["media-details-toggle"]
+        for _ in 0..<6 { if info.isHittable { break }; app.swipeUp() }
+        if info.isHittable {
+            info.tap()
+            XCTAssertTrue(app.staticTexts["media-synopsis"].waitForExistence(timeout: 15))
+            capture("10-film-bilgileri")
+        }
+    }
+    func test04Series() {
+        let app = launch(); defer { app.terminate() }
+        catalog(app)
+        category("DİZİ: Yerli", app)
+        XCTAssertTrue(app.buttons["series-open-Kıyı Hikâyeleri"].waitForExistence(timeout: 10))
+        capture("11-dizi-kitapligi")
+        app.buttons["series-favorite-Kıyı Hikâyeleri"].tap()
+        app.buttons["series-open-Kıyı Hikâyeleri"].tap()
+        XCTAssertTrue(app.buttons["series-season-2"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["2024"].waitForExistence(timeout: 15))
+        capture("05-dizi-sezon-bolum")
+        app.buttons["media-details-toggle"].tap()
+        XCTAssertTrue(app.staticTexts["media-synopsis"].waitForExistence(timeout: 10))
+        capture("12-dizi-bilgileri")
+    }
+    func test05Downloads() {
+        let app = launch(); defer { app.terminate() }
+        catalog(app)
+        category("FİLM: Sinema", app)
+        let downloads = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "download-"))
+        XCTAssertTrue(downloads.firstMatch.waitForExistence(timeout: 10))
+        let count = min(downloads.count, 3)
+        for i in 0..<count {
+            let button = downloads.element(boundBy: i)
+            if button.isHittable { button.tap(); Thread.sleep(forTimeInterval: 2) }
+        }
+        XCTAssertTrue(app.images["İndirildi"].firstMatch.waitForExistence(timeout: 30))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let open = app.buttons["offline-downloads-open"]
+        for _ in 0..<5 { if open.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(open.waitForExistence(timeout: 10)); open.tap()
+        XCTAssertTrue(app.staticTexts["Çevrimdışı izlemeye hazır"].waitForExistence(timeout: 10))
+        capture("13-cevrimdisi-indirilenler")
+    }
+}

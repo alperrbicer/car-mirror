@@ -1,0 +1,21 @@
+[
+  {
+    "url": "https://mirivo-support.netlify.app/tr/support.html",
+    "title": "Yardım ve SSS · Mirivo"
+  },
+  {
+    "url": "https://mirivo-support.netlify.app/tr/privacy.html",
+    "title": "Gizlilik Politikası · Mirivo",
+    "pageVisible": true
+  },
+  {
+    "url": "https://mirivo-support.netlify.app/tr/terms.html",
+    "title": "Kullanım Koşulları (EULA) · Mirivo",
+    "pageVisible": true
+  },
+  {
+    "url": "https://mirivo-support.netlify.app/tr/index.html",
+    "title": "Medyan, her ekranda. · Mirivo",
+    "pageVisible": true
+  }
+]

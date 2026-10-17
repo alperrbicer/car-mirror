@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "المسلسل والحلقة في المفضلة";
 "Favorilerde değil" = "ليس في المفضلة";
 "Bölüm" = "حلقة";
+
+"Varsayılan" = "الافتراضي";
+"Son eklenenler" = "المضافة حديثًا";
+"Ada göre (A–Z)" = "العنوان (أ–ي)";
+"Ada göre (Z–A)" = "العنوان (ي–أ)";
+"Sırala" = "ترتيب";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "يحتفظ المحتوى الذي لا يتوفر له تاريخ إضافة بترتيب المصدر.";
+"Altyazı konumu" = "موضع الترجمة";
+"Biraz yukarı" = "أعلى قليلًا";
+"Daha yukarı" = "أعلى";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "ينطبق على الترجمة النصية. لا يمكن تحريك النص المدمج في الفيديو.";
+"Oynatma seçenekleri" = "خيارات التشغيل";
+"Görüntü kalitesi" = "جودة الفيديو";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "اختيار الجودة غير متاح لهذا المصدر.";
+"Otomatik" = "تلقائي";
+"En fazla %@" = "حتى %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "قد تنخفض الجودة عن الدقة المختارة حسب سرعة الاتصال. قد يستغرق تغيير الجودة بعض الوقت.";

@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "Serien och avsnittet finns i favoriter";
 "Favorilerde değil" = "Finns inte i favoriter";
 "Bölüm" = "Avsnitt";
+
+"Varsayılan" = "Standard";
+"Son eklenenler" = "Senast tillagda";
+"Ada göre (A–Z)" = "Titel (A–Ö)";
+"Ada göre (Z–A)" = "Titel (Ö–A)";
+"Sırala" = "Sortera";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Innehåll utan tilläggsdatum behåller källans ordning.";
+"Altyazı konumu" = "Undertextposition";
+"Biraz yukarı" = "Lite högre";
+"Daha yukarı" = "Högre";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Gäller textbaserade undertexter. Text som är inbränd i videon kan inte flyttas.";
+"Oynatma seçenekleri" = "Uppspelningsalternativ";
+"Görüntü kalitesi" = "Videokvalitet";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "Kvalitetsval är inte tillgängligt för den här källan.";
+"Otomatik" = "Automatisk";
+"En fazla %@" = "Upp till %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Kvaliteten kan sjunka under den valda upplösningen beroende på anslutningshastigheten. Det kan ta en stund att byta kvalitet.";

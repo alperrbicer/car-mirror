@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "ซีรีส์และตอนอยู่ในรายการโปรด";
 "Favorilerde değil" = "ไม่อยู่ในรายการโปรด";
 "Bölüm" = "ตอน";
+
+"Varsayılan" = "ค่าเริ่มต้น";
+"Son eklenenler" = "เพิ่มล่าสุด";
+"Ada göre (A–Z)" = "ชื่อ (A–Z)";
+"Ada göre (Z–A)" = "ชื่อ (Z–A)";
+"Sırala" = "เรียงลำดับ";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "เนื้อหาที่ไม่มีวันที่เพิ่มจะคงลำดับของแหล่งที่มา";
+"Altyazı konumu" = "ตำแหน่งคำบรรยาย";
+"Biraz yukarı" = "สูงขึ้นเล็กน้อย";
+"Daha yukarı" = "สูงขึ้น";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "ใช้กับคำบรรยายแบบข้อความ ไม่สามารถย้ายข้อความที่ฝังอยู่ในวิดีโอได้";
+"Oynatma seçenekleri" = "ตัวเลือกการเล่น";
+"Görüntü kalitesi" = "คุณภาพวิดีโอ";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "ไม่สามารถเลือกคุณภาพสำหรับแหล่งนี้ได้";
+"Otomatik" = "อัตโนมัติ";
+"En fazla %@" = "สูงสุด %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "คุณภาพอาจลดลงต่ำกว่าความละเอียดที่เลือกตามความเร็วการเชื่อมต่อ การเปลี่ยนคุณภาพอาจใช้เวลาสักครู่";

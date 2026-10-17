@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "Série e episódio nos favoritos";
 "Favorilerde değil" = "Não está nos favoritos";
 "Bölüm" = "Episódio";
+
+"Varsayılan" = "Padrão";
+"Son eklenenler" = "Adicionados recentemente";
+"Ada göre (A–Z)" = "Título (A–Z)";
+"Ada göre (Z–A)" = "Título (Z–A)";
+"Sırala" = "Ordenar";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Itens sem data de adição mantêm a ordem da fonte.";
+"Altyazı konumu" = "Posição das legendas";
+"Biraz yukarı" = "Um pouco acima";
+"Daha yukarı" = "Mais acima";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Aplica-se a legendas de texto. O texto gravado no vídeo não pode ser movido.";
+"Oynatma seçenekleri" = "Opções de reprodução";
+"Görüntü kalitesi" = "Qualidade do vídeo";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "A seleção de qualidade não está disponível para esta fonte.";
+"Otomatik" = "Automática";
+"En fazla %@" = "Até %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "A qualidade pode ficar abaixo da resolução escolhida conforme a velocidade da conexão. A mudança de qualidade pode levar um instante.";

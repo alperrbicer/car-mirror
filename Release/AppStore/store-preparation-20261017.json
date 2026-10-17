@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-17",
+  "appLocalesPreparedSavedVerified": 22,
+  "productLocalizationsPreparedSavedVerified": 44,
+  "screenshotsPrepared": 6,
+  "screenshotsUploaded": true,
+  "planSelectionUITestPassed": true,
+  "liveTestFlightPurchaseVerified": false,
+  "selectedAppStoreBuild": "14",
+  "matchingNewBuildRequired": true,
+  "errors": [],
+  "passed": true,
+  "screenshotsUploadedCount": 2,
+  "screenshotsVerifiedAfterReload": true,
+  "screenshotUploadEvidence": "Release/AppStore/review-screenshot-upload-20261017.json"
+}

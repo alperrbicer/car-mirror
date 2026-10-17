@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "Serie en aflevering in favorieten";
 "Favorilerde değil" = "Niet in favorieten";
 "Bölüm" = "Aflevering";
+
+"Varsayılan" = "Standaard";
+"Son eklenenler" = "Recent toegevoegd";
+"Ada göre (A–Z)" = "Titel (A–Z)";
+"Ada göre (Z–A)" = "Titel (Z–A)";
+"Sırala" = "Sorteren";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Items zonder toevoegdatum behouden de bronvolgorde.";
+"Altyazı konumu" = "Ondertitelpositie";
+"Biraz yukarı" = "Iets hoger";
+"Daha yukarı" = "Hoger";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Geldt voor tekstondertitels. Tekst die in de video is ingebrand kan niet worden verplaatst.";
+"Oynatma seçenekleri" = "Afspeelopties";
+"Görüntü kalitesi" = "Videokwaliteit";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "Kwaliteitsselectie is niet beschikbaar voor deze bron.";
+"Otomatik" = "Automatisch";
+"En fazla %@" = "Tot %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "De kwaliteit kan door de verbindingssnelheid onder de gekozen resolutie zakken. Het wijzigen van de kwaliteit kan even duren.";

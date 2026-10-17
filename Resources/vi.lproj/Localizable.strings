@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "Bộ phim và tập phim có trong mục yêu thích";
 "Favorilerde değil" = "Không có trong mục yêu thích";
 "Bölüm" = "Tập phim";
+
+"Varsayılan" = "Mặc định";
+"Son eklenenler" = "Mới thêm gần đây";
+"Ada göre (A–Z)" = "Tiêu đề (A–Z)";
+"Ada göre (Z–A)" = "Tiêu đề (Z–A)";
+"Sırala" = "Sắp xếp";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Nội dung không có ngày thêm sẽ giữ thứ tự của nguồn.";
+"Altyazı konumu" = "Vị trí phụ đề";
+"Biraz yukarı" = "Cao hơn một chút";
+"Daha yukarı" = "Cao hơn";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Áp dụng cho phụ đề văn bản. Không thể di chuyển chữ được ghép cứng vào video.";
+"Oynatma seçenekleri" = "Tùy chọn phát";
+"Görüntü kalitesi" = "Chất lượng video";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "Nguồn này không hỗ trợ chọn chất lượng.";
+"Otomatik" = "Tự động";
+"En fazla %@" = "Tối đa %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Chất lượng có thể thấp hơn độ phân giải đã chọn tùy theo tốc độ kết nối. Việc đổi chất lượng có thể mất một lúc.";

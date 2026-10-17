@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "시리즈와 에피소드가 즐겨찾기에 있음";
 "Favorilerde değil" = "즐겨찾기에 없음";
 "Bölüm" = "에피소드";
+
+"Varsayılan" = "기본값";
+"Son eklenenler" = "최근 추가";
+"Ada göre (A–Z)" = "제목 오름차순";
+"Ada göre (Z–A)" = "제목 내림차순";
+"Sırala" = "정렬";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "추가 날짜가 없는 콘텐츠는 제공된 순서를 유지합니다.";
+"Altyazı konumu" = "자막 위치";
+"Biraz yukarı" = "조금 위로";
+"Daha yukarı" = "더 위로";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "텍스트 자막에 적용됩니다. 영상에 삽입된 글자는 이동할 수 없습니다.";
+"Oynatma seçenekleri" = "재생 옵션";
+"Görüntü kalitesi" = "동영상 화질";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "이 소스에서는 화질을 선택할 수 없습니다.";
+"Otomatik" = "자동";
+"En fazla %@" = "최대 %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "연결 속도에 따라 선택한 해상도보다 화질이 낮아질 수 있습니다. 화질 변경에 잠시 시간이 걸릴 수 있습니다.";

@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "シリーズとエピソードをお気に入りに登録済み";
 "Favorilerde değil" = "お気に入り未登録";
 "Bölüm" = "エピソード";
+
+"Varsayılan" = "デフォルト";
+"Son eklenenler" = "最近追加";
+"Ada göre (A–Z)" = "タイトル（昇順）";
+"Ada göre (Z–A)" = "タイトル（降順）";
+"Sırala" = "並べ替え";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "追加日がないコンテンツは配信元の順序を維持します。";
+"Altyazı konumu" = "字幕の位置";
+"Biraz yukarı" = "少し上";
+"Daha yukarı" = "さらに上";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "テキスト字幕に適用されます。動画に焼き込まれた文字は移動できません。";
+"Oynatma seçenekleri" = "再生オプション";
+"Görüntü kalitesi" = "画質";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "このソースでは画質を選択できません。";
+"Otomatik" = "自動";
+"En fazla %@" = "最大%@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "接続速度によっては、選択した解像度より画質が低くなる場合があります。画質の切り替えには少し時間がかかることがあります。";

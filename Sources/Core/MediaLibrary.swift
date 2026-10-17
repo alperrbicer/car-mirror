@@ -55,6 +55,10 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
     public var isDownloadableVideo: Bool {
         !isLive && ["m3u8", "mp4", "m4v", "mov", "mkv", "avi", "webm"].contains(url.pathExtension.lowercased())
     }
+    public var isMovie: Bool {
+        !isLive && !isAudio && episode == nil &&
+            !url.pathComponents.contains { $0.lowercased() == "series" }
+    }
     public init(title: String, group: String = "", url: URL, metadata: MediaMetadata = MediaMetadata()) {
         self.id = url.absoluteString
         self.title = String(title.prefix(200))
@@ -173,7 +177,8 @@ public enum M3UParser {
                     genre: attributes["genre"],
                     year: attributes["year"],
                     duration: Double(duration),
-                    rating: attributes["rating"].flatMap(Double.init))
+                    rating: attributes["rating"].flatMap(Double.init),
+                    addedAt: MediaMetadata.addedDate(attributes["tvg-added"] ?? attributes["added"]))
             } else if line.hasPrefix("#EXTGRP:") { group = String(line.dropFirst(8)) }
             else if !line.isEmpty, !line.hasPrefix("#") {
                 defer { title = nil; group = ""; metadata = MediaMetadata() }

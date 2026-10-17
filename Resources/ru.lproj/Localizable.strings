@@ -537,3 +537,20 @@
 "Dizi ve bölüm favorilerde" = "Сериал и серия в избранном";
 "Favorilerde değil" = "Не в избранном";
 "Bölüm" = "Серия";
+
+"Varsayılan" = "По умолчанию";
+"Son eklenenler" = "Недавно добавленные";
+"Ada göre (A–Z)" = "По названию (А–Я)";
+"Ada göre (Z–A)" = "По названию (Я–А)";
+"Sırala" = "Сортировка";
+"Ekleme tarihi paylaşılmayan içerikler kaynak sırasını korur." = "Содержимое без даты добавления сохраняет порядок источника.";
+"Altyazı konumu" = "Положение субтитров";
+"Biraz yukarı" = "Немного выше";
+"Daha yukarı" = "Выше";
+"Metin altyazılarında uygulanır. Videoya gömülü yazılar taşınamaz." = "Применяется к текстовым субтитрам. Вшитый в видео текст переместить нельзя.";
+"Oynatma seçenekleri" = "Параметры воспроизведения";
+"Görüntü kalitesi" = "Качество видео";
+"Bu kaynakta kalite seçimi kullanılamıyor." = "Для этого источника выбор качества недоступен.";
+"Otomatik" = "Авто";
+"En fazla %@" = "До %@";
+"Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Качество может опускаться ниже выбранного разрешения в зависимости от скорости соединения. Смена качества может занять некоторое время.";
