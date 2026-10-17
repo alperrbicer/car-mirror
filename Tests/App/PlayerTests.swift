@@ -205,7 +205,7 @@ final class PlayerTests: XCTestCase {
     }
 
     func testExternalDisplayClassificationRecognizesCarPlayWithoutTemplateScene() {
-        for role in [UISceneSession.Role.windowExternalDisplay, .windowExternalDisplayNonInteractive] {
+        for role in [UISceneSession.Role.windowExternalDisplayNonInteractive, .windowExternalDisplayNonInteractive] {
             XCTAssertEqual(ExternalDisplaySceneDelegate.displayRole(role: role, idiom: .carPlay), .carPlay)
         }
         let carWindow = UISceneSession.Role(rawValue: "UIWindowSceneSessionRoleCarPlay")
@@ -270,7 +270,7 @@ final class PlayerTests: XCTestCase {
         XCTAssertTrue(CarPlayWindowCoordinator.shouldAttach(role: carWindow, idiom: .carPlay,
                                                             hasDelegate: false, hasWindows: false))
         for role in [UISceneSession.Role.windowApplication, .carTemplateApplication,
-                     .windowExternalDisplay, .windowExternalDisplayNonInteractive] {
+                     .windowExternalDisplayNonInteractive, .windowExternalDisplayNonInteractive] {
             XCTAssertFalse(CarPlayWindowCoordinator.shouldAttach(role: role, idiom: .carPlay,
                                                                  hasDelegate: false, hasWindows: false))
         }
@@ -307,7 +307,7 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(car.role, .carTemplateApplication)
         XCTAssertTrue(car.sceneClass === CPTemplateApplicationScene.self)
         XCTAssertTrue(car.delegateClass === CarPlaySceneDelegate.self)
-        for role in [UISceneSession.Role.windowExternalDisplay, .windowExternalDisplayNonInteractive] {
+        for role in [UISceneSession.Role.windowExternalDisplayNonInteractive, .windowExternalDisplayNonInteractive] {
             let external = MirivoAppDelegate.configuration(for: role)
             XCTAssertEqual(external.role, role)
             XCTAssertTrue(external.sceneClass === UIWindowScene.self)
@@ -1991,8 +1991,11 @@ final class PlayerTests: XCTestCase {
         let observation = playback.objectWillChange.sink { notifications += 1 }
         defer { observation.cancel(); playback.stop() }
         let key = #keyPath(AVPictureInPictureController.isPictureInPicturePossible)
-        pip.willChangeValue(forKey: key)
-        pip.didChangeValue(forKey: key)
+        func notifyReadiness() {
+            pip.willChangeValue(forKey: key)
+            pip.didChangeValue(forKey: key)
+        }
+        notifyReadiness()
         for _ in 0..<20 {
             if notifications > 0 { break }
             await Task.yield()

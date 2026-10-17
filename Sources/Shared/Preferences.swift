@@ -24,7 +24,7 @@ enum SharedPreferences {
         result.audioMode = StreamAudioMode(rawValue: defaults.string(forKey: "audioMode") ?? "") ?? .synchronized
         result.captionsEnabled = defaults.bool(forKey: "captionsEnabled")
         result.captionLocale = defaults.string(forKey: "captionLocale") ?? "tr-TR"
-        // Written by verified StoreKit entitlements, never by a user-facing switch.
+        // Written by verified StoreKit purchases or server-verified complimentary access.
         let access = access(verifiedPro: defaults.bool(forKey: "verifiedPro"))
         result.durationLimit = access.broadcastLimit
         if !access.fullAccess { result.captionsEnabled = false }

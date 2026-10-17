@@ -120,7 +120,6 @@
 "Tamam" = "Tamam";
 "Tanılama raporunu paylaş" = "Tanılama raporunu paylaş";
 "Tek seferlik ödeme" = "Tek seferlik ödeme";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Tek ödemeyle Mirivo Pro özelliklerine kalıcı erişim kazanırsın. Abonelik veya otomatik yenileme yok.";
 "Tercihler" = "Tercihler";
 "Testi durdur" = "Testi durdur";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?";
@@ -150,7 +149,6 @@
 "iPhone ekranı" = "iPhone ekranı";
 "iPhone’da ekran paylaşımını başlat." = "iPhone’da ekran paylaşımını başlat.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Ödeme Apple hesabından alınır. İptal etmediğin sürece aboneliğin seçtiğin dönem ve fiyatla otomatik yenilenir. Aboneliğini App Store hesap ayarlarından yönetebilirsin.";
-"Ömür boyu" = "Ömür boyu";
 "Önce iPhone’da ekran yayınını başlat." = "Önce iPhone’da ekran yayınını başlat.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "Ücretsiz paylaşım süren doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "İzlemek istediğin uygulamaya geç.";
@@ -293,7 +291,6 @@
 "Kullanım analizi" = "Kullanım analizi";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Kullanım istatistiklerini paylaşarak Mirivo’yu geliştirmemize yardımcı ol. Medya içeriklerin, kaynak adreslerin ve arama metinlerin gönderilmez. İstediğin zaman kapatabilirsin.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Yılda bir kez ödeme alınır. Otomatik yenilenir.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ömür boyu Pro satın aldığında mevcut aboneliğin otomatik iptal olmaz. Apple hesabından iptal edebilirsin.";
 
 "Genel duyurular" = "Genel duyurular";
 "Mirivo araç bağlantısına hazır" = "Mirivo araç bağlantısına hazır";
@@ -555,3 +552,12 @@
 "Otomatik" = "Otomatik";
 "En fazla %@" = "En fazla %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir.";
+"Üyelik desteği" = "Üyelik desteği";
+"Üyelik kimliği" = "Üyelik kimliği";
+"Üyelik kimliğini kopyala" = "Üyelik kimliğini kopyala";
+"Kimlik kopyalandı" = "Kimlik kopyalandı";
+"Üyelik durumunu yenile" = "Üyelik durumunu yenile";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir.";
+"Ücretsiz Pro erişimin etkin." = "Ücretsiz Pro erişimin etkin.";
+"Üyelik durumu güncellendi." = "Üyelik durumu güncellendi.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene.";

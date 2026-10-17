@@ -118,7 +118,6 @@
 "Tamam" = "ตกลง";
 "Tanılama raporunu paylaş" = "แชร์รายงานการวินิจฉัย";
 "Tek seferlik ödeme" = "ชำระครั้งเดียว";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "ชำระครั้งเดียวเพื่อใช้ฟีเจอร์ Mirivo Pro ได้ถาวร ไม่มีการสมัครสมาชิกหรือต่ออายุอัตโนมัติ";
 "Tercihler" = "การตั้งค่าที่ต้องการ";
 "Testi durdur" = "หยุดทดสอบ";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "ลบแหล่งสัญญาณและข้อมูลเข้าสู่ระบบที่บันทึกไว้ทั้งหมดหรือไม่?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "หน้าจอ iPhone";
 "iPhone’da ekran paylaşımını başlat." = "เริ่มแชร์หน้าจอบน iPhone";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "ระบบจะเรียกเก็บเงินจากบัญชี Apple ของคุณ การสมัครสมาชิกจะต่ออายุอัตโนมัติตามระยะเวลาและราคาที่เลือก เว้นแต่จะยกเลิก จัดการได้ในการตั้งค่าบัญชี App Store";
-"Ömür boyu" = "ตลอดชีพ";
 "Önce iPhone’da ekran yayınını başlat." = "เริ่มสตรีมหน้าจอบน iPhone ก่อน";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "เซสชันแชร์ฟรีสิ้นสุดแล้ว เริ่มสตรีมใหม่หรืออัปเกรดเป็น Pro ได้";
 "İzlemek istediğin uygulamaya geçebilirsin." = "สลับไปยังแอปที่ต้องการรับชมได้";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "การวิเคราะห์การใช้งาน";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "แชร์สถิติการใช้งานเพื่อช่วยปรับปรุง Mirivo โดยไม่ส่งสื่อ ที่อยู่แหล่งข้อมูล หรือข้อความค้นหา คุณปิดได้ทุกเมื่อ";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "เรียกเก็บเงินปีละครั้งและต่ออายุอัตโนมัติ";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "การซื้อแบบตลอดชีพจะไม่ยกเลิกการสมัครสมาชิกปัจจุบันโดยอัตโนมัติ คุณสามารถยกเลิกได้ในบัญชี Apple ของคุณ";
 
 "Genel duyurular" = "ประกาศทั่วไป";
 "Mirivo araç bağlantısına hazır" = "Mirivo พร้อมเชื่อมต่อกับรถของคุณแล้ว";
@@ -554,3 +551,12 @@
 "Otomatik" = "อัตโนมัติ";
 "En fazla %@" = "สูงสุด %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "คุณภาพอาจลดลงต่ำกว่าความละเอียดที่เลือกตามความเร็วการเชื่อมต่อ การเปลี่ยนคุณภาพอาจใช้เวลาสักครู่";
+"Üyelik desteği" = "ความช่วยเหลือเกี่ยวกับสมาชิก";
+"Üyelik kimliği" = "รหัสสมาชิก";
+"Üyelik kimliğini kopyala" = "คัดลอกรหัสสมาชิก";
+"Kimlik kopyalandı" = "คัดลอกรหัสแล้ว";
+"Üyelik durumunu yenile" = "รีเฟรชสถานะสมาชิก";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "ทีมสนับสนุนใช้รหัสนี้เพื่อตรวจสอบสถานะสมาชิกของคุณได้";
+"Ücretsiz Pro erişimin etkin." = "สิทธิ์ใช้งาน Pro ฟรีของคุณเปิดใช้งานแล้ว";
+"Üyelik durumu güncellendi." = "อัปเดตสถานะสมาชิกแล้ว";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "รีเฟรชสถานะสมาชิกไม่ได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองอีกครั้ง";

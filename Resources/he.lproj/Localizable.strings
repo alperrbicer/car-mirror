@@ -118,7 +118,6 @@
 "Tamam" = "אישור";
 "Tanılama raporunu paylaş" = "שיתוף דוח אבחון";
 "Tek seferlik ödeme" = "תשלום חד-פעמי";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "תשלום אחד לגישה קבועה לתכונות Mirivo Pro. ללא מינוי או חידוש אוטומטי.";
 "Tercihler" = "העדפות";
 "Testi durdur" = "עצירת הבדיקה";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "למחוק את כל המקורות ופרטי הכניסה השמורים?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "מסך iPhone";
 "iPhone’da ekran paylaşımını başlat." = "יש להתחיל שיתוף מסך ב-iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "התשלום מחויב בחשבון Apple שלך. אם המינוי לא יבוטל, הוא יתחדש אוטומטית לתקופה ובמחיר שנבחרו. אפשר לנהל אותו בהגדרות חשבון App Store.";
-"Ömür boyu" = "לכל החיים";
 "Önce iPhone’da ekran yayınını başlat." = "יש להתחיל תחילה את שידור המסך ב-iPhone.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "זמן השיתוף החינמי הסתיים. אפשר להתחיל שידור חדש או לשדרג ל-Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "אפשר לעבור לאפליקציה שברצונך לצפות בה.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "ניתוח שימוש";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "שיתוף נתוני שימוש כדי לשפר את Mirivo. מדיה, כתובות מקורות וטקסט חיפוש אינם נשלחים. אפשר לכבות בכל עת.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "החיוב מתבצע פעם בשנה; מתחדש אוטומטית.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "רכישה לכל החיים אינה מבטלת אוטומטית את המינוי הקיים שלך. ניתן לבטל אותו בחשבון Apple שלך.";
 
 "Genel duyurular" = "הודעות כלליות";
 "Mirivo araç bağlantısına hazır" = "Mirivo מוכן להתחבר לרכב שלך";
@@ -554,3 +551,12 @@
 "Otomatik" = "אוטומטי";
 "En fazla %@" = "עד %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "האיכות עשויה לרדת מתחת לרזולוציה שנבחרה בהתאם למהירות החיבור. שינוי האיכות עשוי להימשך רגע.";
+"Üyelik desteği" = "תמיכה במינוי";
+"Üyelik kimliği" = "מזהה מינוי";
+"Üyelik kimliğini kopyala" = "העתקת מזהה מינוי";
+"Kimlik kopyalandı" = "המזהה הועתק";
+"Üyelik durumunu yenile" = "רענון מצב המינוי";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "צוות התמיכה יכול לבדוק את מצב המינוי באמצעות מזהה זה.";
+"Ücretsiz Pro erişimin etkin." = "הגישה החינמית שלך ל-Pro פעילה.";
+"Üyelik durumu güncellendi." = "מצב המינוי עודכן.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "לא ניתן לרענן את מצב המינוי. יש לבדוק את החיבור לאינטרנט ולנסות שוב.";

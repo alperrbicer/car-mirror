@@ -118,7 +118,6 @@
 "Tamam" = "OK";
 "Tanılama raporunu paylaş" = "診断レポートを共有";
 "Tek seferlik ödeme" = "買い切り";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "一度の支払いでMirivo Proの機能を永続的に利用できます。サブスクリプションや自動更新はありません。";
 "Tercihler" = "環境設定";
 "Testi durdur" = "テストを停止";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "すべてのソースと保存済みのログイン情報を削除しますか？";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "iPhoneの画面";
 "iPhone’da ekran paylaşımını başlat." = "iPhoneで画面共有を開始してください。";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "料金はApple Accountに請求されます。解約しない限り、選択した期間と価格で自動更新されます。App Storeのアカウント設定で管理できます。";
-"Ömür boyu" = "永久利用";
 "Önce iPhone’da ekran yayınını başlat." = "まずiPhoneで画面配信を開始してください。";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "無料の共有時間が終了しました。新しい配信を開始するか、Proにアップグレードしてください。";
 "İzlemek istediğin uygulamaya geçebilirsin." = "視聴したいアプリに切り替えてください。";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "利用状況の分析";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "利用統計を共有してMirivoの改善に協力します。メディア、ソースのアドレス、検索テキストは送信されません。いつでもオフにできます。";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "年に1回請求され、自動更新されます。";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "買い切りを購入しても、現在のサブスクリプションは自動的に解約されません。Appleアカウントから解約できます。";
 
 "Genel duyurular" = "一般のお知らせ";
 "Mirivo araç bağlantısına hazır" = "Mirivo は車に接続する準備ができています";
@@ -554,3 +551,12 @@
 "Otomatik" = "自動";
 "En fazla %@" = "最大%@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "接続速度によっては、選択した解像度より画質が低くなる場合があります。画質の切り替えには少し時間がかかることがあります。";
+"Üyelik desteği" = "メンバーシップのサポート";
+"Üyelik kimliği" = "メンバーシップ ID";
+"Üyelik kimliğini kopyala" = "メンバーシップ ID をコピー";
+"Kimlik kopyalandı" = "ID をコピーしました";
+"Üyelik durumunu yenile" = "メンバーシップの状態を更新";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "サポートチームはこの ID でメンバーシップの状態を確認できます。";
+"Ücretsiz Pro erişimin etkin." = "無料の Pro アクセスが有効です。";
+"Üyelik durumu güncellendi." = "メンバーシップの状態を更新しました。";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "メンバーシップの状態を更新できませんでした。インターネット接続を確認して、もう一度お試しください。";

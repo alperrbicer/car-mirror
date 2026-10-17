@@ -118,7 +118,6 @@
 "Tamam" = "ठीक है";
 "Tanılama raporunu paylaş" = "डायग्नोस्टिक रिपोर्ट शेयर करें";
 "Tek seferlik ödeme" = "एक बार भुगतान";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "एक भुगतान से Mirivo Pro सुविधाओं का स्थायी उपयोग। कोई सदस्यता या अपने आप नवीनीकरण नहीं।";
 "Tercihler" = "प्राथमिकताएँ";
 "Testi durdur" = "टेस्ट रोकें";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "सभी स्रोत और सहेजी गई लॉगिन जानकारी मिटाएँ?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "iPhone स्क्रीन";
 "iPhone’da ekran paylaşımını başlat." = "iPhone पर स्क्रीन शेयरिंग शुरू करें।";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "भुगतान आपके Apple खाते से लिया जाता है। रद्द न करने पर सदस्यता चुनी गई अवधि और कीमत पर अपने आप नवीनीकृत होगी। इसे App Store खाते की सेटिंग्स से प्रबंधित करें।";
-"Ömür boyu" = "आजीवन";
 "Önce iPhone’da ekran yayınını başlat." = "पहले iPhone पर स्क्रीन प्रसारण शुरू करें।";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "मुफ़्त शेयरिंग सत्र समाप्त हो गया है। नया प्रसारण शुरू करें या Pro में अपग्रेड करें।";
 "İzlemek istediğin uygulamaya geçebilirsin." = "आप उस ऐप पर जा सकते हैं जिसे देखना चाहते हैं।";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "उपयोग विश्लेषण";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Mirivo को बेहतर बनाने के लिए उपयोग के आँकड़े साझा करें। मीडिया, स्रोत पते और खोज टेक्स्ट नहीं भेजे जाते। आप इसे कभी भी बंद कर सकते हैं।";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "साल में एक बार शुल्क लिया जाता है; अपने आप नवीनीकृत होता है।";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "आजीवन खरीदारी से आपकी मौजूदा सदस्यता अपने आप रद्द नहीं होती। आप इसे अपने Apple खाते में रद्द कर सकते हैं।";
 
 "Genel duyurular" = "सामान्य घोषणाएँ";
 "Mirivo araç bağlantısına hazır" = "Mirivo आपकी कार से कनेक्ट होने के लिए तैयार है";
@@ -554,3 +551,12 @@
 "Otomatik" = "अपने आप";
 "En fazla %@" = "अधिकतम %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "कनेक्शन की गति के अनुसार गुणवत्ता चुने गए रिज़ॉल्यूशन से कम हो सकती है। गुणवत्ता बदलने में थोड़ा समय लग सकता है।";
+"Üyelik desteği" = "सदस्यता सहायता";
+"Üyelik kimliği" = "सदस्यता आईडी";
+"Üyelik kimliğini kopyala" = "सदस्यता आईडी कॉपी करें";
+"Kimlik kopyalandı" = "आईडी कॉपी हो गई";
+"Üyelik durumunu yenile" = "सदस्यता की स्थिति रीफ़्रेश करें";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "सहायता टीम इस आईडी से आपकी सदस्यता की स्थिति देख सकती है।";
+"Ücretsiz Pro erişimin etkin." = "आपका मुफ़्त Pro ऐक्सेस सक्रिय है।";
+"Üyelik durumu güncellendi." = "सदस्यता की स्थिति अपडेट हो गई।";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "सदस्यता की स्थिति रीफ़्रेश नहीं हो सकी। अपना इंटरनेट कनेक्शन जाँचें और फिर से कोशिश करें।";

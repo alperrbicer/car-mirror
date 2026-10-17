@@ -118,7 +118,6 @@
 "Tamam" = "ОК";
 "Tanılama raporunu paylaş" = "Поделиться диагностическим отчётом";
 "Tek seferlik ödeme" = "Разовый платёж";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Один платёж за постоянный доступ к функциям Mirivo Pro. Без подписки и автоматического продления.";
 "Tercihler" = "Параметры";
 "Testi durdur" = "Остановить проверку";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Удалить все источники и сохранённые данные для входа?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "Экран iPhone";
 "iPhone’da ekran paylaşımını başlat." = "Запустите трансляцию экрана на iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Оплата списывается с Аккаунта Apple. Если подписку не отменить, она автоматически продлится на выбранный срок по выбранной цене. Управлять ей можно в настройках учётной записи App Store.";
-"Ömür boyu" = "Навсегда";
 "Önce iPhone’da ekran yayınını başlat." = "Сначала запустите трансляцию экрана на iPhone.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "Бесплатный сеанс завершён. Начните новую трансляцию или перейдите на Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "Переключитесь на приложение, которое хотите смотреть.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "Анализ использования";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Делитесь статистикой для улучшения Mirivo. Медиафайлы, адреса источников и поисковые запросы не отправляются. Это можно отключить в любое время.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Оплата раз в год; автоматическое продление.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Пожизненная покупка не отменяет текущую подписку автоматически. Вы можете отменить её в своей учётной записи Apple.";
 
 "Genel duyurular" = "Общие объявления";
 "Mirivo araç bağlantısına hazır" = "Mirivo готов к подключению к автомобилю";
@@ -554,3 +551,12 @@
 "Otomatik" = "Авто";
 "En fazla %@" = "До %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Качество может опускаться ниже выбранного разрешения в зависимости от скорости соединения. Смена качества может занять некоторое время.";
+"Üyelik desteği" = "Поддержка подписки";
+"Üyelik kimliği" = "Идентификатор подписки";
+"Üyelik kimliğini kopyala" = "Скопировать идентификатор подписки";
+"Kimlik kopyalandı" = "Идентификатор скопирован";
+"Üyelik durumunu yenile" = "Обновить статус подписки";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "Служба поддержки может проверить статус подписки по этому идентификатору.";
+"Ücretsiz Pro erişimin etkin." = "Ваш бесплатный доступ Pro активен.";
+"Üyelik durumu güncellendi." = "Статус подписки обновлён.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Не удалось обновить статус подписки. Проверьте подключение к интернету и повторите попытку.";

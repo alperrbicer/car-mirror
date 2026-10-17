@@ -1,23 +1,7 @@
 {
   "identifier": "9f9c6709-5883-4d24-9c3f-790090dd677a",
   "nonRenewingSubscriptions": [],
-  "products": [
-    {
-      "displayPrice": "49.99",
-      "familyShareable": false,
-      "internalID": "4c6b89ed-b4a2-4579-904c-ea5aedfa3bdc",
-      "localizations": [
-        {
-          "description": "Local test fixture only",
-          "displayName": "Mirivo Pro Lifetime",
-          "locale": "en_US"
-        }
-      ],
-      "productID": "com.alperbicer.carmirror.pro.lifetime",
-      "referenceName": "Mirivo Pro Lifetime",
-      "type": "NonConsumable"
-    }
-  ],
+  "products": [],
   "settings": {
     "_disableDialogs": true,
     "_applicationInternalID": "6818560405",

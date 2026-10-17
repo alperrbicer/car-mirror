@@ -2,7 +2,7 @@ import SwiftUI
 import Security
 import CryptoKit
 
-struct FavoriteMedia: Codable, Identifiable {
+struct FavoriteMedia: Codable, Identifiable, Equatable {
     struct SeriesReference: Codable, Equatable {
         let id: String
         let title: String

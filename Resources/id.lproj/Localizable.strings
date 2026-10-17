@@ -118,7 +118,6 @@
 "Tamam" = "OK";
 "Tanılama raporunu paylaş" = "Bagikan laporan diagnostik";
 "Tek seferlik ödeme" = "Pembayaran sekali";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Satu pembayaran untuk akses permanen ke fitur Mirivo Pro. Tanpa langganan atau perpanjangan otomatis.";
 "Tercihler" = "Preferensi";
 "Testi durdur" = "Hentikan tes";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Hapus semua sumber dan informasi login yang tersimpan?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "Layar iPhone";
 "iPhone’da ekran paylaşımını başlat." = "Mulai berbagi layar di iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Pembayaran dibebankan ke akun Apple Anda. Jika tidak dibatalkan, langganan diperpanjang otomatis dengan periode dan harga yang dipilih. Kelola di pengaturan akun App Store.";
-"Ömür boyu" = "Seumur hidup";
 "Önce iPhone’da ekran yayınını başlat." = "Mulai siaran layar di iPhone terlebih dahulu.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "Sesi berbagi gratis telah berakhir. Mulai siaran baru atau tingkatkan ke Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "Anda dapat beralih ke aplikasi yang ingin ditonton.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "Analisis penggunaan";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Bagikan statistik penggunaan untuk membantu meningkatkan Mirivo. Media, alamat sumber, dan teks pencarian tidak dikirim. Anda dapat menonaktifkannya kapan saja.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Ditagih sekali per tahun; diperpanjang otomatis.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Pembelian seumur hidup tidak membatalkan langganan yang ada secara otomatis. Anda dapat membatalkannya di akun Apple Anda.";
 
 "Genel duyurular" = "Pengumuman umum";
 "Mirivo araç bağlantısına hazır" = "Mirivo siap terhubung ke mobil Anda";
@@ -554,3 +551,12 @@
 "Otomatik" = "Otomatis";
 "En fazla %@" = "Hingga %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Kualitas dapat turun di bawah resolusi yang dipilih tergantung kecepatan koneksi. Perubahan kualitas mungkin memerlukan waktu sebentar.";
+"Üyelik desteği" = "Dukungan keanggotaan";
+"Üyelik kimliği" = "ID keanggotaan";
+"Üyelik kimliğini kopyala" = "Salin ID keanggotaan";
+"Kimlik kopyalandı" = "ID disalin";
+"Üyelik durumunu yenile" = "Perbarui status keanggotaan";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "Tim dukungan dapat menggunakan ID ini untuk memeriksa status keanggotaan Anda.";
+"Ücretsiz Pro erişimin etkin." = "Akses Pro gratis Anda aktif.";
+"Üyelik durumu güncellendi." = "Status keanggotaan diperbarui.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Tidak dapat memperbarui status keanggotaan. Periksa koneksi internet Anda dan coba lagi.";

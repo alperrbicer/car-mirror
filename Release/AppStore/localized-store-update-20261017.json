@@ -6004,5 +6004,13 @@
       }
     }
   },
-  "submittedForReview": false
+  "submittedForReview": false,
+  "scope": {
+    "locales": 22,
+    "screenshotsPerLocale": 10,
+    "standardIPhoneGroupsPerLocale": 8,
+    "duo": "skipped_optional_per_user_request",
+    "build": "user_will_upload_new_build",
+    "submission": "not_authorized_current_scope_preparation_only"
+  }
 }

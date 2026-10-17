@@ -3,10 +3,31 @@ import Foundation
 public enum ProProduct: String, CaseIterable, Sendable {
     case yearly = "com.alperbicer.carmirror.pro.yearly"
     case weekly = "com.alperbicer.carmirror.pro.weekly"
-    case lifetime = "com.alperbicer.carmirror.pro.lifetime"
-
-    // Annual is the default offer; legacy lifetime purchases remain restorable.
+    // Annual is the default offer.
     public static let forSale: [ProProduct] = [.yearly, .weekly]
+}
+
+/// A server-verified complimentary grant, separate from Apple's purchased products.
+public struct ComplimentaryProGrant: Codable, Equatable, Sendable {
+    public static let entitlementID = "mirivo_pro"
+    // Keep offline access bounded so a revoked grant cannot remain active forever.
+    public static let maximumOfflineAge: TimeInterval = 7 * 24 * 60 * 60
+    public let customerID: String
+    public let verifiedAt: Date
+    public let expirationDate: Date
+
+    public init(customerID: String, verifiedAt: Date, expirationDate: Date) {
+        self.customerID = customerID
+        self.verifiedAt = verifiedAt
+        self.expirationDate = expirationDate
+    }
+
+    public func isActive(for customerID: String, at now: Date = Date()) -> Bool {
+        !customerID.isEmpty && self.customerID == customerID
+            && now >= verifiedAt.addingTimeInterval(-300)
+            && now < verifiedAt.addingTimeInterval(Self.maximumOfflineAge)
+            && now < expirationDate
+    }
 }
 
 /// One policy for the phone, library and broadcast extension. Preparation builds

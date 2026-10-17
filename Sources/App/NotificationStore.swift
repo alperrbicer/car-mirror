@@ -199,7 +199,17 @@ enum PlayerOrientationPolicy {
         guard self.playerVisible != playerVisible || self.allowsLandscape != allowsLandscape else { return }
         self.playerVisible = playerVisible
         self.allowsLandscape = allowsLandscape
-        UIViewController.attemptRotationToDeviceOrientation()
+        // Ask only phone controllers; accessory scenes own their orientation.
+        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene })
+            where scene.session.role == .windowApplication {
+            for window in scene.windows {
+                var controller = window.rootViewController
+                while let current = controller {
+                    current.setNeedsUpdateOfSupportedInterfaceOrientations()
+                    controller = current.presentedViewController
+                }
+            }
+        }
     }
 }
 
@@ -233,7 +243,7 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
             result.delegateClass = CarPlaySceneDelegate.self
             return result
         }
-        if role == .windowExternalDisplay || role == .windowExternalDisplayNonInteractive {
+        if role == .windowExternalDisplayNonInteractive {
             let result = UISceneConfiguration(name: "External display", sessionRole: role)
             result.sceneClass = UIWindowScene.self
             result.delegateClass = ExternalDisplaySceneDelegate.self

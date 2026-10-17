@@ -118,7 +118,6 @@
 "Tamam" = "OK";
 "Tanılama raporunu paylaş" = "Chia sẻ báo cáo chẩn đoán";
 "Tek seferlik ödeme" = "Thanh toán một lần";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Thanh toán một lần để sử dụng vĩnh viễn các tính năng Mirivo Pro. Không đăng ký hay tự động gia hạn.";
 "Tercihler" = "Tùy chọn";
 "Testi durdur" = "Dừng kiểm tra";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Xóa tất cả nguồn và thông tin đăng nhập đã lưu?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "Màn hình iPhone";
 "iPhone’da ekran paylaşımını başlat." = "Bắt đầu chia sẻ màn hình trên iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Khoản thanh toán được tính vào tài khoản Apple của bạn. Nếu không hủy, gói đăng ký sẽ tự động gia hạn theo thời hạn và mức giá đã chọn. Bạn có thể quản lý trong cài đặt tài khoản App Store.";
-"Ömür boyu" = "Trọn đời";
 "Önce iPhone’da ekran yayınını başlat." = "Bắt đầu phát màn hình trên iPhone trước.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "Phiên chia sẻ miễn phí đã kết thúc. Bắt đầu luồng phát mới hoặc nâng cấp lên Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "Bạn có thể chuyển sang ứng dụng muốn xem.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "Phân tích sử dụng";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Chia sẻ thống kê sử dụng để cải thiện Mirivo. Nội dung đa phương tiện, địa chỉ nguồn và văn bản tìm kiếm không được gửi đi. Bạn có thể tắt bất cứ lúc nào.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Thanh toán một lần mỗi năm; tự động gia hạn.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Mua trọn đời không tự động hủy gói đăng ký hiện tại. Bạn có thể hủy trong tài khoản Apple của mình.";
 
 "Genel duyurular" = "Thông báo chung";
 "Mirivo araç bağlantısına hazır" = "Mirivo đã sẵn sàng kết nối với xe của bạn";
@@ -554,3 +551,12 @@
 "Otomatik" = "Tự động";
 "En fazla %@" = "Tối đa %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Chất lượng có thể thấp hơn độ phân giải đã chọn tùy theo tốc độ kết nối. Việc đổi chất lượng có thể mất một lúc.";
+"Üyelik desteği" = "Hỗ trợ thành viên";
+"Üyelik kimliği" = "ID thành viên";
+"Üyelik kimliğini kopyala" = "Sao chép ID thành viên";
+"Kimlik kopyalandı" = "Đã sao chép ID";
+"Üyelik durumunu yenile" = "Làm mới trạng thái thành viên";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "Nhóm hỗ trợ có thể dùng ID này để kiểm tra trạng thái thành viên của bạn.";
+"Ücretsiz Pro erişimin etkin." = "Quyền truy cập Pro miễn phí của bạn đang hoạt động.";
+"Üyelik durumu güncellendi." = "Đã cập nhật trạng thái thành viên.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Không thể làm mới trạng thái thành viên. Hãy kiểm tra kết nối Internet rồi thử lại.";

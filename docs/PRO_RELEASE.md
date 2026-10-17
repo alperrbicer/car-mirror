@@ -1,4 +1,20 @@
-> 17 Ekim 2026 canlı güncellemesi: kullanıcı onayıyla haftalık/yıllık fiyatlar, 3/7 günlük denemeler, 175 bölge ve ortak Pro seviyesi App Store Connect’te kaydedildi; RevenueCat varsayılan teklifi yıllık+haftalık olarak güncellendi. Ömür boyu yeni satış kapalı, eski haklar korunuyor. Haftalık ve yıllık inceleme görselleri kullanıcı onayıyla yüklendi ve sayfa yenilenerek doğrulandı; hesap/binary kabulü aşağıdaki açık işlerdir.
+> 18 Ekim 2026 düzeltmesi: Mirivo henüz App Store'da yayımlanmadı; eski ömür boyu satın alım yok. Uygulama yalnız yıllık ve haftalık ürünleri tanır. Ömür boyu ürün tanımı, sahiplik kontrolü ve yerel StoreKit test ürünü kaldırıldı. Aşağıdaki tarihli portal kayıtları geçmiş yapılandırmayı anlatır.
+
+## RevenueCat üzerinden bir yıllık ücretsiz Pro
+
+Hesap sahibine bir yıllık ücretsiz erişim vermek için yeni kod, RevenueCat'in imzası doğrulanmış `mirivo_pro` promotional entitlement kaydını okur. Bitiş tarihi zorunludur; süresiz hak kabul edilmez. Ücretli haftalık/yıllık ürünlerin satın alma ve geri yüklemesinde StoreKit doğrulaması kullanılmaya devam eder.
+
+1. Bu kodu içeren build'de Ayarlar > Mirivo Pro > Üyelik desteği alanından **Üyelik kimliğini kopyala**.
+2. RevenueCat > Mirivo > Customers içinde bu kimliği aç. Entitlements > Grant bölümünde `mirivo_pro` seç; süreyi **Yearly / 1 year** yap ve tanımla.
+3. Uygulamada **Üyelik durumunu yenile** düğmesine dokun. Pro, RevenueCat'teki bitiş tarihine kadar açılır. Bu yetki ücretli abonelik veya otomatik yenileme başlatmaz.
+
+Kaynak: [RevenueCat Customer Profile](https://www.revenuecat.com/docs/dashboard-and-metrics/customers-group/promotionals). Yetki TestFlight ve production ortamlarında kullanılabilir. Henüz canlı kullanıcıya yetki tanımlanmadı; yeni build yüklenmedi veya incelemeye gönderilmedi.
+
+Mevcut RevenueCat müşteri kimliği kullanılır; yeni giriş sistemi veya Apple hesabı eşleştirmesi eklenmez. Uygulama silinip yeniden kurulduğunda ya da başka cihazda kimlik değişirse o kimlik için yeniden yetki tanımlanması gerekir. Son doğrulanan süreli hak, bağlantı yokken en fazla yedi gün önbellekten kullanılabilir; kayıt her çevrimiçi yenilemede güncellenir. Süre bitişi, yetki iptali ve müşteri kimliği değişimi aynı önbelleği kullanan ekran paylaşımında da uygulanır.
+
+18 Ekim yerel doğrulaması: `ProductTests` **21/21**, iOS 26.5 simülatöründe `StoreKitIntegrationTests` **12/12** geçti. Süreli ücretsiz hakkın alınması/iptali, müşteri ayrımı, imza kontrolü, Apple aboneliğinin ücretsiz hak iptalinden etkilenmemesi, haftalık satın alma/geri yükleme/iade ve yıllık/haftalık denemeler kontrol edildi. StoreKit testleri işlem ve deneme uygunluğu önbelleğinin güncellenmesini bekler. İlk koşunun sonuçları `build/pro-owner-first-20261018.xcresult`, başarılı koşu `build/pro-owner-access-20261018.xcresult` içinde saklanır. `verify_release.py`: 22 dil, 503 anahtar, 11.066 çeviri, 0 hata. Bu sonuçlar yerel test kanıtıdır; fiziksel cihazdaki canlı RevenueCat yetkisi henüz denenmedi.
+
+> 17 Ekim 2026 canlı güncellemesi: kullanıcı onayıyla haftalık/yıllık fiyatlar, 3/7 günlük denemeler, 175 bölge ve ortak Pro seviyesi App Store Connect’te kaydedildi; RevenueCat varsayılan teklifi yıllık+haftalık olarak güncellendi. Ömür boyu satış kapalı. Haftalık ve yıllık inceleme görselleri kullanıcı onayıyla yüklendi ve sayfa yenilenerek doğrulandı; hesap/binary kabulü aşağıdaki açık işlerdir.
 
 ## 17 Ekim mağaza metinleri ve yeni inceleme görselleri
 
@@ -16,12 +32,12 @@ Türkçe/İngilizce gizlilik, ürün koşulları, yardım ve ana sayfa güncel h
 
 Kullanıcı hedef fiyatları, denemeleri, 175 bölgeyi, ortak hizmet seviyesini ve ömür boyu yeni satışının kapatılmasını açıkça onayladı. Aşağıdakiler canlı panellerden kaydedilip yeniden okunarak doğrulandı:
 
-- RevenueCat projesi `7d9b6d16`, Apple uygulaması `app8e29ebec6d`: haftalık ürün `prod03f0c01d41` olarak içe aktarıldı ve `mirivo_pro` erişimine bağlandı. Yıllık ve eski ömür boyu ürünler aynı entitlement’a bağlı kalıyor.
+- RevenueCat projesi `7d9b6d16`, Apple uygulaması `app8e29ebec6d`: haftalık ürün `prod03f0c01d41` olarak içe aktarıldı ve `mirivo_pro` erişimine bağlandı. Yıllık ve satış dışı ömür boyu taslak ürün aynı entitlement’a bağlıydı; bu kayıt eski satın alım olduğu anlamına gelmez.
 - Varsayılan offering `mirivo_pro` / `ofrng5cc5d706fb`: **ilk yıllık `$rc_annual`, sonra haftalık `$rc_weekly`**. Ömür boyu paket aktif satış teklifinden çıkarıldı; ürün ve erişim eşleştirmesi silinmedi.
 - Apple haftalık ürünü `6818888654`: **175/175 bölge**, 17 Ekim başlangıçlı ve bitiş tarihi olmayan **3 günlük ücretsiz introductory offer**; ABD **$2.99**, Türkiye **₺59.99**, 25 Euro bölgesinde **€2.99**, Birleşik Krallık **£2.49** / hafta.
 - Apple yıllık ürünü `6818889933`: **175/175 bölge**, aynı başlangıç/bitiş politikasıyla **7 günlük ücretsiz introductory offer**; ABD **$29.99**, Türkiye **₺599.99**, 25 Euro bölgesinde **€29.99**, Birleşik Krallık **£24.99** / yıl. Diğer bölgelerde ABD tutarından Apple’ın hesapladığı eşdeğer fiyatlar kullanıldı. Aylık taksitli 12 ay taahhüt kurulmadı.
 - İki abonelik `22438082` grubunda **seviye 1**. İkisi de bireysel **The App Store**, multiseat **Not Allowed**; haftalığın eski Apple Business/School Manager ayarı yıllıkla eşitlendi.
-- Ömür boyu `6818966443`: **Remove from Sale**, **0/175 bölge**; sayfa yenilenerek doğrulandı. Geri yükleme desteği ve RevenueCat entitlement bağlantısı korunuyor.
+- Ömür boyu taslağı `6818966443`: **Remove from Sale**, **0/175 bölge**; sayfa yenilenerek doğrulandı. Eski satın alım yok; uygulamadaki ürün ve geri yükleme desteği 18 Ekim'de kaldırıldı.
 - Haftalık ürünün 22 dilde adı/açıklaması kaydedildi; yıllık Türkçe/İngilizce açıklamaları aynı erişim modeliyle eşitlendi. İki ürünün inceleme notları eski kota/ömür boyu satış anlatımından haftalık/yıllık, deneme uygunluğu ve gerçek fiyatlara geçirildi.
 - Mağazanın 22 dildeki açıklamaları hazır güncel metadata dosyalarıyla canlı panelden karşılaştırıldı: **22/22 eşleşti**. Yeni açıklamalarda eski ücretsiz kotalar ve yeni ömür boyu satış iddiası yok. Ana inceleme notunda denemeler artık “configured” olarak belirtiliyor.
 - RevenueCat IAP ve App Store Connect API anahtarları **Valid credentials**. Apple production/sandbox bildirim adresleri RevenueCat adresiyle eşleşiyor; henüz alınmış bildirim ve gerçek sandbox satın alma kanıtı yok. Varsayılan restore davranışı **Transfer to new App User ID**.
@@ -44,7 +60,7 @@ Kanıtlar: `build/payment-audit-20261017/` içindeki kaydedilmiş haftalık/yıl
 
 Euro hedefleri haftalık €2.99, yıllık €29.99; Birleşik Krallık hedefleri haftalık £2.49, yıllık £24.99. Bu fiyatlar 17 Ekim’de canlı mağazada kaydedilip yeniden açılan fiyat tablolarından doğrulandı. Yerel StoreKit dosyası ABD tutarlarını ve iki denemeyi içerir. Uygulama fiyatı StoreKit `displayPrice` üzerinden, denemeyi ürünün gerçek ücretsiz teklifi ve hesap uygunluğu üzerinden gösterir. Mağazada bir ürün yüklenmezse sahte fiyat kartı oluşturulmaz.
 
-Yıllık ilk seçenektir. İki plan aynı Pro erişimini sağlar. Yıllık tasarruf yüzdesi, aynı para birimindeki gerçek fiyatlarla 52 haftalık ödeme üzerinden hesaplanır. Ömür boyu ürün satışta değildir; eski hakları ve geri yükleme desteği korunur.
+Yıllık ilk seçenektir. İki plan aynı Pro erişimini sağlar. Yıllık tasarruf yüzdesi, aynı para birimindeki gerçek fiyatlarla 52 haftalık ödeme üzerinden hesaplanır. Ömür boyu ürün uygulamada desteklenmez.
 
 CarPlay video ve çevrimdışı izleme üstte gösterilir. Araç desteği ve park koşulu CarPlay satırında görünür. Kısa faydalar normal yazı boyutunda tek satırdır: “Süre sınırı yok”, “TV’ye aktar”, “Kaldığın yerden”. Erişilebilirlik boyutlarında okunurluk için dikey düzen kullanılır. Yeni metinler 22 dilde bulunur.
 

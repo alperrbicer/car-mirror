@@ -60,7 +60,7 @@ final class CarPlayWindowCoordinator: NSObject {
     static func shouldAttach(role: UISceneSession.Role, idiom: UIUserInterfaceIdiom,
                              hasDelegate: Bool, hasWindows: Bool) -> Bool {
         idiom == .carPlay && role != .windowApplication && role != .carTemplateApplication &&
-            role != .windowExternalDisplay && role != .windowExternalDisplayNonInteractive &&
+            role != .windowExternalDisplayNonInteractive &&
             !hasDelegate && !hasWindows
     }
 

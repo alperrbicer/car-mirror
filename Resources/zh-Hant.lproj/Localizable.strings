@@ -118,7 +118,6 @@
 "Tamam" = "好";
 "Tanılama raporunu paylaş" = "分享診斷報告";
 "Tek seferlik ödeme" = "一次性付款";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "付款一次即可永久使用 Mirivo Pro 功能，無須訂閱，不會自動續費。";
 "Tercihler" = "偏好設定";
 "Testi durdur" = "停止測試";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "刪除所有來源和已儲存的登入資訊？";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "iPhone 螢幕";
 "iPhone’da ekran paylaşımını başlat." = "請在 iPhone 上啟動螢幕共享。";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "費用將從你的 Apple 帳號收取。除非取消，訂閱將按所選週期和價格自動續訂。你可以在 App Store 帳號設定中管理訂閱。";
-"Ömür boyu" = "終身";
 "Önce iPhone’da ekran yayınını başlat." = "請先在 iPhone 上啟動螢幕直播。";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "免費共享時段已結束。你可以重新開始直播或升級至 Pro。";
 "İzlemek istediğin uygulamaya geçebilirsin." = "切換到你想觀看的 App。";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "使用情況分析";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "分享使用統計以協助改善 Mirivo。不會傳送媒體、來源位址或搜尋文字。你可以隨時關閉。";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "每年收費一次；自動續訂。";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "購買終身使用權不會自動取消現有訂閱。你可以在 Apple 帳號中取消訂閱。";
 
 "Genel duyurular" = "一般公告";
 "Mirivo araç bağlantısına hazır" = "Mirivo 已準備好連接車輛";
@@ -554,3 +551,12 @@
 "Otomatik" = "自動";
 "En fazla %@" = "最高%@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "畫質可能會因連線速度而低於所選解析度。切換畫質可能需要片刻。";
+"Üyelik desteği" = "會員支援";
+"Üyelik kimliği" = "會員 ID";
+"Üyelik kimliğini kopyala" = "複製會員 ID";
+"Kimlik kopyalandı" = "已複製 ID";
+"Üyelik durumunu yenile" = "重新整理會員狀態";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "支援團隊可以使用此 ID 查看你的會員狀態。";
+"Ücretsiz Pro erişimin etkin." = "你的免費 Pro 權限已生效。";
+"Üyelik durumu güncellendi." = "會員狀態已更新。";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "無法重新整理會員狀態。請檢查網路連線後再試一次。";

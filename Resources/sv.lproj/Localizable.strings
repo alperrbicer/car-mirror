@@ -118,7 +118,6 @@
 "Tamam" = "OK";
 "Tanılama raporunu paylaş" = "Dela diagnostikrapport";
 "Tek seferlik ödeme" = "Engångsbetalning";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Betala en gång för permanent tillgång till Mirivo Pro. Ingen prenumeration eller automatisk förnyelse.";
 "Tercihler" = "Inställningsval";
 "Testi durdur" = "Stoppa test";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Ta bort alla källor och sparade inloggningsuppgifter?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "iPhone-skärm";
 "iPhone’da ekran paylaşımını başlat." = "Starta skärmdelning på din iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Betalningen dras från ditt Apple-konto. Prenumerationen förnyas automatiskt med vald period och valt pris om den inte avslutas. Hantera den i kontoinställningarna i App Store.";
-"Ömür boyu" = "Livstid";
 "Önce iPhone’da ekran yayınını başlat." = "Starta först skärmsändningen på din iPhone.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "Den kostnadsfria delningssessionen är slut. Starta en ny sändning eller uppgradera till Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "Byt till appen du vill titta på.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "Användningsanalys";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Dela användningsstatistik för att förbättra Mirivo. Medier, källadresser och söktexter skickas inte. Du kan stänga av detta när som helst.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Debiteras en gång per år; förnyas automatiskt.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "Ett livstidsköp avslutar inte automatiskt din befintliga prenumeration. Du kan avsluta den i ditt Apple-konto.";
 
 "Genel duyurular" = "Allmänna meddelanden";
 "Mirivo araç bağlantısına hazır" = "Mirivo är redo att ansluta till din bil";
@@ -554,3 +551,12 @@
 "Otomatik" = "Automatisk";
 "En fazla %@" = "Upp till %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "Kvaliteten kan sjunka under den valda upplösningen beroende på anslutningshastigheten. Det kan ta en stund att byta kvalitet.";
+"Üyelik desteği" = "Medlemssupport";
+"Üyelik kimliği" = "Medlems-ID";
+"Üyelik kimliğini kopyala" = "Kopiera medlems-ID";
+"Kimlik kopyalandı" = "ID kopierat";
+"Üyelik durumunu yenile" = "Uppdatera medlemsstatus";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "Supporten kan använda detta ID för att kontrollera din medlemsstatus.";
+"Ücretsiz Pro erişimin etkin." = "Din kostnadsfria Pro-åtkomst är aktiv.";
+"Üyelik durumu güncellendi." = "Medlemsstatus uppdaterad.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Kunde inte uppdatera medlemsstatus. Kontrollera din internetanslutning och försök igen.";

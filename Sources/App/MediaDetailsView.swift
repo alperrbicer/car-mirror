@@ -8,7 +8,7 @@ actor MediaMetadataLoader {
     private var catalogs: [URL: (date: Date, entries: [SeriesMetadataCandidate])] = [:]
     private var recencyCatalogs: [URL: (date: Date, entries: [String: Date])] = [:]
 
-    init(fetch: @escaping Fetch = MediaMetadataLoader.request) { self.fetch = fetch }
+    init(fetch: @escaping Fetch = { url, limit in try await MediaMetadataLoader.request(url, limit: limit) }) { self.fetch = fetch }
 
     static func addedDates(source: MediaSource, channels: [MediaChannel]) async throws -> [String: Date] {
         let secret = try SourceKeychain.read(source.id)

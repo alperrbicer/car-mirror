@@ -17,7 +17,8 @@ Her dil ve cihaz grubunda ekran sırası:
 
 iphone-large: 1320 × 2868 piksel. App Store Connect, bu gruptaki
 görselleri diğer yedi standart iPhone grubunda aynı sırayla kullanır.
-iphone-duo: Ayrı ekran oranında, cihazın kendi simülatöründe çekilir.
+iPhone Duo isteğe bağlıdır; kullanıcının isteğiyle kapsam dışında bırakıldı.
+Son teslim galerisi yalnızca tamamlanan standart iPhone setlerini gösterir.
 
 Türkçe standart set, daha önce onaylanan tr-review-20261017-r2
 klasöründen kullanılır. Bu dosyalar değiştirilmez.
@@ -27,4 +28,5 @@ alınır. Görsellere sonradan yazı eklenmez, arayüz çizilmez, kırpma veya
 ölçekleme uygulanmaz. Örnek içerik adları ve posterler kurmacadır.
 
 Yalnızca mağaza metinleri ve ekran görüntüleri güncellenir.
-İncelemeye gönderme veya uygulama yayınlama işlemi yapılmaz.
+Yeni build kullanıcı tarafından yüklenecektir. Build seçimi ve incelemeye
+gönderme bu çalışmanın son kapsamı dışındadır.

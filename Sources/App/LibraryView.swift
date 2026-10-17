@@ -1476,7 +1476,8 @@ struct NowPlayingBar: View {
     @ObservedObject private var playback: PlaybackController
     @ObservedObject private var history = LastPlaybackStore.shared
     let open: () -> Void
-    init(model: MirrorModel = .shared, open: @escaping () -> Void) {
+    init(model: MirrorModel? = nil, open: @escaping () -> Void) {
+        let model = model ?? .shared
         self.model = model; playback = model.playback
         self.open = open
     }
@@ -2895,7 +2896,6 @@ private struct PlayerGestureSurface: UIViewRepresentable {
         private var reportedInsets: EdgeInsets?
         private let volumeView = MPVolumeView(frame: CGRect(x: -220, y: 0, width: 200, height: 40))
         func installVolumeView() {
-            volumeView.showsRouteButton = false
             volumeView.alpha = 0.001
             addSubview(volumeView)
         }

@@ -118,7 +118,6 @@
 "Tamam" = "حسنًا";
 "Tanılama raporunu paylaş" = "مشاركة تقرير التشخيص";
 "Tek seferlik ödeme" = "دفع لمرة واحدة";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "دفعة واحدة للوصول الدائم إلى ميزات Mirivo Pro. دون اشتراك أو تجديد تلقائي.";
 "Tercihler" = "التفضيلات";
 "Testi durdur" = "إيقاف الاختبار";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "هل تريد حذف جميع المصادر وبيانات الدخول المحفوظة؟";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "شاشة iPhone";
 "iPhone’da ekran paylaşımını başlat." = "ابدأ مشاركة الشاشة على iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "تُخصم الرسوم من حساب Apple الخاص بك. يتجدد الاشتراك تلقائيًا بالمدة والسعر المحددين ما لم يتم إلغاؤه. يمكنك إدارته من إعدادات حساب App Store.";
-"Ömür boyu" = "مدى الحياة";
 "Önce iPhone’da ekran yayınını başlat." = "ابدأ بث الشاشة على iPhone أولًا.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "انتهت جلسة المشاركة المجانية. ابدأ بثًا جديدًا أو انتقل إلى Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "يمكنك الانتقال إلى التطبيق الذي تريد مشاهدته.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "تحليل الاستخدام";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "شارك إحصاءات الاستخدام لتحسين Mirivo. لا تُرسل الوسائط أو عناوين المصادر أو نصوص البحث. يمكنك إيقاف ذلك متى شئت.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "تُحصَّل الرسوم مرة سنويًا؛ يتجدد تلقائيًا.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "لا يؤدي الشراء مدى الحياة إلى إلغاء اشتراكك الحالي تلقائيًا. يمكنك إلغاؤه من حساب Apple الخاص بك.";
 
 "Genel duyurular" = "إعلانات عامة";
 "Mirivo araç bağlantısına hazır" = "Mirivo جاهز للاتصال بسيارتك";
@@ -554,3 +551,12 @@
 "Otomatik" = "تلقائي";
 "En fazla %@" = "حتى %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "قد تنخفض الجودة عن الدقة المختارة حسب سرعة الاتصال. قد يستغرق تغيير الجودة بعض الوقت.";
+"Üyelik desteği" = "دعم العضوية";
+"Üyelik kimliği" = "معرّف العضوية";
+"Üyelik kimliğini kopyala" = "نسخ معرّف العضوية";
+"Kimlik kopyalandı" = "تم نسخ المعرّف";
+"Üyelik durumunu yenile" = "تحديث حالة العضوية";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "يمكن لفريق الدعم استخدام هذا المعرّف للتحقق من حالة عضويتك.";
+"Ücretsiz Pro erişimin etkin." = "وصولك المجاني إلى Pro مفعّل.";
+"Üyelik durumu güncellendi." = "تم تحديث حالة العضوية.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "تعذّر تحديث حالة العضوية. تحقّق من اتصالك بالإنترنت وحاول مجددًا.";

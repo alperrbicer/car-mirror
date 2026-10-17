@@ -1,6 +1,7 @@
 import XCTest
 import StoreKit
 import StoreKitTest
+import RevenueCat
 @testable import CarMirror
 
 @MainActor
@@ -42,18 +43,17 @@ final class StoreKitIntegrationTests: XCTestCase {
     }
     #endif
 
-    func testLifetimePurchaseRestoreAndRefund() async throws {
+    func testWeeklyPurchaseRestoreAndRefund() async throws {
         let session = try await session()
         defer { session.clearTransactions() }
         let store = PurchaseStore(salesEnabled: true)
         await store.loadProducts()
         XCTAssertEqual(store.products.map(\.id), ProProduct.forSale.map(\.rawValue))
-        let legacyProducts = try await Product.products(for: [ProProduct.lifetime.rawValue])
-        let product = try XCTUnwrap(legacyProducts.first)
+        let product = try XCTUnwrap(store.products.first { $0.id == ProProduct.weekly.rawValue })
         _ = try await session.buyProduct(identifier: product.id)
         try await refresh(store, until: [product.id])
         XCTAssertTrue(store.verifiedPro)
-        XCTAssertTrue(store.lifetimeOwned)
+        XCTAssertTrue(store.subscriptionActive)
         XCTAssertFalse(store.canPurchase(product))
         let restored = PurchaseStore(salesEnabled: true)
         await restored.restore()
@@ -126,6 +126,12 @@ final class StoreKitIntegrationTests: XCTestCase {
         let store = PurchaseStore(salesEnabled: true)
         await store.loadProducts()
         let weekly = try XCTUnwrap(store.products.first { $0.id == ProProduct.weekly.rawValue })
+        // Intro eligibility can lag behind resetToDefaultState, like transaction updates.
+        for _ in 0..<50 {
+            if store.freeTrialDays(weekly) == 3 { break }
+            await store.refresh()
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
         XCTAssertEqual(store.freeTrialDays(weekly), 3)
         XCTAssertEqual(weekly.price, Decimal(string: "2.99"))
         await store.purchase(weekly)
@@ -191,7 +197,7 @@ final class StoreKitIntegrationTests: XCTestCase {
     func testDisabledSalesCannotStartPurchase() async throws {
         let session = try await session()
         defer { session.clearTransactions() }
-        let products = try await Product.products(for: [ProProduct.lifetime.rawValue])
+        let products = try await Product.products(for: [ProProduct.yearly.rawValue])
         let product = try XCTUnwrap(products.first)
         let store = PurchaseStore(salesEnabled: false)
         await store.loadProducts()
@@ -210,5 +216,132 @@ final class StoreKitIntegrationTests: XCTestCase {
         XCTAssertEqual(restored.password, secret.password)
         try SourceKeychain.delete(id)
         XCTAssertThrowsError(try SourceKeychain.read(id))
+    }
+
+    func testComplimentaryCacheRevocationAndCustomerIsolation() throws {
+        let suite = "Mirivo.ComplimentaryTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let cache = ComplimentaryProCache(defaults: defaults)
+        let now = Date()
+        let grant = ComplimentaryProGrant(customerID: "owner", verifiedAt: now,
+                                          expirationDate: now.addingTimeInterval(365 * 86_400))
+        cache.bind(to: "owner")
+        cache.update(customerID: "owner", checkedAt: now, grant: grant, now: now)
+        XCTAssertTrue(cache.hasAccess(at: now))
+        XCTAssertFalse(cache.hasAccess(at: now.addingTimeInterval(7 * 86_400)))
+        cache.update(customerID: "owner", checkedAt: now.addingTimeInterval(1), grant: nil, now: now)
+        XCTAssertFalse(cache.hasAccess(at: now))
+        // A delayed older response cannot restore a revoked grant.
+        cache.update(customerID: "owner", checkedAt: now, grant: grant, now: now)
+        XCTAssertFalse(cache.hasAccess(at: now))
+        cache.bind(to: "other")
+        cache.update(customerID: "owner", checkedAt: now, grant: grant, now: now)
+        XCTAssertFalse(cache.hasAccess(at: now))
+        defaults.set(Data("invalid cache".utf8), forKey: "pro.complimentary.verifiedRecord")
+        XCTAssertFalse(cache.hasAccess(at: now))
+    }
+
+    func testOnlyVerifiedDatedPromotionalRevenueCatEntitlementsAreAccepted() throws {
+        let info = try customerInfoFixture()
+        let response = try RevenueCatComplimentaryClient.response(from: info, customerID: "owner")
+        XCTAssertEqual(response.grant?.customerID, "owner")
+        XCTAssertEqual(response.grant?.expirationDate.timeIntervalSince(response.requestDate), 365 * 86_400)
+        XCTAssertNil(try RevenueCatComplimentaryClient.response(from: customerInfoFixture(store: "app_store"), customerID: "owner").grant)
+        XCTAssertNil(try RevenueCatComplimentaryClient.response(from: customerInfoFixture(expiration: nil), customerID: "owner").grant)
+        XCTAssertNil(try RevenueCatComplimentaryClient.response(from: customerInfoFixture(expiration: "2025-10-18T00:00:00Z"), customerID: "owner").grant)
+        for verification in [0, 2, 3] {
+            XCTAssertThrowsError(try RevenueCatComplimentaryClient.response(from: customerInfoFixture(verification: verification), customerID: "owner"))
+        }
+    }
+
+    func testComplimentaryRefreshGrantsAndRevokesWithoutCreatingApplePurchases() async throws {
+        let session = try await session()
+        defer { session.clearTransactions() }
+        let suite = "Mirivo.ComplimentaryTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let cache = ComplimentaryProCache(defaults: defaults)
+        let client = ComplimentaryClientStub()
+        let store = PurchaseStore(salesEnabled: true, complimentaryClient: client,
+                                  complimentaryCache: cache, startsObserving: false)
+        XCTAssertEqual(store.membershipCustomerID, "owner")
+        XCTAssertFalse(store.verifiedPro)
+        await store.refreshMembership()
+        XCTAssertTrue(store.verifiedPro)
+        XCTAssertTrue(store.complimentaryPro)
+        XCTAssertFalse(store.subscriptionActive)
+        XCTAssertTrue(store.activeProductIDs.isEmpty)
+        let extensionAccess = await ProEntitlements.hasAccess(complimentaryCache: cache)
+        XCTAssertTrue(extensionAccess)
+        client.fails = true
+        await store.refreshMembership()
+        XCTAssertTrue(store.verifiedPro, "Temporary network failure preserves a recently verified grant")
+        client.fails = false
+        client.granted = false
+        await store.refreshMembership()
+        XCTAssertFalse(store.verifiedPro)
+        XCTAssertFalse(cache.hasAccess())
+        XCTAssertEqual(client.forcedRefreshes, [true, true, true])
+        XCTAssertTrue(session.allTransactions().isEmpty)
+    }
+
+    func testRevokingComplimentaryAccessPreservesVerifiedAppleSubscription() async throws {
+        let session = try await session()
+        defer { session.clearTransactions() }
+        _ = try await session.buyProduct(identifier: ProProduct.yearly.rawValue)
+        let suite = "Mirivo.ComplimentaryTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let client = ComplimentaryClientStub()
+        let store = PurchaseStore(salesEnabled: true, complimentaryClient: client,
+            complimentaryCache: ComplimentaryProCache(defaults: defaults), startsObserving: false)
+        try await refresh(store, until: [ProProduct.yearly.rawValue])
+        await store.refreshMembership()
+        XCTAssertTrue(store.complimentaryPro)
+        XCTAssertTrue(store.subscriptionActive)
+        client.granted = false
+        await store.refreshMembership()
+        XCTAssertFalse(store.complimentaryPro)
+        XCTAssertTrue(store.verifiedPro)
+        XCTAssertTrue(store.subscriptionActive)
+    }
+
+    private func customerInfoFixture(store: String = "promotional", verification: Int = 1,
+                                     expiration: String? = "2027-10-18T00:00:00Z") throws -> CustomerInfo {
+        let date = "2026-10-18T00:00:00Z"
+        let product = "rc_promo_mirivo_pro_annual"
+        let expiry: Any = expiration.map { $0 as Any } ?? NSNull()
+        let payload: [String: Any] = [
+            "request_date": date, "entitlement_verification": verification,
+            "subscriber": [
+                "original_app_user_id": "owner", "first_seen": date,
+                "subscriptions": [product: ["purchase_date": date, "expires_date": expiry,
+                                             "store": store, "period_type": "normal", "is_sandbox": false]],
+                "entitlements": [ComplimentaryProGrant.entitlementID: ["product_identifier": product,
+                                  "purchase_date": date, "expires_date": expiry]]
+            ]
+        ]
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(CustomerInfo.self, from: JSONSerialization.data(withJSONObject: payload))
+    }
+}
+
+@MainActor
+private final class ComplimentaryClientStub: ComplimentaryProClient {
+    let customerID = "owner"
+    var granted = true
+    var fails = false
+    var forcedRefreshes: [Bool] = []
+
+    func fetch(forceRefresh: Bool) async throws -> ComplimentaryProResponse {
+        forcedRefreshes.append(forceRefresh)
+        if fails { throw URLError(.notConnectedToInternet) }
+        let now = Date()
+        return ComplimentaryProResponse(customerID: customerID, requestDate: now,
+            grant: granted ? ComplimentaryProGrant(customerID: customerID, verifiedAt: now,
+                                                   expirationDate: now.addingTimeInterval(365 * 86_400)) : nil)
     }
 }

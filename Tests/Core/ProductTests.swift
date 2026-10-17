@@ -12,9 +12,25 @@ final class ProductTests: XCTestCase {
             XCTAssertEqual(PlaybackTimeDisplay.timestamp(unavailable), "--:--")
         }
     }
-    func testWeeklyAndAnnualAreSoldAndLegacyLifetimeRemainsRecognized() {
+    func testOnlyWeeklyAndAnnualProductsAreRecognizedAndSold() {
         XCTAssertEqual(ProProduct.forSale, [.yearly, .weekly])
-        XCTAssertNotNil(ProProduct(rawValue: "com.alperbicer.carmirror.pro.lifetime"))
+        XCTAssertEqual(ProProduct.allCases, [.yearly, .weekly])
+        XCTAssertNil(ProProduct(rawValue: "com.alperbicer.carmirror.pro.lifetime"))
+    }
+
+    func testComplimentaryAccessRequiresMatchingCustomerAndValidDates() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let grant = ComplimentaryProGrant(customerID: "owner", verifiedAt: now,
+                                          expirationDate: now.addingTimeInterval(365 * 86_400))
+        XCTAssertTrue(grant.isActive(for: "owner", at: now))
+        XCTAssertFalse(grant.isActive(for: "other", at: now))
+        XCTAssertFalse(grant.isActive(for: "", at: now))
+        XCTAssertFalse(grant.isActive(for: "owner", at: now.addingTimeInterval(-301)))
+        XCTAssertFalse(grant.isActive(for: "owner", at: now.addingTimeInterval(7 * 86_400)))
+        let expiring = ComplimentaryProGrant(customerID: "owner", verifiedAt: now,
+                                             expirationDate: now.addingTimeInterval(60))
+        XCTAssertTrue(expiring.isActive(for: "owner", at: now.addingTimeInterval(59)))
+        XCTAssertFalse(expiring.isActive(for: "owner", at: now.addingTimeInterval(60)))
     }
 
     func testSalesDisabledNeverLimitsFeatures() {

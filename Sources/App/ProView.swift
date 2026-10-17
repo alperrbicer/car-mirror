@@ -1,6 +1,7 @@
 import SwiftUI
 import StoreKit
 import UserNotifications
+import UIKit
 
 struct MembershipOfferPresenter: ViewModifier {
     @ObservedObject var model: MirrorModel
@@ -24,6 +25,7 @@ struct ProView: View {
     @ObservedObject private var store = PurchaseStore.shared
     @ObservedObject private var reminders = TrialReminderStore.shared
     @State private var selectedID = ProProduct.yearly.rawValue
+    @State private var copiedMembershipID = false
 
     private var selected: Product? { store.products.first { $0.id == selectedID } ?? store.products.first }
     private var trialDays: Int? { selected.flatMap(store.freeTrialDays) }
@@ -381,7 +383,7 @@ struct ProView: View {
     private var footer: some View {
         VStack(spacing: 4) {
             Button(L10n.tr("Satın alımları geri yükle")) { Task { await store.restore() } }
-                .disabled(store.busy).frame(minHeight: 44).accessibilityIdentifier("pro-restore")
+                .disabled(store.busy || store.refreshingMembership).frame(minHeight: 44).accessibilityIdentifier("pro-restore")
             if store.subscriptionActive {
                 Link(L10n.tr("Aboneliği yönet"), destination: URL(string: "https://apps.apple.com/account/subscriptions")!)
                     .frame(minHeight: 44)
@@ -389,6 +391,36 @@ struct ProView: View {
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 20) { legalLinks }
                 VStack(spacing: 4) { legalLinks }
+            }
+            if let customerID = store.membershipCustomerID {
+                DisclosureGroup(L10n.tr("Üyelik desteği")) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(L10n.tr("Üyelik kimliği")).foregroundStyle(MirrorStyle.secondary)
+                        Text(customerID).font(.caption.monospaced()).textSelection(.enabled)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("pro-membership-id")
+                        Button {
+                            UIPasteboard.general.string = customerID
+                            copiedMembershipID = true
+                        } label: {
+                            Label(L10n.tr(copiedMembershipID ? "Kimlik kopyalandı" : "Üyelik kimliğini kopyala"),
+                                  systemImage: copiedMembershipID ? "checkmark" : "doc.on.doc")
+                        }.accessibilityIdentifier("pro-copy-membership-id")
+                        Button { Task { await store.refreshMembership() } } label: {
+                            HStack {
+                                if store.refreshingMembership { ProgressView() }
+                                Text(L10n.tr("Üyelik durumunu yenile"))
+                            }
+                        }
+                        .disabled(store.busy || store.refreshingMembership)
+                        .accessibilityIdentifier("pro-refresh-membership")
+                        Text(L10n.tr("Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir."))
+                            .font(.caption).foregroundStyle(MirrorStyle.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 12)
+                }
+                .padding(.top, 12)
+                .accessibilityIdentifier("pro-membership-support")
             }
         }.font(.footnote).frame(maxWidth: .infinity)
     }

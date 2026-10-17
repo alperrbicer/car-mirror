@@ -1,13 +1,14 @@
 import CarPlay
 import UIKit
+import Combine
 
 @MainActor
 final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate, CPSessionConfigurationDelegate {
     private var controller: CPInterfaceController?
     private var configuration: CPSessionConfiguration?
     private var list: CPListTemplate?
-    private var timer: Timer?
-    private var lastSignature = ""
+    private var menuUpdates: AnyCancellable?
+    private let catalogRequest = CarPlayCatalogRequest()
     private var loading: Task<Void, Never>?
     private weak var favoritesList: CPListTemplate?
     private var favoritesOffset = 0
@@ -33,19 +34,18 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 }
             }
         }
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.render() }
-        }
+        menuUpdates = Self.menuChanges(model: .shared, library: .shared, favorites: .shared)
+            .debounce(for: .milliseconds(20), scheduler: RunLoop.main)
+            .sink { [weak self] in self?.render() }
     }
 
     func templateApplicationScene(_ scene: CPTemplateApplicationScene, didDisconnectInterfaceController interfaceController: CPInterfaceController) {
         CarConnectionReminderStore.shared.disconnected(sessionID: scene.session.persistentIdentifier)
-        timer?.invalidate()
-        timer = nil
+        menuUpdates = nil
+        catalogRequest.cancel()
         list = nil
         favoritesList = nil
         favoritesOffset = 0
-        lastSignature = ""
         MirrorModel.shared.disconnected()
         loading?.cancel()
         loading = nil
@@ -54,10 +54,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func render() {
+        guard list != nil, controller != nil else { return }
         let model = MirrorModel.shared
-        let signature = "\(model.readyToPlay)-\(model.captureTitle)-\(model.supportsVideo == true)-\(model.probeStartedAt != nil)-\(model.mediaTitle ?? "")-\(model.requiresMembership)-\(SourceLibrary.shared.sources.map(\.id))-\(MediaFavorites.shared.entries.map(\.id))-\(L10n.language)"
-        guard signature != lastSignature else { return }
-        lastSignature = signature
 
         var items: [CPListItem] = []
         if model.requiresMembership {
@@ -123,6 +121,36 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         return false
     }
 
+    /// Observe menu inputs, not playback ticks or capture statistics. Delivery is
+    /// deferred so @Published's willSet notifications never render the old value.
+    static func menuChanges(model: MirrorModel, library: SourceLibrary, favorites: MediaFavorites) -> AnyPublisher<Void, Never> {
+        Publishers.MergeMany([
+            model.$sessionState.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            model.$capture.map { $0?.canPlay() == true }.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            model.$supportsVideo.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            model.$probeStartedAt.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            model.$mediaTitle.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            model.$requiresMembership.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            library.$sources.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            favorites.$entries.removeDuplicates().map { _ in () }.eraseToAnyPublisher(),
+            NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+                .map { _ in L10n.language }.removeDuplicates().map { _ in () }.eraseToAnyPublisher()
+        ]).eraseToAnyPublisher()
+    }
+
+    private func push(_ template: CPTemplate) {
+        controller?.pushTemplate(template, animated: true) { [weak self] _, error in
+            if let error { self?.recordTemplateError(error) }
+        }
+    }
+
+    private func recordTemplateError(_ error: Error) {
+        var values = DiagnosticValues()
+        values.screen = .carPlay
+        values.failure = DiagnosticFailure(error)
+        MirrorModel.shared.record(.failure, values: values)
+    }
+
     private func showSources(offset: Int = 0, replacing: CPListTemplate? = nil) {
         let sources = SourceLibrary.shared.sources
         let template = replacing ?? CPListTemplate(title: L10n.tr("Kaynaklar"), sections: [])
@@ -132,17 +160,13 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             item.handler = { [weak self] _, completion in
                 guard let self else { completion(); return }
                 self.loading?.cancel()
-                self.loading = Task { [weak self] in
-                    defer { completion() }
-                    do {
-                        let channels = try await SourceLibrary.shared.channels(for: source)
-                        guard !Task.isCancelled else { return }
-                        self?.showChannels(channels, title: source.name, sourceID: source.id)
-                    } catch {
-                        guard !Task.isCancelled else { return }
-                        self?.showError("Kaynak yüklenemedi. Adresi ve bağlantını kontrol et.")
-                    }
-                }
+                self.catalogRequest.start(load: { cached in
+                    try await SourceLibrary.shared.channels(for: source, onCached: cached)
+                }, show: { [weak self] channels in
+                    self?.showChannels(channels, title: source.name, sourceID: source.id)
+                }, failure: { [weak self] in
+                    self?.showError("Kaynak yüklenemedi. Adresi ve bağlantını kontrol et.")
+                }, completion: completion)
             }
             return item
         }
@@ -163,7 +187,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             items.append(more)
         }
         template.updateSections([CPListSection(items: items)])
-        if replacing == nil { controller?.pushTemplate(template, animated: true) }
+        if replacing == nil { push(template) }
     }
 
     private func showFavorites(offset: Int = 0, replacing: CPListTemplate? = nil) {
@@ -179,10 +203,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 guard let template else { return }
                 self?.showFavorites(offset: page, replacing: template)
             })
-        if replacing == nil { controller?.pushTemplate(template, animated: true) }
+        if replacing == nil { push(template) }
     }
 
     private func openFavorite(_ favorite: FavoriteMedia, completion: @escaping () -> Void) {
+        catalogRequest.cancel()
         loading?.cancel()
         loading = Task { [weak self] in
             defer { completion() }
@@ -266,21 +291,71 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             items.append(more)
         }
         template.updateSections([CPListSection(items: items)])
-        if replacing == nil { controller?.pushTemplate(template, animated: true) }
+        if replacing == nil { push(template) }
     }
 
     private func showNowPlaying() {
         guard let controller, MirrorModel.shared.mediaTitle != nil,
               controller.topTemplate !== CPNowPlayingTemplate.shared else { return }
-        controller.pushTemplate(CPNowPlayingTemplate.shared, animated: true)
+        push(CPNowPlayingTemplate.shared)
     }
 
     private func showError(_ message: String) {
         let alert = CPAlertTemplate(titleVariants: [L10n.tr(message)],
             actions: [CPAlertAction(title: L10n.tr("Tamam"), style: .default) { [weak self] _ in
-                self?.controller?.dismissTemplate(animated: true)
+                self?.controller?.dismissTemplate(animated: true) { [weak self] _, error in
+                    if let error { self?.recordTemplateError(error) }
+                }
             }])
-        controller?.presentTemplate(alert, animated: true)
+        controller?.presentTemplate(alert, animated: true) { [weak self] _, error in
+            if let error { self?.recordTemplateError(error) }
+        }
+    }
+}
+
+/// A cached catalog opens immediately. Refreshing it must not push a second
+/// template or reset the page the driver has already selected.
+@MainActor
+final class CarPlayCatalogRequest {
+    private var task: Task<Void, Never>?
+    private var generation = UUID()
+    private var completion: (() -> Void)?
+
+    func cancel() {
+        generation = UUID()
+        task?.cancel(); task = nil
+        finish()
+    }
+
+    func start(load: @escaping (@escaping @MainActor ([MediaChannel]) -> Void) async throws -> [MediaChannel],
+               show: @escaping ([MediaChannel]) -> Void, failure: @escaping () -> Void,
+               completion: @escaping () -> Void) {
+        cancel()
+        self.completion = completion
+        let token = generation
+        task = Task { [weak self] in
+            var displayed = false
+            let display: @MainActor ([MediaChannel]) -> Void = { [weak self] channels in
+                guard let self, self.generation == token, !displayed else { return }
+                displayed = true
+                show(channels)
+                self.finish()
+            }
+            do { display(try await load(display)) }
+            catch {
+                guard let self, self.generation == token, !Task.isCancelled else { return }
+                if !displayed { failure() }
+            }
+            guard let self, self.generation == token else { return }
+            self.finish()
+            self.task = nil
+        }
+    }
+
+    private func finish() {
+        let callback = completion
+        completion = nil
+        callback?()
     }
 }
 

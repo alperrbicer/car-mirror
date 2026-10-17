@@ -118,7 +118,6 @@
 "Tamam" = "OK";
 "Tanılama raporunu paylaş" = "Condividi rapporto diagnostico";
 "Tek seferlik ödeme" = "Pagamento unico";
-"Tek ödeme ile Mirivo Pro özelliklerine kalıcı erişim. Abonelik veya otomatik yenileme yok." = "Un solo pagamento per accedere per sempre alle funzioni di Mirivo Pro. Nessun abbonamento o rinnovo automatico.";
 "Tercihler" = "Preferenze";
 "Testi durdur" = "Interrompi test";
 "Tüm kaynaklar ve kayıtlı giriş bilgileri silinsin mi?" = "Eliminare tutte le fonti e le credenziali salvate?";
@@ -148,7 +147,6 @@
 "iPhone ekranı" = "Schermo iPhone";
 "iPhone’da ekran paylaşımını başlat." = "Avvia la condivisione schermo sul tuo iPhone.";
 "Ödeme Apple hesabından alınır. Abonelik iptal edilmedikçe seçtiğin dönem ve fiyatla otomatik yenilenir. App Store hesap ayarlarından yönetebilirsin." = "Il pagamento viene addebitato sul tuo Apple Account. Se non annullato, l’abbonamento si rinnova automaticamente al prezzo e per il periodo selezionati. Puoi gestirlo nelle impostazioni dell’account App Store.";
-"Ömür boyu" = "A vita";
 "Önce iPhone’da ekran yayınını başlat." = "Avvia prima la trasmissione dello schermo sul tuo iPhone.";
 "Ücretsiz paylaşım süresi doldu. Yeni bir yayın başlatabilir veya Pro’ya geçebilirsin." = "La sessione gratuita è terminata. Avvia una nuova trasmissione o passa a Pro.";
 "İzlemek istediğin uygulamaya geçebilirsin." = "Passa all’app che vuoi guardare.";
@@ -278,7 +276,6 @@
 "Kullanım analizi" = "Analisi di utilizzo";
 "Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin." = "Condividi statistiche per migliorare Mirivo. Contenuti, indirizzi delle fonti e ricerche non vengono inviati. Puoi disattivare la condivisione in qualsiasi momento.";
 "Yılda bir tahsil edilir; otomatik yenilenir." = "Addebitato una volta all’anno; rinnovo automatico.";
-"Ömür boyu satın almak mevcut aboneliği otomatik iptal etmez. Apple hesabından iptal edebilirsin." = "L’acquisto a vita non annulla automaticamente il tuo abbonamento attuale. Puoi annullarlo nel tuo account Apple.";
 
 "Genel duyurular" = "Annunci generali";
 "Mirivo araç bağlantısına hazır" = "Mirivo è pronto a connettersi alla tua auto";
@@ -554,3 +551,12 @@
 "Otomatik" = "Automatica";
 "En fazla %@" = "Fino a %@";
 "Bağlantı hızına göre seçtiğin çözünürlüğün altına inebilir. Kalite değişimi kısa bir süre alabilir." = "La qualità può scendere sotto la risoluzione scelta in base alla velocità di connessione. Il cambio di qualità può richiedere qualche istante.";
+"Üyelik desteği" = "Assistenza abbonamento";
+"Üyelik kimliği" = "ID abbonamento";
+"Üyelik kimliğini kopyala" = "Copia ID abbonamento";
+"Kimlik kopyalandı" = "ID copiato";
+"Üyelik durumunu yenile" = "Aggiorna stato abbonamento";
+"Destek ekibi bu kimlikle üyelik durumunu kontrol edebilir." = "L’assistenza può usare questo ID per verificare lo stato del tuo abbonamento.";
+"Ücretsiz Pro erişimin etkin." = "Il tuo accesso Pro gratuito è attivo.";
+"Üyelik durumu güncellendi." = "Stato dell’abbonamento aggiornato.";
+"Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Impossibile aggiornare lo stato dell’abbonamento. Controlla la connessione Internet e riprova.";
