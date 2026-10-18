@@ -113,6 +113,7 @@ final class MediaPipelineTests: XCTestCase {
         XCTAssertNil(encoder.snapshot().failure)
         XCTAssertTrue(snapshot.isReady, "No playable HLS window was emitted")
         XCTAssertGreaterThan(encoder.snapshot().encoded, 20)
+        XCTAssertEqual(encoder.snapshot().rendered, 1, "Static frames must advance the stream without repeated software rendering")
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -139,6 +140,15 @@ final class MediaPipelineTests: XCTestCase {
         XCTAssertGreaterThan(result[80 * row + 5 * 4 + 1], 150, "Portrait capture must not contain baked-in black side bars")
         CVPixelBufferUnlockBaseAddress(image, .readOnly)
         reader.cancelReading()
+        encoder.setCaption("Updated caption")
+        for _ in 0..<20 where encoder.snapshot().rendered < 2 { try await Task.sleep(for: .milliseconds(50)) }
+        XCTAssertEqual(encoder.snapshot().rendered, 2, "Caption changes must invalidate a cached screen")
+        encoder.setCaption("")
+        for _ in 0..<20 where encoder.snapshot().rendered < 3 { try await Task.sleep(for: .milliseconds(50)) }
+        XCTAssertEqual(encoder.snapshot().rendered, 3, "Removing a caption must repaint the original screen")
+        encoder.submit(frame, orientation: .right)
+        for _ in 0..<20 where encoder.snapshot().rendered < 4 { try await Task.sleep(for: .milliseconds(50)) }
+        XCTAssertEqual(encoder.snapshot().rendered, 4, "A new input must repaint even when ReplayKit reuses a pixel buffer")
         encoder.stop()
         XCTAssertEqual(buffer.snapshot().byteCount, 0)
         try await Task.sleep(for: .milliseconds(100))

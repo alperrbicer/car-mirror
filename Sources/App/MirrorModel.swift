@@ -24,6 +24,7 @@ final class MirrorModel: ObservableObject {
         didSet { playbackBarDefaults.set(hidesSavedPlaybackBar, forKey: Self.savedPlaybackBarHiddenKey) }
     }
     @Published var presentingPlayer = false
+    @Published var requestingLibrary = false
     @Published private(set) var playerScreenVisible = false
     @Published private(set) var playbackQueue: [MediaChannel] = []
     var playbackSourceID: UUID? { mediaSourceID }
@@ -148,7 +149,8 @@ final class MirrorModel: ObservableObject {
     func refresh() {
         refreshPlaybackAccess()
         saveLastPlayback()
-        capture = store?.readStatus()
+        let nextCapture = store?.readStatus()
+        if capture != nextCapture { capture = nextCapture }
         if capture?.sessionID != lastCaptureID { playbackAttemptFailed = false }
         if broadcasting, probeStartedAt != nil { stopProbe() }
         if capture?.sessionID != lastCaptureID || capture?.phase != lastCapturePhase {
@@ -185,8 +187,8 @@ final class MirrorModel: ObservableObject {
         refreshPlaybackAccess()
         carPlayTemplateConnected = true
         carPlayConnected = true
+        self.supportsVideo = supportsVideo
         updateConnectedDisplays()
-        self.supportsVideo = supportsVideo == true
         var values = DiagnosticValues()
         values.screen = .carPlay
         values.supportsVideo = self.supportsVideo
@@ -201,8 +203,8 @@ final class MirrorModel: ObservableObject {
         record(.carDisconnected, values: values)
         carPlayTemplateConnected = false
         carPlayConnected = hasCarPlayDisplay
-        updateConnectedDisplays()
         supportsVideo = nil
+        updateConnectedDisplays()
         if externalScreenCount == 0 && playback.tvDevice == nil {
             stopBroadcast()
             stopProbe()
@@ -468,6 +470,10 @@ final class MirrorModel: ObservableObject {
         guard force || now.timeIntervalSince(resumeCheckpoint) >= 5 else { return }
         let record = LastPlaybackRecord(channel: channel, sourceID: mediaSourceID,
                                         position: playback.currentTime, duration: playback.duration, isLive: playback.isLive)
+        if let previous = LastPlaybackStore.shared.record,
+           previous.channel == channel, previous.sourceID == mediaSourceID,
+           previous.position == record.position, previous.duration == record.duration,
+           previous.isLive == record.isLive { return }
         do { try LastPlaybackStore.shared.save(record); resumeCheckpoint = now }
         catch { /* A history write must not interrupt playback. */ }
     }
@@ -601,7 +607,8 @@ final class MirrorModel: ObservableObject {
     }
 
     private func updateConnectedDisplays() {
-        playback.updateConnectedDisplays(carPlay: carPlayConnected, externalTV: hasTVDisplay)
+        playback.updateConnectedDisplays(carPlay: carPlayConnected, externalTV: hasTVDisplay,
+                                         supportsCarPlayVideo: supportsVideo == true)
         refreshPlaybackAccess()
     }
 
@@ -611,7 +618,7 @@ final class MirrorModel: ObservableObject {
         do {
             probeStartedAt = Date()
             record(.probeStarted)
-            try playback.play(url: url, preserveSourceAudio: false)
+            try playback.play(url: url, preserveSourceAudio: false, title: L10n.tr("Ekran bağlantı testi"), live: false)
             scheduleProbeEnd()
         } catch {
             errorMessage = L10n.tr("Bağlantı testi başlatılamadı.")
@@ -640,9 +647,10 @@ final class MirrorModel: ObservableObject {
     }
 
     private func updateSessionState() {
-        sessionState = .resolve(capture: capture, displayConnected: supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil,
+        let next: MirrorSessionState = .resolve(capture: capture, displayConnected: supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil,
             playbackSessionID: playbackSessionID, externalPlayback: playback.externalPlaybackActive || ((externalScreenCount > 0 || playback.tvDevice != nil) && playbackSessionID == capture?.sessionID),
             playing: playback.isPlaying, stopRequested: stopRequestedID == capture?.sessionID && stopRequestedID != nil,
             playbackFailed: playbackAttemptFailed || playback.errorMessage != nil)
+        if sessionState != next { sessionState = next }
     }
 }

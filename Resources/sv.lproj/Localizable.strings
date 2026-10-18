@@ -566,3 +566,14 @@
 "İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Kraschrapporter och tekniska felrapporter från sessioner du godkänner skickas till Firebase Crashlytics. Medier och inloggningsuppgifter läggs inte till. Du kan stänga av detta när som helst.";
 
 "App Store’da değerlendir" = "Betygsätt i App Store";
+
+// CarPlay connection panel
+"CarPlay bağlı değil" = "CarPlay är inte anslutet";
+"Araç ekranında video destekleniyor." = "Videouppspelning stöds på bilens skärm.";
+"Video desteği henüz doğrulanmadı." = "Videostödet har ännu inte bekräftats.";
+"İçerik seç" = "Välj innehåll";
+"Kütüphanenden bir kanal, film veya dizi seç." = "Välj en kanal, film eller serie från ditt bibliotek.";
+"Araç ekranında oynat" = "Spela på bilens skärm";
+"CarPlay bağlantı yardımı" = "Hjälp med CarPlay-anslutningen";
+"Başka ekrana bağlan" = "Anslut till en annan skärm";
+"Duraklatıldı" = "Pausad";

@@ -12,6 +12,8 @@ public final class LocalStreamServer: @unchecked Sendable {
     private var listener: NWListener?
     private var clients: [UUID: NWConnection] = [:]
     private var streamingClients: Set<UUID> = []
+    private var bufferObserver: UUID?
+    private var waitingClients: [UUID: (deadline: DispatchWorkItem, resume: @Sendable () -> Void)] = [:]
     private var stopped = false
     public let token = UUID().uuidString.replacingOccurrences(of: "-", with: "")
         + UUID().uuidString.replacingOccurrences(of: "-", with: "")
@@ -23,6 +25,9 @@ public final class LocalStreamServer: @unchecked Sendable {
     public func start(onReady: @escaping (UInt16) -> Void, onFailure: @escaping (Error) -> Void) {
         queue.async { [self] in
             guard !stopped, listener == nil else { return }
+            bufferObserver = router.buffer.observeChanges { [weak self] in
+                self?.queue.async { [weak self] in self?.wakeReaders() }
+            }
             do {
                 let parameters = NWParameters.tcp
                 parameters.prohibitedInterfaceTypes = [.cellular]
@@ -59,6 +64,10 @@ public final class LocalStreamServer: @unchecked Sendable {
     public func stop() {
         queue.async { [self] in
             stopped = true
+            if let bufferObserver { router.buffer.removeObserver(bufferObserver) }
+            bufferObserver = nil
+            waitingClients.values.forEach { $0.deadline.cancel() }
+            waitingClients.removeAll()
             listener?.cancel()
             listener = nil
             clients.values.forEach { $0.cancel() }
@@ -107,6 +116,7 @@ public final class LocalStreamServer: @unchecked Sendable {
     }
 
     private func close(_ id: UUID) {
+        waitingClients.removeValue(forKey: id)?.deadline.cancel()
         streamingClients.remove(id)
         clients.removeValue(forKey: id)?.cancel()
     }
@@ -131,7 +141,7 @@ public final class LocalStreamServer: @unchecked Sendable {
             // Rotation briefly replaces the init segment. Keep this valid
             // reader waiting for the new keyframe instead of returning 404.
             guard Date().timeIntervalSince(waitingSince) < 3 else { close(id); return }
-            queue.asyncAfter(deadline: .now() + .milliseconds(20)) { [weak self] in
+            waitForFragment(id: id, timeout: 3 - Date().timeIntervalSince(waitingSince)) { [weak self] in
                 self?.startFragments(id: id, waitingSince: waitingSince)
             }
             return
@@ -156,9 +166,26 @@ public final class LocalStreamServer: @unchecked Sendable {
             // accumulating seconds of stale screen data or unbounded buffers.
             close(id)
         } else {
-            queue.asyncAfter(deadline: .now() + .milliseconds(20)) { [weak self] in
+            waitForFragment(id: id, timeout: 4 - Date().timeIntervalSince(waitingSince)) { [weak self] in
                 self?.sendNextFragment(id: id, sequence: sequence, generation: generation, waitingSince: waitingSince)
             }
+        }
+    }
+
+    private func waitForFragment(id: UUID, timeout: TimeInterval, resume: @escaping @Sendable () -> Void) {
+        waitingClients.removeValue(forKey: id)?.deadline.cancel()
+        let deadline = DispatchWorkItem { [weak self] in self?.close(id) }
+        waitingClients[id] = (deadline, resume)
+        queue.asyncAfter(deadline: .now() + max(0, timeout), execute: deadline)
+    }
+
+    private func wakeReaders() {
+        guard !stopped else { return }
+        let waiting = waitingClients
+        waitingClients.removeAll(keepingCapacity: true)
+        for (_, reader) in waiting {
+            reader.deadline.cancel()
+            reader.resume()
         }
     }
 

@@ -24,6 +24,7 @@ public final class HLSBuffer: @unchecked Sendable {
     private var bytes = 0
     private var accepting = true
     private var generation = 0
+    private var changeObservers: [UUID: @Sendable () -> Void] = [:]
     public let targetDuration: Int
     public let maximumBytes: Int
     private let retainedSegments: Int
@@ -38,18 +39,23 @@ public final class HLSBuffer: @unchecked Sendable {
 
     @discardableResult
     public func setInitialization(_ data: Data) -> Bool {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock()
+        var changed = false
+        defer { lock.unlock(); if changed { notifyChanged() } }
         guard accepting, data.count <= maximumBytes / 4 else { return false }
         bytes -= initialization?.count ?? 0
         initialization = data
         bytes += data.count
         trim()
+        changed = true
         return true
     }
 
     @discardableResult
     public func append(_ data: Data, duration: Double) -> Bool {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock()
+        var changed = false
+        defer { lock.unlock(); if changed { notifyChanged() } }
         // The target duration of a live playlist must remain constant.
         guard accepting, duration.isFinite, duration > 0,
               duration.rounded() <= Double(targetDuration),
@@ -58,6 +64,7 @@ public final class HLSBuffer: @unchecked Sendable {
         sequence += 1
         bytes += data.count
         trim()
+        changed = true
         return true
     }
 
@@ -99,7 +106,7 @@ public final class HLSBuffer: @unchecked Sendable {
 
     /// A new codec configuration (for example rotation) revokes old fragments.
     public func resetForNewFormat() {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock(); defer { lock.unlock(); notifyChanged() }
         guard accepting else { return }
         initialization = nil
         segments.removeAll(keepingCapacity: true)
@@ -109,10 +116,28 @@ public final class HLSBuffer: @unchecked Sendable {
 
     /// Permanently revoke this session; late encoder callbacks cannot restore old media.
     public func invalidate() {
-        lock.lock(); defer { lock.unlock() }
+        lock.lock(); defer { lock.unlock(); notifyChanged() }
         accepting = false
         initialization = nil
         segments.removeAll(keepingCapacity: false)
         bytes = 0
+    }
+
+    /// Notifications run outside the media lock. Readers may safely take a
+    /// snapshot and dispatch onto their own queue without polling the buffer.
+    public func observeChanges(_ observer: @escaping @Sendable () -> Void) -> UUID {
+        lock.lock(); defer { lock.unlock() }
+        let id = UUID()
+        changeObservers[id] = observer
+        return id
+    }
+
+    public func removeObserver(_ id: UUID) {
+        lock.lock(); changeObservers[id] = nil; lock.unlock()
+    }
+
+    private func notifyChanged() {
+        lock.lock(); let observers = Array(changeObservers.values); lock.unlock()
+        observers.forEach { $0() }
     }
 }

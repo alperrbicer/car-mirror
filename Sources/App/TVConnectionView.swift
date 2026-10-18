@@ -45,7 +45,216 @@ struct TVConnectionButton: View {
 
 struct DisplayConnectionView: View {
     let model: MirrorModel
-    var body: some View { TVConnectionView(model: model) }
+    @State private var opensCarPlay: Bool
+
+    init(model: MirrorModel) {
+        self.model = model
+        // Keep the selected panel visible if the connection changes while it is open.
+        _opensCarPlay = State(initialValue: model.playback.displayConnection.primaryRoute == .carPlay)
+    }
+
+    var body: some View {
+        if opensCarPlay { CarPlayConnectionView(model: model) }
+        else { TVConnectionView(model: model) }
+    }
+}
+
+struct CarPlayConnectionView: View {
+    @ObservedObject var model: MirrorModel
+    @ObservedObject private var playback: PlaybackController
+    @State private var showingOtherScreens = false
+    @Environment(\.dismiss) private var dismiss
+
+    init(model: MirrorModel) { self.model = model; playback = model.playback }
+
+    private var hasPlayback: Bool {
+        playback.hasActivePlayback || (playback.state == .failed && model.selectedMediaChannel != nil)
+    }
+
+    private var videoSupported: Bool {
+        model.carPlayConnected && (model.hasCarPlayDisplay || model.supportsVideo == true)
+    }
+
+    private var videoSupportStatus: String {
+        if videoSupported { return L10n.tr("Araç ekranında video destekleniyor.") }
+        if model.carPlayConnected && model.supportsVideo == false {
+            return L10n.tr("Bu araç CarPlay video oynatmayı desteklemiyor.")
+        }
+        return L10n.tr("Video desteği henüz doğrulanmadı.")
+    }
+
+    private var playbackStatus: String {
+        switch playback.state {
+        case .loading: return L10n.tr("Görüntü bağlanıyor")
+        case .paused: return L10n.tr("Duraklatıldı")
+        case .failed: return L10n.tr("Yayın tamamlanamadı")
+        case .idle: return L10n.tr("CarPlay bağlı")
+        case .playing:
+            if model.selectedMediaChannel?.isAudio == true { return L10n.tr("Şimdi oynatılıyor") }
+            return playback.hasRemoteVideoOutput
+                ? playback.displayPlaybackStatus() : L10n.tr("Telefonda oynatılıyor")
+        }
+    }
+
+    private var canReturnToCarDisplay: Bool {
+        // This action restores our existing car surface. It cannot select a system route.
+        model.carPlayConnected && model.hasCarPlayDisplay && playback.playsOnPhone &&
+            playback.tvDevice == nil && playback.airPlayName == nil && !model.hasTVDisplay
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Label {
+                        Text(L10n.tr(model.carPlayConnected ? "CarPlay bağlı" : "CarPlay bağlı değil"))
+                            .font(.headline)
+                    } icon: {
+                        Image(systemName: model.carPlayConnected ? "checkmark.circle.fill" : "car.side")
+                            .foregroundStyle(model.carPlayConnected ? MirrorStyle.accent : MirrorStyle.secondary)
+                    }
+                    .accessibilityIdentifier("carplay-connection-status")
+
+                    if model.carPlayConnected {
+                        Label {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(L10n.tr("Araç video desteği")).font(.subheadline.weight(.medium))
+                                Text(videoSupportStatus).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        } icon: {
+                            Image(systemName: videoSupported ? "video.fill" : "info.circle")
+                                .foregroundStyle(videoSupported ? MirrorStyle.accent : MirrorStyle.secondary)
+                        }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("carplay-video-availability")
+                    } else {
+                        Text(L10n.tr("CarPlay’e bağlanıp araç ekranında uygulamayı aç."))
+                            .foregroundStyle(MirrorStyle.secondary)
+                    }
+                } footer: {
+                    Text(L10n.tr("CarPlay video, destekleyen araçlarda park halindeyken kullanılabilir."))
+                }
+
+                if hasPlayback {
+                    playbackSection
+                } else {
+                    Section {
+                        Text(L10n.tr("Kütüphanenden bir kanal, film veya dizi seç."))
+                            .foregroundStyle(MirrorStyle.secondary)
+                        Button {
+                            dismiss()
+                            model.requestingLibrary = true
+                        } label: {
+                            Label(L10n.tr("İçerik seç"), systemImage: "play.rectangle.on.rectangle")
+                        }
+                        .accessibilityIdentifier("carplay-choose-content")
+                    }
+                }
+
+                Section {
+                    NavigationLink { CarPlayGuideContent(model: model) } label: {
+                        Label(L10n.tr("CarPlay bağlantı yardımı"), systemImage: "questionmark.circle")
+                    }
+                    .accessibilityIdentifier("carplay-connection-help")
+                    Button { showingOtherScreens = true } label: {
+                        Label(L10n.tr("Başka ekrana bağlan"), systemImage: "airplayvideo")
+                    }
+                    .accessibilityIdentifier("carplay-other-displays")
+                }
+            }
+            .listStyle(.insetGrouped)
+            .environment(\.defaultMinListRowHeight, 48)
+            .scrollContentBackground(.hidden).background(MirrorStyle.background)
+            .navigationTitle("CarPlay").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button { dismiss() } label: { Image(systemName: "xmark") }
+                        .accessibilityLabel(L10n.tr("Kapat"))
+                }
+            }
+        }
+        .tint(MirrorStyle.accent).preferredColorScheme(.dark)
+        .presentationDetents([.large]).presentationDragIndicator(.visible)
+        .accessibilityIdentifier("carplay-connection")
+        .sheet(isPresented: $showingOtherScreens) { TVConnectionView(model: model) }
+    }
+
+    private var playbackSection: some View {
+        Section {
+            HStack(alignment: .top, spacing: 14) {
+                if let channel = model.selectedMediaChannel {
+                    MediaArtworkView(channel: channel, cornerRadius: 12)
+                        .frame(width: 64, height: channel.isLive || channel.isAudio ? 64 : 88)
+                        .id(channel.id)
+                } else {
+                    Image(systemName: "rectangle.on.rectangle").font(.title)
+                        .foregroundStyle(MirrorStyle.accent).frame(width: 64, height: 64)
+                        .accessibilityHidden(true)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(model.selectedMediaChannel?.title ?? model.mediaTitle ?? L10n.tr("Ekran paylaşımı etkin"))
+                        .font(.headline).fixedSize(horizontal: false, vertical: true)
+                    Text(playbackStatus).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                        .accessibilityIdentifier("carplay-playback-status")
+                    if playback.isLive || model.selectedMediaChannel?.isLive == true {
+                        Text(L10n.tr("Canlı")).font(.caption.weight(.semibold)).foregroundStyle(MirrorStyle.accent)
+                    }
+                }
+            }
+            .padding(.vertical, 4)
+
+            if !playback.isLive, model.selectedMediaChannel?.isLive != true,
+               playback.currentTime.isFinite, playback.duration.isFinite, playback.duration > 0 {
+                VStack(spacing: 8) {
+                    ProgressView(value: min(max(0, playback.currentTime), playback.duration), total: playback.duration)
+                        .accessibilityHidden(true)
+                    HStack {
+                        Text(PlaybackTimeDisplay.timestamp(playback.currentTime))
+                        Spacer()
+                        Text(PlaybackTimeDisplay.timestamp(playback.duration))
+                    }
+                    .font(.caption.monospacedDigit()).foregroundStyle(MirrorStyle.secondary)
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(L10n.tr("Oynatma konumu"))
+                .accessibilityValue("\(PlaybackTimeDisplay.timestamp(playback.currentTime)) / \(PlaybackTimeDisplay.timestamp(playback.duration))")
+            }
+
+            if playback.state == .failed {
+                Button { model.retryMedia() } label: {
+                    Label(L10n.tr("Yeniden dene"), systemImage: "arrow.clockwise")
+                }
+            } else {
+                Button { playback.togglePlayPause() } label: {
+                    Label(L10n.tr(playback.isPlaying ? "Duraklat" : "Oynat"),
+                          systemImage: playback.isPlaying ? "pause.fill" : "play.fill")
+                }
+                .accessibilityIdentifier("carplay-play-pause")
+            }
+
+            if playback.hasActivePlayback, model.selectedMediaChannel?.isAudio != true {
+                if playback.hasRemoteVideoOutput {
+                    Button { model.playOnPhone() } label: {
+                        Label(L10n.tr("Telefonda oynat"), systemImage: "iphone")
+                    }
+                    .accessibilityIdentifier("carplay-play-on-phone")
+                } else if canReturnToCarDisplay {
+                    Button { model.returnToDisplay() } label: {
+                        Label(L10n.tr("Araç ekranında oynat"), systemImage: "car.side")
+                    }
+                    .accessibilityIdentifier("carplay-play-on-display")
+                }
+            }
+
+            Button(role: .destructive) { model.stopBroadcast(hideSavedPlaybackBar: true) } label: {
+                Label(L10n.tr("Oynatmayı durdur"), systemImage: "stop.fill")
+            }
+            .accessibilityIdentifier("carplay-stop-playback")
+        } header: {
+            Text(L10n.tr("Şimdi oynatılıyor"))
+        }
+    }
 }
 
 struct TVRouteStatusMark: View {
@@ -54,18 +263,13 @@ struct TVRouteStatusMark: View {
 
     var body: some View {
         Image(systemName: symbol)
-            .resizable()
-            .scaledToFit()
-            .font(.system(size: 19, weight: .medium))
-            .frame(width: 26, height: 22)
-            .foregroundStyle(MirrorStyle.accent)
-            .frame(width: 54, height: 54)
-            .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
-            .overlay { RoundedRectangle(cornerRadius: 18).strokeBorder(MirrorStyle.hairline) }
+            .font(.system(size: 21, weight: .medium))
+            .foregroundStyle(connected ? MirrorStyle.accent : MirrorStyle.secondary)
+            .frame(width: 46, height: 46)
             .overlay(alignment: .topTrailing) {
                 if connected { Circle().fill(MirrorStyle.accent).frame(width: 8, height: 8).offset(x: -7, y: 7) }
             }
-            .contentShape(RoundedRectangle(cornerRadius: 18))
+            .contentShape(Circle())
     }
 }
 
@@ -186,16 +390,11 @@ struct TVRouteStatusButton: View {
             TVRouteStatusMark(symbol: playback.displayConnection.primaryRoute?.symbol ?? "airplayvideo",
                               connected: playback.displayConnection.isConnected)
         }.buttonStyle(.plain)
-            .accessibilityLabel(L10n.tr("Ekrana bağlan"))
+            .accessibilityLabel(playback.displayConnection.title)
             .accessibilityValue(playback.displayConnection.connectedSummary)
             .accessibilityIdentifier("tv-route-status")
-            .sheet(isPresented: $showingConnection) { TVConnectionView(model: model) }
+            .sheet(isPresented: $showingConnection) { DisplayConnectionView(model: model) }
     }
-}
-
-struct TVConnectionStatusView: View {
-    let model: MirrorModel
-    var body: some View { TVConnectionView(model: model) }
 }
 
 private struct TVAirPlayPicker: UIViewRepresentable {

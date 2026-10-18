@@ -12,6 +12,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
     public struct Statistics: Sendable {
         public var received = 0
         public var encoded = 0
+        public var rendered = 0
         public var dropped = 0
         public var receivedAudioFrames = 0
         public var encodedAudioFrames = 0
@@ -25,6 +26,18 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
     private let lock = NSLock()
     private let buffer: HLSBuffer
     private var latestFrame: CVPixelBuffer?
+    private var frameRevision: UInt64 = 0
+    private struct RenderKey: Equatable {
+        let revision: UInt64
+        let orientation: UInt32
+        let width: Int
+        let height: Int
+        let caption: String
+    }
+    // Queue-confined, immutable while retained by AVAssetWriter. Static screens
+    // still receive fresh timestamps without repainting identical pixels.
+    private var renderedFrame: CVPixelBuffer?
+    private var renderedKey: RenderKey?
     private var firstSourceTime: CMTime?
     private var firstHostTime: TimeInterval?
     private let quality: StreamQuality
@@ -80,6 +93,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
             firstSourceTime = presentationTime.isNumeric ? presentationTime : .zero
         }
         latestFrame = pixelBuffer
+        frameRevision &+= 1
         if presentationTime.isNumeric { latestSourceTime = presentationTime }
         self.orientation = orientation
         statistics.received += 1
@@ -151,6 +165,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
             audioConverter = nil
             audioTimeline = AudioTimeline()
             captionRenderer.clear()
+            renderedFrame = nil; renderedKey = nil
             context.clearCaches()
         }
     }
@@ -158,6 +173,7 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
     private func tick() {
         lock.lock()
         let frame = accepting ? latestFrame : nil
+        let revision = frameRevision
         let orientation = orientation
         let startedAt = firstHostTime
         let captionText = ProcessInfo.processInfo.systemUptime - captionUpdatedAt < 5 ? caption : ""
@@ -202,22 +218,34 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
                 guard input.isReadyForMoreMediaData, let pool = adaptor.pixelBufferPool else {
                     recordDrop(); return
                 }
-                var output: CVPixelBuffer?
-                let result = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(nil, pool,
-                    [kCVPixelBufferPoolAllocationThresholdKey: 3] as CFDictionary, &output)
-                guard result == kCVReturnSuccess, let output else { recordDrop(); return }
+                let key = RenderKey(revision: revision, orientation: orientation.rawValue,
+                                    width: outputWidth, height: outputHeight, caption: captionText)
+                let output: CVPixelBuffer
+                if renderedKey == key, let cached = renderedFrame {
+                    output = cached
+                } else {
+                    renderedFrame = nil
+                    var allocated: CVPixelBuffer?
+                    let result = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(nil, pool,
+                        [kCVPixelBufferPoolAllocationThresholdKey: 3] as CFDictionary, &allocated)
+                    guard result == kCVReturnSuccess, let allocated else { recordDrop(); return }
+                    output = allocated
 
-                let bounds = CGRect(x: 0, y: 0, width: outputWidth, height: outputHeight)
-                let scale = min(bounds.width / extent.width, bounds.height / extent.height)
-                let normalized = source.transformed(by: CGAffineTransform(translationX: -extent.minX, y: -extent.minY))
-                let fitted = normalized.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-                    .transformed(by: CGAffineTransform(translationX: (bounds.width - extent.width * scale) / 2,
-                                                      y: (bounds.height - extent.height * scale) / 2))
-                var image = fitted.composited(over: CIImage(color: .black).cropped(to: bounds))
-                if let overlay = captionRenderer.image(text: captionText, width: outputWidth, height: outputHeight) {
-                    image = overlay.composited(over: image)
+                    let bounds = CGRect(x: 0, y: 0, width: outputWidth, height: outputHeight)
+                    let scale = min(bounds.width / extent.width, bounds.height / extent.height)
+                    let normalized = source.transformed(by: CGAffineTransform(translationX: -extent.minX, y: -extent.minY))
+                    let fitted = normalized.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+                        .transformed(by: CGAffineTransform(translationX: (bounds.width - extent.width * scale) / 2,
+                                                          y: (bounds.height - extent.height * scale) / 2))
+                    var image = fitted.composited(over: CIImage(color: .black).cropped(to: bounds))
+                    if let overlay = captionRenderer.image(text: captionText, width: outputWidth, height: outputHeight) {
+                        image = overlay.composited(over: image)
+                    }
+                    context.render(image, to: output, bounds: bounds, colorSpace: colorSpace)
+                    renderedFrame = output
+                    renderedKey = key
+                    lock.lock(); statistics.rendered += 1; lock.unlock()
                 }
-                context.render(image, to: output, bounds: bounds, colorSpace: colorSpace)
 
                 guard !lastTime.isValid || time > lastTime else { return }
                 guard adaptor.append(output, withPresentationTime: time) else {

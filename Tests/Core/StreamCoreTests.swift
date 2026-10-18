@@ -2,6 +2,29 @@ import XCTest
 @testable import MirrorCore
 
 final class StreamCoreTests: XCTestCase {
+    func testBufferChangesWakeReadersOutsideLockAndObserversCanBeRemoved() async {
+        let buffer = HLSBuffer()
+        let changed = expectation(description: "Initialization, fragment and format changes")
+        changed.expectedFulfillmentCount = 3
+        changed.assertForOverFulfill = true
+        let finished = expectation(description: "Producer finished without deadlocking its reader")
+        let observer = buffer.observeChanges {
+            _ = buffer.snapshot()
+            changed.fulfill()
+        }
+        DispatchQueue.global().async {
+            XCTAssertTrue(buffer.setInitialization(Data([0])))
+            XCTAssertFalse(buffer.append(Data([1]), duration: .nan))
+            XCTAssertTrue(buffer.append(Data([1]), duration: 1))
+            buffer.resetForNewFormat()
+            buffer.removeObserver(observer)
+            XCTAssertTrue(buffer.setInitialization(Data([2])))
+            buffer.invalidate()
+            finished.fulfill()
+        }
+        await fulfillment(of: [changed, finished], timeout: 2)
+    }
+
     private func readyBuffer() -> HLSBuffer {
         let buffer = HLSBuffer()
         buffer.setInitialization(Data((0..<100).map(UInt8.init)))

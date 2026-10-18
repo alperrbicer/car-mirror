@@ -12,6 +12,25 @@ import CryptoKit
 
 @MainActor
 final class PlayerTests: XCTestCase {
+    private var previousDevelopmentAccess: Any?
+
+    override func setUp() async throws {
+        try await super.setUp()
+        // Shared-model playback tests must not depend on a previous UI run's
+        // subscription or Debug preference. Membership tests inject their access.
+        previousDevelopmentAccess = SharedPreferences.defaults.object(forKey: "developmentUnlimitedAccess")
+        SharedPreferences.defaults.set(true, forKey: "developmentUnlimitedAccess")
+    }
+
+    override func tearDown() async throws {
+        if let previousDevelopmentAccess {
+            SharedPreferences.defaults.set(previousDevelopmentAccess, forKey: "developmentUnlimitedAccess")
+        } else {
+            SharedPreferences.defaults.removeObject(forKey: "developmentUnlimitedAccess")
+        }
+        try await super.tearDown()
+    }
+
     func testZoomModesAreAppliedOnlyInLandscapeFullscreen() {
         for mode in PlayerVideoDisplayMode.allCases {
             XCTAssertEqual(mode.effective(fullscreen: false, landscape: false), .normal)
@@ -790,7 +809,12 @@ final class PlayerTests: XCTestCase {
         }
         XCTAssertFalse(playback.subtitleTracks.contains(where: \.isSelected))
         let position = playback.currentTime
-        try await Task.sleep(for: .milliseconds(800))
+        // VLC can publish Playing/track selection before its first timestamp.
+        // Wait for actual progress instead of assuming an 800 ms callback cadence.
+        for _ in 0..<50 {
+            if playback.currentTime > position + 0.2 { break }
+            try await Task.sleep(for: .milliseconds(100))
+        }
         XCTAssertGreaterThan(playback.currentTime, position + 0.2, "Track switching must keep video moving")
         XCTAssertTrue(playback.isPlaying)
         XCTAssertTrue(playback.player.currentItem === item)
@@ -842,7 +866,7 @@ final class PlayerTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: original.path), "Never delete a user's selected original")
     }
 
-    func testFileSourceRejectsUnsafeOrInvalidFilesAndHonorsFreeSourceLimit() throws {
+    func testFileSourceRejectsUnsafeFilesAndAllowsBrowsingBeforeSubscription() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("invalid-file-source-\(UUID())")
         let library = SourceLibrary(directory: directory) { _ in nil }
         defer { try? library.clear(); try? FileManager.default.removeItem(at: directory) }
@@ -860,10 +884,12 @@ final class PlayerTests: XCTestCase {
         try library.importPlaylist(original, name: "Allowed", access: access)
         let source = try XCTUnwrap(library.sources.first)
         let imported = try SourceKeychain.read(source.id).url
-        XCTAssertThrowsError(try library.importPlaylist(original, name: "Second", access: access))
+        try library.importPlaylist(original, name: "Second", access: access)
+        let savedSources = library.sources
+        XCTAssertEqual(savedSources.count, 2, "Source setup and browsing are available before subscribing")
         try Data("invalid replacement".utf8).write(to: original)
         XCTAssertThrowsError(try library.importPlaylist(original, name: "Broken", replacing: source, access: access))
-        XCTAssertEqual(library.sources, [source])
+        XCTAssertEqual(library.sources, savedSources)
         XCTAssertTrue(FileManager.default.fileExists(atPath: imported.path))
         try library.delete(source)
         XCTAssertFalse(FileManager.default.fileExists(atPath: imported.path))
@@ -1039,6 +1065,7 @@ final class PlayerTests: XCTestCase {
     }
 
     private func checkFullscreenRotation(useCompatibility: Bool) async throws {
+        let previousOrientation = (PlayerOrientationPolicy.playerVisible, PlayerOrientationPolicy.allowsLandscape)
         let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
         let url = try XCTUnwrap(useCompatibility
             ? Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv")
@@ -1052,9 +1079,8 @@ final class PlayerTests: XCTestCase {
             window.isHidden = true
             window.rootViewController = nil
             previousWindow?.makeKeyAndVisible()
-            // Restore the app's full supported mask, rather than leaving a
-            // portrait geometry preference in the simulator scene session.
-            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .allButUpsideDown))
+            PlayerOrientationPolicy.update(playerVisible: previousOrientation.0, allowsLandscape: previousOrientation.1)
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: PlayerOrientationPolicy.supportedOrientations))
         }
         XCTAssertTrue(model.playMedia(MediaChannel(title: "Fullscreen fixture", url: url)))
         let engine = model.playback.compatibility
@@ -1066,6 +1092,9 @@ final class PlayerTests: XCTestCase {
             window.makeKeyAndVisible()
             for orientation: UIInterfaceOrientationMask in [.portrait, .landscapeLeft, .landscapeRight, .portrait] {
                 var rotationError: Error?
+                // This geometry fixture hosts FullscreenPlayerView directly.
+                // Apply the orientation policy normally supplied by MediaPlayerScreen.
+                PlayerOrientationPolicy.update(playerVisible: true, allowsLandscape: true)
                 host.setNeedsUpdateOfSupportedInterfaceOrientations()
                 scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { rotationError = $0 }
                 let landscape = orientation != .portrait
@@ -1098,10 +1127,9 @@ final class PlayerTests: XCTestCase {
                     in: viewport.bounds, fillsFrame: false) : viewport.bounds
                 XCTAssertEqual(video.bounds.width, fitted.width, accuracy: 1)
                 XCTAssertEqual(video.bounds.height, fitted.height, accuracy: 1)
-                for renderer in engine?.videoView.subviews ?? [] {
-                    XCTAssertEqual(renderer.bounds.width, video.bounds.width, accuracy: 1)
-                    XCTAssertEqual(renderer.bounds.height, video.bounds.height, accuracy: 1)
-                }
+                // VLC owns its renderer/subtitle wrappers and can crop a larger
+                // inner surface. The app-owned viewport and PiP source above
+                // must fit; rewriting VLC's wrappers breaks PiP restoration.
                 let pictureSize = video.bounds.size
                 XCTAssertTrue(model.playback.compatibility === engine)
                 XCTAssertTrue(model.playback.player.currentItem === nativeItem, "Rotation must not restart playback")
@@ -1162,7 +1190,8 @@ final class PlayerTests: XCTestCase {
         window.makeKeyAndVisible()
         try await Task.sleep(for: .milliseconds(700))
         for _ in 0..<150 {
-            if model.playback.currentTime > 0.3 && engine.mediaPlayer.hasVideoOut { break }
+            if model.playback.currentTime > 0.3 && engine.mediaPlayer.hasVideoOut &&
+                engine.videoView.pictureInPictureLayer?.isReadyForDisplay == true { break }
             try await Task.sleep(for: .milliseconds(50))
         }
         XCTAssertTrue(model.playback.isPlaying)
@@ -1170,11 +1199,13 @@ final class PlayerTests: XCTestCase {
         XCTAssertTrue(engine.videoView.window === window)
         XCTAssertGreaterThan(engine.videoView.bounds.width, 100)
         XCTAssertGreaterThan(engine.videoView.bounds.height, 80)
-        XCTAssertFalse(engine.videoView.subviews.isEmpty)
-        for renderView in engine.videoView.subviews {
-            XCTAssertEqual(renderView.frame.size.width, engine.videoView.bounds.width, accuracy: 1)
-            XCTAssertEqual(renderView.frame.size.height, engine.videoView.bounds.height, accuracy: 1)
-        }
+        // VLC owns its internal wrappers and crop placement. Verify the actual
+        // decoded output instead of requiring every internal view to fill us.
+        let video = try XCTUnwrap(engine.videoView.pictureInPictureLayer)
+        XCTAssertTrue(video.isReadyForDisplay)
+        XCTAssertGreaterThan(video.bounds.width, 0)
+        XCTAssertGreaterThan(video.bounds.height, 0)
+        XCTAssertNotNil(video.sampleBufferRenderer.displayedPixelBuffer())
         model.playback.togglePlayPause()
         try await Task.sleep(for: .milliseconds(200))
         let renderer = UIGraphicsImageRenderer(bounds: host.view.bounds)
@@ -2275,6 +2306,7 @@ final class PlayerTests: XCTestCase {
         XCTAssertLessThan(controller.videoLayer.frame.height, controller.view.bounds.height)
         XCTAssertEqual(controller.videoLayer.videoRect.width, controller.videoLayer.bounds.width, accuracy: 1)
         XCTAssertEqual(controller.videoLayer.videoRect.height, controller.videoLayer.bounds.height, accuracy: 1)
+        controller.displayMode = .fitScreen
         controller.videoLayer.videoGravity = .resizeAspectFill
         controller.view.setNeedsLayout(); controller.view.layoutIfNeeded()
         XCTAssertEqual(controller.videoLayer.frame, controller.view.bounds)

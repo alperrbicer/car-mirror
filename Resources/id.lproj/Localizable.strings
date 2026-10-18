@@ -566,3 +566,14 @@
 "İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Laporan crash dan kesalahan teknis dari sesi yang Anda setujui dikirim ke Firebase Crashlytics. Media dan detail login tidak disertakan. Anda dapat menonaktifkannya kapan saja.";
 
 "App Store’da değerlendir" = "Beri nilai di App Store";
+
+// CarPlay connection panel
+"CarPlay bağlı değil" = "CarPlay tidak terhubung";
+"Araç ekranında video destekleniyor." = "Layar mobil mendukung pemutaran video.";
+"Video desteği henüz doğrulanmadı." = "Dukungan video belum dikonfirmasi.";
+"İçerik seç" = "Pilih konten";
+"Kütüphanenden bir kanal, film veya dizi seç." = "Pilih saluran, film, atau serial dari perpustakaanmu.";
+"Araç ekranında oynat" = "Putar di layar mobil";
+"CarPlay bağlantı yardımı" = "Bantuan koneksi CarPlay";
+"Başka ekrana bağlan" = "Hubungkan ke layar lain";
+"Duraklatıldı" = "Dijeda";

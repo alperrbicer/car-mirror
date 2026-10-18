@@ -3,7 +3,224 @@ import SwiftUI
 import AVFoundation
 import CoreImage
 import CarPlay
+import Combine
 @testable import CarMirror
+
+@MainActor
+final class PerformanceRegressionTests: XCTestCase {
+    func testArtworkDiskCacheSurvivesRelaunchExpiresAndClears() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let key = "https://example.invalid/poster.jpg?password=private"
+        let data = Data([1, 2, 3]), now = Date(timeIntervalSince1970: 1_700_000_000)
+        let cache = MediaArtworkDiskCache(directory: directory, lifetime: 60)
+        await cache.store(data, forKey: key, now: now)
+        let relaunched = MediaArtworkDiskCache(directory: directory, lifetime: 60)
+        let restored = await relaunched.data(forKey: key, now: now.addingTimeInterval(1))
+        XCTAssertEqual(restored, data)
+        let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        XCTAssertEqual(names.count, 1)
+        XCTAssertTrue(names.allSatisfy { $0.range(of: "^[a-f0-9]{64}\\.artwork$", options: .regularExpression) != nil })
+        let expired = await relaunched.data(forKey: key, now: now.addingTimeInterval(61))
+        XCTAssertNil(expired)
+        await relaunched.store(data, forKey: key)
+        let current = await relaunched.data(forKey: key)
+        XCTAssertEqual(current, data)
+        await relaunched.removeAll()
+        let cleared = await relaunched.data(forKey: key, now: now.addingTimeInterval(1))
+        XCTAssertNil(cleared)
+    }
+
+    func testArtworkDiskCacheBoundsStorageAndIgnoresUnavailableDisk() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let cache = MediaArtworkDiskCache(directory: directory, maximumBytes: 6, maximumEntries: 2)
+        await cache.store(Data(repeating: 1, count: 4), forKey: "old", now: now)
+        await cache.store(Data(repeating: 2, count: 4), forKey: "new", now: now.addingTimeInterval(1))
+        await cache.store(Data(repeating: 3, count: 7), forKey: "oversized", now: now.addingTimeInterval(2))
+        let old = await cache.data(forKey: "old", now: now.addingTimeInterval(3))
+        let new = await cache.data(forKey: "new", now: now.addingTimeInterval(3))
+        let oversized = await cache.data(forKey: "oversized", now: now.addingTimeInterval(3))
+        XCTAssertNil(old)
+        XCTAssertEqual(new, Data(repeating: 2, count: 4))
+        XCTAssertNil(oversized)
+        await cache.removeAll()
+        for index in 0..<3 {
+            await cache.store(Data([UInt8(index)]), forKey: "entry-\(index)", now: now.addingTimeInterval(Double(index)))
+        }
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: directory.path).count, 2)
+        let evicted = await cache.data(forKey: "entry-0", now: now.addingTimeInterval(3))
+        XCTAssertNil(evicted)
+        await cache.removeAll()
+        try Data([0]).write(to: directory)
+        await cache.store(Data([1]), forKey: "unavailable", now: now)
+        let unavailable = await cache.data(forKey: "unavailable", now: now.addingTimeInterval(1))
+        XCTAssertNil(unavailable)
+    }
+
+    func testArtworkRequestsShareWorkAndOneCancellationKeepsOtherReaders() async throws {
+        var requests = 0
+        var finish: CheckedContinuation<UIImage?, Never>?
+        let image = try XCTUnwrap(UIImage(systemName: "film"))
+        let store = MediaArtworkStore { _, _, _ in
+            requests += 1
+            return await withCheckedContinuation { finish = $0 }
+        }
+        let url = URL(string: "https://example.invalid/poster.jpg")!
+        let first = Task { await store.image(at: url) }
+        let second = Task { await store.image(at: url) }
+        for _ in 0..<100 where finish == nil { await Task.yield() }
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(requests, 1)
+        first.cancel()
+        try XCTUnwrap(finish).resume(returning: image)
+        let cancelled = await first.value
+        let shown = await second.value
+        XCTAssertNil(cancelled)
+        XCTAssertTrue(shown === image)
+        let cached = await store.image(at: url)
+        XCTAssertTrue(cached === image)
+        XCTAssertEqual(requests, 1)
+    }
+
+    func testEvictedSourceReloadsEncryptedDiskCacheWithoutNetwork() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let cache = SourceChannelCache(directory: directory, maximumMemorySources: 1)
+        let first = MediaSource(name: "First", kind: .playlist), second = MediaSource(name: "Second", kind: .playlist)
+        let saved = [channel(1)]
+        _ = try await cache.channels(for: first) { saved }
+        _ = try await cache.channels(for: second) { [self.channel(2)] }
+        XCTAssertNil(cache.cached(for: first))
+        XCTAssertNotNil(cache.cached(for: second))
+        let restored = try await cache.channels(for: first) { XCTFail("Memory eviction must retain the encrypted disk cache"); return [] }
+        XCTAssertEqual(restored, saved)
+        XCTAssertNil(cache.cached(for: second))
+    }
+
+    private func channel(_ id: Int) -> MediaChannel {
+        MediaChannel(title: "Movie \(id)", url: URL(string: "https://example.invalid/movie/\(id).m3u8")!)
+    }
+
+    func testCarPlayOpensCachedListWithoutWaitingOrPushingAgainAfterRefresh() async throws {
+        let request = CarPlayCatalogRequest()
+        var finishRefresh: CheckedContinuation<[MediaChannel], Error>?
+        var shown: [[MediaChannel]] = []
+        var completions = 0
+        let saved = [channel(1)], fresh = [channel(2)]
+        request.start(load: { cached in
+            cached(saved)
+            return try await withCheckedThrowingContinuation { finishRefresh = $0 }
+        }, show: { shown.append($0) }, failure: { XCTFail("Cached list must remain usable") }, completion: { completions += 1 })
+        for _ in 0..<100 where finishRefresh == nil { await Task.yield() }
+        XCTAssertEqual(shown, [saved])
+        XCTAssertEqual(completions, 1)
+        try XCTUnwrap(finishRefresh).resume(returning: fresh)
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(shown, [saved], "Refreshing must not reset the selected CarPlay page")
+        XCTAssertEqual(completions, 1)
+        request.cancel()
+        XCTAssertEqual(completions, 1)
+    }
+
+    func testDisconnectedCarPlayRejectsLateCacheAndNetworkResults() async throws {
+        let request = CarPlayCatalogRequest()
+        var cached: (@MainActor ([MediaChannel]) -> Void)?
+        var finish: CheckedContinuation<[MediaChannel], Error>?
+        var completions = 0
+        request.start(load: { callback in
+            cached = callback
+            return try await withCheckedThrowingContinuation { finish = $0 }
+        }, show: { _ in XCTFail("Disconnected screen must not navigate") },
+                      failure: { XCTFail("Cancelled requests must stay silent") }, completion: { completions += 1 })
+        for _ in 0..<100 where finish == nil { await Task.yield() }
+        request.cancel()
+        XCTAssertEqual(completions, 1, "Disconnect must release the selection spinner immediately")
+        cached?([channel(1)])
+        try XCTUnwrap(finish).resume(returning: [channel(2)])
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(completions, 1)
+    }
+
+    func testCancellingHLSPreparationRejectsAnUncooperativeLateResult() async throws {
+        let preparation = OfflineDownloadPreparation()
+        let id = UUID(), url = channel(1).url
+        var finish: CheckedContinuation<AVURLAsset, Never>?
+        let pending = Task {
+            try await preparation.asset(id: id, url: url) { url in
+                await withCheckedContinuation { finish = $0 }
+            }
+        }
+        for _ in 0..<100 where finish == nil { await Task.yield() }
+        preparation.cancel(id)
+        try XCTUnwrap(finish).resume(returning: AVURLAsset(url: url))
+        do { _ = try await pending.value; XCTFail("Cancelled preparation must not start a download") }
+        catch is CancellationError { }
+    }
+
+    func testDownloadProgressCallbacksAreBoundedAndIndependent() {
+        let updates = OfflineProgressUpdates()
+        let first = UUID(), second = UUID()
+        var accepted = 0
+        for n in 0..<1000 {
+            if updates.accepts(Double(n) / 1000, id: first, now: Double(n) / 1000) { accepted += 1 }
+        }
+        XCTAssertEqual(accepted, 4, "A thousand network callbacks must not schedule a thousand UI tasks")
+        XCTAssertTrue(updates.accepts(0.5, id: second, now: 0.1))
+        XCTAssertFalse(updates.accepts(0.5, id: second, now: 1))
+        XCTAssertFalse(updates.accepts(.nan, id: first, now: 2))
+        updates.remove(first)
+        XCTAssertTrue(updates.accepts(0, id: first, now: 2))
+    }
+
+    func testCancelledHLSPreparationDoesNotSurfaceALateNetworkFailure() async throws {
+        let preparation = OfflineDownloadPreparation()
+        let id = UUID(), url = channel(1).url
+        var finish: CheckedContinuation<AVURLAsset, Error>?
+        let pending = Task {
+            try await preparation.asset(id: id, url: url) { _ in
+                try await withCheckedThrowingContinuation { finish = $0 }
+            }
+        }
+        for _ in 0..<100 where finish == nil { await Task.yield() }
+        preparation.cancel(id)
+        try XCTUnwrap(finish).resume(throwing: URLError(.cancelled))
+        do { _ = try await pending.value; XCTFail("Cancelled preparation must finish as cancellation") }
+        catch is CancellationError { }
+    }
+
+    func testFailedSourceDeletionPreservesListAndCredentials() throws {
+        for clearAll in [false, true] {
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            let library = SourceLibrary(directory: directory)
+            try library.add(name: "Saved", kind: .playlist, secret: SourceSecret(url: channel(1).url),
+                            access: ProductAccess(salesEnabled: true, verifiedPro: true))
+            let source = try XCTUnwrap(library.sources.first)
+            defer {
+                try? SourceKeychain.delete(source.id)
+                try? FileManager.default.removeItem(at: directory)
+            }
+            let file = directory.appendingPathComponent("sources.json")
+            try FileManager.default.removeItem(at: file)
+            try FileManager.default.createDirectory(at: file, withIntermediateDirectories: false)
+            if clearAll { XCTAssertThrowsError(try library.clear()) }
+            else { XCTAssertThrowsError(try library.delete(source)) }
+            XCTAssertEqual(library.sources, [source])
+            XCTAssertEqual(try SourceKeychain.read(source.id).url, channel(1).url)
+        }
+    }
+
+    func testIdleRefreshDoesNotInvalidatePhoneOrCarPlayViews() async {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        for _ in 0..<20 { await Task.yield() }
+        var changes = 0
+        let subscription = model.objectWillChange.sink { changes += 1 }
+        for _ in 0..<20 { model.refresh() }
+        XCTAssertEqual(changes, 0)
+        subscription.cancel()
+    }
+}
 
 @MainActor
 final class VehiclePlaybackTests: XCTestCase {
