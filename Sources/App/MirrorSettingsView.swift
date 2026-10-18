@@ -14,7 +14,7 @@ struct MirrorSettingsView: View {
     @State private var cleared = false
     @State private var clearingLibrary = false
     @AppStorage("language", store: SharedPreferences.defaults) private var language = "system"
-    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.high.rawValue
+    @AppStorage("streamQuality", store: SharedPreferences.defaults) private var quality = StreamQuality.balanced.rawValue
     @AppStorage("audioMode", store: SharedPreferences.defaults) private var audioMode = StreamAudioMode.synchronized.rawValue
     @AppStorage("player.edgeGestureIntroShown") private var edgeGestureIntroShown = false
     @ObservedObject private var purchases = PurchaseStore.shared

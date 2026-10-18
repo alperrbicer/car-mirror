@@ -93,6 +93,7 @@ final class PlaybackController: ObservableObject {
         if externalDisplayConnected || playsOnPhone { waitingForExternalPlayback = false }
     }
     @Published private(set) var screenCaptureBlocked = false
+    private var broadcastCaptureActive = false
     private var shouldBlockCapturedPlayback: Bool {
         screenCaptureBlocked && !hasRemoteVideoOutput && request?.presentation == .video
     }
@@ -101,6 +102,12 @@ final class PlaybackController: ObservableObject {
         guard screenCaptureBlocked != blocked else { return }
         screenCaptureBlocked = blocked
         if shouldBlockCapturedPlayback && hasActivePlayback { pause() }
+    }
+
+    func setBroadcastCaptureActive(_ active: Bool) {
+        guard broadcastCaptureActive != active else { return }
+        broadcastCaptureActive = active
+        compatibility?.setBroadcastCaptureActive(active)
     }
 
     func displayPlaybackStatus(for route: ConnectedDisplayRoute? = nil) -> String {
@@ -706,6 +713,7 @@ final class PlaybackController: ObservableObject {
         activatedAudioSession = true
         if useCompatibility {
             let engine = CompatibilityPlayback()
+            engine.setBroadcastCaptureActive(broadcastCaptureActive)
             compatibility = engine
             engine.setExternalVideoEnabled(!playsOnPhone)
             engine.onTracksChanged = { [weak self, weak engine] in

@@ -1982,6 +1982,8 @@ struct PlaybackCaptureGuard: ViewModifier {
     func body(content: Content) -> some View {
         content.onChange(of: shouldBlock, initial: true) { _, blocked in
             playback.setScreenCaptureBlocked(blocked)
+        }.onChange(of: model.broadcasting, initial: true) { _, active in
+            playback.setBroadcastCaptureActive(active)
         }
     }
 }

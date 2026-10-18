@@ -33,6 +33,12 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     private var errorConfirmationTask: Task<Void, Never>?
     private var videoHosts: [WeakVideoHost] = []
     private var externalVideoEnabled = true
+    private var broadcastCaptureActive = false
+    func setBroadcastCaptureActive(_ active: Bool) {
+        guard broadcastCaptureActive != active else { return }
+        broadcastCaptureActive = active
+        refreshVideoHost()
+    }
     func setExternalVideoEnabled(_ enabled: Bool) {
         externalVideoEnabled = enabled
         refreshVideoHost()
@@ -221,7 +227,9 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         }
         // The external window is an authorized presentation surface. Protecting
         // it against capture also obscures screen-based CarPlay transports.
-        videoView.captureProtectionEnabled = selected.role != .external
+        // ReplayKit is an explicit user-started share. Let its captured frame
+        // include the VLC drawable, then restore protection when sharing ends.
+        videoView.captureProtectionEnabled = selected.role != .external && !broadcastCaptureActive
         let frame = PlayerVideoGeometry.frame(size: mediaPlayer.videoSize, in: selected.bounds, mode: selected.displayMode)
         if videoView.superview !== selected {
             CATransaction.begin()
