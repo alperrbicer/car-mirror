@@ -42,7 +42,10 @@ final class CastPlayback: NSObject, @preconcurrency GCKSessionManagerListener,
         onState?(.loading)
         if let session = manager.currentCastSession, session.device.isSameDevice(as: device), session.connectionState == .connected {
             loadMedia(session)
-        } else if !manager.startSession(with: device) { onState?(.failed) }
+        } else if !manager.startSession(with: device) {
+            AppMeasurement.shared.record(MeasurementEvent(name: .connection, outcome: .failure, route: .cast))
+            onState?(.failed)
+        }
         guard active else { return }
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.publishStatus() }
@@ -146,10 +149,13 @@ final class CastPlayback: NSObject, @preconcurrency GCKSessionManagerListener,
         if request.requestID == loadRequestID { onState?(.failed) }
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didStart session: GCKSession) {
+        guard active, let device, session.device.isSameDevice(as: device) else { return }
+        AppMeasurement.shared.record(MeasurementEvent(name: .connection, outcome: .success, route: .cast))
         if let session = session as? GCKCastSession { loadMedia(session) }
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didResumeSession session: GCKSession) {
         guard active, let device, session.device.isSameDevice(as: device) else { return }
+        AppMeasurement.shared.record(MeasurementEvent(name: .connection, outcome: .success, route: .cast))
         if let session = session as? GCKCastSession {
             if load != nil { loadMedia(session) }
             else { client?.remove(self); client = session.remoteMediaClient; client?.add(self); publishStatus() }
@@ -157,6 +163,8 @@ final class CastPlayback: NSObject, @preconcurrency GCKSessionManagerListener,
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didFailToStart session: GCKSession, withError error: Error) {
         guard active, let device, session.device.isSameDevice(as: device) else { return }
+        AppMeasurement.shared.record(MeasurementEvent(name: .connection, outcome: .failure, route: .cast))
+        AppMeasurement.shared.failure(.connection, error: error)
         onState?(.failed)
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didEnd session: GCKSession, withError error: Error?) {

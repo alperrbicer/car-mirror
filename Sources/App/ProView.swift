@@ -26,6 +26,7 @@ struct ProView: View {
     @ObservedObject private var reminders = TrialReminderStore.shared
     @State private var selectedID = ProProduct.yearly.rawValue
     @State private var copiedMembershipID = false
+    @State private var measuredPaywall = false
 
     private var selected: Product? { store.products.first { $0.id == selectedID } ?? store.products.first }
     private var trialDays: Int? { selected.flatMap(store.freeTrialDays) }
@@ -91,6 +92,10 @@ struct ProView: View {
             }
         }
         .task {
+            if !measuredPaywall, !store.verifiedPro {
+                measuredPaywall = true
+                AppMeasurement.shared.record(MeasurementEvent(name: .paywallView, outcome: .success))
+            }
             await reminders.refreshAuthorization()
             await store.loadProducts(reportErrors: !allowsBrowsing)
         }

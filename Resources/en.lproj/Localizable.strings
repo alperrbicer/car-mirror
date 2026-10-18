@@ -561,3 +561,9 @@
 "Ücretsiz Pro erişimin etkin." = "Your complimentary Pro access is active.";
 "Üyelik durumu güncellendi." = "Membership status updated.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Couldn’t refresh membership status. Check your internet connection and try again.";
+
+"Hata raporlarını paylaş" = "Share error reports";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Crash and technical error reports from sessions you consent to are sent to Firebase Crashlytics. Media and login details are not included. You can turn this off at any time.";
+
+"App Store’da değerlendir" = "Rate on the App Store";

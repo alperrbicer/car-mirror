@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "आपका मुफ़्त Pro ऐक्सेस सक्रिय है।";
 "Üyelik durumu güncellendi." = "सदस्यता की स्थिति अपडेट हो गई।";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "सदस्यता की स्थिति रीफ़्रेश नहीं हो सकी। अपना इंटरनेट कनेक्शन जाँचें और फिर से कोशिश करें।";
+
+"Hata raporlarını paylaş" = "त्रुटि रिपोर्ट साझा करें";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "जिन सत्रों के लिए आप सहमति देते हैं, उनकी क्रैश और तकनीकी त्रुटि रिपोर्ट Firebase Crashlytics को भेजी जाती हैं। मीडिया और लॉगिन जानकारी शामिल नहीं की जाती। आप इसे कभी भी बंद कर सकते हैं।";
+
+"App Store’da değerlendir" = "App Store पर रेटिंग दें";

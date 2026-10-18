@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "무료 Pro 이용 권한이 활성화되었습니다.";
 "Üyelik durumu güncellendi." = "멤버십 상태가 업데이트되었습니다.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "멤버십 상태를 새로고침할 수 없습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.";
+
+"Hata raporlarını paylaş" = "오류 보고서 공유";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "동의한 세션의 비정상 종료 및 기술적 오류 보고서가 Firebase Crashlytics로 전송됩니다. 미디어와 로그인 정보는 포함되지 않으며 언제든지 끌 수 있습니다.";
+
+"App Store’da değerlendir" = "App Store에서 평가";

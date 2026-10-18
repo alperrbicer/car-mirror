@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "無料の Pro アクセスが有効です。";
 "Üyelik durumu güncellendi." = "メンバーシップの状態を更新しました。";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "メンバーシップの状態を更新できませんでした。インターネット接続を確認して、もう一度お試しください。";
+
+"Hata raporlarını paylaş" = "エラーレポートを共有";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "同意したセッションのクラッシュや技術的なエラーのレポートを Firebase Crashlytics に送信します。メディアやログイン情報は含まれません。いつでもオフにできます。";
+
+"App Store’da değerlendir" = "App Store で評価";

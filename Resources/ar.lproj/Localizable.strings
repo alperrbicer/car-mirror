@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "وصولك المجاني إلى Pro مفعّل.";
 "Üyelik durumu güncellendi." = "تم تحديث حالة العضوية.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "تعذّر تحديث حالة العضوية. تحقّق من اتصالك بالإنترنت وحاول مجددًا.";
+
+"Hata raporlarını paylaş" = "مشاركة تقارير الأخطاء";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "تُرسل تقارير التعطل والأخطاء التقنية للجلسات التي توافق عليها إلى Firebase Crashlytics. لا تُضاف الوسائط أو بيانات تسجيل الدخول. يمكنك إيقاف المشاركة في أي وقت.";
+
+"App Store’da değerlendir" = "التقييم على App Store";

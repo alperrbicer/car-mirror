@@ -19,6 +19,7 @@ struct MirrorSettingsView: View {
     @AppStorage("player.edgeGestureIntroShown") private var edgeGestureIntroShown = false
     @ObservedObject private var purchases = PurchaseStore.shared
     @AppStorage("analytics.enabled") private var analyticsEnabled = false
+    @AppStorage(AppMeasurement.crashConsentKey) private var crashReportsEnabled = false
 
     var body: some View {
         NavigationStack {
@@ -92,6 +93,16 @@ struct MirrorSettingsView: View {
                 } footer: {
                     Text(L10n.tr("Mirivo’yu geliştirmek için kullanım istatistiklerini paylaş. Medya, kaynak adresleri ve arama metinleri gönderilmez. İstediğin zaman kapatabilirsin."))
                 }.listRowBackground(MirrorStyle.surface)
+                Section {
+                    Toggle(L10n.tr("Hata raporlarını paylaş"), isOn: $crashReportsEnabled)
+                        .disabled(!FirebaseServices.configured)
+                        .accessibilityIdentifier("settings-crash-reports")
+                        .onChange(of: crashReportsEnabled) { _, enabled in
+                            AppMeasurement.shared.setCrashReportsEnabled(enabled)
+                        }
+                } footer: {
+                    Text(L10n.tr("İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin."))
+                }.listRowBackground(MirrorStyle.surface)
                 Section(L10n.tr("Yasal")) {
                     Link(L10n.tr("Gizlilik Politikası"), destination: BrandIdentity.privacyURL)
                         .accessibilityIdentifier("settings-privacy")
@@ -99,6 +110,10 @@ struct MirrorSettingsView: View {
                         .accessibilityIdentifier("settings-terms")
                 }.listRowBackground(MirrorStyle.surface)
                 Section(L10n.tr("Hakkında")) {
+                    if let url = AppReviewStore.reviewURL(appStoreID: FirebaseServices.appStoreID) {
+                        Link(L10n.tr("App Store’da değerlendir"), destination: url)
+                            .accessibilityIdentifier("settings-rate-app")
+                    }
                     Link(L10n.tr("Yardım ve SSS"), destination: BrandIdentity.supportURL)
                         .accessibilityIdentifier("settings-support")
                     Link(L10n.tr("Bize ulaş"), destination: URL(string: "mailto:alperrbicer@gmail.com?subject=Mirivo")!)

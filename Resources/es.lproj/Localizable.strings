@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "Tu acceso Pro gratuito está activo.";
 "Üyelik durumu güncellendi." = "Estado de membresía actualizado.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "No se pudo actualizar el estado de la membresía. Comprueba tu conexión a Internet e inténtalo de nuevo.";
+
+"Hata raporlarını paylaş" = "Compartir informes de errores";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Los informes de fallos y errores técnicos de las sesiones que autorices se envían a Firebase Crashlytics. No se incluyen archivos multimedia ni datos de acceso. Puedes desactivarlo cuando quieras.";
+
+"App Store’da değerlendir" = "Valorar en el App Store";

@@ -561,3 +561,9 @@
 "Ücretsiz Pro erişimin etkin." = "Ücretsiz Pro erişimin etkin.";
 "Üyelik durumu güncellendi." = "Üyelik durumu güncellendi.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene.";
+
+"Hata raporlarını paylaş" = "Hata raporlarını paylaş";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin.";
+
+"App Store’da değerlendir" = "App Store’da değerlendir";

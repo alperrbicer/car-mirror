@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "Quyền truy cập Pro miễn phí của bạn đang hoạt động.";
 "Üyelik durumu güncellendi." = "Đã cập nhật trạng thái thành viên.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Không thể làm mới trạng thái thành viên. Hãy kiểm tra kết nối Internet rồi thử lại.";
+
+"Hata raporlarını paylaş" = "Chia sẻ báo cáo lỗi";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Báo cáo sự cố và lỗi kỹ thuật từ các phiên bạn đồng ý được gửi đến Firebase Crashlytics. Không bao gồm nội dung đa phương tiện hay thông tin đăng nhập. Bạn có thể tắt bất cứ lúc nào.";
+
+"App Store’da değerlendir" = "Đánh giá trên App Store";

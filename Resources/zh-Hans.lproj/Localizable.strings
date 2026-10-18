@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "你的免费 Pro 权限已生效。";
 "Üyelik durumu güncellendi." = "会员状态已更新。";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "无法刷新会员状态。请检查网络连接后重试。";
+
+"Hata raporlarını paylaş" = "共享错误报告";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "经你同意的使用会话中的崩溃和技术错误报告会发送至 Firebase Crashlytics，不包含媒体和登录信息。你可以随时关闭。";
+
+"App Store’da değerlendir" = "在 App Store 评分";

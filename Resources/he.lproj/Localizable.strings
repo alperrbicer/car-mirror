@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "הגישה החינמית שלך ל-Pro פעילה.";
 "Üyelik durumu güncellendi." = "מצב המינוי עודכן.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "לא ניתן לרענן את מצב המינוי. יש לבדוק את החיבור לאינטרנט ולנסות שוב.";
+
+"Hata raporlarını paylaş" = "שיתוף דוחות שגיאה";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "דוחות קריסה ושגיאות טכניות מהפעלות שאישרת נשלחים אל Firebase Crashlytics. מדיה ופרטי התחברות אינם מצורפים. אפשר לכבות בכל עת.";
+
+"App Store’da değerlendir" = "דירוג ב-App Store";

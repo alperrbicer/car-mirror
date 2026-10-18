@@ -12,6 +12,11 @@ struct CarMirrorApp: App {
 
     init() {
         FirebaseServices.configure()
+        AppMeasurement.shared.start()
+        _ = AppReviewStore.shared
+        #if DEBUG && targetEnvironment(simulator)
+        Task { @MainActor in await MeasurementProbe.runIfRequested() }
+        #endif
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-testing") {
             SharedPreferences.defaults.removeObject(forKey: "developmentUnlimitedAccess")

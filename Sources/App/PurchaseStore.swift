@@ -165,10 +165,16 @@ final class PurchaseStore: ObservableObject {
 
     func purchase(_ product: Product) async {
         guard canPurchase(product) else { return }
+        let plan: MeasurementEvent.Plan = product.id == ProProduct.weekly.rawValue ? .weekly
+            : product.id == ProProduct.yearly.rawValue ? .yearly : .unknown
+        var outcome = MeasurementEvent.Outcome.failure
+        AppMeasurement.shared.record(MeasurementEvent(name: .purchase, outcome: .started, plan: plan))
+        defer { AppMeasurement.shared.record(MeasurementEvent(name: .purchase, outcome: outcome, plan: plan)) }
         busy = true; message = nil; defer { busy = false }
         do {
             switch try await product.purchase() {
             case .success(.verified(let transaction)):
+                outcome = .success
                 await transaction.finish()
                 // The signed purchase can arrive before StoreKit's entitlement cache.
                 // Keep the purchase pending briefly instead of reporting a false failure.
@@ -183,24 +189,38 @@ final class PurchaseStore: ObservableObject {
                     await trialReminders?.refresh(requestPermission: true)
                 }
                 if !verifiedPro { message = L10n.tr("Satın alma henüz doğrulanamadı. Satın alımları geri yükleyebilirsin.") }
-            case .success(.unverified): message = L10n.tr("Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et.")
-            case .pending: message = L10n.tr("Satın alma onay bekliyor. Onaylandığında Pro otomatik açılacak.")
-            case .userCancelled: break
+            case .success(.unverified):
+                outcome = .unverified
+                message = L10n.tr("Satın alma doğrulanamadı. Lütfen App Store hesabını kontrol et.")
+            case .pending:
+                outcome = .pending
+                message = L10n.tr("Satın alma onay bekliyor. Onaylandığında Pro otomatik açılacak.")
+            case .userCancelled: outcome = .cancelled
             @unknown default: message = L10n.tr("Satın alma tamamlanamadı.")
             }
-        } catch { message = L10n.tr("Satın alma tamamlanamadı. Yeniden deneyebilirsin.") }
+        } catch {
+            AppMeasurement.shared.failure(.purchase, error: error)
+            message = L10n.tr("Satın alma tamamlanamadı. Yeniden deneyebilirsin.")
+        }
     }
 
     func restore() async {
         guard !busy, !refreshingMembership else { return }
+        var outcome = MeasurementEvent.Outcome.failure
+        AppMeasurement.shared.record(MeasurementEvent(name: .restore, outcome: .started))
+        defer { AppMeasurement.shared.record(MeasurementEvent(name: .restore, outcome: outcome)) }
         busy = true; message = nil; defer { busy = false }
         do {
             try await AppStore.sync()
             await refresh()
             await syncRevenueCat()
+            outcome = activeProductIDs.isEmpty ? .empty : .success
             message = L10n.tr(!activeProductIDs.isEmpty ? "Pro satın alımın geri yüklendi."
                 : complimentaryPro ? "Ücretsiz Pro erişimin etkin." : "Bu Apple hesabında etkin Pro satın alımı bulunamadı.")
-        } catch { message = L10n.tr("Satın alımlar geri yüklenemedi. Yeniden deneyebilirsin.") }
+        } catch {
+            AppMeasurement.shared.failure(.restore, error: error)
+            message = L10n.tr("Satın alımlar geri yüklenemedi. Yeniden deneyebilirsin.")
+        }
     }
 
     private func syncRevenueCat() async {

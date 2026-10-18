@@ -2,6 +2,7 @@
 require 'xcodeproj'
 require 'json'
 require_relative 'cast_project'
+require_relative 'crashlytics_project'
 
 root = File.expand_path('..', __dir__)
 languages = JSON.parse(File.read(File.join(root, 'Config/Localizations.json')))
@@ -43,7 +44,7 @@ firebase = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference
 firebase.repositoryURL = 'https://github.com/firebase/firebase-ios-sdk.git'
 firebase.requirement = {'kind' => 'exactVersion', 'version' => '12.19.2'}
 project.root_object.package_references << firebase
-%w[FirebaseCore FirebaseRemoteConfig FirebaseMessaging FirebaseAuth FirebaseFunctions FirebaseAppCheck FirebaseAnalyticsCore].each do |name|
+%w[FirebaseCore FirebaseRemoteConfig FirebaseMessaging FirebaseAuth FirebaseFunctions FirebaseAppCheck FirebaseAnalyticsCore FirebaseCrashlytics].each do |name|
   product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
   product.package = firebase
   product.product_name = name
@@ -165,6 +166,7 @@ tests.resources_build_phase.add_file_reference(fixture)
 video_fixture = project.main_group.new_file('Tests/Fixtures/InlineVideo.mkv')
 tests.resources_build_phase.add_file_reference(video_fixture)
 add_google_cast(project, app)
+add_crashlytics_symbols(project, app)
 project.save
 
 { 'CarMirror' => ['Debug', 'Release'] }.each do |name, configurations|

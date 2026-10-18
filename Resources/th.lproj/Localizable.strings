@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "สิทธิ์ใช้งาน Pro ฟรีของคุณเปิดใช้งานแล้ว";
 "Üyelik durumu güncellendi." = "อัปเดตสถานะสมาชิกแล้ว";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "รีเฟรชสถานะสมาชิกไม่ได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองอีกครั้ง";
+
+"Hata raporlarını paylaş" = "แชร์รายงานข้อผิดพลาด";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "รายงานการขัดข้องและข้อผิดพลาดทางเทคนิคจากเซสชันที่คุณยินยอมจะถูกส่งไปยัง Firebase Crashlytics โดยไม่รวมสื่อหรือข้อมูลเข้าสู่ระบบ คุณปิดได้ทุกเมื่อ";
+
+"App Store’da değerlendir" = "ให้คะแนนบน App Store";

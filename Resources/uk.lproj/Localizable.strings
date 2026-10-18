@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "Ваш безкоштовний доступ Pro активний.";
 "Üyelik durumu güncellendi." = "Статус підписки оновлено.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Не вдалося оновити статус підписки. Перевірте підключення до інтернету й спробуйте ще раз.";
+
+"Hata raporlarını paylaş" = "Надсилати звіти про помилки";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Звіти про збої й технічні помилки сеансів, на які ви дали згоду, надсилаються до Firebase Crashlytics. Медіафайли й дані входу не додаються. Надсилання можна вимкнути будь-коли.";
+
+"App Store’da değerlendir" = "Оцінити в App Store";

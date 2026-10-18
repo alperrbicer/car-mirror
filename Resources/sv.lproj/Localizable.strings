@@ -560,3 +560,9 @@
 "Ücretsiz Pro erişimin etkin." = "Din kostnadsfria Pro-åtkomst är aktiv.";
 "Üyelik durumu güncellendi." = "Medlemsstatus uppdaterad.";
 "Üyelik durumu yenilenemedi. İnternet bağlantını kontrol edip yeniden dene." = "Kunde inte uppdatera medlemsstatus. Kontrollera din internetanslutning och försök igen.";
+
+"Hata raporlarını paylaş" = "Dela felrapporter";
+
+"İzin verdiğin oturumlardaki çökme ve teknik hata raporları Firebase Crashlytics’e gönderilir. Medya ve giriş bilgileri eklenmez. İstediğin zaman kapatabilirsin." = "Kraschrapporter och tekniska felrapporter från sessioner du godkänner skickas till Firebase Crashlytics. Medier och inloggningsuppgifter läggs inte till. Du kan stänga av detta när som helst.";
+
+"App Store’da değerlendir" = "Betygsätt i App Store";
