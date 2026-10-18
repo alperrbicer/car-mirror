@@ -2,6 +2,28 @@ import XCTest
 @testable import MirrorCore
 
 final class MediaSeriesTests: XCTestCase {
+    func testEpisodeDisplayNamePrefersProviderAndStripsOnlyEpisodeNotation() throws {
+        let episode = try XCTUnwrap(MediaEpisode.parse("Akif S01-E03 - Playlist name"))
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "<b>A New &amp; Different Day</b>"), "A New & Different Day")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "Akif S01-E03 - Yeni Başlangıç"), "Yeni Başlangıç")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "Akif - Yol Ayrımı"), "Yol Ayrımı")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "Akif Geri Dönüyor"), "Akif Geri Dönüyor")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "1984"), "1984")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: nil), "Playlist name")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "null"), "Playlist name")
+        XCTAssertEqual(episode.resolvedTitle(providerTitle: "Akif S01-E03"), "Playlist name")
+    }
+
+    func testMissingAndGenericEpisodeNamesUseNumberFallback() throws {
+        let episode = try XCTUnwrap(MediaEpisode.parse("Akif S01-E03"))
+        for title in [nil, "", "   ", "null", "N/A", "Akif", "Akif S01-E03", "S01-E03", "Episode 3", "3. bölüm",
+                      "Bölüm 03", "Akif - 3. Bölüm", "03", "1x03", "1080p", "Akif S02E03 - Wrong season"] as [String?] {
+            XCTAssertNil(episode.resolvedTitle(providerTitle: title), title ?? "nil")
+        }
+        let qualitySuffix = try XCTUnwrap(MediaEpisode.parse("Akif S01E03 1080p"))
+        XCTAssertNil(qualitySuffix.resolvedTitle(providerTitle: nil))
+    }
+
     private func posterChannel(_ title: String, _ id: Int, artwork: String?) -> MediaChannel {
         MediaChannel(title: title, url: URL(string: "https://example.com/series/user/pass/\(id).mp4")!,
                      metadata: MediaMetadata(artworkURL: artwork.flatMap(URL.init(string:))))

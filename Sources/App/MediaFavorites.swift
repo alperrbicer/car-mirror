@@ -163,7 +163,7 @@ struct MediaFavoriteButton: View {
             .font(.system(size: compact ? 18 : 21, weight: playerChrome ? .medium : .semibold))
             .foregroundStyle(selected ? MirrorStyle.accent : .white)
             .frame(width: compact ? 36 : 48, height: compact ? 36 : 48)
-            .background(.black.opacity(playerChrome ? 0 : 0.5), in: Circle())
+            .background(.black.opacity(playerChrome ? 0 : 0.25), in: Circle())
             .frame(minWidth: playerChrome ? 40 : 44, minHeight: 44)
             .contentShape(Circle())
     }

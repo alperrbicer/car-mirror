@@ -1,14 +1,27 @@
 import SwiftUI
 import ImageIO
+import CryptoKit
 
-/// Provider artwork is decoded at thumbnail size and kept only in bounded memory.
+/// Compressed artwork survives relaunches; decoded thumbnails stay in bounded memory.
 @MainActor
-private final class MediaArtworkStore {
+final class MediaArtworkStore {
+    typealias Fetch = @MainActor (URL, URLSession, Int) async -> UIImage?
     static let shared = MediaArtworkStore()
     private let cache = NSCache<NSString, UIImage>()
     private let session: URLSession
+    private let fetch: Fetch
+    private final class Flight {
+        let task: Task<UIImage?, Never>
+        var readers: Set<UUID> = []
+        init(task: Task<UIImage?, Never>) { self.task = task }
+    }
+    private var flights: [String: Flight] = [:]
+    private var generation = 0
 
-    init() {
+    init(fetch: @escaping Fetch = { url, session, size in
+        await MediaArtworkStore.fetch(url, session: session, maximumPixelSize: size)
+    }) {
+        self.fetch = fetch
         cache.totalCostLimit = 24 * 1_024 * 1_024
         cache.countLimit = 160
         let configuration = URLSessionConfiguration.ephemeral
@@ -20,17 +33,74 @@ private final class MediaArtworkStore {
         session = URLSession(configuration: configuration)
     }
 
+    func cachedImage(at url: URL, maximumPixelSize: Int = 600) -> UIImage? {
+        cache.object(forKey: "\(maximumPixelSize)|\(url.absoluteString)" as NSString)
+    }
+
+    /// Restore only the first screen's saved artwork. Launch never waits for downloads.
+    func prepareInitialArtwork(for channels: [MediaChannel]) async {
+        let generation = generation
+        let categories = MediaChannelCategory.group(channels)
+        let preview = categories.contains(where: { !$0.name.isEmpty })
+            ? categories.prefix(6).flatMap { MediaChannelCategory.artworkPreview($0.channels) }
+            : Array(channels.prefix(8))
+        let urls = Set(preview.compactMap { $0.metadata.artworkURL })
+        await withTaskGroup(of: Void.self) { group in
+            for url in urls {
+                group.addTask { @MainActor in
+                    guard self.cachedImage(at: url) == nil,
+                          let image = await Self.diskImage(at: url, maximumPixelSize: 600),
+                          !Task.isCancelled, self.generation == generation else { return }
+                    self.cache.setObject(image, forKey: "600|\(url.absoluteString)" as NSString,
+                                         cost: (image.cgImage?.bytesPerRow ?? 0) * (image.cgImage?.height ?? 0))
+                }
+            }
+        }
+    }
+
+    func removeAll() {
+        generation &+= 1
+        cache.removeAllObjects()
+        flights.values.forEach { $0.task.cancel() }
+        flights.removeAll()
+        Task { await MediaArtworkDiskCache.shared.removeAll() }
+    }
+
     func image(at url: URL, maximumPixelSize: Int = 600) async -> UIImage? {
-        let key = "\(maximumPixelSize)|\(url.absoluteString)" as NSString
-        if let image = cache.object(forKey: key) { return image }
-        guard let image = await Self.fetch(url, session: session, maximumPixelSize: maximumPixelSize), !Task.isCancelled else { return nil }
-        cache.setObject(image, forKey: key, cost: (image.cgImage?.bytesPerRow ?? 0) * (image.cgImage?.height ?? 0))
+        guard !Task.isCancelled else { return nil }
+        let key = "\(maximumPixelSize)|\(url.absoluteString)"
+        if let image = cache.object(forKey: key as NSString) { return image }
+        let flight: Flight
+        if let pending = flights[key] { flight = pending }
+        else {
+            let fetch = fetch, session = session
+            flight = Flight(task: Task { await fetch(url, session, maximumPixelSize) })
+            flights[key] = flight
+        }
+        let reader = UUID()
+        flight.readers.insert(reader)
+        defer { release(reader, flight: flight, key: key) }
+        let result = await withTaskCancellationHandler {
+            await flight.task.value
+        } onCancel: {
+            Task { @MainActor [weak self] in self?.release(reader, flight: flight, key: key) }
+        }
+        guard let image = result, !Task.isCancelled, !flight.task.isCancelled else { return nil }
+        cache.setObject(image, forKey: key as NSString, cost: (image.cgImage?.bytesPerRow ?? 0) * (image.cgImage?.height ?? 0))
         return image
+    }
+
+    private func release(_ reader: UUID, flight: Flight, key: String) {
+        guard flight.readers.remove(reader) != nil, flight.readers.isEmpty else { return }
+        flight.task.cancel()
+        if flights[key] === flight { flights[key] = nil }
     }
 
     // Reading and decoding large images must never occupy the UI actor.
     nonisolated private static func fetch(_ url: URL, session: URLSession, maximumPixelSize: Int) async -> UIImage? {
         do {
+            if let image = await diskImage(at: url, maximumPixelSize: maximumPixelSize) { return image }
+            try Task.checkCancellation()
             var request = URLRequest(url: url)
             request.setValue("Mirivo/1.0", forHTTPHeaderField: "User-Agent")
             let (bytes, response) = try await session.bytes(for: request)
@@ -44,15 +114,114 @@ private final class MediaArtworkStore {
                 data.append(byte)
             }
             try Task.checkCancellation()
-            guard let source = CGImageSourceCreateWithData(data as CFData, nil),
-                  let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
-                    kCGImageSourceCreateThumbnailFromImageAlways: true,
-                    kCGImageSourceCreateThumbnailWithTransform: true,
-                    kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
-                    kCGImageSourceShouldCacheImmediately: true
-                  ] as CFDictionary) else { return nil }
-            return UIImage(cgImage: thumbnail)
+            guard let image = decode(data, maximumPixelSize: maximumPixelSize) else { return nil }
+            await MediaArtworkDiskCache.shared.store(data, forKey: url.absoluteString)
+            return image
         } catch { return nil }
+    }
+
+    nonisolated private static func diskImage(at url: URL, maximumPixelSize: Int) async -> UIImage? {
+        guard let data = await MediaArtworkDiskCache.shared.data(forKey: url.absoluteString),
+              !Task.isCancelled else { return nil }
+        let image = decode(data, maximumPixelSize: maximumPixelSize)
+        if image == nil { await MediaArtworkDiskCache.shared.remove(forKey: url.absoluteString) }
+        return image
+    }
+
+    nonisolated private static func decode(_ data: Data, maximumPixelSize: Int) -> UIImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
+                kCGImageSourceShouldCacheImmediately: true
+              ] as CFDictionary) else { return nil }
+        return UIImage(cgImage: thumbnail)
+    }
+}
+
+/// All disk work stays off the UI actor. Filenames never contain provider URLs or credentials.
+actor MediaArtworkDiskCache {
+    static let shared = MediaArtworkDiskCache(directory: FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+        .first?.appendingPathComponent("MirivoArtwork-v1", isDirectory: true))
+    private let directory: URL?
+    private let maximumBytes: Int
+    private let maximumEntries: Int
+    private let lifetime: TimeInterval
+    private let maximumImageBytes = 4 * 1_024 * 1_024
+
+    init(directory: URL?, maximumBytes: Int = 64 * 1_024 * 1_024, maximumEntries: Int = 512,
+         lifetime: TimeInterval = 7 * 24 * 60 * 60) {
+        self.directory = directory
+        self.maximumBytes = maximumBytes
+        self.maximumEntries = maximumEntries
+        self.lifetime = lifetime
+    }
+
+    func data(forKey key: String, now: Date = Date()) -> Data? {
+        guard !Task.isCancelled, let file = file(forKey: key) else { return nil }
+        guard let values = try? file.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey, .isRegularFileKey]),
+              values.isRegularFile == true, let date = values.contentModificationDate,
+              now.timeIntervalSince(date) < lifetime,
+              let size = values.fileSize, size > 0, size <= min(maximumBytes, maximumImageBytes),
+              let data = try? Data(contentsOf: file), data.count == size else {
+            try? FileManager.default.removeItem(at: file)
+            return nil
+        }
+        return data
+    }
+
+    func store(_ data: Data, forKey key: String, now: Date = Date()) {
+        guard !Task.isCancelled, !data.isEmpty, data.count <= min(maximumBytes, maximumImageBytes),
+              maximumEntries > 0, let directory, let file = file(forKey: key) else { return }
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            var excluded = directory
+            var resources = URLResourceValues(); resources.isExcludedFromBackup = true
+            try excluded.setResourceValues(resources)
+            #if os(iOS)
+            try data.write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+            #else
+            try data.write(to: file, options: .atomic)
+            #endif
+            try FileManager.default.setAttributes([.modificationDate: now], ofItemAtPath: file.path)
+            trim(now: now)
+        } catch { /* A full or unavailable cache must not prevent displaying artwork. */ }
+    }
+
+    func remove(forKey key: String) {
+        if let file = file(forKey: key) { try? FileManager.default.removeItem(at: file) }
+    }
+
+    func removeAll() {
+        if let directory { try? FileManager.default.removeItem(at: directory) }
+    }
+
+    private func file(forKey key: String) -> URL? {
+        let name = SHA256.hash(data: Data(key.utf8)).map { String(format: "%02x", $0) }.joined()
+        return directory?.appendingPathComponent(name + ".artwork")
+    }
+
+    private func trim(now: Date) {
+        guard let directory else { return }
+        let keys: Set<URLResourceKey> = [.contentModificationDateKey, .fileSizeKey, .isRegularFileKey]
+        let files = (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: Array(keys))) ?? []
+        var entries: [(file: URL, date: Date, size: Int)] = []
+        for file in files where file.pathExtension == "artwork" {
+            guard let values = try? file.resourceValues(forKeys: keys), values.isRegularFile == true,
+                  let date = values.contentModificationDate, now.timeIntervalSince(date) < lifetime,
+                  let size = values.fileSize else {
+                try? FileManager.default.removeItem(at: file)
+                continue
+            }
+            entries.append((file, date, size))
+        }
+        var bytes = entries.reduce(0) { $0 + $1.size }, count = entries.count
+        for entry in entries.sorted(by: { $0.date < $1.date }) {
+            guard bytes > maximumBytes || count > maximumEntries else { break }
+            try? FileManager.default.removeItem(at: entry.file)
+            bytes -= entry.size; count -= 1
+        }
     }
 }
 
@@ -69,7 +238,7 @@ struct MediaArtworkView: View {
         GeometryReader { geometry in
             ZStack {
                 LinearGradient(colors: [tint.opacity(0.42), MirrorStyle.surface], startPoint: .topLeading, endPoint: .bottomTrailing)
-                if let image {
+                if let image = image ?? url.flatMap({ MediaArtworkStore.shared.cachedImage(at: $0) }) {
                     Image(uiImage: image).resizable()
                         .aspectRatio(contentMode: isLogo ? .fit : .fill)
                         .padding(isLogo ? 10 : 0)
@@ -93,8 +262,8 @@ struct MediaArtworkView: View {
         }
         .accessibilityHidden(true)
         .task(id: url) {
-            image = nil
-            guard let url else { return }
+            image = url.flatMap { MediaArtworkStore.shared.cachedImage(at: $0) }
+            guard let url, image == nil else { return }
             let result = await MediaArtworkStore.shared.image(at: url)
             guard !Task.isCancelled else { return }
             image = result

@@ -31,9 +31,11 @@ struct MirivoEntryView: View {
     }
 
     private var home: some View {
-        MirivoRootView(model: model) { onboardingCompleted = false }
+        MirivoRootView(model: model, onInitialContentReady: entered ? nil : finishEntrance) { onboardingCompleted = false }
+            .allowsHitTesting(entered)
+            .accessibilityHidden(!entered)
             .overlay {
-                if !entered && !reduceMotion {
+                if !entered {
                     ZStack {
                         MirrorStyle.background.ignoresSafeArea()
                         VStack(spacing: 20) {
@@ -44,12 +46,20 @@ struct MirivoEntryView: View {
                         }
                     }
                     .transition(.opacity)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
+                    .accessibilityElement(children: .combine)
                 }
             }
             .task {
-                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) { entered = true }
+                guard !entered else { return }
+                // Allow a brief disk-cache restore, never a wait for provider images.
+                do { try await Task.sleep(for: .milliseconds(350)) }
+                catch { return }
+                finishEntrance()
             }
+    }
+
+    private func finishEntrance() {
+        guard !entered else { return }
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { entered = true }
     }
 }

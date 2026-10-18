@@ -2,6 +2,48 @@ import XCTest
 
 /// Run the artwork fixture server with MIRIVO_FIXTURE_PORT=8774.
 final class LibraryArtworkUITests: XCTestCase {
+    func testCompactEpisodeNamesInLibraryAndPlaybackPanel() { verifyCompactEpisodes(large: false) }
+    func testCompactEpisodeNamesWithAccessibilityText() { verifyCompactEpisodes(large: true) }
+
+    private func verifyCompactEpisodes(large: Bool) {
+        let port = ProcessInfo.processInfo.environment["MIRIVO_EPISODE_FIXTURE_PORT"] ?? "8774"
+        let app = openCatalog(large: large, ordinaryPlaylist: true, fixturePort: port)
+        defer { app.terminate() }
+        openSeriesCategory(app)
+        app.buttons["series-open-Kıyı Hikâyeleri"].tap()
+        let first = app.buttons["series-episode-play-http://127.0.0.1:\(port)/series/artwork/fixture/201.mp4"]
+        let second = app.buttons["series-episode-play-http://127.0.0.1:\(port)/series/artwork/fixture/202.mp4"]
+        let tenth = app.buttons["series-episode-play-http://127.0.0.1:\(port)/series/artwork/fixture/210.mp4"]
+        for _ in 0..<8 { if first.isHittable { break }; app.swipeUp() }
+        let loaded = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label CONTAINS %@", "Dönüş"), object: first)
+        XCTAssertEqual(XCTWaiter.wait(for: [loaded], timeout: 10), .completed)
+        for _ in 0..<8 { if second.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(second.label.contains("Yol Ayrımı"))
+        for _ in 0..<8 { if tenth.isHittable { break }; app.swipeUp() }
+        XCTAssertEqual(tenth.label, "10. bölüm", "A generic provider title must fall back to the episode number")
+        XCTAssertFalse(app.staticTexts["01"].exists, "The large repeated number tile is removed")
+        capture("compact-episode-library-\(large)")
+        for _ in 0..<8 { if second.isHittable { break }; app.swipeDown() }
+        XCTAssertGreaterThanOrEqual(second.frame.height, 44)
+        second.tap()
+        XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
+        pause(app)
+        app.buttons["player-channel-picker"].tap()
+        XCTAssertTrue(second.waitForExistence(timeout: 5))
+        XCTAssertTrue(second.label.contains("Yol Ayrımı"))
+        XCTAssertTrue(second.isSelected)
+        XCTAssertTrue(second.label.contains("Duraklatıldı"))
+        XCTAssertTrue(app.buttons["close-playback-queue"].exists)
+        XCTAssertFalse(app.searchFields["channel-search-field"].exists)
+        capture("compact-episode-player-panel-\(large)")
+        let download = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "download-"))
+            .allElementsBoundByIndex.first { $0.isHittable }
+        XCTAssertNotNil(download)
+        XCTAssertGreaterThanOrEqual(download?.frame.width ?? 0, 44)
+        app.buttons["close-playback-queue"].tap()
+        XCTAssertTrue(app.otherElements["player-video"].exists)
+    }
+
     func testListAndSearchFavoritesDoNotStartPlayback() {
         let app = openCatalog(favoriteLists: true)
         defer { app.terminate() }
@@ -403,6 +445,8 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertFalse(app.buttons["player-large-controls"].exists)
         XCTAssertFalse(app.buttons["previous-episode"].isEnabled)
         XCTAssertTrue(app.buttons["next-episode"].isEnabled)
+        XCTAssertGreaterThanOrEqual(app.buttons["next-episode"].frame.width, 44)
+        XCTAssertGreaterThanOrEqual(app.buttons["next-episode"].frame.height, 44)
         XCTAssertTrue(app.buttons["player-play-on-phone"].exists)
         XCTAssertTrue(app.buttons["player-favorite"].exists)
         verifyMediaOptions(app)
@@ -423,12 +467,13 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Sığdır"].waitForExistence(timeout: 5))
         app.buttons["Sığdır"].tap()
         app.buttons["tv-connection"].tap()
-        let connected = app.descendants(matching: .any)["connection-airplay"].firstMatch.waitForExistence(timeout: 5)
+        let connectionID = route == "carplay" ? "carplay-connection-status" : "connection-airplay"
+        let connected = app.descendants(matching: .any)[connectionID].firstMatch.waitForExistence(timeout: 5)
         capture("\(route)-working-connection-button")
         XCTAssertTrue(connected)
         app.buttons["Kapat"].tap()
         app.buttons["player-channel-picker"].tap()
-        XCTAssertTrue(app.buttons["Kıyı Hikâyeleri S01-E02"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/202.mp4"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.searchFields["channel-search-field"].exists)
         capture("\(route)-episode-list-without-search")
     }
@@ -536,7 +581,7 @@ final class LibraryArtworkUITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         let miniPlayer = app.buttons["now-playing-open"]
         XCTAssertTrue(miniPlayer.waitForExistence(timeout: 5))
-        let episode = app.buttons["Kıyı Hikâyeleri S01-E10"].firstMatch
+        let episode = app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/210.mp4"]
         for _ in 0..<8 {
             if episode.isHittable && episode.frame.maxY < miniPlayer.frame.minY { break }
             app.swipeUp()
@@ -592,7 +637,7 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertLessThanOrEqual(empty.frame.maxY, search.frame.minY)
         capture("series-search-empty")
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: query.count))
-        XCTAssertFalse(empty.exists)
+        XCTAssertTrue(empty.waitForNonExistence(timeout: 5))
         XCTAssertTrue(app.buttons["series-open-Kıyı Hikâyeleri"].exists)
         app.buttons["dismiss-channel-search-keyboard"].tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -605,12 +650,70 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertLessThanOrEqual(empty.frame.maxY, search.frame.minY)
         capture("movie-search-empty")
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: query.count))
-        XCTAssertFalse(empty.exists)
+        XCTAssertTrue(empty.waitForNonExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Mavi Yolculuk"].firstMatch.exists)
     }
 
+    func testMovieListWaitsForInitialRecencyAndReusesCatalog() {
+        let app = openCatalog(recencyFixture: "delayed")
+        defer { app.terminate() }
+        let category = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "FİLM: Sıralama")).firstMatch
+        category.tap()
+        let loading = app.descendants(matching: .any)["library-sort-loading"].firstMatch
+        XCTAssertTrue(loading.waitForExistence(timeout: 3))
+        let oldest = app.buttons["Mavi Yolculuk"].firstMatch
+        let newest = app.buttons["Son Işık"].firstMatch
+        XCTAssertFalse(oldest.exists, "Provider order must never appear while the initial dates are loading")
+        capture("movie-sort-loading")
+        XCTAssertTrue(newest.waitForExistence(timeout: 15))
+        XCTAssertFalse(loading.exists)
+        XCTAssertLessThan(newest.frame.minY, oldest.frame.minY)
+        capture("movie-sort-ready")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        category.tap()
+        XCTAssertTrue(newest.waitForExistence(timeout: 3), "Reopening must reuse the cached catalog without another delayed request")
+        XCTAssertLessThan(newest.frame.minY, oldest.frame.minY)
+
+        let sort = app.buttons["library-sort"]
+        sort.tap(); app.buttons["Ada göre (A–Z)"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        category.tap()
+        XCTAssertTrue(oldest.waitForExistence(timeout: 3))
+        XCTAssertFalse(loading.exists)
+        XCTAssertEqual(sort.value as? String, "Ada göre (A–Z)")
+        XCTAssertLessThan(oldest.frame.minY, newest.frame.minY)
+    }
+
+    func testMovieListRemainsUsableWhenRecencyFails() { verifyMovieRecencyFallback("failed") }
+    func testMovieListRemainsUsableWhenDatesAreMissing() { verifyMovieRecencyFallback("missing") }
+
+    private func verifyMovieRecencyFallback(_ mode: String) {
+        let app = openCatalog(recencyFixture: mode)
+        defer { app.terminate() }
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "FİLM: Sıralama")).firstMatch.tap()
+        let first = app.buttons["Mavi Yolculuk"].firstMatch
+        let second = app.buttons["Son Işık"].firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.descendants(matching: .any)["library-sort-loading"].firstMatch.exists)
+        XCTAssertLessThan(first.frame.minY, second.frame.minY)
+        app.buttons["library-sort"].tap()
+        app.buttons["Ada göre (Z–A)"].tap()
+        XCTAssertLessThan(app.buttons["Yolun Ötesi"].firstMatch.frame.minY, first.frame.minY)
+    }
+
+    func testMovieListUsesEmbeddedDatesImmediately() {
+        let app = openCatalog(recencyFixture: "embedded")
+        defer { app.terminate() }
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "FİLM: Sıralama")).firstMatch.tap()
+        let newest = app.buttons["Son Işık"].firstMatch
+        XCTAssertTrue(newest.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.descendants(matching: .any)["library-sort-loading"].firstMatch.exists)
+        XCTAssertLessThan(newest.frame.minY, app.buttons["Mavi Yolculuk"].firstMatch.frame.minY)
+    }
+
     func testMovieSortingAndPlaybackMenuStayWithinCategory() {
-        let app = openCatalog()
+        let app = openCatalog(movieSorting: true)
         defer { app.terminate() }
         let sort = app.buttons["library-sort"]
         XCTAssertFalse(sort.exists)
@@ -649,19 +752,19 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertFalse(app.buttons["library-sort"].exists)
         XCTAssertTrue(app.buttons["series-open-Kıyı Hikâyeleri"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["series-open-Gece Vardiyası"].exists)
-        XCTAssertFalse(app.buttons["Kıyı Hikâyeleri S01-E01"].exists)
+        XCTAssertFalse(app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/201.mp4"].exists)
         capture("series-library")
         app.buttons["series-open-Kıyı Hikâyeleri"].tap()
-        let first = app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch
-        let second = app.buttons["Kıyı Hikâyeleri S01-E02"].firstMatch
-        let tenth = app.buttons["Kıyı Hikâyeleri S01-E10"].firstMatch
+        let first = app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/201.mp4"]
+        let second = app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/202.mp4"]
+        let tenth = app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/210.mp4"]
         XCTAssertTrue(first.waitForExistence(timeout: 5))
         XCTAssertLessThan(first.frame.minY, second.frame.minY)
         XCTAssertLessThan(second.frame.minY, tenth.frame.minY)
-        XCTAssertFalse(app.buttons["Kıyı Hikâyeleri S02-E01"].exists)
+        XCTAssertFalse(app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/221.mp4"].exists)
         capture("series-episodes")
         app.buttons["series-season-2"].tap()
-        let nextSeason = app.buttons["Kıyı Hikâyeleri S02-E01"].firstMatch
+        let nextSeason = app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/221.mp4"]
         XCTAssertTrue(nextSeason.waitForExistence(timeout: 5))
         XCTAssertFalse(first.exists)
         capture("series-season-two")
@@ -670,7 +773,7 @@ final class LibraryArtworkUITests: XCTestCase {
         pause(app)
         app.buttons["player-channel-picker"].tap()
         XCTAssertTrue(nextSeason.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["Gece Vardiyası S02-E04"].exists)
+        XCTAssertFalse(app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/304.mp4"].exists)
         app.buttons["series-season-1"].tap()
         XCTAssertTrue(first.waitForExistence(timeout: 5))
         capture("series-playback-queue")
@@ -696,9 +799,9 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
         pause(app)
         app.buttons["player-channel-picker"].tap()
-        XCTAssertTrue(app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/201.mp4"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["series-season-2"].exists)
-        XCTAssertFalse(app.buttons["Gece Vardiyası S01-E01"].exists)
+        XCTAssertFalse(app.buttons["series-episode-play-http://127.0.0.1:8774/series/artwork/fixture/301.mp4"].exists)
     }
 
     func testContinueWatchingArtworkAtAccessibilitySize() {
@@ -728,16 +831,25 @@ final class LibraryArtworkUITests: XCTestCase {
         let category = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "DİZİ: Exxen")).firstMatch
         for _ in 0..<8 {
             let visible = app.frame.insetBy(dx: 0, dy: 130)
-            if category.isHittable && visible.contains(CGPoint(x: category.frame.midX, y: category.frame.midY)) { break }
-            app.swipeUp()
+            if category.isHittable && visible.contains(category.frame) { break }
+            app.scrollViews["channel-categories"].swipeUp()
         }
         XCTAssertTrue(category.waitForExistence(timeout: 5))
         capture("category-distinct-series-posters")
-        category.tap()
+        category.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.buttons["series-open-Kıyı Hikâyeleri"].waitForExistence(timeout: 5))
     }
 
     private func openLibrary(_ app: XCUIApplication) {
         let page = app.buttons["page-library"]
+        // A saved source now opens directly after relaunch. Return through the
+        // visible navigation stack before selecting the root Library page.
+        for _ in 0..<4 {
+            if page.waitForExistence(timeout: 2) { break }
+            let back = app.navigationBars.buttons.element(boundBy: 0)
+            guard back.exists else { break }
+            back.tap()
+        }
         XCTAssertTrue(page.waitForExistence(timeout: 10))
         for _ in 0..<3 {
             if page.isSelected { return }
@@ -750,12 +862,16 @@ final class LibraryArtworkUITests: XCTestCase {
 
     private func pause(_ app: XCUIApplication) {
         let button = app.buttons["player-play-pause"]
-        if !button.waitForExistence(timeout: 2) {
-            // Controls can auto-hide while a busy simulator finishes navigation.
+        for _ in 0..<3 {
+            // Do not wait twice for the same control: the auto-hide timer may
+            // expire between waits on a busy simulator.
+            if button.exists {
+                if button.label == "Duraklat" { button.tap() }
+                return
+            }
             app.otherElements["player-video"].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
-        XCTAssertTrue(button.waitForExistence(timeout: 5))
-        if button.label == "Duraklat" { button.tap() }
+        XCTFail("Playback controls did not appear")
     }
 
     func testCategoryArtworkSearchAndProviderMovieDetails() {
@@ -805,7 +921,7 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(summary.waitForExistence(timeout: 15))
         XCTAssertTrue(summary.label.contains("Bir kıyı kasabasında"))
         capture(movieEpisodes ? "series-movie-route-general-synopsis" : "series-general-synopsis")
-        let episode = app.buttons["Kıyı Hikâyeleri S01-E01"].firstMatch
+        let episode = app.buttons["series-episode-play-http://127.0.0.1:8774/\(movieEpisodes ? "movie" : "series")/artwork/fixture/201.mp4"]
         app.buttons["media-details-close"].tap()
         for _ in 0..<8 { if episode.isHittable { break }; app.swipeUp() }
         XCTAssertTrue(episode.waitForExistence(timeout: 5))
@@ -875,15 +991,21 @@ final class LibraryArtworkUITests: XCTestCase {
         XCTAssertTrue(app.buttons["media-details-close"].waitForExistence(timeout: 5))
     }
 
-    private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false, movieEpisodes: Bool = false, externalRoute: String? = nil, singleSeason: Bool = false, liveChannels: Int? = nil, favoriteLists: Bool = false) -> XCUIApplication {
+    private func openCatalog(large: Bool = false, ordinaryPlaylist: Bool = false, movieEpisodes: Bool = false, externalRoute: String? = nil, singleSeason: Bool = false, liveChannels: Int? = nil, favoriteLists: Bool = false, recencyFixture: String? = nil, movieSorting: Bool = false, fixturePort: String = "8774") -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-playback-access", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR",
                                "-UIPreferredContentSizeCategoryName", large ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryM"]
+        if let recencyFixture { app.launchEnvironment["MIRIVO_UI_SORT_FIXTURE"] = recencyFixture }
         if externalRoute == "carplay" { app.launchArguments += ["-mirivo-ui-carplay", "-mirivo-ui-carplay-display"] }
         else if externalRoute == "tv" { app.launchArguments.append("-mirivo-ui-external-display") }
         XCUIDevice.shared.orientation = .portrait
         app.launch()
+        if recencyFixture != nil {
+            // A single saved source opens directly at launch.
+            XCTAssertTrue(app.buttons["browse-all-channels"].waitForExistence(timeout: 15))
+            return app
+        }
         openLibrary(app)
         let add = app.buttons["add-source"]
         for _ in 0..<4 { if add.isHittable { break }; app.swipeUp() }
@@ -895,7 +1017,7 @@ final class LibraryArtworkUITests: XCTestCase {
         app.textFields["source-name"].tap(); app.textFields["source-name"].typeText("Görsel Kitaplık")
         app.textFields["source-url"].tap()
         let url = favoriteLists ? "http://127.0.0.1:8774/favorite-lists.m3u" : liveChannels.map { "http://127.0.0.1:8774/live-picker.m3u?count=\($0)" } ?? (singleSeason ? "http://127.0.0.1:8774/catalog-single-season.m3u" : movieEpisodes ? "http://127.0.0.1:8774/catalog-movie-episodes.m3u" : ordinaryPlaylist ? "http://127.0.0.1:8774/catalog.m3u" : "http://127.0.0.1:8774/catalog/get.php?username=artwork&password=fixture&type=m3u_plus")
-        app.textFields["source-url"].typeText(url)
+        app.textFields["source-url"].typeText(url.replacingOccurrences(of: ":8774/", with: ":\(fixturePort)/") + (movieSorting ? "&movie_sorting=1" : ""))
         app.buttons["Ekle"].tap()
         let source = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Görsel Kitaplık", "Oynatma listesi")).firstMatch
         XCTAssertTrue(source.waitForExistence(timeout: 10))

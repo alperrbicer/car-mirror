@@ -66,7 +66,6 @@ struct LibraryView: View {
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject private var library = SourceLibrary.shared
     @ObservedObject private var model = MirrorModel.shared
-    @ObservedObject private var playback = MirrorModel.shared.playback
     @State private var sourceToAdd: SourceCreation?
     @State private var editing: SourceEditDraft?
     @State private var refreshingSources: Set<UUID> = []
@@ -97,7 +96,7 @@ struct LibraryView: View {
                     }.accessibilityElement(children: .combine)
                     ForEach(library.sources) { source in
                         HStack(spacing: 0) {
-                            NavigationLink { ChannelListView(source: source) } label: {
+                            NavigationLink(value: source.id) {
                                 HStack(spacing: 16) {
                                     if !dynamicTypeSize.isAccessibilitySize {
                                         Image(systemName: source.kind == .xtream ? "server.rack" : "play.rectangle")
@@ -833,6 +832,11 @@ private struct SourceEditorView: View {
             }
     }
     private func save() {
+        var outcome = MeasurementEvent.Outcome.failure
+        defer {
+            AppMeasurement.shared.record(MeasurementEvent(name: .sourceSave, outcome: outcome,
+                sourceKind: kind, operation: source == nil ? .add : .update))
+        }
         do {
             if kind == .playlistFile {
                 if let selectedFile {
@@ -840,6 +844,7 @@ private struct SourceEditorView: View {
                 } else if let source, let originalSecret, source.kind == .playlistFile {
                     try SourceLibrary.shared.update(source, name: name, kind: kind, secret: originalSecret)
                 } else { throw LibraryError.invalidURL }
+                outcome = .success
                 dismiss()
                 return
             }
@@ -850,22 +855,32 @@ private struct SourceEditorView: View {
             } else {
                 try SourceLibrary.shared.add(name: name, kind: kind, secret: secret, access: PurchaseStore.shared.access)
             }
+            outcome = .success
             dismiss()
         } catch {
+            AppMeasurement.shared.failure(.sourceSave, error: error)
             message = kind == .playlistFile ? L10n.tr("Oynatma listesi dosyası açılamadı. M3U veya M3U8 dosyası seç.") : L10n.tr(source == nil ? "Kaynak eklenemedi. Adresi ve giriş bilgilerini kontrol et." : "Kaynak güncellenemedi. Adresi ve giriş bilgilerini kontrol et.")
         }
     }
 }
 
-private struct ChannelListView: View {
+struct ChannelListView: View {
     let source: MediaSource
+    let onInitialContentReady: (() -> Void)?
+    let onOpenSettings: () -> Void
+    let onSelectSource: (UUID) -> Void
+    @ObservedObject private var library = SourceLibrary.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var channels: [MediaChannel] = []
     @State private var loading = true
     @State private var message: String?
     @State private var refreshID = UUID()
-    init(source: MediaSource) {
+    init(source: MediaSource, onInitialContentReady: (() -> Void)? = nil,
+         onOpenSettings: @escaping () -> Void, onSelectSource: @escaping (UUID) -> Void) {
         self.source = source
+        self.onInitialContentReady = onInitialContentReady
+        self.onOpenSettings = onOpenSettings
+        self.onSelectSource = onSelectSource
         let cached = SourceLibrary.shared.cachedChannels(for: source)
         _channels = State(initialValue: cached ?? [])
         _loading = State(initialValue: cached == nil)
@@ -879,16 +894,35 @@ private struct ChannelListView: View {
                     actions: { Button(L10n.tr("Yeniden dene")) { refreshID = UUID() }.buttonStyle(MirivoButtonStyle()) }
             } else {
                 ChannelBrowserView(channels: channels, title: source.name, sourceID: source.id,
-                                   playlistChannels: channels)
+                                   playlistChannels: channels, onOpenSettings: onOpenSettings)
             }
         }
         .background(MirrorStyle.background)
         .navigationTitle(source.name).navigationBarTitleDisplayMode(.inline)
+        .task(id: loading || onInitialContentReady == nil) {
+            guard !loading, let onInitialContentReady else { return }
+            await MediaArtworkStore.shared.prepareInitialArtwork(for: channels)
+            guard !Task.isCancelled else { return }
+            onInitialContentReady()
+        }
         .task(id: source) { await SourceLibrary.shared.accounts.refresh(for: source) }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await SourceLibrary.shared.accounts.refresh(for: source) } }
         }
         .toolbar(.visible, for: .navigationBar)
+        .toolbar {
+            if library.sources.count > 1 {
+                ToolbarTitleMenu {
+                    Picker(L10n.tr("Kaynaklar"), selection: Binding(get: { source.id }, set: onSelectSource)) {
+                        ForEach(library.sources) { source in
+                            Text(source.name).tag(source.id)
+                        }
+                    }
+                    .labelsHidden()
+                    .accessibilityIdentifier("source-switcher")
+                }
+            }
+        }
         .refreshable {
             async let accountRefresh: () = SourceLibrary.shared.accounts.refresh(for: source, force: true)
             do { channels = try await SourceLibrary.shared.channels(for: source, reload: true) }
@@ -1026,14 +1060,16 @@ struct ChannelBrowserView: View {
     var showsSearch = true
     var playlistChannels: [MediaChannel]?
     var onSelectChannel: ((MediaChannel) -> Void)?
+    var onOpenSettings: (() -> Void)?
     @State private var query = ""
     @State private var selectedSeason: Int
+    @State private var episodeMetadata: [String: MediaMetadata] = [:]
     @State private var playbackMessage: String?
     @State private var showingPlayer = false
     @AppStorage private var sortMode: MediaLibrarySort
-    @State private var addedDates: [String: Date] = [:]
-    @State private var loadingAddedDates = false
-    @State private var recencyUnavailable = false
+    // nil means the initial recency lookup is still unresolved. Do not show
+    // provider-ordered rows before the selected sort can be applied.
+    @State private var addedDates: [String: Date]?
     private var searchTerm: String { query.trimmingCharacters(in: .whitespacesAndNewlines) }
     private var filtered: [MediaChannel] {
         if searchTerm.isEmpty {
@@ -1048,6 +1084,10 @@ struct ChannelBrowserView: View {
     private let categories: [MediaChannelCategory]
     private let seriesCatalog: MediaSeriesCatalog
     private let series: MediaSeries?
+    private var episodeMetadataRequestID: [String] {
+        // Restoring a playback queue can add episodes to the same series.
+        [sourceID?.uuidString ?? "", series?.id ?? ""] + (series?.channels.map(\.id) ?? [])
+    }
     private let isMovieList: Bool
     private var filteredSeries: [MediaSeries] {
         let matches = searchTerm.isEmpty ? seriesCatalog.series : seriesCatalog.series.filter { item in
@@ -1063,9 +1103,11 @@ struct ChannelBrowserView: View {
         return sortedChannels(matches)
     }
     private var canSort: Bool { isMovieList && showsChannelRows }
-    private func addedDate(_ channel: MediaChannel) -> Date? { addedDates[channel.id] ?? channel.metadata.addedAt }
+    private var loadingAddedDates: Bool { canSort && sortMode == .recentlyAdded && addedDates == nil }
+    private var recencyUnavailable: Bool { addedDates != nil && channels.contains { addedDate($0) == nil } }
+    private func addedDate(_ channel: MediaChannel) -> Date? { addedDates?[channel.id] ?? channel.metadata.addedAt }
     private func sortedChannels(_ channels: [MediaChannel]) -> [MediaChannel] {
-        canSort ? sortMode.sorted(channels, title: { $0.title }, addedAt: addedDate) : channels
+        canSort && !loadingAddedDates ? sortMode.sorted(channels, title: { $0.title }, addedAt: addedDate) : channels
     }
 
     @ViewBuilder private var sortMenu: some View {
@@ -1097,10 +1139,11 @@ struct ChannelBrowserView: View {
     init(channels: [MediaChannel], title: String, sourceID: UUID? = nil, showsCategories: Bool = true,
          playlistChannels: [MediaChannel]? = nil, onSelectChannel: ((MediaChannel) -> Void)? = nil,
          series: MediaSeries? = nil, initialSeason: Int? = nil, showsSearch: Bool = true,
-         sortScope: String = "all") {
+         sortScope: String = "all", onOpenSettings: (() -> Void)? = nil) {
         self.channels = channels; self.title = title; self.sourceID = sourceID
         self.showsCategories = showsCategories; self.playlistChannels = playlistChannels
         self.onSelectChannel = onSelectChannel
+        self.onOpenSettings = onOpenSettings
         self.showsSearch = showsSearch
         let categories = showsCategories ? MediaChannelCategory.group(channels) : []
         self.categories = categories
@@ -1111,6 +1154,7 @@ struct ChannelBrowserView: View {
         let scope = [sourceID?.uuidString ?? "local", sortScope]
         let key = "library.movieSort." + scope.map { Data($0.utf8).base64EncodedString() }.joined(separator: ".")
         _sortMode = AppStorage(wrappedValue: .recentlyAdded, key)
+        _addedDates = State(initialValue: sourceID == nil || channels.allSatisfy { $0.metadata.addedAt != nil } ? [:] : nil)
         _selectedSeason = State(initialValue: initialSeason ?? series?.seasons.first?.number ?? 1)
         seriesCatalog = series == nil && (!showsCategories || !categories.contains(where: { !$0.name.isEmpty }))
             ? MediaSeriesCatalog(channels) : MediaSeriesCatalog([])
@@ -1129,11 +1173,20 @@ struct ChannelBrowserView: View {
         .navigationTitle(series != nil && onSelectChannel == nil ? "" : title).navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .toolbar {
-            if #available(iOS 26.0, *) {
-                ToolbarItem(placement: .topBarTrailing) { TVRouteStatusButton(model: .shared) }
-                    .sharedBackgroundVisibility(.hidden)
-            } else {
-                ToolbarItem(placement: .topBarTrailing) { TVRouteStatusButton(model: .shared) }
+            if onSelectChannel == nil || series == nil {
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .topBarTrailing) { TVRouteStatusButton(model: .shared) }
+                        .sharedBackgroundVisibility(.hidden)
+                    if let onOpenSettings {
+                        ToolbarItem(placement: .topBarTrailing) { MirivoSettingsButton(action: onOpenSettings) }
+                            .sharedBackgroundVisibility(.hidden)
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) { TVRouteStatusButton(model: .shared) }
+                    if let onOpenSettings {
+                        ToolbarItem(placement: .topBarTrailing) { MirivoSettingsButton(action: onOpenSettings) }
+                    }
+                }
             }
         }
         .scrollDismissesKeyboard(.interactively)
@@ -1157,18 +1210,33 @@ struct ChannelBrowserView: View {
             playbackMessage = message
             downloads.clearMessage()
         }
+        .task(id: episodeMetadataRequestID) {
+            episodeMetadata = [:]
+            guard let series, let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) else { return }
+            do {
+                let loaded = try await MediaMetadataLoader.episodes(source: source, channels: series.channels)
+                try Task.checkCancellation()
+                episodeMetadata = loaded
+            } catch {
+                // Names are optional. Keep the numbered, playable list visible
+                // on unsupported sources, offline, or after a provider failure.
+            }
+        }
         .task(id: "\(canSort)|\(sortMode.rawValue)") {
-            guard canSort, sortMode == .recentlyAdded else { return }
-            recencyUnavailable = false
+            guard canSort, sortMode == .recentlyAdded, addedDates == nil else { return }
             guard let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) else {
-                recencyUnavailable = channels.contains { !$0.isLive && addedDate($0) == nil }
+                addedDates = [:]
                 return
             }
-            loadingAddedDates = true
-            defer { loadingAddedDates = false }
-            do { addedDates = try await MediaMetadataLoader.addedDates(source: source, channels: playlistChannels ?? channels) }
-            catch { if Task.isCancelled { return } }
-            recencyUnavailable = channels.contains { !$0.isLive && addedDate($0) == nil }
+            do {
+                let dates = try await MediaMetadataLoader.addedDates(source: source, channels: channels)
+                try Task.checkCancellation()
+                addedDates = dates
+            } catch {
+                // Failed or unsupported lookups still reveal the provider list.
+                // A cancelled lookup remains unresolved so revisiting can retry.
+                if !Task.isCancelled { addedDates = [:] }
+            }
         }
     }
     private var categoryGrid: some View {
@@ -1235,16 +1303,18 @@ struct ChannelBrowserView: View {
     }
 
     private var seriesGrid: some View {
-        ScrollView {
+        let visibleSeries = filteredSeries
+        let visibleUngrouped = ungrouped
+        return ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
-                if !searchTerm.isEmpty && filteredSeries.isEmpty && ungrouped.isEmpty {
+                if !searchTerm.isEmpty && visibleSeries.isEmpty && visibleUngrouped.isEmpty {
                     searchEmptyState
                 }
-                if !filteredSeries.isEmpty {
-                    Text(String(format: L10n.tr("%d dizi"), filteredSeries.count))
+                if !visibleSeries.isEmpty {
+                    Text(String(format: L10n.tr("%d dizi"), visibleSeries.count))
                         .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 280 : 145), spacing: 18)], alignment: .leading, spacing: 24) {
-                        ForEach(filteredSeries) { item in
+                        ForEach(visibleSeries) { item in
                             NavigationLink {
                                 ChannelBrowserView(channels: item.channels, title: item.title, sourceID: sourceID,
                                                    showsCategories: false, playlistChannels: item.channels,
@@ -1262,9 +1332,9 @@ struct ChannelBrowserView: View {
                         }
                     }
                 }
-                if !ungrouped.isEmpty {
+                if !visibleUngrouped.isEmpty {
                     Text(L10n.tr("Diğer içerikler")).font(.headline).padding(.top, 8)
-                    ForEach(ungrouped) { channel in
+                    ForEach(visibleUngrouped) { channel in
                         channelRow(channel).padding(.horizontal, 16)
                             .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 20))
                     }
@@ -1287,77 +1357,95 @@ struct ChannelBrowserView: View {
     }
 
     private func seriesPage(_ series: MediaSeries) -> some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                if onSelectChannel == nil, let channel = series.artworkChannel {
-                    MediaDetailsView(channel: channel,
-                                     source: SourceLibrary.shared.sources.first { $0.id == sourceID },
-                                     series: series, playChannel: filtered.first,
-                                     onPlay: { if let first = filtered.first { selectChannel(first) } })
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    if series.seasons.count > 1 {
-                        ScrollView(.horizontal) {
-                            HStack(spacing: 24) {
-                                ForEach(series.seasons) { season in
-                                    Button {
-                                        selectedSeason = season.number
-                                    } label: {
-                                        Text(SeriesText.season(season.number))
-                                            .font(.headline)
-                                            .foregroundStyle(selectedSeason == season.number ? .white : MirrorStyle.secondary)
-                                            .padding(.vertical, 10)
-                                            .frame(minHeight: 44)
-                                            .overlay(alignment: .bottom) {
-                                                Capsule().fill(selectedSeason == season.number ? MirrorStyle.accent : .clear)
-                                                    .frame(height: 3)
-                                            }
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    if onSelectChannel == nil, let channel = series.artworkChannel {
+                        MediaDetailsView(channel: channel,
+                                         source: SourceLibrary.shared.sources.first { $0.id == sourceID },
+                                         series: series, playChannel: filtered.first,
+                                         onPlay: { if let first = filtered.first { selectChannel(first) } })
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        if series.seasons.count > 1 {
+                            ScrollView(.horizontal) {
+                                HStack(spacing: 24) {
+                                    ForEach(series.seasons) { season in
+                                        Button {
+                                            selectedSeason = season.number
+                                        } label: {
+                                            Text(SeriesText.season(season.number))
+                                                .font(.headline)
+                                                .foregroundStyle(selectedSeason == season.number ? .white : MirrorStyle.secondary)
+                                                .padding(.vertical, 10)
+                                                .frame(minHeight: 44)
+                                                .overlay(alignment: .bottom) {
+                                                    Capsule().fill(selectedSeason == season.number ? MirrorStyle.accent : .clear)
+                                                        .frame(height: 3)
+                                                }
+                                        }
+                                        .buttonStyle(.plain).accessibilityIdentifier("series-season-\(season.number)")
+                                        .accessibilityAddTraits(selectedSeason == season.number ? .isSelected : [])
                                     }
-                                    .buttonStyle(.plain).accessibilityIdentifier("series-season-\(season.number)")
-                                    .accessibilityAddTraits(selectedSeason == season.number ? .isSelected : [])
                                 }
                             }
+                            .scrollIndicators(.hidden)
+                            .overlay(alignment: .bottom) { Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5) }
                         }
-                        .scrollIndicators(.hidden)
-                        .overlay(alignment: .bottom) { Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5) }
-                    }
-                    HStack(alignment: .firstTextBaseline) {
-                        if series.seasons.count == 1 {
-                            Text(SeriesText.season(selectedSeason)).font(.title2.weight(.bold))
-                                .accessibilityAddTraits(.isHeader)
-                        }
-                        Spacer(minLength: 8)
-                        Text(String(format: L10n.tr("%d bölüm"), filtered.count))
-                            .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
-                    }.padding(.top, series.seasons.count == 1 ? 8 : 4).padding(.bottom, 2)
-                    LazyVStack(spacing: 0) {
-                        ForEach(filtered) { channel in
-                            SeriesEpisodeRow(channel: channel, play: { selectChannel(channel) }) {
-                                if channel.isDownloadableVideo { downloadControl(for: channel) }
+                        HStack(alignment: .firstTextBaseline) {
+                            if series.seasons.count == 1 {
+                                Text(SeriesText.season(selectedSeason)).font(.headline)
+                                    .accessibilityAddTraits(.isHeader)
+                            }
+                            Spacer(minLength: 8)
+                            Text(String(format: L10n.tr("%d bölüm"), filtered.count))
+                                .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
+                        }.padding(.top, series.seasons.count == 1 ? 8 : 4).padding(.bottom, 2)
+                        LazyVStack(spacing: 0) {
+                            ForEach(filtered) { channel in
+                                SeriesEpisodeRow(channel: channel, sourceID: sourceID, metadata: episodeMetadata[channel.id],
+                                                 play: { selectChannel(channel) }) {
+                                    if channel.isDownloadableVideo { downloadControl(for: channel, compact: true) }
+                                }
+                                .id(channel.id)
                             }
                         }
                     }
+                    .padding(.horizontal, 20).padding(.bottom, 12)
                 }
-                .padding(.horizontal, 24).padding(.bottom, 12)
+                .frame(maxWidth: 760).frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: 760).frame(maxWidth: .infinity)
+            .task(id: selectedSeason) {
+                let model = MirrorModel.shared
+                guard onSelectChannel != nil, model.playbackSourceID == sourceID,
+                      let current = model.selectedMediaChannel,
+                      filtered.contains(where: { $0.id == current.id }) else { return }
+                proxy.scrollTo(current.id, anchor: .center)
+            }
         }
         .accessibilityIdentifier("channel-list")
     }
 
     private var channelList: some View {
-        List {
+        let visibleChannels = filtered
+        return List {
             Section {
-                if !searchTerm.isEmpty && filtered.isEmpty {
+                if loadingAddedDates {
+                    ProgressView(L10n.tr("Kaynak yükleniyor…"))
+                        .tint(MirrorStyle.accent)
+                        .frame(maxWidth: .infinity).padding(.vertical, 32)
+                        .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                        .accessibilityIdentifier("library-sort-loading")
+                } else if !searchTerm.isEmpty && visibleChannels.isEmpty {
                     searchEmptyState
                         .listRowBackground(Color.clear).listRowSeparator(.hidden)
                 } else {
-                    ForEach(filtered) { channel in channelRow(channel) }
+                    ForEach(visibleChannels) { channel in channelRow(channel) }
                 }
             } header: {
-                if !filtered.isEmpty {
+                if !visibleChannels.isEmpty {
                     HStack {
-                        Text(series != nil ? String(format: L10n.tr("%d bölüm"), filtered.count) : String(format: L10n.tr("%d içerik"), filtered.count))
+                        Text(series != nil ? String(format: L10n.tr("%d bölüm"), visibleChannels.count) : String(format: L10n.tr("%d içerik"), visibleChannels.count))
                         Spacer(minLength: 8)
                         sortMenu
                     }.textCase(nil)
@@ -1413,7 +1501,7 @@ struct ChannelBrowserView: View {
             }.dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }.padding(.vertical, 8).listRowBackground(MirrorStyle.surface)
     }
-    @ViewBuilder private func downloadControl(for channel: MediaChannel) -> some View {
+    @ViewBuilder private func downloadControl(for channel: MediaChannel, compact: Bool = false) -> some View {
         if let item = downloads.items.first(where: { $0.assetKey == OfflineDownloadStore.assetKey(for: channel.url) }) {
             if item.state == .finished {
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(MirrorStyle.accent)
@@ -1441,13 +1529,15 @@ struct ChannelBrowserView: View {
                 }.buttonStyle(.plain).accessibilityLabel(L10n.tr("İndirme başarısız. Yeniden dene."))
             } else {
                 Button { startDownload(for: channel) } label: {
-                    Image(systemName: "arrow.down.circle").foregroundStyle(MirrorStyle.accent)
+                    Image(systemName: compact ? "arrow.down" : "arrow.down.circle")
+                        .foregroundStyle(compact ? MirrorStyle.secondary : MirrorStyle.accent)
                         .frame(width: 44, height: 44).contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityLabel(L10n.tr("Yeniden indir"))
             }
         } else {
             Button { startDownload(for: channel) } label: {
-                Image(systemName: "arrow.down.circle").font(.title3).foregroundStyle(MirrorStyle.accent)
+                Image(systemName: compact ? "arrow.down" : "arrow.down.circle").font(compact ? .body : .title3)
+                    .foregroundStyle(compact ? MirrorStyle.secondary : MirrorStyle.accent)
                     .frame(width: 44, height: 44).contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityLabel(L10n.tr("İndir"))
                 .accessibilityIdentifier("download-" + OfflineDownloadStore.assetKey(for: channel.url))
@@ -2147,9 +2237,13 @@ struct RemotePlaybackPanel: View {
                 }.accessibilityIdentifier("player-channel-picker")
                 Spacer(minLength: 0)
                 if model.playbackQueue.count > 1 {
-                    Button { model.switchChannel(-1) } label: { Image(systemName: "backward.end.fill").frame(width: 44, height: 44) }
+                    Button { model.switchChannel(-1) } label: {
+                        Image(systemName: "backward.end.fill").frame(width: 44, height: 44).contentShape(Rectangle())
+                    }
                         .disabled(model.adjacentChannel(-1) == nil).accessibilityLabel(L10n.tr("Önceki bölüm")).accessibilityIdentifier("previous-episode")
-                    Button { model.switchChannel(1) } label: { Image(systemName: "forward.end.fill").frame(width: 44, height: 44) }
+                    Button { model.switchChannel(1) } label: {
+                        Image(systemName: "forward.end.fill").frame(width: 44, height: 44).contentShape(Rectangle())
+                    }
                         .disabled(model.adjacentChannel(1) == nil).accessibilityLabel(L10n.tr("Sonraki bölüm")).accessibilityIdentifier("next-episode")
                 }
                 if playback.canAdjustRemoteVideoDisplayMode {
@@ -3184,7 +3278,7 @@ private struct PlaybackQueueSheet: View {
                                showsSearch: currentSeries == nil,
                                sortScope: "playback:" + (model.selectedMediaChannel?.group ?? ""))
                     .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
+                        ToolbarItem(placement: .topBarTrailing) {
                             Button(L10n.tr("Kapat"), systemImage: "xmark") { dismiss() }
                                 .labelStyle(.iconOnly).accessibilityIdentifier("close-playback-queue")
                         }

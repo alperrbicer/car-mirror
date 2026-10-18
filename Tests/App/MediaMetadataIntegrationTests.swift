@@ -3,6 +3,55 @@ import CryptoKit
 @testable import CarMirror
 
 final class MediaMetadataIntegrationTests: XCTestCase {
+    func testEpisodeNamesLoadAsOneVerifiedBatchAndShareRequestsWithHero() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in
+            try await Task.sleep(for: .milliseconds(20))
+            return try await fixture.fetch(url)
+        })
+        let secret = SourceSecret(url: URL(string: "https://provider.example/get.php?username=u&password=p")!)
+        func channel(_ id: Int, episode: Int, account: String = "u/p", title: String = "Coast Stories EXXEN", route: String = "series") -> MediaChannel {
+            MediaChannel(title: "\(title) S01-E0\(episode)", url: URL(string: "https://cdn.example/\(route)/\(account)/\(id).mp4")!)
+        }
+        let channels = [channel(987, episode: 1), channel(988, episode: 2), channel(989, episode: 3),
+                        channel(987, episode: 1, account: "other/account"), channel(987, episode: 1, title: "Other show", route: "movie"),
+                        channel(999, episode: 4)]
+        async let names = loader.episodes(kind: .playlist, secret: secret, channels: channels)
+        async let hero = loader.load(kind: .playlist, secret: secret, channel: channels[0], seriesOnly: true)
+        let (episodes, metadata) = try await (names, hero)
+        XCTAssertEqual(episodes.count, 3)
+        XCTAssertEqual(episodes[channels[0].id]?.episodeTitle, "Homecoming")
+        XCTAssertNil(episodes[channels[1].id]?.episodeTitle)
+        XCTAssertEqual(episodes[channels[2].id]?.episodeTitle, "A New Day")
+        XCTAssertEqual(episodes[channels[0].id]?.duration, 1980)
+        XCTAssertNil(episodes[channels[3].id])
+        XCTAssertNil(episodes[channels[4].id])
+        XCTAssertNil(episodes[channels[5].id])
+        XCTAssertEqual(metadata?.summary, "General series synopsis")
+        XCTAssertNil(metadata?.episodeTitle)
+        _ = try await loader.episodes(kind: .playlist, secret: secret, channels: channels)
+        let requests = await fixture.requests
+        XCTAssertEqual(requests.filter { $0 == "get_series" }.count, 1)
+        XCTAssertEqual(requests.filter { $0 == "get_series_info:99" }.count, 1)
+        XCTAssertEqual(requests.filter { $0 == "get_series_info:42" }.count, 1)
+    }
+
+    func testEpisodeNameFailuresAreRetryableAndUnsupportedSourcesKeepNumberFallback() async throws {
+        let fixture = MetadataFixture()
+        let loader = MediaMetadataLoader(fetch: { url, _ in try await fixture.fetch(url) })
+        let secret = SourceSecret(url: URL(string: "https://provider.example/get.php?username=u&password=p")!)
+        let episode = MediaChannel(title: "Coast Stories EXXEN S01E01", url: URL(string: "https://provider.example/series/u/p/987.mp4")!)
+        let unsupported = try await loader.episodes(kind: .stream, secret: secret, channels: [episode])
+        XCTAssertTrue(unsupported.isEmpty)
+        await fixture.failNextSeriesInfo()
+        do {
+            _ = try await loader.episodes(kind: .playlist, secret: secret, channels: [episode])
+            XCTFail("The failed request should remain retryable")
+        } catch { XCTAssertTrue(error is URLError) }
+        let retried = try await loader.episodes(kind: .playlist, secret: secret, channels: [episode])
+        XCTAssertEqual(retried[episode.id]?.episodeTitle, "Homecoming")
+    }
+
     func testRecencyCatalogMatchesOnlyMovieIDsFromTheSavedAccount() async throws {
         let loader = MediaMetadataLoader(fetch: { url, limit in
             XCTAssertEqual(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "action" }?.value, "get_vod_streams")
@@ -255,12 +304,18 @@ final class MediaMetadataIntegrationTests: XCTestCase {
 
 private actor MetadataFixture {
     private(set) var requests: [String] = []
+    private var shouldFailSeriesInfo = false
+    func failNextSeriesInfo() { shouldFailSeriesInfo = true }
 
     func fetch(_ url: URL) throws -> MediaMetadataLoader.Response {
         let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
         let action = query.first(where: { $0.name == "action" })?.value ?? ""
         let id = query.first(where: { $0.name == "series_id" || $0.name == "vod_id" })?.value
         requests.append(action + (id.map { ":" + $0 } ?? ""))
+        if action == "get_series_info", id == "42", shouldFailSeriesInfo {
+            shouldFailSeriesInfo = false
+            throw URLError(.cannotConnectToHost)
+        }
         let json: String
         switch (action, id) {
         case ("get_series", _):
@@ -268,7 +323,7 @@ private actor MetadataFixture {
         case ("get_series_info", "99"):
             json = #"{"info":{"plot":"Wrong series"},"episodes":{"1":[{"id":111,"info":{"plot":"Wrong episode"}}]}}"#
         case ("get_series_info", "42"):
-            json = #"{"info":{"plot":"General series synopsis"},"episodes":{"1":[{"id":"987","info":{"duration_secs":"1980"}},{"id":"988","info":{"plot":"Episode two synopsis"}},{"id":"989","description":"Episode three synopsis","info":{"plot":"null","duration_secs":"2028","rating":"7.8"}}]}}"#
+            json = #"{"info":{"plot":"General series synopsis"},"episodes":{"1":[{"id":"987","title":"Homecoming","info":{"duration_secs":"1980"}},{"id":"988","info":{"plot":"Episode two synopsis"}},{"id":"989","description":"Episode three synopsis","info":{"title":"A New Day","plot":"null","duration_secs":"2028","rating":"7.8"}}]}}"#
         case ("get_vod_info", "123"):
             json = #"{"info":{"description":"Film synopsis"}}"#
         case ("get_vod_info", "125"):

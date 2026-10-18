@@ -33,6 +33,35 @@ public struct MediaEpisode: Equatable, Sendable {
         }
         return nil
     }
+
+    /// A playlist suffix is also a provider-supplied name. Keep playback identity
+    /// unchanged and normalize only the label presented in the episode list.
+    public func resolvedTitle(providerTitle: String?) -> String? {
+        meaningfulTitle(providerTitle) ?? meaningfulTitle(title)
+    }
+
+    private func meaningfulTitle(_ raw: String?) -> String? {
+        guard let clean = MediaMetadata(episodeTitle: raw).episodeTitle else { return nil }
+        var value = clean.split(whereSeparator: \.isWhitespace).joined(separator: " ")
+        let separators = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "._-[]:–—"))
+        let generic = #"(?i)^(?:(?:episode|ep|b[oö]l[uü]m)\s*[-.:]?\s*\d+|\d+\.?\s*(?:episode|b[oö]l[uü]m)|s\d+[\s._-]*e\d+|\d+x\d+|(?:4k|uhd|fhd|hd|sd|\d{3,4}p))$"#
+        if let parsed = Self.parse(value) {
+            guard parsed.season == season, parsed.number == number, let name = parsed.title else { return nil }
+            value = name
+        } else if let prefix = value.range(of: seriesTitle, options: [.anchored, .caseInsensitive, .diacriticInsensitive]),
+                  prefix.upperBound == value.endIndex || value[prefix.upperBound].unicodeScalars.allSatisfy({ separators.contains($0) }) {
+            let suffix = String(value[prefix.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !suffix.isEmpty, suffix.range(of: generic, options: .regularExpression) == nil else { return nil }
+            // A real name such as "Dark Secrets" on the series "Dark" must
+            // keep its first word. Strip the series only across punctuation.
+            if let first = suffix.unicodeScalars.first, separators.contains(first) {
+                value = suffix.trimmingCharacters(in: separators)
+            }
+        }
+        guard !value.isEmpty, Int(value) != number,
+              value.range(of: generic, options: .regularExpression) == nil else { return nil }
+        return value
+    }
 }
 
 public struct MediaSeriesSeason: Identifiable, Equatable, Sendable {

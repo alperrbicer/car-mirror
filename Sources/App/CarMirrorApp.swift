@@ -33,6 +33,12 @@ struct CarMirrorApp: App {
                 if ProcessInfo.processInfo.arguments.contains("-mirivo-ui-artwork-history") {
                     seedArtworkContinuationTestData()
                 }
+                if let mode = ProcessInfo.processInfo.environment["MIRIVO_UI_SORT_FIXTURE"],
+                   ["delayed", "failed", "missing", "embedded"].contains(mode) {
+                    try? SourceLibrary.shared.add(name: "Görsel Kitaplık", kind: .playlist,
+                        secret: SourceSecret(url: URL(string: "http://127.0.0.1:8776/sort-\(mode)/get.php?username=artwork&password=fixture&type=m3u_plus")!),
+                        access: ProductAccess(salesEnabled: false, verifiedPro: false))
+                }
             }
             SharedPreferences.defaults.removeObject(forKey: "language")
         }

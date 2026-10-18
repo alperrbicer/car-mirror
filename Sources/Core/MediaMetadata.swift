@@ -11,10 +11,11 @@ public struct MediaMetadata: Codable, Equatable, Sendable {
     public let director: String?
     public let cast: String?
     public let addedAt: Date?
+    public let episodeTitle: String?
 
     public init(artworkURL: URL? = nil, summary: String? = nil, genre: String? = nil,
                 year: String? = nil, duration: Double? = nil, rating: Double? = nil,
-                director: String? = nil, cast: String? = nil, addedAt: Date? = nil) {
+                director: String? = nil, cast: String? = nil, addedAt: Date? = nil, episodeTitle: String? = nil) {
         self.artworkURL = artworkURL.flatMap { try? MediaURL.validate($0.absoluteString) }
         self.summary = Self.clean(summary, limit: 6_000)
         self.genre = Self.clean(genre, limit: 200)
@@ -25,13 +26,14 @@ public struct MediaMetadata: Codable, Equatable, Sendable {
         self.director = Self.clean(director, limit: 300)
         self.cast = Self.clean(cast, limit: 1_000)
         self.addedAt = addedAt.flatMap { $0.timeIntervalSince1970.isFinite && $0.timeIntervalSince1970 > 0 ? $0 : nil }
+        self.episodeTitle = Self.clean(episodeTitle, limit: 200)
     }
 
     public func merging(_ other: Self) -> Self {
         Self(artworkURL: other.artworkURL ?? artworkURL, summary: other.summary ?? summary,
              genre: other.genre ?? genre, year: other.year ?? year, duration: other.duration ?? duration,
              rating: other.rating ?? rating, director: other.director ?? director, cast: other.cast ?? cast,
-             addedAt: other.addedAt ?? addedAt)
+             addedAt: other.addedAt ?? addedAt, episodeTitle: other.episodeTitle ?? episodeTitle)
     }
 
     public static func addedDate(_ value: String?) -> Date? {
@@ -184,6 +186,13 @@ public struct SeriesMetadataCandidate: Equatable, Sendable {
     public let metadata: MediaMetadata
 }
 
+public struct SeriesMetadataInfo: Sendable {
+    public let metadata: MediaMetadata
+    /// Episode-only fields, keyed by provider stream ID. Series duration/artwork
+    /// must not be mistaken for an individual episode's duration/still.
+    public let episodes: [String: MediaMetadata]
+}
+
 public enum SeriesMetadataParser {
     public static let maximumCatalogBytes = 8 * 1_024 * 1_024
     public static let maximumInfoBytes = 2 * 1_024 * 1_024
@@ -217,6 +226,12 @@ public enum SeriesMetadataParser {
     }
 
     public static func parseInfo(_ data: Data, episodeID: String, baseURL: URL, includeEpisode: Bool = true) throws -> MediaMetadata? {
+        let info = try parseEpisodes(data, baseURL: baseURL)
+        guard let episode = info.episodes[episodeID] else { return nil }
+        return includeEpisode ? info.metadata.merging(episode) : info.metadata
+    }
+
+    public static func parseEpisodes(_ data: Data, baseURL: URL) throws -> SeriesMetadataInfo {
         guard data.count <= maximumInfoBytes else { throw LibraryError.tooLarge }
         guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let info = root["info"] as? [String: Any] else { throw LibraryError.invalidResponse }
@@ -224,17 +239,22 @@ public enum SeriesMetadataParser {
         if let groups = root["episodes"] as? [String: Any] { seasons = Array(groups.values) }
         else if let groups = root["episodes"] as? [Any] { seasons = groups }
         else { throw LibraryError.invalidResponse }
+        var result: [String: MediaMetadata] = [:]
         for season in seasons {
             guard let episodes = season as? [[String: Any]] else { continue }
-            for episode in episodes where VODMetadataParser.text(episode, "id", "stream_id") == episodeID {
-                let series = VODMetadataParser.metadata(info, baseURL: baseURL)
-                guard includeEpisode else { return series }
+            for episode in episodes {
+                guard let id = VODMetadataParser.text(episode, "id", "stream_id"),
+                      XtreamEndpoint.validMetadataID(id), result[id] == nil else { continue }
+                let episodeInfo = episode["info"] as? [String: Any] ?? [:]
+                let title = [VODMetadataParser.text(episode, "title"), VODMetadataParser.text(episode, "name"),
+                             VODMetadataParser.text(episodeInfo, "title"), VODMetadataParser.text(episodeInfo, "name")]
+                    .compactMap { MediaMetadata(episodeTitle: $0).episodeTitle }.first
                 let details = VODMetadataParser.metadata(episode, baseURL: baseURL)
-                    .merging(VODMetadataParser.metadata(episode["info"] as? [String: Any] ?? [:], baseURL: baseURL))
-                return series.merging(details)
+                    .merging(VODMetadataParser.metadata(episodeInfo, baseURL: baseURL))
+                result[id] = details.merging(MediaMetadata(episodeTitle: title))
             }
         }
-        return nil
+        return SeriesMetadataInfo(metadata: VODMetadataParser.metadata(info, baseURL: baseURL), episodes: result)
     }
 
     // Tolerate small provider spelling differences (for example Cafe / Kafe).

@@ -35,6 +35,12 @@ The catalog exercises category collages, artwork rows, search, on-demand Xtream 
 details, unavailable images/metadata, and accessibility text sizes. No demo media
 or test account is added to the shipping app.
 
+The `testMovieList…` sorting tests use a separate instance on port 8776:
+`MIRIVO_FIXTURE_PORT=8776 python3 scripts/capture_store_screenshots.py`.
+Its `/sort-{delayed,failed,missing,embedded}/get.php` lists exercise a six-second
+recency response, cached reopening, an HTTP error, missing dates, and dates already
+included in the playlist. Film rows must wait for the initial recency result.
+
 Metadata coverage also uses an ordinary `/catalog.m3u` URL, with no API credentials
 in the playlist address. The stream routes identify the movie/series API account.
 The fixture verifies general series descriptions, episode-specific descriptions,

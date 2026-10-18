@@ -2,6 +2,25 @@ import XCTest
 @testable import MirrorCore
 
 final class PersonalMediaTests: XCTestCase {
+    func testClassificationPreservesProviderRoutesAndSignedMediaURLs() throws {
+        let cases: [(String, String, Bool, Bool, Bool, Bool)] = [
+            ("https://example.com/LIVE/u/p/1.mp4", "TV", true, false, false, false),
+            ("https://example.com/movie/u/p/2.m3u8", "Movie", false, false, true, true),
+            ("https://example.com/SERIES/u/p/3.MKV", "Episode", false, false, true, false),
+            ("https://example.com/4.mp4?redirect=/live/5.ts", "Movie", false, false, true, true),
+            ("https://example.com/5.MP3?token=abc", "Audio", false, true, false, false),
+            ("https://example.com/6.m3u8", "TV", true, false, false, false),
+            ("https://example.com/7.mp4", "Coast S01E02", false, false, true, false)
+        ]
+        for (url, title, live, audio, downloadable, movie) in cases {
+            let channel = MediaChannel(title: title, url: try XCTUnwrap(URL(string: url)))
+            XCTAssertEqual(channel.isLive, live, url)
+            XCTAssertEqual(channel.isAudio, audio, url)
+            XCTAssertEqual(channel.isDownloadableVideo, downloadable, url)
+            XCTAssertEqual(channel.isMovie, movie, url)
+        }
+    }
+
     func testLocalAndAudioMediaAreNeverAdvertisedAsLiveStreams() throws {
         for ext in ["mp4", "MOV", "mkv", "mp3", "m4a", "aac", "wav", "flac", "ogg", "opus"] {
             let channel = MediaChannel(title: "Test", url: URL(fileURLWithPath: "/tmp/test.\(ext)"))

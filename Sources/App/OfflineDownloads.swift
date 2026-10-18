@@ -56,6 +56,56 @@ enum OfflineDownloadError: LocalizedError {
 }
 
 @MainActor
+final class OfflineDownloadPreparation {
+    private var tasks: [UUID: Task<AVURLAsset, Error>] = [:]
+
+    func asset(id: UUID, url: URL,
+               load: @escaping @MainActor (URL) async throws -> AVURLAsset = { url in
+        let asset = AVURLAsset(url: url)
+        async let playable = asset.load(.isPlayable)
+        async let protected = asset.load(.hasProtectedContent)
+        async let duration = asset.load(.duration)
+        guard try await playable else { throw OfflineDownloadError.unavailable }
+        guard try await !protected else { throw OfflineDownloadError.protected }
+        let time = try await duration
+        guard time.isNumeric, time.seconds.isFinite, time.seconds > 0 else { throw OfflineDownloadError.liveStream }
+        return asset
+    }) async throws -> AVURLAsset {
+        let task = Task { try await load(url) }
+        tasks[id] = task
+        defer { tasks[id] = nil }
+        return try await withTaskCancellationHandler {
+            do {
+                let asset = try await task.value
+                try Task.checkCancellation()
+                guard !task.isCancelled else { throw CancellationError() }
+                return asset
+            } catch {
+                if Task.isCancelled || task.isCancelled { throw CancellationError() }
+                throw error
+            }
+        } onCancel: { task.cancel() }
+    }
+
+    func cancel(_ id: UUID) { tasks.removeValue(forKey: id)?.cancel() }
+}
+
+/// Gate delegate callbacks before hopping to the UI actor. Completion is always
+/// delivered separately, so throttling cannot hide a finished download.
+final class OfflineProgressUpdates: @unchecked Sendable {
+    private let lock = NSLock()
+    private var last: [UUID: (time: TimeInterval, progress: Double)] = [:]
+    func accepts(_ progress: Double, id: UUID, now: TimeInterval = ProcessInfo.processInfo.systemUptime) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        guard progress.isFinite else { return false }
+        if let previous = last[id], progress == previous.progress || now - previous.time < 0.25 { return false }
+        last[id] = (now, progress)
+        return true
+    }
+    func remove(_ id: UUID) { lock.lock(); last[id] = nil; lock.unlock() }
+}
+
+@MainActor
 final class OfflineDownloadStore: NSObject, ObservableObject {
     static let shared = OfflineDownloadStore()
     @Published private(set) var items: [OfflineDownload] = []
@@ -68,6 +118,8 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
     private var session: AVAssetDownloadURLSession!
     private var fileSession: URLSession!
     private var tasksByDownloadID: [UUID: URLSessionTask] = [:]
+    private let preparation = OfflineDownloadPreparation()
+    private let progressUpdates = OfflineProgressUpdates()
     private var backgroundCompletionHandlers: [String: () -> Void] = [:]
 
     private override init() {
@@ -111,9 +163,6 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
             self.persist()
         }
     }
-
-    var finishedItems: [OfflineDownload] { items.filter { $0.localURL != nil } }
-    var activeItems: [OfflineDownload] { items.filter { $0.state == .preparing || $0.state == .downloading } }
 
     func clearMessage() {
         message = nil
@@ -171,14 +220,8 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
         persist()
         do {
             if hls {
-                let asset = AVURLAsset(url: channel.url)
-                async let playable = asset.load(.isPlayable)
-                async let protected = asset.load(.hasProtectedContent)
-                async let duration = asset.load(.duration)
-                guard try await playable else { throw OfflineDownloadError.unavailable }
-                guard try await !protected else { throw OfflineDownloadError.protected }
-                let time = try await duration
-                guard time.isNumeric, time.seconds.isFinite, time.seconds > 0 else { throw OfflineDownloadError.liveStream }
+                let asset = try await preparation.asset(id: entry.id, url: channel.url)
+                guard items.contains(where: { $0.id == entry.id && $0.state == .preparing }) else { return }
                 let configuration = AVAssetDownloadConfiguration(asset: asset, title: channel.title)
                 let task = session.makeAssetDownloadTask(downloadConfiguration: configuration)
                 task.taskDescription = entry.id.uuidString
@@ -218,12 +261,16 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
     }
 
     func cancel(_ item: OfflineDownload) {
+        preparation.cancel(item.id)
+        progressUpdates.remove(item.id)
         tasksByDownloadID.removeValue(forKey: item.id)?.cancel()
         items.removeAll { $0.id == item.id }
         persist()
     }
 
     func delete(_ item: OfflineDownload) {
+        preparation.cancel(item.id)
+        progressUpdates.remove(item.id)
         tasksByDownloadID.removeValue(forKey: item.id)?.cancel()
         if let path = item.packagePath { try? FileManager.default.removeItem(atPath: path) }
         items.removeAll { $0.id == item.id }
@@ -233,7 +280,7 @@ final class OfflineDownloadStore: NSObject, ObservableObject {
     nonisolated static func assetKey(for url: URL) -> String {
         SHA256.hash(data: Data(url.absoluteString.utf8)).map { String(format: "%02x", $0) }.joined()
     }
-    private static func downloadID(from description: String?) -> UUID? {
+    nonisolated private static func downloadID(from description: String?) -> UUID? {
         guard let value = description?.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false).first else { return nil }
         return UUID(uuidString: String(value))
     }
@@ -266,6 +313,7 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
             item.packagePath = location.path
             item.state = .finished
             item.progress = 1
+            progressUpdates.remove(id)
             var values = URLResourceValues()
             values.isExcludedFromBackup = true
             var protectedURL = location
@@ -282,8 +330,11 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
         let loaded = loadedTimeRanges.map { $0.timeRangeValue.duration.seconds }.filter(\.isFinite).reduce(0, +)
         let expected = timeRangeExpectedToLoad.duration.seconds
         let progress = expected > 0 ? min(0.99, max(0, loaded / expected)) : 0
+        guard let id = Self.downloadID(from: assetDownloadTask.taskDescription), progressUpdates.accepts(progress, id: id) else { return }
         Task { @MainActor in
-            guard let id = Self.downloadID(from: assetDownloadTask.taskDescription), var item = items.first(where: { $0.id == id }) else { return }
+            guard var item = items.first(where: { $0.id == id && $0.state == .downloading }) else {
+                progressUpdates.remove(id); return
+            }
             item.progress = progress
             replace(item)
         }
@@ -294,8 +345,11 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
                                 totalBytesExpectedToWrite: Int64) {
         guard totalBytesExpectedToWrite > 0 else { return }
         let progress = min(0.99, max(0, Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)))
+        guard let id = Self.downloadID(from: downloadTask.taskDescription), progressUpdates.accepts(progress, id: id) else { return }
         Task { @MainActor in
-            guard let id = Self.downloadID(from: downloadTask.taskDescription), var item = items.first(where: { $0.id == id }) else { return }
+            guard var item = items.first(where: { $0.id == id && $0.state == .downloading }) else {
+                progressUpdates.remove(id); return
+            }
             item.progress = progress
             replace(item)
         }
@@ -340,6 +394,7 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
             item.packagePath = destination.path
             item.state = .finished
             item.progress = 1
+            progressUpdates.remove(id)
             item.taskIdentifier = nil
             replace(item)
             tasksByDownloadID.removeValue(forKey: id)
@@ -354,6 +409,7 @@ extension OfflineDownloadStore: AVAssetDownloadDelegate, URLSessionDownloadDeleg
 
     private func fail(downloadID: UUID?, message: String = OfflineDownloadError.unavailable.localizedDescription) {
         guard let downloadID, var item = items.first(where: { $0.id == downloadID }) else { return }
+        progressUpdates.remove(downloadID)
         item.state = .failed
         item.taskIdentifier = nil
         item.failureMessage = message

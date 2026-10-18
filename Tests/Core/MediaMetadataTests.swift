@@ -2,6 +2,30 @@ import XCTest
 @testable import MirrorCore
 
 final class MediaMetadataTests: XCTestCase {
+    func testEpisodeBatchKeepsTitlesAndDurationsSeparateFromSeriesMetadata() throws {
+        let data = Data(#"{"info":{"name":"Series title","duration_secs":9999,"plot":"Series synopsis"},"episodes":{"1":[{"id":201,"title":"<b>Yeni &amp; Güzel</b>","info":{"duration_secs":"1980"}},{"id":"202","title":"null","info":{"name":"Yol Ayrımı","duration_secs":2040}},{"id":"210","title":"   ","info":{}},{"id":"invalid","title":"Discard"},{"id":"201","title":"Duplicate"}],"2":[{"stream_id":221,"name":"Yeni Sezon"}]}}"#.utf8)
+        let batch = try SeriesMetadataParser.parseEpisodes(data, baseURL: base)
+        XCTAssertEqual(batch.episodes.count, 4)
+        XCTAssertEqual(batch.episodes["201"]?.episodeTitle, "Yeni & Güzel")
+        XCTAssertEqual(batch.episodes["201"]?.duration, 1980)
+        XCTAssertEqual(batch.episodes["202"]?.episodeTitle, "Yol Ayrımı")
+        XCTAssertNil(batch.episodes["210"]?.episodeTitle)
+        XCTAssertNil(batch.episodes["210"]?.duration, "A series duration is not an episode duration")
+        XCTAssertEqual(batch.episodes["221"]?.episodeTitle, "Yeni Sezon")
+        XCTAssertNil(batch.metadata.episodeTitle)
+        XCTAssertNil(try SeriesMetadataParser.parseInfo(data, episodeID: "201", baseURL: base, includeEpisode: false)?.episodeTitle)
+        XCTAssertEqual(try SeriesMetadataParser.parseInfo(data, episodeID: "201", baseURL: base)?.episodeTitle, "Yeni & Güzel")
+    }
+
+    func testEpisodeTitlesDecodeOlderCachesAndRoundTripNewMetadata() throws {
+        let legacy = try JSONDecoder().decode(MediaMetadata.self, from: Data(#"{"summary":"Old synopsis","duration":1200}"#.utf8))
+        XCTAssertNil(legacy.episodeTitle)
+        let updated = legacy.merging(MediaMetadata(episodeTitle: "Yeni Başlangıç"))
+        XCTAssertEqual(updated.summary, "Old synopsis")
+        XCTAssertEqual(updated.duration, 1200)
+        XCTAssertEqual(try JSONDecoder().decode(MediaMetadata.self, from: JSONEncoder().encode(updated)), updated)
+    }
+
     private let base = URL(string: "https://provider.example/list.m3u")!
 
     func testTurkishSeriesNamesMatchASCIIPlaylistTitles() throws {

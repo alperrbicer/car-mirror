@@ -37,28 +37,13 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
     public let url: URL
     public let metadata: MediaMetadata
     public let episode: MediaEpisode?
-    public var requiresCompatibilityPlayback: Bool {
-        ["mkv", "webm", "avi", "ts", "flac", "ogg", "opus"].contains(url.pathExtension.lowercased())
-    }
-    public var isAudio: Bool {
-        ["mp3", "m4a", "aac", "wav", "aif", "aiff", "flac", "ogg", "opus"].contains(url.pathExtension.lowercased())
-    }
-    public var isLive: Bool {
-        // Xtream uses the same HLS extension for live channels and can use
-        // container formats such as MKV for VOD. Prefer its route metadata
-        // over the extension when it is present.
-        let route = Set(url.pathComponents.map { $0.lowercased() })
-        if route.contains("live") { return true }
-        if route.contains("movie") || route.contains("series") { return false }
-        return !url.isFileURL && !isAudio && !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(url.pathExtension.lowercased())
-    }
-    public var isDownloadableVideo: Bool {
-        !isLive && ["m3u8", "mp4", "m4v", "mov", "mkv", "avi", "webm"].contains(url.pathExtension.lowercased())
-    }
-    public var isMovie: Bool {
-        !isLive && !isAudio && episode == nil &&
-            !url.pathComponents.contains { $0.lowercased() == "series" }
-    }
+    // The URL and title are immutable. Classify once instead of reparsing the
+    // same URL in every sort comparison, row redraw and CarPlay selection.
+    public let requiresCompatibilityPlayback: Bool
+    public let isAudio: Bool
+    public let isLive: Bool
+    public let isDownloadableVideo: Bool
+    public let isMovie: Bool
     public init(title: String, group: String = "", url: URL, metadata: MediaMetadata = MediaMetadata()) {
         self.id = url.absoluteString
         self.title = String(title.prefix(200))
@@ -66,6 +51,23 @@ public struct MediaChannel: Identifiable, Equatable, Sendable {
         self.url = url
         self.metadata = metadata
         self.episode = MediaEpisode.parse(self.title)
+        let ext = url.pathExtension.lowercased()
+        var liveRoute = false, movieRoute = false, seriesRoute = false
+        for component in url.pathComponents {
+            switch component.lowercased() {
+            case "live": liveRoute = true
+            case "movie": movieRoute = true
+            case "series": seriesRoute = true
+            default: break
+            }
+        }
+        requiresCompatibilityPlayback = ["mkv", "webm", "avi", "ts", "flac", "ogg", "opus"].contains(ext)
+        isAudio = ["mp3", "m4a", "aac", "wav", "aif", "aiff", "flac", "ogg", "opus"].contains(ext)
+        if liveRoute { isLive = true }
+        else if movieRoute || seriesRoute { isLive = false }
+        else { isLive = !url.isFileURL && !isAudio && !["mkv", "mp4", "m4v", "mov", "avi", "webm"].contains(ext) }
+        isDownloadableVideo = !isLive && ["m3u8", "mp4", "m4v", "mov", "mkv", "avi", "webm"].contains(ext)
+        isMovie = !isLive && !isAudio && episode == nil && !seriesRoute
     }
 }
 

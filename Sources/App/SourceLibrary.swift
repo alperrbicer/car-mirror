@@ -210,9 +210,8 @@ final class SourceLibrary: ObservableObject {
     }
     func delete(_ source: MediaSource) throws {
         let oldSecret = try? SourceKeychain.read(source.id)
-        try SourceKeychain.delete(source.id)
         let next = sources.filter { $0.id != source.id }
-        try persist(next); sources = next
+        try removeSources([source], keeping: next)
         channelCache.invalidate(source.id)
         accounts.invalidate(source.id)
         if tracksUserHistory {
@@ -255,12 +254,32 @@ final class SourceLibrary: ObservableObject {
     }
     func clear() throws {
         let previousFiles = sources.compactMap { try? SourceKeychain.read($0.id).url }
-        for source in sources { try SourceKeychain.delete(source.id) }
-        try persist([]); sources = []
+        try removeSources(sources, keeping: [])
         channelCache.removeAll()
         accounts.removeAll()
-        if tracksUserHistory { MirrorModel.shared.discardLastPlayback(); try MediaFavorites.shared.clear() }
+        if tracksUserHistory {
+            MediaArtworkStore.shared.removeAll()
+            MirrorModel.shared.discardLastPlayback()
+            try MediaFavorites.shared.clear()
+        }
         for url in previousFiles { removeImportedPlaylist(url) }
+    }
+
+    private func removeSources(_ removed: [MediaSource], keeping next: [MediaSource]) throws {
+        let previous = sources
+        let secrets = removed.compactMap { source -> (UUID, SourceSecret)? in
+            (try? SourceKeychain.read(source.id)).map { (source.id, $0) }
+        }
+        // Disk-full / protection failures must leave credentials untouched.
+        try persist(next)
+        do {
+            for source in removed { try SourceKeychain.delete(source.id) }
+        } catch {
+            for (id, secret) in secrets { try? SourceKeychain.save(secret, id: id) }
+            try persist(previous)
+            throw error
+        }
+        sources = next
     }
     /// Copy a user-selected file while its security scope is open. The saved source never
     /// depends on a temporary picker URL or on the original remaining in iCloud Drive.
@@ -485,13 +504,20 @@ final class SourceChannelCache {
         let channels: [Channel]
     }
     private var values: [UUID: (source: MediaSource, channels: [MediaChannel], savedAt: Date)] = [:]
+    private var accesses: [UUID: UInt64] = [:]
+    private var accessCounter: UInt64 = 0
+    private let maximumMemorySources: Int
+    private let maximumMemoryChannels: Int
     private var pending: [UUID: (token: UUID, source: MediaSource, task: Task<[MediaChannel], Error>)] = [:]
     private var observers: [UUID: [@MainActor ([MediaChannel]) -> Void]] = [:]
     private var attempts: [UUID: Date] = [:]
     private let directory: URL?
     private let key: SymmetricKey?
 
-    init(directory: URL? = nil, encryptionKey: SymmetricKey? = nil) {
+    init(directory: URL? = nil, encryptionKey: SymmetricKey? = nil,
+         maximumMemorySources: Int = 4, maximumMemoryChannels: Int = 40_000) {
+        self.maximumMemorySources = max(1, maximumMemorySources)
+        self.maximumMemoryChannels = max(1, maximumMemoryChannels)
         self.directory = directory
         key = directory == nil ? nil : (encryptionKey ?? (try? Self.deviceKey()))
         if let directory {
@@ -504,7 +530,24 @@ final class SourceChannelCache {
 
     func cached(for source: MediaSource) -> [MediaChannel]? {
         guard let entry = values[source.id], entry.source == source else { return nil }
+        touch(source.id)
         return entry.channels
+    }
+
+    private func touch(_ id: UUID) {
+        accessCounter &+= 1
+        accesses[id] = accessCounter
+    }
+
+    private func trimMemory(keeping id: UUID) {
+        touch(id)
+        var count = values.values.reduce(0) { $0 + $1.channels.count }
+        let oldest = values.keys.filter { $0 != id }.sorted { (accesses[$0] ?? 0) < (accesses[$1] ?? 0) }
+        for key in oldest {
+            guard values.count > maximumMemorySources || count > maximumMemoryChannels else { break }
+            count -= values.removeValue(forKey: key)?.channels.count ?? 0
+            accesses[key] = nil
+        }
     }
 
     func channels(for source: MediaSource, reload: Bool = false, now: Date = Date(),
@@ -536,6 +579,7 @@ final class SourceChannelCache {
                 try Task.checkCancellation()
                 if let (snapshot, channels) = snapshot {
                     self.values[source.id] = (source, channels, snapshot.savedAt)
+                    self.trimMemory(keeping: source.id)
                     self.observers.removeValue(forKey: source.id)?.forEach { $0(channels) }
                 }
             }
@@ -550,6 +594,7 @@ final class SourceChannelCache {
                 let channels = try await load()
                 try Task.checkCancellation()
                 self.values[source.id] = (source, channels, now)
+                self.trimMemory(keeping: source.id)
                 if let file = self.file(source.id), let key = self.key {
                     let data = await Task.detached(priority: .utility) { () -> Data? in
                         let snapshot = Snapshot(source: source, savedAt: now, channels: channels.map(Snapshot.Channel.init))
@@ -585,12 +630,12 @@ final class SourceChannelCache {
     private func file(_ id: UUID) -> URL? { directory?.appendingPathComponent(id.uuidString + ".encrypted") }
     func invalidate(_ id: UUID) {
         pending.removeValue(forKey: id)?.task.cancel()
-        values[id] = nil; attempts[id] = nil; observers[id] = nil
+        values[id] = nil; accesses[id] = nil; attempts[id] = nil; observers[id] = nil
         if let file = file(id) { try? FileManager.default.removeItem(at: file) }
     }
     func removeAll() {
         pending.values.forEach { $0.task.cancel() }
-        pending.removeAll(); values.removeAll(); attempts.removeAll(); observers.removeAll()
+        pending.removeAll(); values.removeAll(); accesses.removeAll(); attempts.removeAll(); observers.removeAll()
         if let directory {
             for file in (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)) ?? [] {
                 try? FileManager.default.removeItem(at: file)

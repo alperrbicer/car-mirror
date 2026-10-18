@@ -6,6 +6,9 @@ actor MediaMetadataLoader {
     static let shared = MediaMetadataLoader()
     private let fetch: Fetch
     private var catalogs: [URL: (date: Date, entries: [SeriesMetadataCandidate])] = [:]
+    private var catalogTasks: [URL: Task<[SeriesMetadataCandidate], Error>] = [:]
+    private var seriesInfo: [URL: (date: Date, info: SeriesMetadataInfo)] = [:]
+    private var seriesInfoTasks: [URL: Task<SeriesMetadataInfo, Error>] = [:]
     private var recencyCatalogs: [URL: (date: Date, entries: [String: Date])] = [:]
 
     init(fetch: @escaping Fetch = { url, limit in try await MediaMetadataLoader.request(url, limit: limit) }) { self.fetch = fetch }
@@ -50,6 +53,27 @@ actor MediaMetadataLoader {
         return try await shared.load(kind: source.kind, secret: secret, channel: channel, seriesOnly: seriesOnly)
     }
 
+    static func episodes(source: MediaSource, channels: [MediaChannel]) async throws -> [String: MediaMetadata] {
+        let secret = try SourceKeychain.read(source.id)
+        return try await shared.episodes(kind: source.kind, secret: secret, channels: channels)
+    }
+
+    func episodes(kind: MediaSourceKind, secret: SourceSecret, channels: [MediaChannel]) async throws -> [String: MediaMetadata] {
+        guard let channel = channels.first(where: { !$0.isLive && $0.episode != nil }),
+              let lookup = try XtreamEndpoint.seriesLookup(kind: kind, secret: secret, channel: channel),
+              let (_, info) = try await verifiedSeries(lookup, channel: channel) else { return [:] }
+        var result: [String: MediaMetadata] = [:]
+        for item in channels where !item.isLive && item.group == channel.group && item.episode?.seriesKey == channel.episode?.seriesKey {
+            // Never transfer an ID's metadata to a different provider/account,
+            // even when its series name and episode number happen to match.
+            guard let itemLookup = try XtreamEndpoint.seriesLookup(kind: kind, secret: secret, channel: item),
+                  itemLookup.catalogURL == lookup.catalogURL,
+                  let details = info.episodes[itemLookup.episodeID] else { continue }
+            result[item.id] = details
+        }
+        return result
+    }
+
     func load(kind: MediaSourceKind, secret: SourceSecret, channel: MediaChannel, seriesOnly: Bool = false) async throws -> MediaMetadata? {
         var seriesFailure: Error?
         if let lookup = try XtreamEndpoint.seriesLookup(kind: kind, secret: secret, channel: channel) {
@@ -72,29 +96,20 @@ actor MediaMetadataLoader {
     }
 
     private func loadSeries(_ lookup: XtreamSeriesLookup, channel: MediaChannel, seriesOnly: Bool) async throws -> MediaMetadata? {
-        let catalog: [SeriesMetadataCandidate]
-        if let cached = catalogs[lookup.catalogURL], Date().timeIntervalSince(cached.date) < 900 {
-            catalog = cached.entries
-        } else {
-            let response = try await fetch(lookup.catalogURL, SeriesMetadataParser.maximumCatalogBytes)
-            try Task.checkCancellation()
-            catalog = try SeriesMetadataParser.catalog(response.data, baseURL: response.url)
-            // Keep only descriptive fields, for at most three accounts, in memory.
-            if catalogs.count >= 3, let oldest = catalogs.min(by: { $0.value.date < $1.value.date })?.key {
-                catalogs.removeValue(forKey: oldest)
-            }
-            catalogs[lookup.catalogURL] = (Date(), catalog)
-        }
+        guard let (candidate, info) = try await verifiedSeries(lookup, channel: channel) else { return nil }
+        let metadata = candidate.metadata.merging(info.metadata)
+        return seriesOnly ? metadata : metadata.merging(info.episodes[lookup.episodeID] ?? MediaMetadata())
+    }
+
+    private func verifiedSeries(_ lookup: XtreamSeriesLookup, channel: MediaChannel) async throws -> (SeriesMetadataCandidate, SeriesMetadataInfo)? {
+        let catalog = try await seriesCatalog(at: lookup.catalogURL)
         var failure: Error?
         for candidate in SeriesMetadataParser.candidates(in: catalog, for: channel) {
             try Task.checkCancellation()
             guard let url = lookup.infoURL(seriesID: candidate.id) else { continue }
             do {
-                let response = try await fetch(url, SeriesMetadataParser.maximumInfoBytes)
-                try Task.checkCancellation()
-                if let metadata = try SeriesMetadataParser.parseInfo(response.data, episodeID: lookup.episodeID, baseURL: response.url, includeEpisode: !seriesOnly) {
-                    return candidate.metadata.merging(metadata)
-                }
+                let info = try await seriesDetails(at: url)
+                if info.episodes[lookup.episodeID] != nil { return (candidate, info) }
             } catch {
                 try Task.checkCancellation()
                 failure = error
@@ -102,6 +117,55 @@ actor MediaMetadataLoader {
         }
         if let failure { throw failure }
         return nil
+    }
+
+    private func seriesCatalog(at url: URL) async throws -> [SeriesMetadataCandidate] {
+        try Task.checkCancellation()
+        if let cached = catalogs[url], Date().timeIntervalSince(cached.date) < 900 { return cached.entries }
+        if let task = catalogTasks[url] {
+            let catalog = try await task.value
+            try Task.checkCancellation()
+            return catalog
+        }
+        // The hero and episode rows share a request. Cancelling one view must
+        // not cancel the other consumer's lookup; requests have a short timeout.
+        let task = Task { [fetch] in
+            let response = try await fetch(url, SeriesMetadataParser.maximumCatalogBytes)
+            return try SeriesMetadataParser.catalog(response.data, baseURL: response.url)
+        }
+        catalogTasks[url] = task
+        defer { catalogTasks[url] = nil }
+        let catalog = try await task.value
+        if catalogs.count >= 3, let oldest = catalogs.min(by: { $0.value.date < $1.value.date })?.key {
+            catalogs.removeValue(forKey: oldest)
+        }
+        catalogs[url] = (Date(), catalog)
+        try Task.checkCancellation()
+        return catalog
+    }
+
+    private func seriesDetails(at url: URL) async throws -> SeriesMetadataInfo {
+        try Task.checkCancellation()
+        if let cached = seriesInfo[url], Date().timeIntervalSince(cached.date) < 900 { return cached.info }
+        if let task = seriesInfoTasks[url] {
+            let info = try await task.value
+            try Task.checkCancellation()
+            return info
+        }
+        let task = Task { [fetch] in
+            let response = try await fetch(url, SeriesMetadataParser.maximumInfoBytes)
+            return try SeriesMetadataParser.parseEpisodes(response.data, baseURL: response.url)
+        }
+        seriesInfoTasks[url] = task
+        defer { seriesInfoTasks[url] = nil }
+        let info = try await task.value
+        // Bounded, in-memory descriptive data only; no raw provider responses.
+        if seriesInfo.count >= 12, let oldest = seriesInfo.min(by: { $0.value.date < $1.value.date })?.key {
+            seriesInfo.removeValue(forKey: oldest)
+        }
+        seriesInfo[url] = (Date(), info)
+        try Task.checkCancellation()
+        return info
     }
 
     nonisolated private static func request(_ url: URL, limit: Int) async throws -> Response {

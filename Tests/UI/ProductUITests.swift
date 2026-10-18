@@ -169,9 +169,10 @@ final class ProductUITests: XCTestCase {
             app.terminate()
             XCUIDevice.shared.orientation = orientation
             app.launch()
-            XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 10))
+            XCTAssertTrue(app.buttons["open-settings"].waitForExistence(timeout: 10))
             XCTAssertGreaterThan(app.frame.height, app.frame.width, "A landscape-held phone must launch directly into portrait")
             capture("cold-launch-held-\(orientation.rawValue)", app: app)
+            returnToRoot(app)
             app.buttons["page-library"].tap()
             let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-")).firstMatch
             if !card.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
@@ -191,6 +192,7 @@ final class ProductUITests: XCTestCase {
             app.launchArguments = ["-mirivo-ui-testing", "-mirivo-ui-continue-watching", "-AppleLanguages", "(tr)", "-AppleLocale", "tr_TR"]
             if carPlay { app.launchArguments.append("-mirivo-ui-carplay") }
             app.launch()
+            returnToRoot(app)
             XCTAssertTrue(app.buttons["page-library"].waitForExistence(timeout: 10))
             app.buttons["page-library"].tap()
             let card = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-")).firstMatch
@@ -382,7 +384,7 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(video.waitForExistence(timeout: 5))
     }
 
-    func testStoppingPlaybackHidesResumeBarWithoutRemovingHistoryOrRelaunchResume() {
+    func testStoppingPlaybackPreservesHistoryAndDismissalUntilPlaybackRestarts() {
         continueAfterFailure = false
         let app = launch(continuations: true)
         defer { app.terminate() }
@@ -403,18 +405,21 @@ final class ProductUITests: XCTestCase {
         XCTAssertTrue(app.buttons[savedCardID].waitForExistence(timeout: 5), "Stopping must keep the item in the sources history")
         app.buttons["page-mirror"].tap()
         XCTAssertFalse(app.buttons["now-playing-open"].exists)
-        XCTAssertFalse(app.buttons["last-watched-open"].exists, "Stopping must hide the bottom resume bar for this session")
+        XCTAssertFalse(app.buttons["last-watched-open"].exists, "An explicit stop must hide the bottom resume bar")
         capture("stopped-playback-no-resume-bar", app: app)
 
         app.terminate()
         app.launchArguments.append("-mirivo-ui-preserve-library")
         app.launch()
+        returnToRoot(app)
         app.buttons["page-mirror"].tap()
         let resumeBar = app.buttons["last-watched-open"]
-        XCTAssertTrue(resumeBar.waitForExistence(timeout: 10), "A new app session must show the saved resume bar again")
+        XCTAssertFalse(resumeBar.exists, "Relaunch must preserve the explicit dismissal until playback starts again")
         XCTAssertFalse(app.buttons["now-playing-open"].exists, "Relaunch must not start playback automatically")
-        capture("relaunched-playback-resume-bar", app: app)
-        resumeBar.tap()
+        app.buttons["page-library"].tap()
+        XCTAssertTrue(app.buttons[savedCardID].waitForExistence(timeout: 5), "Dismissing the bar must preserve viewing history across launches")
+        capture("relaunched-playback-preserved-history", app: app)
+        app.buttons[savedCardID].tap()
         XCTAssertTrue(app.otherElements["player-video"].waitForExistence(timeout: 10))
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: resumed, object: app)], timeout: 10), .completed)
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -422,6 +427,7 @@ final class ProductUITests: XCTestCase {
 
         app.terminate()
         app.launch()
+        returnToRoot(app)
         app.buttons["page-mirror"].tap()
         XCTAssertTrue(resumeBar.waitForExistence(timeout: 10), "Closing the app during playback must preserve the existing resume behavior")
         app.buttons["page-library"].tap()
@@ -446,6 +452,7 @@ final class ProductUITests: XCTestCase {
         for attempt in 0..<3 {
             XCUIDevice.shared.orientation = .portrait
             app.launch()
+            returnToRoot(app)
             let cards = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "continue-watching-open-"))
             app.buttons["page-library"].tap()
             if !cards.firstMatch.waitForExistence(timeout: 3) { app.buttons["page-library"].tap() }
@@ -1305,11 +1312,14 @@ final class ProductUITests: XCTestCase {
             XCTFail(app.debugDescription)
             return false
         }
-        let add = app.buttons["add-source"]
+        let playlist = app.buttons["add-source-playlist"]
+        let add = playlist.exists ? playlist : app.buttons["add-source"]
         reveal(add, in: app)
-        add.tap()
+        add.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let name = app.textFields["source-name"]
-        if !name.waitForExistence(timeout: 3), add.isHittable { add.tap() }
+        if !name.waitForExistence(timeout: 3), add.isHittable {
+            add.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
         guard name.waitForExistence(timeout: 10) else {
             XCTFail(app.debugDescription)
             return false
@@ -1699,7 +1709,21 @@ final class ProductUITests: XCTestCase {
         app.launch()
         let portrait = NSPredicate { _, _ in app.frame.height > app.frame.width }
         XCTAssertTrue(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: portrait, object: app)], timeout: 30) == .completed)
+        returnToRoot(app)
         return app
+    }
+
+    private func returnToRoot(_ app: XCUIApplication) {
+        // Relaunch can restore the last source. Root-page tests navigate back
+        // through the real UI rather than disabling the restoration feature.
+        let library = app.buttons["page-library"]
+        for _ in 0..<4 {
+            if library.waitForExistence(timeout: 2) { return }
+            let back = app.navigationBars.buttons.element(boundBy: 0)
+            guard back.exists else { break }
+            back.tap()
+        }
+        XCTAssertTrue(library.waitForExistence(timeout: 5))
     }
     func testAllShippingLanguagesLaunch() {
         assertLanguagesLaunch(shippingLanguages)

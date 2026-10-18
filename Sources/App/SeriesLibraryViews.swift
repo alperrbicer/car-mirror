@@ -178,68 +178,99 @@ struct SeriesDetailHero: View {
 
 struct SeriesEpisodeRow<Download: View>: View {
     let channel: MediaChannel
+    let sourceID: UUID?
+    var metadata: MediaMetadata?
     let play: () -> Void
     @ViewBuilder let download: () -> Download
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ObservedObject private var model = MirrorModel.shared
+    @ObservedObject private var playback = MirrorModel.shared.playback
+    @ObservedObject private var history = LastPlaybackStore.shared
+
+    private var details: MediaMetadata { channel.metadata.merging(metadata ?? MediaMetadata()) }
+    private var episodeTitle: String? { channel.episode?.resolvedTitle(providerTitle: details.episodeTitle) }
+    private var title: String { episodeTitle ?? channel.episode.map { SeriesText.episode($0.number) } ?? channel.title }
+    private var current: Bool {
+        model.playbackSourceID == sourceID && model.selectedMediaChannel?.id == channel.id && playback.hasActivePlayback
+    }
+    private var saved: LastPlaybackRecord? {
+        ([history.record].compactMap { $0 } + history.entries).first { $0.sourceID == sourceID && $0.url == channel.url }
+    }
+    private var timeline: (position: Double, duration: Double)? {
+        if current {
+            guard playback.duration > 0, playback.currentTime > 0 else { return nil }
+            return (min(playback.currentTime, playback.duration), playback.duration)
+        }
+        guard let saved, saved.isInProgress, saved.duration > 0 else { return nil }
+        return (saved.position, saved.duration)
+    }
+    private var facts: String {
+        var values: [String] = []
+        if episodeTitle != nil, let episode = channel.episode { values.append(SeriesText.episode(episode.number)) }
+        if let duration = details.duration { values.append(String(format: L10n.tr("%d dk"), Int(ceil(duration / 60)))) }
+        return values.joined(separator: " · ")
+    }
+    private var status: String? {
+        if current { return L10n.tr(playback.isPlaying ? "Şimdi oynatılıyor" : playback.state == .loading ? "Yayın hazırlanıyor" : "Duraklatıldı") }
+        return saved?.isInProgress == true ? L10n.tr("Devam et") : nil
+    }
+
+    private var accessibilityTitle: String {
+        var values = [title]
+        if !facts.isEmpty { values.append(facts) }
+        if let status { values.append(status) }
+        return values.joined(separator: ", ")
+    }
+    private var progressLabel: String {
+        guard let timeline else { return "" }
+        return PlaybackTimeDisplay.timestamp(timeline.position) + " / " + PlaybackTimeDisplay.timestamp(timeline.duration)
+    }
 
     var body: some View {
-        HStack(spacing: 10) {
-            Button(action: play) {
-                let layout = dynamicTypeSize.isAccessibilitySize
-                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
-                    : AnyLayout(HStackLayout(spacing: 16))
-                layout {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(LinearGradient(colors: [MirrorStyle.raised, MirrorStyle.surface],
-                                                 startPoint: .topLeading, endPoint: .bottomTrailing))
-                        if let episode = channel.episode {
-                            Text(episode.number.formatted(.number.precision(.integerLength(2))))
-                                .font(.system(size: 28, weight: .light, design: .rounded)).monospacedDigit()
-                                .foregroundStyle(.white.opacity(0.75))
-                        } else {
-                            Image(systemName: "play.fill").foregroundStyle(MirrorStyle.accent)
-                        }
-                    }
-                    .frame(width: dynamicTypeSize.isAccessibilitySize ? 64 : 52,
-                           height: dynamicTypeSize.isAccessibilitySize ? 72 : 52)
-                    .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 7) {
-                        Text(channel.episode.map { SeriesText.episode($0.number) } ?? channel.title)
-                            .font(.headline).foregroundStyle(.white)
-                        if let title = channel.episode?.title {
-                            Text(title).font(.subheadline).foregroundStyle(MirrorStyle.secondary)
-                                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
-                        }
-                        if let duration = channel.metadata.duration {
-                            Text(String(format: L10n.tr("%d dk"), Int(ceil(duration / 60))))
-                                .font(.caption).foregroundStyle(MirrorStyle.secondary)
-                        }
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-            }.buttonStyle(.plain).accessibilityLabel(channel.title)
-            HStack(spacing: 0) {
-                if channel.isDownloadableVideo {
-                    download().frame(width: 44, height: 44)
-                }
-                Button(action: play) {
-                    Image(systemName: "play.fill").font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9)).frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(L10n.tr("Oynat") + ": " + channel.title)
-                .accessibilityIdentifier("series-episode-play-" + channel.id)
+        HStack(spacing: 8) {
+            playButton
+            if channel.isDownloadableVideo {
+                download().frame(width: 44, height: 44)
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             }
-            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
-        .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 14 : 8)
+        .padding(.horizontal, 12)
+        .background(current ? MirrorStyle.accent.opacity(0.10) : Color.clear, in: RoundedRectangle(cornerRadius: 14))
         .overlay(alignment: .bottom) {
-            Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5)
-                .padding(.leading, dynamicTypeSize.isAccessibilitySize ? 80 : 68)
+            if !current { Rectangle().fill(MirrorStyle.hairline).frame(height: 0.5).padding(.horizontal, 12) }
+        }
+    }
+
+    private var playButton: some View {
+        Button(action: play) {
+            label
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .padding(.vertical, 12).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityTitle)
+        .accessibilityHint(L10n.tr(saved?.isInProgress == true ? "Devam et" : "Oynat"))
+        .accessibilityValue(progressLabel)
+        .accessibilityAddTraits(current ? .isSelected : [])
+        .accessibilityIdentifier("series-episode-play-" + channel.id)
+    }
+
+    private var label: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if let status {
+                Text(status).font(.caption2.weight(.semibold)).foregroundStyle(MirrorStyle.accent)
+            }
+            Text(title).font(.body.weight(.semibold)).foregroundStyle(.white)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
+            if !facts.isEmpty {
+                Text(facts).font(.caption).foregroundStyle(MirrorStyle.secondary)
+            }
+            if let timeline {
+                ProgressView(value: timeline.position, total: timeline.duration)
+                    .tint(MirrorStyle.accent).padding(.top, 3)
+                Text(progressLabel).font(.caption2.monospacedDigit()).foregroundStyle(MirrorStyle.secondary)
+            }
         }
     }
 }

@@ -5,6 +5,175 @@ import UIKit
 
 @MainActor
 final class PersonalMediaIntegrationTests: XCTestCase {
+    func testCarPlayReceivesLocalVideoThroughHTTP() async throws {
+        guard ProcessInfo.processInfo.environment["MIRIVO_TEST_CARPLAY_VIDEO"] == "1" else {
+            throw XCTSkip("Requires a connected CarPlay video receiver")
+        }
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let playback = PlaybackController()
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        var failures: [DiagnosticFailure] = []
+        playback.onDiagnostic = { _, values in if let failure = values.failure { failures.append(failure) } }
+        defer { playback.stop() }
+        try playback.play(url: file, preserveSourceAudio: false, title: "CarPlay transport test", live: false)
+        for _ in 0..<200 {
+            if playback.state == .failed || playback.currentTime > 6 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertNotEqual(playback.state, .failed, playback.errorMessage ?? "")
+        XCTAssertTrue(playback.player.isExternalPlaybackActive)
+        XCTAssertGreaterThan(playback.currentTime, 6)
+        XCTAssertTrue(failures.isEmpty, "Unexpected external playback failures: \(failures)")
+        XCTAssertEqual((playback.player.currentItem?.asset as? AVURLAsset)?.url.scheme, "http")
+    }
+
+    func testCarPlayLocalVideoServesIdenticalBytesAndRevokesURLOnStop() async throws {
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        try playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, startPaused: true)
+        let item = try await nativeItem(playback)
+        let address = try XCTUnwrap((item.asset as? AVURLAsset)?.url)
+        XCTAssertEqual(address.scheme, "http")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.timeoutIntervalForRequest = 3
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        let (bytes, response) = try await session.data(from: address)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        XCTAssertEqual(bytes, try Data(contentsOf: file), "The receiver must get the original media, without transcoding")
+        playback.stop()
+        XCTAssertNil(playback.player.currentItem)
+        do { _ = try await session.data(from: address); XCTFail("Stop must revoke the receiver URL") }
+        catch { }
+    }
+
+    func testCancelledCarPlayPreparationCannotReplacePhonePlayback() async throws {
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        for _ in 0..<5 {
+            playback.setPlaysOnPhone(false)
+            try playback.play(url: file, preserveSourceAudio: false, live: false)
+            playback.stop()
+        }
+        playback.setPlaysOnPhone(true)
+        try playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, startPaused: true)
+        let replacement = try XCTUnwrap(playback.player.currentItem)
+        let id = playback.playbackID
+        try await Task.sleep(for: .milliseconds(300))
+        XCTAssertTrue(playback.player.currentItem === replacement)
+        XCTAssertEqual(playback.playbackID, id)
+        XCTAssertEqual((replacement.asset as? AVURLAsset)?.url, file)
+        XCTAssertFalse(playback.player.allowsExternalPlayback)
+    }
+
+    func testCarPlayKeepsPhoneAudioAndOwnedDisplayFilesLocal() throws {
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        for (phone, ownedDisplay, presentation) in [(true, false, MediaPlaybackPresentation.video),
+                                                   (false, true, .video), (false, false, .audio)] {
+            let playback = PlaybackController()
+            defer { playback.stop() }
+            playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+            playback.setPlaysOnPhone(phone)
+            playback.externalDisplayConnected = ownedDisplay
+            try playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                              live: false, presentation: presentation, startPaused: true)
+            let item = try XCTUnwrap(playback.player.currentItem)
+            XCTAssertEqual((item.asset as? AVURLAsset)?.url, file)
+            XCTAssertFalse(playback.player.allowsExternalPlayback)
+        }
+    }
+
+    func testCarPlayVideoCapabilityControlsLocalFileTransport() async throws {
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
+        defer { model.stopPlayback(); model.disconnected() }
+        // An audio-only or unknown CarPlay session must not add an HTTP/network
+        // requirement to ordinary phone playback, including after a video session.
+        for capability: Bool? in [true, false, nil] {
+            model.connected(supportsVideo: capability)
+            try model.playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                                    live: false, startPaused: true)
+            let item = try await nativeItem(model.playback)
+            XCTAssertEqual((item.asset as? AVURLAsset)?.url.scheme, capability == true ? "http" : "file")
+        }
+        model.disconnected()
+        try model.playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                                live: false, startPaused: true)
+        XCTAssertEqual((model.playback.player.currentItem?.asset as? AVURLAsset)?.url, file)
+    }
+
+    func testCarPlayLocalVideoPreservesPausedSeekAndPhoneHandoff() async throws {
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        try playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, startAt: 3, startPaused: true)
+        let item = try await nativeItem(playback)
+        for _ in 0..<100 where playback.state != .paused {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertEqual(playback.state, .paused)
+        XCTAssertEqual(playback.currentTime, 3, accuracy: 0.3)
+        let id = playback.playbackID
+        playback.setPlaysOnPhone(true)
+        XCTAssertTrue(playback.player.currentItem === item)
+        XCTAssertEqual(playback.playbackID, id)
+        playback.setPlaysOnPhone(false)
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertTrue(playback.player.currentItem === item)
+        XCTAssertEqual(playback.playbackID, id)
+        XCTAssertFalse(playback.isPlaying)
+        XCTAssertEqual(playback.currentTime, 3, accuracy: 0.3)
+    }
+
+    func testExternalRejectionRecoversLocalFileOnceAndPreservesPosition() async throws {
+        let file = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        var failures = 0
+        playback.onFailure = { _ in failures += 1 }
+        // The file was opened on the phone before a receiver was selected.
+        try playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,
+                          live: false, startAt: 4, startPaused: true)
+        let original = try XCTUnwrap(playback.player.currentItem)
+        XCTAssertEqual((original.asset as? AVURLAsset)?.url, file)
+        let rejection = NSError(domain: AVFoundationErrorDomain,
+                                code: AVError.externalPlaybackNotSupportedForAsset.rawValue)
+        NotificationCenter.default.post(name: AVPlayerItem.failedToPlayToEndTimeNotification, object: original,
+                                        userInfo: [AVPlayerItemFailedToPlayToEndTimeErrorKey: rejection])
+        for _ in 0..<100 {
+            if let current = playback.player.currentItem, current !== original, playback.state == .paused { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        let recovered = try XCTUnwrap(playback.player.currentItem)
+        XCTAssertFalse(recovered === original)
+        XCTAssertEqual((recovered.asset as? AVURLAsset)?.url.scheme, "http")
+        XCTAssertEqual(playback.state, .paused)
+        XCTAssertEqual(playback.currentTime, 4, accuracy: 0.3)
+        XCTAssertEqual(failures, 0)
+        // If the receiver also rejects HTTP, surface the failure instead of looping.
+        NotificationCenter.default.post(name: AVPlayerItem.failedToPlayToEndTimeNotification, object: recovered,
+                                        userInfo: [AVPlayerItemFailedToPlayToEndTimeErrorKey: rejection])
+        for _ in 0..<100 where playback.state != .failed { await Task.yield() }
+        XCTAssertEqual(playback.state, .failed)
+        XCTAssertNil(playback.player.currentItem)
+        XCTAssertEqual(failures, 1)
+    }
+
+    private func nativeItem(_ playback: PlaybackController) async throws -> AVPlayerItem {
+        for _ in 0..<100 where playback.player.currentItem == nil && playback.state != .failed {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        return try XCTUnwrap(playback.player.currentItem, playback.errorMessage ?? "Missing native video item")
+    }
+
     func testLocalCastingAndFullscreenDoNotReleaseEachOthersScreenLock() {
         let previous = UIApplication.shared.isIdleTimerDisabled
         UIApplication.shared.isIdleTimerDisabled = false
@@ -29,7 +198,7 @@ final class PersonalMediaIntegrationTests: XCTestCase {
     }
 
     func testImportedAudioQueueAdvancesAndStopsAfterLastTrack() async throws {
-        let model = MirrorModel.shared
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: true, verifiedPro: true) }, startsTimer: false)
         model.stopBroadcast()
         let urls = (0..<2).map { _ in FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".wav") }
         defer { model.stopPlayback(); urls.forEach { try? FileManager.default.removeItem(at: $0) } }
