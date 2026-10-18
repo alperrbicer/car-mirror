@@ -117,6 +117,14 @@ Normal app launch and the CarPlay menu's **Ekran bağlantı testi** were also ch
 
 This resolves the reproduced local-MP4 failure in the physical-iPhone/CarPlay-Simulator setup. It does not establish real-vehicle behavior, locked-phone cold launch, parked/driving transitions or compatibility with every provider format. Apple's [error definition](https://developer.apple.com/documentation/avfoundation/averror-swift.struct/externalplaybacknotsupportedforasset) and [CarPlay video presentation guidance](https://developer.apple.com/videos/play/wwdc2026/212/) describe the API context; the transport diagnosis above comes from the before/after device measurements.
 
+### Independent recheck — build 40, 2026-10-18
+
+The current fix was rechecked on the physical iPhone 16 Pro (iOS 27.0) with Apple's CarPlay Simulator **Standard Video Playback** over USB. `build/carplay-video-recheck-20261018/device.xcresult` passed **15 tests, zero failures and zero skips**: all 13 `PersonalMediaIntegrationTests` plus the two native PiP teardown/readiness checks. The physical receiver test was enabled with `TEST_RUNNER_MIRIVO_TEST_CARPLAY_VIDEO=1`; it confirmed active external playback, more than six seconds of advancement, HTTP transport and no diagnostic failures. Source hashes were unchanged between test start and finish. The tested app was Debug 1.0 (40), not an App Store/TestFlight binary.
+
+After XCTest, the app was launched normally and the CarPlay **Ekran bağlantı testi** menu item was selected again. The receiver visibly showed the Mirivo display test and color bars with the counter at **00:14.17**. The corresponding journal recorded external playback at 0.350386 s, playing at 0.365076 s and automatic Stop at 15.398921 s, with no failures. These event timings are not frame-delivery latency measurements. Evidence: `Release/AppStore/carplay-video-recheck-20261018.json`.
+
+The reproduced local-MP4 `-11870` failure is resolved in this setup. Real-vehicle playback, starting a new source with a locked phone, and park → drive → park remain unverified; this recheck does not close those acceptance items.
+
 ## Reproduce the live transport test
 
 From the repository root, compile the fixture with production encoder/server sources:

@@ -66,8 +66,7 @@ struct LibraryView: View {
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject private var library = SourceLibrary.shared
     @ObservedObject private var model = MirrorModel.shared
-    @State private var sourceToAdd: SourceCreation?
-    @State private var editing: SourceEditDraft?
+    @State private var sourceEditorRoute: SourceEditorRoute?
     @State private var refreshingSources: Set<UUID> = []
 
     var body: some View {
@@ -140,8 +139,7 @@ struct LibraryView: View {
                                     }.disabled(refreshingSources.contains(source.id))
                                 }
                                 Button(L10n.tr("Düzenle"), systemImage: "pencil") {
-                                    do { editing = SourceEditDraft(source: source, secret: try SourceKeychain.read(source.id)) }
-                                    catch { library.message = L10n.tr("Kaynaklar açılamadı. Lütfen yeniden dene.") }
+                                    sourceEditorRoute = .edit(SourceEditDraft(source: source))
                                 }
                                 Button(role: .destructive) {
                                     do { try library.delete(source) }
@@ -187,8 +185,12 @@ struct LibraryView: View {
                 .allowsHitTesting(false).accessibilityElement(children: .contain).accessibilityIdentifier("source-refresh-progress")
             }
         }
-        .sheet(item: $sourceToAdd) { draft in SourceEditorView(initialKind: draft.kind) }
-        .sheet(item: $editing) { draft in SourceEditorView(source: draft.source, secret: draft.secret) }
+        .sheet(item: $sourceEditorRoute) { route in
+            switch route {
+            case .add(let kind): SourceEditorView(initialKind: kind)
+            case .edit(let draft): SourceEditorView(source: draft.source)
+            }
+        }
         .alert(BrandIdentity.name, isPresented: Binding(get: { library.message != nil }, set: { if !$0 { library.message = nil } })) {
             Button(L10n.tr("Tamam")) { library.message = nil }
         } message: { Text(library.message ?? "") }
@@ -285,13 +287,20 @@ struct LibraryView: View {
     }
 
     private func add(kind: MediaSourceKind = .playlist) {
-        sourceToAdd = SourceCreation(kind: kind)
+        sourceEditorRoute = .add(kind)
     }
 }
 
-private struct SourceCreation: Identifiable {
-    let kind: MediaSourceKind
-    var id: String { kind.rawValue }
+private enum SourceEditorRoute: Identifiable {
+    case add(MediaSourceKind)
+    case edit(SourceEditDraft)
+
+    var id: String {
+        switch self {
+        case .add(let kind): "add-\(kind.rawValue)"
+        case .edit(let draft): "edit-\(draft.id.uuidString)"
+        }
+    }
 }
 
 private struct ContinueWatchingSection: View {
@@ -723,13 +732,12 @@ private struct SourceExpiryView: View {
 
 private struct SourceEditDraft: Identifiable {
     let source: MediaSource
-    let secret: SourceSecret
     var id: UUID { source.id }
 }
 
 private struct SourceEditorView: View {
     private let source: MediaSource?
-    private let originalSecret: SourceSecret?
+    @State private var originalSecret: SourceSecret?
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var address = ""
@@ -739,16 +747,19 @@ private struct SourceEditorView: View {
     @State private var message: String?
     @State private var selectingFile = false
     @State private var selectedFile: URL?
+    @State private var isLoadingSource: Bool
     init(source: MediaSource? = nil, secret: SourceSecret? = nil, initialKind: MediaSourceKind = .playlist) {
         self.source = source
-        self.originalSecret = secret
+        _originalSecret = State(initialValue: secret)
         _name = State(initialValue: source?.name ?? "")
         _kind = State(initialValue: source?.kind ?? initialKind)
         _address = State(initialValue: secret?.url.absoluteString ?? "")
         _username = State(initialValue: secret?.username ?? "")
         _password = State(initialValue: secret?.password ?? "")
+        _isLoadingSource = State(initialValue: source != nil && secret == nil)
     }
     private var canSave: Bool {
+        guard !isLoadingSource else { return false }
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
         if kind == .playlistFile { return selectedFile != nil || (source?.kind == .playlistFile && originalSecret != nil) }
         guard let url = try? MediaURL.validate(address) else { return false }
@@ -802,6 +813,10 @@ private struct SourceEditorView: View {
                 } footer: { Text(L10n.tr("Mirivo içerik sağlamaz. Erişim hakkına sahip olduğun kaynakları ekleyebilirsin. Adres ve giriş bilgileri cihazındaki Keychain’de saklanır.")) }
                     .listRowBackground(MirrorStyle.surface)
                 if let message { Section { Text(message).foregroundStyle(.red) }.listRowBackground(MirrorStyle.surface) }
+                if isLoadingSource {
+                    Section { ProgressView().frame(maxWidth: .infinity, alignment: .center) }
+                        .listRowBackground(MirrorStyle.surface)
+                }
             }
             .environment(\.defaultMinListRowHeight, MirrorStyle.controlHeight)
             .scrollContentBackground(.hidden).background(MirrorStyle.background)
@@ -821,6 +836,25 @@ private struct SourceEditorView: View {
                 }
             }
         }.tint(MirrorStyle.accent).preferredColorScheme(.dark)
+            .task(id: source?.id) {
+                guard let source, originalSecret == nil else { return }
+                let sourceID = source.id
+                do {
+                    let secret = try await Task.detached(priority: .userInitiated) {
+                        try SourceKeychain.read(sourceID)
+                    }.value
+                    guard !Task.isCancelled else { return }
+                    originalSecret = secret
+                    address = secret.url.absoluteString
+                    username = secret.username ?? ""
+                    password = secret.password ?? ""
+                    isLoadingSource = false
+                } catch {
+                    guard !Task.isCancelled else { return }
+                    isLoadingSource = false
+                    message = L10n.tr("Kaynaklar açılamadı. Lütfen yeniden dene.")
+                }
+            }
             .fileImporter(isPresented: $selectingFile, allowedContentTypes: [.m3uPlaylist], allowsMultipleSelection: false) { result in
                 do {
                     selectedFile = try result.get().first

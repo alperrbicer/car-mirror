@@ -1,0 +1,68 @@
+{
+  "version": "1.0",
+  "build": "40",
+  "bundleId": "com.alperbicer.carmirror",
+  "team": "3T2VY64864",
+  "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/testflight-40-retry/CarMirror.xcarchive",
+  "validatedIpa": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T08-50-47-145Z-export-3124c0/ipa/CarMirror.ipa",
+  "ipaSha256": "ba2d6c934a05b14f550bc5e35d42e789ead21c8b849c264db84c9f5e5100db3d",
+  "ipaBytes": 61482057,
+  "archiveCLIExit": 0,
+  "exportCLIExit": 0,
+  "sourceSnapshot": "build/deploy/testflight-40-source-build.json",
+  "changedSourceInputs": [],
+  "tests": {
+    "deploymentPassed": 29,
+    "swiftExecuted": 82,
+    "swiftPassed": 81,
+    "swiftSkipped": 1,
+    "failed": 0,
+    "staticLanguages": 22,
+    "staticLocalizedKeys": 515,
+    "staticTranslatedValues": 11330,
+    "staticErrors": 0,
+    "staticNote": "Finder .DS_Store metadata excluded; website content unchanged"
+  },
+  "checks": {
+    "app": {
+      "CFBundleIdentifier": "com.alperbicer.carmirror",
+      "CFBundleShortVersionString": "1.0",
+      "CFBundleVersion": "40"
+    },
+    "extension": {
+      "CFBundleIdentifier": "com.alperbicer.carmirror.broadcast",
+      "CFBundleShortVersionString": "1.0",
+      "CFBundleVersion": "40"
+    },
+    "privacyDefaults": {
+      "FirebaseDataCollectionDefaultEnabled": false,
+      "FIREBASE_ANALYTICS_COLLECTION_ENABLED": false,
+      "FirebaseCrashlyticsCollectionEnabled": false
+    },
+    "ITSAppUsesNonExemptEncryption": false,
+    "bundledTestConfigurations": [],
+    "archiveAndIPAValidation": "passed by scripts/ios.mjs export; signatures, entitlements and profiles checked"
+  },
+  "crashlyticsSymbolsAccepted": true,
+  "mainDSYMUUID": "0B2E3C1F-EEAF-3D68-A9D8-8D35358A56DD",
+  "mainBinaryAndDSYMMatch": true,
+  "status": "Upload succeeded; Apple processing",
+  "appReviewSubmitted": false,
+  "archiveLog": "build/deploy/testflight-40-archive-retry.log",
+  "exportLog": "build/deploy/testflight-40-export.log",
+  "uploadLog": "build/deploy/testflight-40-upload.log",
+  "firstUploadCLIExit": 70,
+  "uploadCLIExit": 0,
+  "uploadedAt": "2026-10-18T08:55:51.720Z",
+  "uploadSymbolsFailedWarnings": 0,
+  "exportArchiveWarnings": 0,
+  "portalVerification": {
+    "status": "Processing",
+    "version": "1.0",
+    "build": "40",
+    "dateCreatedShown": "Oct 18, 2026 11:55 AM",
+    "url": "https://appstoreconnect.apple.com/teams/31972ed8-cc56-40e5-a97f-ecc06b25ed2a/apps/6818560405/testflight/ios",
+    "newBuildAssignedToTestGroup": false
+  },
+  "archiveCreatedAt": "2026-10-18T08:50:32Z"
+}

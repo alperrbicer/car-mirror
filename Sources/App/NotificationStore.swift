@@ -199,7 +199,7 @@ enum PlayerOrientationPolicy {
         guard self.playerVisible != playerVisible || self.allowsLandscape != allowsLandscape else { return }
         self.playerVisible = playerVisible
         self.allowsLandscape = allowsLandscape
-        // Ask only phone controllers; accessory scenes own their orientation.
+        // Refresh app scenes only; accessory scenes own their orientation.
         for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene })
             where scene.session.role == .windowApplication {
             for window in scene.windows {
@@ -255,7 +255,8 @@ final class MirivoAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificati
     }
 
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-        PlayerOrientationPolicy.supportedOrientations
+        if window?.traitCollection.userInterfaceIdiom == .pad { return .allButUpsideDown }
+        return PlayerOrientationPolicy.supportedOrientations
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         guard FirebaseServices.configured else { return }

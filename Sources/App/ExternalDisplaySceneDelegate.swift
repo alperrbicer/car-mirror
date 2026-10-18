@@ -102,8 +102,21 @@ struct ExternalDisplayProbeView: View {
     }
 
     var body: some View {
+        Group {
+            if isCarPlay {
+                displayContent
+            } else {
+                displayContent.ignoresSafeArea()
+            }
+        }
+        .environment(\.locale, Locale(identifier: L10n.language))
+        .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
+        .id(language)
+    }
+
+    private var displayContent: some View {
         ZStack {
-            Color.black
+            Color.black.ignoresSafeArea()
             if let started = model.probeStartedAt { ConnectionPatternView(startedAt: started) }
             else if playback.hasActivePlayback && !playback.playsOnPhone && playback.tvDevice == nil {
                 ExternalDisplayPlayerView(model: model)
@@ -122,15 +135,10 @@ struct ExternalDisplayProbeView: View {
                 }
             }
         }
-        .ignoresSafeArea()
-        .environment(\.locale, Locale(identifier: L10n.language))
-        .environment(\.layoutDirection, L10n.appLanguage.isRightToLeft ? .rightToLeft : .leftToRight)
-        .id(language)
     }
 }
 
-/// Controls live in the system-provided video window, with the video filling
-/// that window independently of the phone's orientation and safe-area insets.
+/// Controls live in the system-provided video window and adapt to its available area.
 struct ExternalDisplayPlayerView: View {
     @ObservedObject var model: MirrorModel
     @ObservedObject private var playback: PlaybackController

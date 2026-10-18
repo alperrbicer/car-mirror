@@ -1,0 +1,72 @@
+{
+  "checkedAt": "2026-10-18T08:52:06.086387+00:00",
+  "sourceCommit": "c34178733c0e239a8ca1ea95edacd6f4b18bc926",
+  "appVersion": "1.0",
+  "appBuild": "40",
+  "configuration": "Debug",
+  "device": {
+    "architecture": "arm64",
+    "deviceId": "00008140-000E60E20EC0801C",
+    "deviceName": "iPhone (3)",
+    "modelName": "iPhone 16 Pro",
+    "osBuildNumber": "24A437",
+    "osVersion": "27.0",
+    "platform": "iOS"
+  },
+  "receiver": {
+    "application": "Apple CarPlay Simulator",
+    "profile": "Standard Video Playback",
+    "connection": "USB",
+    "realVehicle": false
+  },
+  "result": "passed_for_reproduced_local_mp4_external_playback_failure",
+  "physicalTests": {
+    "result": "Passed",
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "receiverOptInEnabled": true,
+    "bundle": "build/carplay-video-recheck-20261018/device.xcresult",
+    "summary": "build/carplay-video-recheck-20261018/test-summary.json",
+    "invocation": "build/carplay-video-recheck-20261018/invocation.json",
+    "log": "build/carplay-video-recheck-20261018/device.log"
+  },
+  "manualProbe": {
+    "performedAt": "2026-10-18T08:50:41.817334+00:00",
+    "outsideXCTest": true,
+    "action": "CarPlay Ekran bağlantı testi",
+    "visualObservation": "Mirivo DISPLAY TEST, color bars and advancing timer at 00:14.17",
+    "externalPlaybackSeconds": 0.350386,
+    "playingSeconds": 0.365076,
+    "automaticStopSeconds": 15.398921,
+    "failures": [],
+    "journal": "build/carplay-video-recheck-20261018/build40-manual-diagnostics/867D37E2-91A9-4EAC-BCAB-6C46D949FB85/app.jsonl",
+    "timingLimit": "Event timings are not measured frame-delivery latency."
+  },
+  "sourceHashesUnchanged": true,
+  "sourceSha256": {
+    "Sources/App/PlaybackController.swift": "37157d8751e4171fdd989a4bd052b7284d7ddc2045f4b59e3df24f6984e45fe7",
+    "Sources/App/MirrorModel.swift": "fe66cf4c31d72b650a2a3fe132fec48bbb4d068da0f3197a40da79c8f80d2cb4",
+    "Sources/App/PersonalMediaServer.swift": "6d2cb098d5228264f806807855198c73766f1055e99db2ae6e6099a6bbc3bd8d",
+    "Tests/App/PersonalMediaIntegrationTests.swift": "32620250c2378c11ee3c7d87844865c9923787e5eaeba7188f315c36156db5f3",
+    "Tests/App/PlayerTests.swift": "35dcb1e48d5866db767ee3cad50e56f8149821d4cf4ee0c2b92c833638ec9463"
+  },
+  "coverage": [
+    "Active physical external playback via HTTP for more than six seconds without diagnostic failure",
+    "Exact original bytes; Stop revokes the HTTP URL",
+    "Cancellation cannot replace subsequent phone playback",
+    "Phone/audio/owned-screen playback retains local file transport",
+    "CarPlay video capability true/false/unknown and disconnect controls transport",
+    "Paused seek and phone handoff preserve timeline",
+    "Synthetic -11870 recovers once; repeated rejection surfaces failure",
+    "HTTP range, HEAD and incorrect-path handling",
+    "Native PiP readiness and teardown"
+  ],
+  "remainingAcceptance": {
+    "realVehicleVideo": "not_verified",
+    "lockedPhoneNewSource": "not_verified",
+    "parkDriveParkTransitions": "not_verified",
+    "AppStoreOrTestFlightBinary": "not_tested_in_this_run"
+  },
+  "scope": "The reproduced local MP4 failure is resolved in this physical-phone/Mac-simulator setup. This is not proof of real-vehicle behavior, all provider formats, or Release-distribution acceptance."
+}

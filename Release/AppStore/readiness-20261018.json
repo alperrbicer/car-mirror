@@ -79,15 +79,30 @@
     "parkDriveParkTransitions": "not_verified",
     "userResponse": "Henüz doğrulamadım",
     "carPlaySimulatorVideoProbe": {
-      "status": "failed_open",
-      "build": "38",
-      "setup": "Physical iPhone + Mac CarPlay Simulator, not a real vehicle",
-      "errorDomain": "AVFoundation",
-      "errorCode": -11870,
-      "attempts": 2,
-      "source": "docs/VEHICLE_PLAYBACK_QA.md",
-      "journal": "build/performance-audit-20261018/carplay-device-diagnostics/336FC2F7-B63D-4DB9-8BC0-AD7DD2594540/app.jsonl",
-      "limit": "Failure of the debug screen test does not establish the behavior of user/provider media."
+      "status": "passed_local_mp4_recheck",
+      "build": "40",
+      "configuration": "Debug",
+      "checkedAt": "2026-10-18T08:52:06.086387+00:00",
+      "setup": "Physical iPhone 16 Pro + USB Apple CarPlay Simulator, Standard Video Playback; not a real vehicle",
+      "physicalTests": {
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0
+      },
+      "manualVideoProbe": "passed_outside_XCTest",
+      "evidence": "Release/AppStore/carplay-video-recheck-20261018.json",
+      "previousFailure": {
+        "status": "failed_before_fix",
+        "build": "38",
+        "setup": "Physical iPhone + Mac CarPlay Simulator, not a real vehicle",
+        "errorDomain": "AVFoundation",
+        "errorCode": -11870,
+        "attempts": 2,
+        "source": "docs/VEHICLE_PLAYBACK_QA.md",
+        "journal": "build/performance-audit-20261018/carplay-device-diagnostics/336FC2F7-B63D-4DB9-8BC0-AD7DD2594540/app.jsonl",
+        "limit": "Failure of the debug screen test does not establish the behavior of user/provider media."
+      },
+      "limit": "Local MP4 fix verified. Real-vehicle, locked-phone new source and park-drive-park acceptance remain unverified."
     }
   },
   "purchaseAcceptance": {
@@ -120,7 +135,7 @@
   },
   "reviewReadiness": "not_ready_for_submission",
   "remainingItems": [
-    "Investigate CarPlay video probe error -11870 and complete real-vehicle video/locked-phone/park-drive-park acceptance.",
+    "Complete real-vehicle video, locked-phone new source, and park-drive-park acceptance; reproduced local-MP4 -11870 failure passed the build 40 physical-iPhone/CarPlay-Simulator recheck.",
     "Verify Apple sandbox weekly/yearly trial purchase and restore; complimentary RevenueCat Pro is already user-verified.",
     "Upload the final accepted candidate to App Store Connect, replace selected build 14, apply prepared review notes, and include app version in the existing review draft.",
     "Review content rights/permissions and correct the third-party content declaration."
