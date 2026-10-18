@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-17T22:52:25.326099+00:00",
+  "appId": "6818560405",
+  "url": "https://appstoreconnect.apple.com/apps/6818560405/distribution/privacy",
+  "published": true,
+  "reloadVerified": true,
+  "uiPublishedLabel": "Published a few seconds ago",
+  "dataTypeCount": 8,
+  "change": {
+    "type": "Crash Data",
+    "purposes": [
+      "App Functionality"
+    ],
+    "linkedToIdentity": false,
+    "tracking": false,
+    "productPagePreviewSection": "Data Not Linked to You / Diagnostics"
+  },
+  "preservedTypes": [
+    "Purchase History",
+    "Other Data Types",
+    "Device ID",
+    "Other Diagnostic Data",
+    "Performance Data",
+    "Coarse Location",
+    "Product Interaction"
+  ],
+  "privacyPolicyURLTurkish": "https://mirivo-support.netlify.app/tr/privacy.html",
+  "basis": [
+    "Current AppMeasurement uses no custom user ID or arbitrary logs/keys. Nonfatal NSError is reduced to a closed operation/family/code vocabulary.",
+    "Installed FirebaseCrashlytics privacy manifest declares Crash Data and Other Diagnostic Data as App Functionality, unlinked and nontracking.",
+    "Crash sharing is independent, optional and default-off."
+  ]
+}

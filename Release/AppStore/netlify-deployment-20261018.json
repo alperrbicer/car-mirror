@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-10-17T22:52:25.322362+00:00",
+  "siteURL": "https://mirivo-support.netlify.app",
+  "siteId": "3f169da4-1d2e-419b-a337-036879d91f9e",
+  "deployId": "6ad3fb2d1ab71d1086268b9d",
+  "previousDeployId": "6ad2a3a0dd89888e79e8bb1c",
+  "uiPublished": true,
+  "uiPublishedAt": "2026-10-18 01:48 Europe/Istanbul",
+  "uiNewFilesUploaded": 3,
+  "artifact": "Release/mirivo-netlify.zip",
+  "artifactSHA256": "82587ba4c661672aa4fc8adbc35948ef9db46bc22a52608f43881690cecdf252",
+  "comparison": "Visible HTML text matches the prepared local privacy pages; HTTP 200 and 2026-10-18 date verified for all three paths. Netlify rewrites HTML links.",
+  "files": [
+    {
+      "path": "tr/privacy.html",
+      "http": "200 https://mirivo-support.netlify.app/tr/privacy.html",
+      "sha256": "1a0ce77611a0996ca5dcb45609e7a5da38a802b4068da899d4ba98823da7c4e1",
+      "hasCrashlytics": true,
+      "textMatchesLocal": true,
+      "datedOctober18": true
+    },
+    {
+      "path": "en/privacy.html",
+      "http": "200 https://mirivo-support.netlify.app/en/privacy.html",
+      "sha256": "99b633ad46d93e12899c155fab801c8da11de9b6fd65948e0c2841344ee769c9",
+      "hasCrashlytics": true,
+      "textMatchesLocal": true,
+      "datedOctober18": true
+    },
+    {
+      "path": "privacy.html",
+      "http": "200 https://mirivo-support.netlify.app/privacy.html",
+      "sha256": "e5bd3a073c77ad56a18b4ea531edfa0a5de4b67c40d9a5ecd6ef6a15d05ddb24",
+      "hasCrashlytics": true,
+      "textMatchesLocal": true,
+      "datedOctober18": true
+    }
+  ]
+}

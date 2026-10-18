@@ -1,0 +1,60 @@
+{
+  "checkedAt": "2026-10-17T22:57:01.737397+00:00",
+  "firebaseProject": "mirivo",
+  "bundleId": "com.alperbicer.carmirror",
+  "issueId": "db36de933647e0ae66ab6afcd27a08b1",
+  "issueURL": "https://console.firebase.google.com/u/0/project/mirivo/crashlytics/app/ios:com.alperbicer.carmirror/issues/db36de933647e0ae66ab6afcd27a08b1?time=7d&types=crash",
+  "build": {
+    "version": "1.0",
+    "buildNumber": "35",
+    "kind": "Debug / iOS Simulator",
+    "osVersion": "26.5.0",
+    "artifact": "build/measurement-live-20261018/CarMirror.app",
+    "firebaseSDK": "12.19.2"
+  },
+  "test": {
+    "synthetic": true,
+    "eventDateLocal": "2026-10-18 01:52:55 Europe/Istanbul",
+    "relaunchSubmissionDateLocal": "2026-10-18 01:53:29 Europe/Istanbul",
+    "crashSharingConsent": true,
+    "analyticsConsent": false,
+    "analyticsDisabledLogVerified": true,
+    "debuggerAttached": false,
+    "exception": "EXC_BREAKPOINT",
+    "reportId": "095466000b6e4662a8c7c97f2e61294a"
+  },
+  "symbols": {
+    "uploadedBeforeTest": true,
+    "requiredDebugDylibUUID": "1E9E8CF1-9326-36A4-B70F-F1DDAB040A50",
+    "mainExecutableUUID": "8C4C3059-4769-38B8-9876-70065BD62EE8",
+    "consoleStatus": "Uploaded",
+    "dSYMArtifact": "build/measurement-live-20261018/CarMirror.app.dSYM"
+  },
+  "consoleVerification": {
+    "issueListSourceLineVerified": true,
+    "eventDetailStackTraceVerified": true,
+    "eventsShown": 1,
+    "frames": [
+      {
+        "function": "static MeasurementProbe.runIfRequested()",
+        "file": "AppMeasurement.swift",
+        "line": 189
+      },
+      {
+        "function": "__debug_main_executable_dylib_entry_point",
+        "file": "CarMirrorApp.swift",
+        "line": 12
+      },
+      {
+        "function": "main",
+        "file": "CarMirrorApp.swift",
+        "line": 12
+      }
+    ]
+  },
+  "logs": [
+    "build/measurement-live-20261018/symbol-check-crash-stderr.log",
+    "build/measurement-live-20261018/symbol-check-unified.log"
+  ],
+  "scope": "Live Firebase symbolication of the isolated Debug/simulator test. Production archive uploader execution and a physical-device Release crash were not exercised by this check."
+}

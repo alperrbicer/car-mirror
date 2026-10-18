@@ -6,11 +6,22 @@ import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSy
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  argumentsFor, assertCarPlayVideo, configurationFromSettings, exportPlist, parsePlist, parseProfile,
+  argumentsFor, assertCarPlayVideo, configurationFromSettings, exportPlist, parsePlist, parseProfile, keepBuildCache,
   physicalPhones, reserveBuild, root, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock,
 } from '../../scripts/deployment-lib.mjs'
 
 const team = 'TEAM123456'
+test('daily installs retain incremental caches with an explicit cleanup override', () => {
+  for (const command of ['install', 'simulator']) {
+    assert.equal(keepBuildCache(argumentsFor([command])), true)
+    assert.equal(keepBuildCache(argumentsFor([command, '--clean-cache'])), false)
+  }
+  for (const command of ['check', 'archive', 'upload', 'testflight']) {
+    assert.equal(keepBuildCache(argumentsFor([command])), false)
+    assert.equal(keepBuildCache(argumentsFor([command, '--keep-cache'])), true)
+  }
+  assert.throws(() => argumentsFor(['install', '--keep-cache', '--clean-cache']), /either/)
+})
 test('archive symbol completion accepts only empty resource dylibs', () => {
   const stub = 'cmd LC_ID_DYLIB\nsectname __text\nsegname __TEXT\nsize 0x00000000\nnsyms 0'
   assert.equal(isEmptyResourceStub(stub), true)
@@ -78,6 +89,30 @@ function temporary(t) {
   return directory
 }
 
+test('Crashlytics uploads only Release device symbols and propagates SDK failures', t => {
+  const directory = temporary(t)
+  const sdk = join(directory, 'SDK with spaces'); mkdirSync(sdk)
+  const log = join(directory, 'uploader.log')
+  const uploader = join(sdk, 'upload-symbols')
+  writeFileSync(uploader, '#!/bin/sh\necho "$*" >> "$TEST_UPLOAD_LOG"\ncase "$*" in *--validate*) exit "${TEST_VALIDATE_STATUS:-0}";; *) exit "${TEST_UPLOAD_STATUS:-0}";; esac\n')
+  chmodSync(uploader, 0o755)
+  const env = { ...process.env, MIRIVO_CRASHLYTICS_DIR: sdk, TEST_UPLOAD_LOG: log }
+  const invoke = overrides => spawnSync('/bin/sh', [join(root, 'scripts/upload-crashlytics-symbols.sh')], {
+    env: { ...env, CONFIGURATION: 'Release', PLATFORM_NAME: 'iphoneos', ...overrides }, encoding: 'utf8',
+  })
+  for (const overrides of [{ CONFIGURATION: 'Debug' }, { PLATFORM_NAME: 'iphonesimulator' }]) {
+    assert.equal(invoke(overrides).status, 0)
+    assert.equal(existsSync(log), false, 'Debug and simulator builds must never invoke the SDK uploader')
+  }
+  assert.equal(invoke({}).status, 0)
+  assert.equal(readFileSync(log, 'utf8'), '--build-phase --validate\n--build-phase\n')
+  writeFileSync(log, '')
+  assert.equal(invoke({ TEST_VALIDATE_STATUS: '17' }).status, 17)
+  assert.equal(readFileSync(log, 'utf8'), '--build-phase --validate\n', 'validation failure must stop upload')
+  assert.equal(invoke({ TEST_UPLOAD_STATUS: '18' }).status, 18, 'upload failure must fail the Release build')
+  assert.equal(invoke({ MIRIVO_CRASHLYTICS_DIR: join(directory, 'missing') }).status, 1)
+})
+
 function isolatedCLI(t) {
   const directory = temporary(t)
   mkdirSync(join(directory, 'Config'))
@@ -127,6 +162,9 @@ test('device discovery handles both schemas and never selects a Watch or an ambi
   assert.equal(selectDevice(list, 'My iPhone').udid, 'phone-udid')
   assert.throws(() => selectDevice(list, 'Watch'), /No matching/)
   assert.throws(() => selectDevice([]), /No matching/)
+  // Xcode may emit both formats while retiring the legacy dictionaries.
+  const mixed = { ...phone(), identifier: newer.identifier, properties: newer.properties }
+  assert.deepEqual(physicalPhones({ result: { devices: [mixed] } }), [list[1]])
 })
 
 test('signed app and profile must both retain App Group and identity', () => {
@@ -253,6 +291,7 @@ test('native commands reuse the same build and dependency caches', t => {
     assert.equal(result.status, 0, result.stderr)
     assert.ok(result.stdout.includes(JSON.stringify(join(fixture.directory, 'build/cache/DerivedData'))))
     assert.ok(result.stdout.includes(JSON.stringify(join(fixture.directory, 'build/cache/SourcePackages'))))
+    assert.ok(result.stdout.includes(`MIRIVO_CRASHLYTICS_DIR=${join(fixture.directory, 'build/cache/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics')}`))
     assert.ok(!result.stdout.includes('/<install>/DerivedData'))
   }
 })
@@ -374,6 +413,7 @@ writeFileSync(join(result, 'new'), 'result');
   const args = JSON.parse(readFileSync(log, 'utf8'))
   assert.equal(args[args.indexOf('-derivedDataPath') + 1], join(fixture.directory, 'build/cache/DerivedData'))
   assert.equal(args[args.indexOf('-clonedSourcePackagesDirPath') + 1], join(fixture.directory, 'build/cache/SourcePackages'))
+  assert.ok(args.includes(`MIRIVO_CRASHLYTICS_DIR=${join(fixture.directory, 'build/cache/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics')}`))
   assert.ok(args.includes('-only-testing:MirivoUITests'))
   assert.ok(args.includes('MIRIVO_REVENUECAT_API_KEY='), 'Simulator tests must not sync purchases to RevenueCat')
 

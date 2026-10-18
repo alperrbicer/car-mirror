@@ -1,0 +1,128 @@
+{
+  "checkedAt": "2026-10-17T23:11:12.698520+00:00",
+  "app": {
+    "name": "Mirivo",
+    "appleID": "6818560405",
+    "version": "1.0"
+  },
+  "scope": "Read-only App Store Connect readiness audit; no binary upload or App Review submission",
+  "archiveVerification": {
+    "status": "passed",
+    "version": "1.0",
+    "build": "39",
+    "evidence": "Release/AppStore/release-archive-20261018.json",
+    "crashlyticsUploadAccepted": true,
+    "appStoreIPAExportVerified": true
+  },
+  "appStoreConnect": {
+    "versionState": "Developer Rejected",
+    "selectedBuild": "14",
+    "latestTestFlightBuildObserved": {
+      "build": "35",
+      "status": "Testing"
+    },
+    "draft": {
+      "items": [
+        "Mirivo Pro group",
+        "Mirivo Pro Yearly",
+        "Mirivo Pro Weekly"
+      ],
+      "appVersionIncluded": false,
+      "submitEnabled": false,
+      "blockingText": "To submit your items for review, add an app version for the selected platform."
+    },
+    "releaseMode": "manual",
+    "reviewContactPresent": true,
+    "signInRequired": false,
+    "reviewNotes": {
+      "remoteHasObsoleteLifetimeRestoreClaim": true,
+      "preparedLocalFile": "Release/AppStore/review-notes.txt",
+      "appliedToPortal": false
+    },
+    "contentRights": {
+      "observed": "No, this app does not contain, show, or access third-party content.",
+      "assessment": "Inconsistent with user-supplied IPTV/M3U/Xtream playback. Owner must review applicable permissions and correct declaration before submission.",
+      "changed": false
+    },
+    "ageRating": {
+      "default": "18+",
+      "korea": "15+",
+      "preIOS26": "17+"
+    },
+    "subscriptions": {
+      "yearly": {
+        "id": "6818889933",
+        "status": "Ready for Review",
+        "availability": "All countries or regions selected",
+        "reviewScreenshotPresent": true
+      },
+      "weekly": {
+        "id": "6818888654",
+        "status": "Ready for Review",
+        "availability": "All countries or regions selected",
+        "reviewScreenshotPresent": true
+      }
+    },
+    "business": {
+      "freeAppsAgreement": "Active",
+      "paidAppsAgreement": "Active",
+      "bankAccount": "Active",
+      "USCertificateOfForeignStatus": "Active",
+      "W8BEN": "Active",
+      "DSA": "Active"
+    },
+    "privacyPublishedEvidence": "Release/AppStore/privacy-published-20261018.json"
+  },
+  "physicalAcceptance": {
+    "realVehicleVideo": "not_verified",
+    "lockedPhoneNewSource": "not_verified",
+    "parkDriveParkTransitions": "not_verified",
+    "userResponse": "Henüz doğrulamadım",
+    "carPlaySimulatorVideoProbe": {
+      "status": "failed_open",
+      "build": "38",
+      "setup": "Physical iPhone + Mac CarPlay Simulator, not a real vehicle",
+      "errorDomain": "AVFoundation",
+      "errorCode": -11870,
+      "attempts": 2,
+      "source": "docs/VEHICLE_PLAYBACK_QA.md",
+      "journal": "build/performance-audit-20261018/carplay-device-diagnostics/336FC2F7-B63D-4DB9-8BC0-AD7DD2594540/app.jsonl",
+      "limit": "Failure of the debug screen test does not establish the behavior of user/provider media."
+    }
+  },
+  "purchaseAcceptance": {
+    "revenueCatComplimentaryPro": "user_verified",
+    "weeklyYearlyAppleSandboxPurchaseAndRestore": "not_verified",
+    "userResponse": "Yalnız ücretsiz Pro erişimini doğruladım",
+    "note": "RevenueCat promotional access and local StoreKit tests are separate from Apple sandbox purchase and restore."
+  },
+  "publicLinksEvidence": [
+    "build/release-readiness-20261018/public-links/results.json",
+    "build/release-readiness-20261018/public-links/hls-result.json"
+  ],
+  "officialReferences": [
+    "https://developer.apple.com/help/app-store-connect/reference/app-information/app-information/",
+    "https://developer.apple.com/help/app-review/before-submitting-for-review/configure-in-app-purchases",
+    "https://developer.apple.com/app-store/review/",
+    "https://developer.apple.com/carplay/"
+  ],
+  "resumedAt": "2026-10-18T01:34:11.926853+00:00",
+  "portalRecheck": {
+    "status": "blocked_mac_locked",
+    "lastLiveAuditAt": "2026-10-17T23:11:12.698520+00:00",
+    "note": "Mac unlock requested; no newer portal state claimed."
+  },
+  "priorRegressionEvidence": {
+    "summary": "build/performance-audit-20261018/verification-summary.json",
+    "passingUIScenariosAcrossRuns": 16,
+    "passingSelectedPhysicalTests": 18,
+    "limits": "Aggregate results; physical tests predate later navigation changes. No real-vehicle video acceptance."
+  },
+  "reviewReadiness": "not_ready_for_submission",
+  "remainingItems": [
+    "Investigate CarPlay video probe error -11870 and complete real-vehicle video/locked-phone/park-drive-park acceptance.",
+    "Verify Apple sandbox weekly/yearly trial purchase and restore; complimentary RevenueCat Pro is already user-verified.",
+    "Upload the final accepted candidate to App Store Connect, replace selected build 14, apply prepared review notes, and include app version in the existing review draft.",
+    "Review content rights/permissions and correct the third-party content declaration."
+  ]
+}

@@ -23,6 +23,7 @@ try {
       '-configuration', 'Debug', '-parallel-testing-enabled', 'NO', '-jobs', '1', '-destination', `platform=iOS Simulator,id=${device}`,
       '-collect-test-diagnostics', 'never',
       '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, '-resultBundlePath', results,
+      `MIRIVO_CRASHLYTICS_DIR=${join(packageCacheRoot, 'checkouts/firebase-ios-sdk/Crashlytics')}`,
       ...(uiOnly ? ['-only-testing:MirivoUITests'] : []),
       ...selectedTests.map(test => `-only-testing:${test}`),
       `MIRIVO_MAIN_APP_ENTITLEMENTS=${join(root, 'Config/App.entitlements')}`,

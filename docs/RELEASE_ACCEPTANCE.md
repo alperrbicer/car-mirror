@@ -1,6 +1,24 @@
-> 15 Ekim 2026 güncellemesi: Apple CarPlay Video yetkisi etkinleştirildi; CarPlay video sahnesi, ekran paylaşımı ve bağlantı hatırlatması geri getirildi. Güncel dağıtım durumu DEPLOYMENT.md içindedir. Aşağıdaki eski build kayıtları tarihseldir.
+> 18 Ekim 2026 güncellemesi: Aşağıdaki güncel App Review denetimi esas alınır. Eski build, gizlilik yayını, ürün ve sözleşme kayıtları tarihseldir; güncel dağıtım kanıtı DEPLOYMENT.md içindedir.
 
 # Mirivo 1.0 kabul kaydı
+
+## 18 Ekim 2026 — App Review öncesi canlı kontrol
+
+App Store Connect'te 1.0 sürümü `Developer Rejected`, seçili ikili hâlâ **14**; son gözlenen TestFlight sürümü **35 / Testing**. İnceleme taslağında Mirivo Pro grubu ile haftalık/yıllık abonelikler bulunuyor, uygulama sürümü henüz eklenmemiş. Portal bu nedenle gönderimi engelliyor. Son aday Apple'a yüklendikten sonra seçilmeli ve uygulama sürümü aynı taslağa eklenmeli. Bu denetimde Apple'a ikili yükleme veya App Review gönderimi yapılmadı.
+
+İki abonelik de `Ready for Review`; ülkeler/bölgeler seçili ve inceleme görselleri mevcut. Free Apps Agreement, Paid Apps Agreement, banka hesabı, ABD vergi belgeleri ve DSA canlı kontrolde `Active`. İnceleme iletişim alanları dolu, giriş hesabı gerekmiyor, yayın tercihi manuel. Yaş derecesi alanları doldurulmuş. Gizlilik beyanı yayımlanmış; 18 Ekim gizlilik metinleri, koşullar ve yardım bağlantıları HTTPS 200 döndü. İnceleme notlarındaki Apple örnek HLS bağlantısının ana ve alt listeleri de 200 döndü; bu kontrol fiziksel oynatma kanıtı değildir.
+
+Portal inceleme notlarında artık desteklenmeyen ömür boyu ürünü geri yükleme anlatımı bulunuyor. `Release/AppStore/review-notes.txt` haftalık/yıllık ürünler, bağımsız ve varsayılan kapalı ölçümleme/çökme izinleri ve StoreKit puanlama davranışıyla güncellendi; portala henüz uygulanmadı.
+
+Content Rights alanında “No, this app does not contain, show, or access third-party content.” seçili. Bu ifade kullanıcı kaynaklarıyla IPTV/M3U/Xtream oynatma işleviyle uyuşmuyor. Hesap sahibi uygulanabilir içerik haklarını/izinlerini değerlendirip beyanı düzeltmeli; bu denetim içerik lisansı onayı vermedi ve alanı değiştirmedi. [Apple alan açıklaması](https://developer.apple.com/help/app-store-connect/reference/app-information/app-information/).
+
+Kullanıcı bu görüşmede gerçek araçta video, iPhone kilitliyken yeni kaynak açma ve park → sürüş → park geçişlerini **henüz doğrulamadığını** bildirdi. Ayrıca yalnız RevenueCat ücretsiz Pro erişimini doğruladı; Apple sandbox üzerinden haftalık/yıllık deneme satın alma ve geri yükleme kabulü açık. Yerel StoreKit testleri ve ücretsiz Pro hakkı bu ödeme kabulünün yerine geçmez. [Apple satın alma inceleme hazırlığı](https://developer.apple.com/help/app-review/before-submitting-for-review/configure-in-app-purchases).
+
+18 Ekim devam kontrolünde diğer çalışmanın tamamlanmış kayıtları da incelendi. Build 38 ve fiziksel iPhone ile Mac'teki CarPlay Simulator menüleri açılmış; video testinde iki kez AVFoundation `-11870` (`AVErrorExternalPlaybackNotSupportedForAsset`) oluşmuş. Bu, gerçek araç testi değildir ve kullanıcı/sağlayıcı medyasında aynı sonucun oluşacağını kanıtlamaz; yine de video çıkışı için açık bir başarısızlık olarak değerlendirilmelidir. Kaynak: `docs/VEHICLE_PLAYBACK_QA.md`, `build/performance-audit-20261018/verification-summary.json` ve ilgili cihaz günlüğü. Aynı denetimin 16 UI senaryosu ve 18 seçili fiziksel cihaz testi için geçen sonuçları, bu açık video sorununu kapatmaz.
+
+Üretim Release **1.0 (39)** arşivi, App Store IPA imzası ve otomatik Crashlytics sembol yüklemesi tamamlandı. Uygulama/uzantı dSYM UUID'leri son IPA ile eşleşiyor. Üretim dSYM'sinde `AppMeasurement.swift:55` yerel olarak çözüldü; bu adayda üretim çökmesi oluşturulmadı. 29 dağıtım ve 77 Swift Core testi geçti; bir isteğe bağlı test atlandı. Apple'a ikili yükleme veya inceleme gönderimi yapılmadı. Mac kilitli olduğu için bu devam turunda portal yeniden görüntülenemedi; yukarıdaki portal durumları aynı günün önceki canlı kontrolüne aittir.
+
+Canlı kontrol kaydı: `Release/AppStore/readiness-20261018.json`. Üretim arşivi, IPA ve yükleme kanıtı: `Release/AppStore/release-archive-20261018.json`. Önceki Firebase panelinde kaynak satırı çözümleme kanıtı: `Release/AppStore/crashlytics-verification-20261018.json` (Debug/simülatör 1.0 (35)).
 
 ## 15 Ekim 2026 — indirme ve oynatıcı yön geçişleri
 

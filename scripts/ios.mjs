@@ -4,7 +4,7 @@ import { homedir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 import { completeArchiveStubSymbols } from './archive-symbols.mjs'
 import {
-  argumentsFor, carPlayVideoKey, assertCarPlayVideo, configurationFromSettings, exportPlist, filePath, loadEnvironment,
+  argumentsFor, carPlayVideoKey, assertCarPlayVideo, configurationFromSettings, exportPlist, filePath, loadEnvironment, keepBuildCache,
   outputRoot, derivedDataRoot, packageCacheRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
   reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock, writeJson,
 } from './deployment-lib.mjs'
@@ -40,7 +40,8 @@ testflight  mobile:ios:testflight     Alias for upload
 --preview                  install only; compatibility alias for an iPhone install
 --allow-provisioning-updates  Allow Xcode to update signing profiles using Apple
 --dry-run                  Print the plan without running commands or writing files
---keep-cache               Keep build caches for repeated development builds
+--keep-cache               Keep caches (default for install/simulator)
+--clean-cache              Remove temporary build caches after the command
 
 Setup and examples: ${join(root, 'docs/DEPLOYMENT.md')}
 The app uses CarPlay Audio and Video. App Groups, push notifications and App Attest signing remain required.
@@ -64,6 +65,7 @@ function settings(configuration = 'Release') {
   const rows = JSON.parse(run('xcodebuild', ['-showBuildSettings', '-json', ...project,
     '-configuration', selectedConfiguration(configuration), '-destination', 'generic/platform=iOS',
     '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot,
+    `MIRIVO_CRASHLYTICS_DIR=${join(packageCacheRoot, 'checkouts/firebase-ios-sdk/Crashlytics')}`,
     'CODE_SIGNING_ALLOWED=NO', ...teamArguments()], { capture: true, quiet: true }))
   return configurationFromSettings(rows)
 }
@@ -126,7 +128,8 @@ function suites() {
 
 function buildArguments(configuration, destination, config, signing = 'device') {
   return ['-quiet', ...project, '-configuration', selectedConfiguration(configuration), '-destination', destination,
-    '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot, ...teamArguments(),
+    '-derivedDataPath', derivedDataRoot, '-clonedSourcePackagesDirPath', packageCacheRoot,
+    `MIRIVO_CRASHLYTICS_DIR=${join(packageCacheRoot, 'checkouts/firebase-ios-sdk/Crashlytics')}`, ...teamArguments(),
     ...(config ? [`CURRENT_PROJECT_VERSION=${config.build}`, `MARKETING_VERSION=${config.version}`] : []),
     ...(signing === 'device' ? provisioning() : signing === 'simulator'
       ? ['CODE_SIGNING_ALLOWED=YES', 'CODE_SIGN_IDENTITY=-'] : ['CODE_SIGNING_ALLOWED=NO'])]
@@ -340,7 +343,7 @@ try {
     const commands = { doctor, devices: showDevices, check, prepare: check, install: () => install(false), simulator: () => install(true),
       archive, export: () => exportArchive(existingArchive()), upload, testflight: upload }
     withNativeBuildLock(() => withBuildCacheCleanup(() => commands[options.command](), {
-      dryRun, keepCache: Boolean(options['keep-cache']),
+      dryRun, keepCache: keepBuildCache(options),
     }), { dryRun })
   }
 } catch (error) {

@@ -34,7 +34,7 @@ export function argumentsFor(argv) {
   const command = args.length && !args[0].startsWith('-') ? args.shift() : 'help'
   if (command !== 'help' && !Object.hasOwn(commandOptions, command)) throw new Error(`Unknown command: ${command}. Use --help.`)
   const { values, positionals } = parseArgs({ args, strict: true, allowPositionals: true, options: {
-    help: { type: 'boolean', short: 'h' }, 'dry-run': { type: 'boolean' }, 'keep-cache': { type: 'boolean' },
+    help: { type: 'boolean', short: 'h' }, 'dry-run': { type: 'boolean' }, 'keep-cache': { type: 'boolean' }, 'clean-cache': { type: 'boolean' },
     device: { type: 'string' }, archive: { type: 'string' }, version: { type: 'string' }, build: { type: 'string' },
     preview: { type: 'boolean' }, 'allow-provisioning-updates': { type: 'boolean' },
   } })
@@ -43,13 +43,19 @@ export function argumentsFor(argv) {
     values.device = positionals[0]
   }
   for (const [name, value] of Object.entries(values)) {
-    if (!['help', 'dry-run', 'keep-cache'].includes(name) && !commandOptions[command]?.includes(name)) throw new Error(`--${name} does not apply to ${command}.`)
+    if (!['help', 'dry-run', 'keep-cache', 'clean-cache'].includes(name) && !commandOptions[command]?.includes(name)) throw new Error(`--${name} does not apply to ${command}.`)
     if (typeof value === 'string' && !value.trim()) throw new Error(`--${name} requires a value.`)
   }
   if (values.version && !/^\d+(?:\.\d+){0,2}$/.test(values.version)) throw new Error('--version must look like 1.0 or 1.2.3.')
   if (values.build && !/^[1-9]\d{0,8}$/.test(values.build)) throw new Error('--build must be a positive integer with at most 9 digits.')
   if (values.archive && (values.version || values.build)) throw new Error('An existing --archive cannot change --version or --build.')
+  if (values['keep-cache'] && values['clean-cache']) throw new Error('Choose either --keep-cache or --clean-cache.')
   return { command, ...values }
+}
+
+export function keepBuildCache(options) {
+  if (options['clean-cache']) return false
+  return Boolean(options['keep-cache']) || ['install', 'simulator'].includes(options.command)
 }
 
 export function loadEnvironment() {
@@ -113,9 +119,9 @@ export function configurationFromSettings(rows) {
 
 export function physicalPhones(inventory) {
   return (inventory.result?.devices || []).flatMap(device => {
-    const hardware = device.hardwareProperties || device.properties?.hardware || {}
-    const connection = device.connectionProperties || device.properties?.connection || {}
-    const state = device.deviceProperties || device.properties?.state || {}
+    const hardware = device.properties?.hardware || device.hardwareProperties || {}
+    const connection = device.properties?.connection || device.connectionProperties || {}
+    const state = device.properties?.state || device.deviceProperties || {}
     // Xcode 27.1 omits reality for physical devices. ECID plus a hardware UDID
     // identifies those devices without admitting UUID-based simulators.
     const physical = hardware.reality === 'physical' || (hardware.reality == null && hardware.ecid &&

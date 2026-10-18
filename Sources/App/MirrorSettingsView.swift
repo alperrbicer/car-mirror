@@ -50,7 +50,11 @@ struct MirrorSettingsView: View {
                         Label(L10n.tr("Bildirimler"), systemImage: "bell")
                     }.accessibilityIdentifier("settings-notifications")
                     NavigationLink { LanguageSettingsView() } label: {
-                        LabeledContent(L10n.tr("Dil"), value: language == "system" ? L10n.tr("Sistemi izle") : L10n.appLanguage.nativeName)
+                        LabeledContent {
+                            Text(language == "system" ? L10n.tr("Sistemi izle") : L10n.appLanguage.nativeName)
+                        } label: {
+                            Label(L10n.tr("Dil"), systemImage: "globe")
+                        }
                     }.accessibilityIdentifier("settings-language")
                 }.listRowBackground(MirrorStyle.surface)
                 Section {

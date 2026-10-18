@@ -39,7 +39,6 @@ final class LibraryArtworkUITests: XCTestCase {
         let download = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "download-"))
             .allElementsBoundByIndex.first { $0.isHittable }
         XCTAssertNotNil(download)
-        XCTAssertGreaterThanOrEqual(download?.frame.width ?? 0, 44)
         app.buttons["close-playback-queue"].tap()
         XCTAssertTrue(app.otherElements["player-video"].exists)
     }

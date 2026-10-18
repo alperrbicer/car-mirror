@@ -4,7 +4,7 @@ import AVFoundation
 import CoreGraphics
 import CoreText
 
-// An original, silent reference clip isolates vehicle output from ReplayKit and LAN transport.
+// An original, silent reference clip isolates vehicle output from ReplayKit encoding.
 let destination = URL(fileURLWithPath: CommandLine.arguments.dropFirst().first ?? "Resources/ConnectionProbe.mp4")
 try? FileManager.default.removeItem(at: destination)
 let width = 960, height = 540, rate = 30, seconds = 15

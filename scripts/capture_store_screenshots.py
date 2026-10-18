@@ -60,7 +60,34 @@ class Handler(BaseHTTPRequestHandler):
     def serve(self, body):
         request = urlsplit(self.path)
         path = request.path
-        if path == "/favorite-lists.m3u":
+        sort_fixture = re.fullmatch(r"/sort-(delayed|failed|missing|embedded)/(get|player_api)\.php", path)
+        if sort_fixture:
+            mode, endpoint = sort_fixture.groups()
+            if endpoint == "get":
+                data = ("#EXTM3U\n" + "".join(
+                    f'#EXTINF:-1 group-title="FİLM: Sıralama"'
+                    + (f' tvg-added="{added}"' if mode == "embedded" else "")
+                    + f',{title}\nhttp://127.0.0.1:{PORT}/movie/artwork/fixture/{number}.mp4\n'
+                    for number, title, added in [(101, "Mavi Yolculuk", 1700000000),
+                                                  (103, "Son Işık", 1700000200),
+                                                  (102, "Yolun Ötesi", 1700000100)]
+                )).encode()
+                mime = "application/vnd.apple.mpegurl"
+            else:
+                if parse_qs(request.query).get("action") == ["get_vod_streams"]:
+                    if mode == "delayed":
+                        time.sleep(6)
+                    if mode in ["failed", "embedded"]:
+                        self.send_error(503)
+                        return
+                    data = json.dumps([
+                        {"stream_id": number, **({"added": added} if mode != "missing" else {})}
+                        for number, added in [(101, 1700000000), (103, 1700000200), (102, 1700000100)]
+                    ]).encode()
+                else:
+                    data = json.dumps({"user_info": {"auth": 1, "status": "Active", "exp_date": None}}).encode()
+                mime = "application/json"
+        elif path == "/favorite-lists.m3u":
             data = CATALOG + (f'#EXTINF:-1 group-title="RADYO: Müzik",Kıyı Radyo\n'
                               f'http://127.0.0.1:{PORT}/radio/favorite.mp3\n').encode()
             mime = "application/vnd.apple.mpegurl"
@@ -79,6 +106,9 @@ class Handler(BaseHTTPRequestHandler):
             data, mime = VIDEO, "video/mp4"
         elif path in ["/catalog/get.php", "/catalog.m3u", "/catalog-movie-episodes.m3u", "/catalog-single-season.m3u"]:
             data = CATALOG.replace(b"/series/artwork/fixture/", b"/movie/artwork/fixture/") if path == "/catalog-movie-episodes.m3u" else CATALOG
+            if parse_qs(request.query).get("movie_sorting") == ["1"]:
+                for group in ["FİLM: Macera", "FİLM: Drama"]:
+                    data = data.replace(f'group-title="{group}"'.encode(), 'group-title="FİLM: Sinema"'.encode())
             if path == "/catalog-single-season.m3u":
                 data = re.sub(rb"#EXTINF:[^\n]* S02-E\d+\n[^\n]+\n", b"", data)
             mime = "application/vnd.apple.mpegurl"
@@ -92,6 +122,11 @@ class Handler(BaseHTTPRequestHandler):
                         "director": "Deniz Örnek", "cast": "Ada Örnek, Ege Örnek"}
                 details = {"stream_id": 101, "description": "İki kardeş, yıllar sonra kıyı kasabalarında yeniden buluşur. Eski bir yelkenliyle çıktıkları yolculuk, onları unutulmuş hikâyelere ve yeni başlangıçlara götürür."}
                 data = json.dumps({"info": info, "movie_data": details} if query.get("vod_id") == ["101"] else {"info": {}}).encode()
+            elif query.get("action") == ["get_vod_streams"]:
+                data = json.dumps([
+                    {"stream_id": number, "added": added}
+                    for number, added in [(101, 1700000000), (103, 1700000200), (102, 1700000100)]
+                ]).encode()
             elif query.get("action") == ["get_series"]:
                 data = json.dumps([
                     {"series_id": 500, "name": "Kiyi Hikayeleri", "plot": SERIES_SYNOPSIS, "genre": "Drama", "releaseDate": "2024-01-26"},
@@ -101,9 +136,9 @@ class Handler(BaseHTTPRequestHandler):
                 if query.get("series_id") == ["500"]:
                     info = {"plot": SERIES_SYNOPSIS, "cover": f"http://127.0.0.1:{PORT}/catalog/art/light.png", "genre": "Drama", "releaseDate": "2024-01-26", "rating": "7.9", "director": "Deniz Örnek", "cast": "Ada Örnek, Ege Örnek"}
                     episodes = {"1": [
-                        {"id": "201", "description": "Kasabaya dönen bir mektup, üç arkadaşın hayatını değiştirir.", "info": {"plot": None, "duration_secs": 1980}},
-                        {"id": "202", "info": {"duration_secs": 2040}},
-                        {"id": "210", "info": {}},
+                        {"id": "201", "title": "Kıyı Hikâyeleri S01-E01 - Dönüş", "description": "Kasabaya dönen bir mektup, üç arkadaşın hayatını değiştirir.", "info": {"plot": None, "duration_secs": 1980}},
+                        {"id": "202", "info": {"name": "Yol Ayrımı", "duration_secs": 2040}},
+                        {"id": "210", "title": "Kıyı Hikâyeleri S01-E10", "info": {}},
                     ], "2": [{"id": "221", "info": {}}]}
                 else:
                     info = {"plot": "Gece çalışan bir ekip, şehrin sessiz saatlerinde yeni hikâyeler keşfeder."}

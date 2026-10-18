@@ -1,0 +1,133 @@
+{
+  "archive": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T01-31-40-514Z-archive-74577b/CarMirror.xcarchive",
+  "bundleId": "com.alperbicer.carmirror",
+  "appGroup": "group.com.alperbicer.carmirror",
+  "team": "3T2VY64864",
+  "version": "1.0",
+  "build": "39",
+  "createdAt": "2026-10-18T01:34:04.701Z",
+  "verifiedAt": "2026-10-18T01:37:20.165495+00:00",
+  "configuration": "Release",
+  "platform": "iphoneos",
+  "archiveCLIExit": "success",
+  "symbols": [
+    {
+      "name": "CarMirror",
+      "binary": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T01-31-40-514Z-archive-74577b/CarMirror.xcarchive/Products/Applications/CarMirror.app/CarMirror",
+      "dSYM": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T01-31-40-514Z-archive-74577b/CarMirror.xcarchive/dSYMs/CarMirror.app.dSYM",
+      "UUIDs": [
+        [
+          "0A45D979-EA4D-3806-A37B-9F26A442E349",
+          "arm64"
+        ]
+      ],
+      "UUIDsMatch": true,
+      "binarySHA256": "9c7c38945c0ddb3f7e9c48f026c0b60c8a309166604ad57421208a8dcce07fa4",
+      "dSYMSHA256": "91b92f6d58d41d86c8cb15a06fbaf8e81c13f9cc992da41cf74415bc594a127d"
+    },
+    {
+      "name": "CarMirrorBroadcast",
+      "binary": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T01-31-40-514Z-archive-74577b/CarMirror.xcarchive/Products/Applications/CarMirror.app/PlugIns/CarMirrorBroadcast.appex/CarMirrorBroadcast",
+      "dSYM": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T01-31-40-514Z-archive-74577b/CarMirror.xcarchive/dSYMs/CarMirrorBroadcast.appex.dSYM",
+      "UUIDs": [
+        [
+          "27C2010C-76FF-3FB5-BB3A-E663E08DBAA9",
+          "arm64"
+        ]
+      ],
+      "UUIDsMatch": true,
+      "binarySHA256": "f325e6ab615a974037b4d0fbcf52fc3d62d79e02c3dc73dde637e33cc12b3e2a",
+      "dSYMSHA256": "27ca117b01944027e626d42b5b3ca917e6a7b1dad7b7b4f64407c164e700eb57"
+    }
+  ],
+  "privacyDefaults": {
+    "FirebaseDataCollectionDefaultEnabled": false,
+    "FIREBASE_ANALYTICS_COLLECTION_ENABLED": false,
+    "FirebaseCrashlyticsCollectionEnabled": false,
+    "FirebaseAutomaticScreenReportingEnabled": false,
+    "GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED": false,
+    "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE": false,
+    "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA": false,
+    "GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION": false,
+    "FirebaseMessagingAutoInitEnabled": false
+  },
+  "NSPrivacyTracking": false,
+  "ITSAppUsesNonExemptEncryption": false,
+  "revenueCatProductionAppleKeyConfigured": true,
+  "proSalesEnabled": true,
+  "appCheckDebugEnabled": false,
+  "debugCrashProbePresent": false,
+  "bundledTestConfigurations": [],
+  "changedInputsSinceArchiveStarted": [],
+  "sourceSnapshot": "build/release-readiness-20261018/source-retry-before.json",
+  "archiveLog": "build/release-readiness-20261018/archive-retry.log",
+  "appleUploadPerformed": false,
+  "appReviewSubmitted": false,
+  "crashlytics": {
+    "firebaseProject": "mirivo",
+    "firebaseAppID": "1:1048434391164:ios:d00a9eeff4cd5a59a731f9",
+    "uploadMethod": "Automatic Release/iphoneos build phase; official upload-symbols CLI invoked synchronously",
+    "uploadedUUID": "0A45D979-EA4D-3806-A37B-9F26A442E349",
+    "uploaderAccepted": true,
+    "buildEventUploaded": true,
+    "sourceBuildActivityLog": "build/cache/DerivedData/Logs/Build/31B803F1-F9D6-4585-9E69-F144AD3632B3.xcactivitylog",
+    "evidenceLog": "build/release-readiness-20261018/crashlytics-build-phase.log",
+    "consoleRecheck": "not performed; Mac locked",
+    "productionCrashGenerated": false,
+    "priorSymbolicatedQACrashEvidence": "Release/AppStore/crashlytics-verification-20261018.json"
+  },
+  "ipa": {
+    "path": "/Users/alperbicer/Documents/projects/private/car-mirror/build/deploy/2026-10-18T01-35-30-221Z-export-ef7ef5/ipa/CarMirror.ipa",
+    "sizeBytes": 61415649,
+    "sha256": "a5dc05e9fbf42e8ae82097a268ff8f94fd1ee833e7d20a81161e6be486f603f0",
+    "exportCLIExit": "success",
+    "distributionSignatureAndProvisioningVerified": true,
+    "uuidChecks": [
+      {
+        "binary": "Payload/CarMirror.app/CarMirror",
+        "UUIDs": [
+          [
+            "0A45D979-EA4D-3806-A37B-9F26A442E349",
+            "arm64"
+          ]
+        ],
+        "matchesArchiveDSYM": true
+      },
+      {
+        "binary": "Payload/CarMirror.app/PlugIns/CarMirrorBroadcast.appex/CarMirrorBroadcast",
+        "UUIDs": [
+          [
+            "27C2010C-76FF-3FB5-BB3A-E663E08DBAA9",
+            "arm64"
+          ]
+        ],
+        "matchesArchiveDSYM": true
+      }
+    ],
+    "log": "build/release-readiness-20261018/export.log"
+  },
+  "sourceLineResolution": {
+    "result": "AppMeasurement.start() (in CarMirror) (AppMeasurement.swift:55)",
+    "method": "atos against this Release dSYM; no production crash generated",
+    "log": "build/release-readiness-20261018/release-source-line.log"
+  },
+  "tests": {
+    "deployment": {
+      "passed": 29,
+      "failed": 0
+    },
+    "swiftCore": {
+      "executed": 78,
+      "passed": 77,
+      "skipped": 1,
+      "failed": 0
+    },
+    "static": {
+      "languages": 22,
+      "localizedKeys": 515,
+      "translatedValues": 11330,
+      "errors": 0,
+      "log": "build/release-readiness-20261018/static-current.log"
+    }
+  }
+}
