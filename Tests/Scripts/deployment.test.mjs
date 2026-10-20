@@ -6,7 +6,7 @@ import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSy
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
-  argumentsFor, assertCarPlayVideo, configurationFromSettings, exportPlist, parsePlist, parseProfile, keepBuildCache,
+  argumentsFor, assertCarPlayVideo, configurationFromSettings, exportPlist, parsePlist, parseProfile, keepBuildCache, cleanProjectBuildOutputs,
   physicalPhones, reserveBuild, root, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock,
 } from '../../scripts/deployment-lib.mjs'
 
@@ -384,6 +384,21 @@ test('clean removes caches while retaining release files and the build counter',
   assert.equal(result.status, 0, result.stderr)
   for (const path of disposable) assert.equal(existsSync(join(fixture.directory, path)), false, path)
   for (const path of retained) assert.equal(readFileSync(join(fixture.directory, path), 'utf8'), 'keep', path)
+})
+
+test('project cleanup removes disposable named DerivedData while retaining deployment and fixtures', t => {
+  const directory = temporary(t)
+  const remove = ['build/store-capture-old/DerivedData/Build/artifact', 'build/iphone16pro-current-old/SourcePackages/artifact',
+    'build/old.xcresult/Data/report', 'build/cache/DerivedData/artifact']
+  const retain = ['build/deploy/old-archive/CarMirror.xcarchive/archive', 'build/library-artwork-fixtures/fixture.png',
+    'build/measurement-core/result.json']
+  for (const path of [...remove, ...retain]) {
+    mkdirSync(join(directory, path, '..'), { recursive: true })
+    writeFileSync(join(directory, path), 'content')
+  }
+  cleanProjectBuildOutputs(directory)
+  for (const path of remove) assert.equal(existsSync(join(directory, path)), false, path)
+  for (const path of retain) assert.equal(readFileSync(join(directory, path), 'utf8'), 'content', path)
 })
 
 test('app test entry point replaces its previous report and uses shared caches', t => {

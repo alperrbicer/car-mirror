@@ -1687,6 +1687,7 @@ struct NativeVideoView: UIViewControllerRepresentable {
     }
     func updateUIViewController(_ controller: NativeVideoController, context: Context) {
         if controller.videoLayer.player !== player { controller.videoLayer.player = player }
+        controller.observePresentationSize(of: player.currentItem)
         controller.displayMode = displayMode
         let gravity: AVLayerVideoGravity = displayMode == .fitScreen ? .resizeAspectFill :
             (displayMode == .fillScreen ? .resize : .resizeAspect)
@@ -1716,6 +1717,8 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
     private weak var playback: PlaybackController?
     var displayMode: PlayerVideoDisplayMode = .normal
     private var possibleObservation: NSKeyValueObservation?
+    private var presentationSizeObservation: NSKeyValueObservation?
+    private weak var observedItem: AVPlayerItem?
     private var pipPlaybackID: UUID?
     private var stoppingRetention: NativeVideoController?
     var stoppingForPlaybackReplacement: Bool { stoppingRetention != nil }
@@ -1725,6 +1728,7 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         self.displayMode = displayMode
         super.init(nibName: nil, bundle: nil)
         videoLayer.player = player
+        observePresentationSize(of: player.currentItem)
         if AVPictureInPictureController.isPictureInPictureSupported(), playback != nil {
             pip = AVPictureInPictureController(playerLayer: videoLayer)
             pip?.delegate = self
@@ -1754,6 +1758,17 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         if videoSurface.frame != frame { videoSurface.frame = frame }
         videoClipping.repairIfRestored()
         CATransaction.commit()
+    }
+    func observePresentationSize(of item: AVPlayerItem?) {
+        guard observedItem !== item else { return }
+        observedItem = item
+        presentationSizeObservation = item?.observe(\.presentationSize, options: [.initial, .new]) { [weak self] _, _ in
+            Task { @MainActor in
+                guard let self, self.videoLayer.player?.currentItem === item else { return }
+                self.view.setNeedsLayout()
+                self.view.layoutIfNeeded()
+            }
+        }
     }
     func setPrimary(_ primary: Bool) {
         let automatic = primary && !stoppingForPlaybackReplacement

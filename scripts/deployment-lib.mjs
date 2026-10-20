@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -201,6 +201,24 @@ export function cleanBuildCaches(projectRoot = root) {
   for (const path of ['.build', 'build/cache', 'build/ModuleCache']) {
     rmSync(join(projectRoot, path), { recursive: true, force: true })
   }
+}
+
+// Remove disposable project-local build and verification outputs. Keep deploy
+// archives, IPAs, upload records, source fixtures, and the build counter.
+export function cleanProjectBuildOutputs(projectRoot = root) {
+  const build = join(projectRoot, 'build')
+  if (!existsSync(build)) return
+  for (const name of readdirSync(build)) {
+    if (name === 'deploy') continue
+    const path = join(build, name)
+    if (name === 'cache' || name === 'ModuleCache' || name === '.native-build.lock') continue
+    if (name.endsWith('.xcresult') || /^(?:DerivedData|SourcePackages|store-capture-|store-localization-|paywall-verification-|iphone16pro-current-)/.test(name)) {
+      rmSync(path, { recursive: true, force: true })
+    }
+  }
+  const runs = join(build, 'deploy/runs')
+  rmSync(runs, { recursive: true, force: true })
+  cleanBuildCaches(projectRoot)
 }
 
 export function withBuildCacheCleanup(action, { dryRun = false, keepCache = false, projectRoot = root } = {}) {

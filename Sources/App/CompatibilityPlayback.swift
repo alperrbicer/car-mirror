@@ -427,6 +427,7 @@ final class CompatibilityVideoHost: UIView {
     fileprivate private(set) var role: Role = .inline
     fileprivate private(set) var displayMode: PlayerVideoDisplayMode = .normal
     fileprivate var fillsFrame: Bool { displayMode != .normal }
+    private var refreshScheduled = false
     fileprivate var isReadyForVideo: Bool {
         window != nil && !isHidden && bounds.width > 0 && bounds.height > 0
     }
@@ -456,6 +457,16 @@ final class CompatibilityVideoHost: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         engine?.updateVideoHost(self)
+        // VLC may enqueue drawable placement while SwiftUI is animating into
+        // fullscreen. Reapply once UIKit has committed the final host bounds.
+        guard !refreshScheduled else { return }
+        refreshScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.refreshScheduled = false
+            guard self.window != nil, self.bounds.width > 0, self.bounds.height > 0 else { return }
+            self.engine?.updateVideoHost(self)
+        }
     }
 }
 

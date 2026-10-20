@@ -1,0 +1,33 @@
+{
+  "app": "Mirivo",
+  "version": "1.0",
+  "build": "41",
+  "device": "Mirivo App Store iPad (13-inch, iOS 26.5)",
+  "capture": "Unedited screenshots captured from the running app via simctl io screenshot",
+  "uploads": {
+    "destination": "App Store Connect > Mirivo > iOS 1.0 > Media Manager > iPad 13-inch",
+    "localizations": {
+      "tr": "Turkish",
+      "en": "English (U.S.)"
+    },
+    "verifiedAfterReload": true
+  },
+  "files": {
+    "tr": {
+      "file": "Release/AppStore/screenshots/ipad-submission-20261018/tr/01-home.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "44d59bd8c82b6b1bae9be09ed7800084db98461a02b04f2fcd6ed2e49975f991"
+    },
+    "en": {
+      "file": "Release/AppStore/screenshots/ipad-submission-20261018/en/01-home.png",
+      "dimensions": [
+        2064,
+        2752
+      ],
+      "sha256": "bd8fe6dbc1b6526d26cdcc6f738ef166ed26b5876375cfc1cadf9bccf7acfbd7"
+    }
+  }
+}

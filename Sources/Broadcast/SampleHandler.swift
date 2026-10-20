@@ -68,6 +68,9 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
                 let orientation = CGImagePropertyOrientation(rawValue: value?.uint32Value ?? 1) ?? .up
                 if !recordedFirstFrame {
                     recordedFirstFrame = true
+                    let swapsDimensions = [.left, .leftMirrored, .right, .rightMirrored].contains(orientation)
+                    status.videoWidth = swapsDimensions ? CVPixelBufferGetHeight(image) : CVPixelBufferGetWidth(image)
+                    status.videoHeight = swapsDimensions ? CVPixelBufferGetWidth(image) : CVPixelBufferGetHeight(image)
                     var values = DiagnosticValues()
                     values.width = CVPixelBufferGetWidth(image)
                     values.height = CVPixelBufferGetHeight(image)
@@ -114,7 +117,7 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         let sessionID = status.sessionID
         let buffer = HLSBuffer(retainedSegments: 24, playlistSegments: 12, targetDuration: 1)
         status.audioMode = options.audioMode
-        let encoder = ScreenStreamEncoder(buffer: buffer, quality: options.quality, includesAudio: options.audioMode == .synchronized, segmentInterval: 0.5)
+        let encoder = ScreenStreamEncoder(buffer: buffer, quality: options.quality, includesAudio: options.audioMode == .synchronized, segmentInterval: 0.35)
         if options.captionsEnabled, #available(iOS 26, *) {
             captionService = LiveCaptionTranscriber(locale: options.captionLocale,
                 onText: { [weak encoder] text in encoder?.setCaption(text) }, onUnavailable: { [weak self] in

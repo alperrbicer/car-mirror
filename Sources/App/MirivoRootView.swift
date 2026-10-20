@@ -15,6 +15,7 @@ struct MirivoRootView: View {
     @ObservedObject private var library = SourceLibrary.shared
     @ObservedObject private var notifications = NotificationStore.shared
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     init(model: MirrorModel, onInitialContentReady: (() -> Void)? = nil, replayOnboarding: @escaping () -> Void = {}) {
         self.model = model
@@ -47,7 +48,7 @@ struct MirivoRootView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 12)
                 .padding(.bottom, 28)
-                .frame(maxWidth: 620)
+                .frame(maxWidth: horizontalSizeClass == .regular ? 1100 : 620)
                 .frame(maxWidth: .infinity)
             }
             .scrollIndicators(.hidden)

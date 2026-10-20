@@ -155,6 +155,11 @@ struct ExternalDisplayPlayerView: View {
 
     init(model: MirrorModel) { self.model = model; playback = model.playback }
     private var queueTitle: String { model.selectedMediaChannel?.episode == nil ? "Kanallar" : "Bölümler" }
+    private var portraitScreenShare: Bool {
+        guard model.broadcasting, let capture = model.capture,
+              let width = capture.videoWidth, let height = capture.videoHeight else { return false }
+        return height > width
+    }
     private var channels: [MediaChannel] {
         favoriteSeries?.channels ?? model.playbackQueue
     }
@@ -181,14 +186,14 @@ struct ExternalDisplayPlayerView: View {
                         }
                         Spacer(minLength: 0)
                         HStack(spacing: 22) {
-                            if model.playbackQueue.count > 1 {
+                            if !model.broadcasting && model.playbackQueue.count > 1 {
                                 transport("backward.end.fill", title: "Önceki", id: "external-previous") { model.switchChannel(-1) }
                                     .disabled(model.adjacentChannel(-1) == nil)
                             }
                             transport(playback.isPlaying ? "pause.fill" : "play.fill", title: playback.isPlaying ? "Duraklat" : "Oynat", id: "external-play-pause") {
                                 playback.togglePlayPause()
                             }
-                            if model.playbackQueue.count > 1 {
+                            if !model.broadcasting && model.playbackQueue.count > 1 {
                                 transport("forward.end.fill", title: "Sonraki", id: "external-next") { model.switchChannel(1) }
                                     .disabled(model.adjacentChannel(1) == nil)
                             }
@@ -199,18 +204,20 @@ struct ExternalDisplayPlayerView: View {
                                 .id(model.selectedMediaChannel?.id)
                         }
                         HStack {
-                            if model.selectedMediaChannel != nil {
+                            if !model.broadcasting, model.selectedMediaChannel != nil {
                                 Button { showingChannels.toggle(); scheduleHide() } label: {
                                     Label(L10n.tr(queueTitle), systemImage: "list.bullet")
                                 }.accessibilityIdentifier("external-channels")
                             }
                             Spacer()
-                            Button {
-                                displayMode = displayMode == .fillScreen ? .normal : .fillScreen
-                                scheduleHide()
-                            } label: {
-                                Label(L10n.tr(displayMode == .fillScreen ? "Sığdır" : "Uzat"), systemImage: "aspectratio")
-                            }.accessibilityIdentifier("external-display-mode")
+                            if !portraitScreenShare {
+                                Button {
+                                    displayMode = displayMode == .fillScreen ? .normal : .fillScreen
+                                    scheduleHide()
+                                } label: {
+                                    Label(L10n.tr(displayMode == .fillScreen ? "Sığdır" : "Uzat"), systemImage: "aspectratio")
+                                }.accessibilityIdentifier("external-display-mode")
+                            }
                         }.font(.body.weight(.semibold)).buttonStyle(.bordered)
                             .tint(.white).controlSize(.large)
                     }
@@ -221,7 +228,7 @@ struct ExternalDisplayPlayerView: View {
                 if playback.state == .loading {
                     ProgressView().controlSize(.large).tint(.white).allowsHitTesting(false)
                 }
-                if showingChannels {
+                if showingChannels && !model.broadcasting {
                     channelPanel.frame(width: min(480, geometry.size.width * 0.48))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -280,18 +287,26 @@ struct ExternalDisplayPlayerView: View {
                             showingChannels = false; controlsVisible = true; scheduleHide()
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
-                                MediaArtworkView(channel: channel, cornerRadius: 10).aspectRatio(16 / 9, contentMode: .fit)
+                                MediaArtworkView(channel: channel, cornerRadius: 10)
+                                    .aspectRatio(16 / 9, contentMode: .fit)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                                     .overlay(alignment: .topLeading) {
                                         if channel.id == model.selectedMediaChannel?.id {
                                             Image(systemName: "waveform").padding(6).background(MirrorStyle.accent, in: Capsule()).foregroundStyle(.black).padding(5)
                                         }
                                     }
-                                Text(channel.title).font(.subheadline.weight(.medium)).lineLimit(2)
+                                Text(channelPanelTitle(for: channel))
+                                    .font(.subheadline.weight(.medium))
+                                    .lineLimit(2)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }.contentShape(Rectangle())
                         }.buttonStyle(.plain)
                       }
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.bottom, 12)
                 if loadingFavorite { ProgressView().padding() }
                 if favoritesOnly && favoriteSeries == nil && favoriteItems.isEmpty {
                     Text(L10n.tr("Sevdiğin içerikleri kalp düğmesiyle buraya ekle.")).font(.subheadline).padding()
@@ -299,6 +314,12 @@ struct ExternalDisplayPlayerView: View {
             }
         }.padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
             .padding(8).accessibilityIdentifier("external-channel-panel")
+    }
+    private func channelPanelTitle(for channel: MediaChannel) -> String {
+        guard let episode = channel.episode else { return channel.title }
+        let number = SeriesText.episode(episode)
+        guard let title = episode.resolvedTitle(providerTitle: channel.metadata.episodeTitle) else { return number }
+        return number + " · " + title
     }
     @MainActor private func openFavorite(_ item: FavoriteMedia) async {
         guard !loadingFavorite else { return }

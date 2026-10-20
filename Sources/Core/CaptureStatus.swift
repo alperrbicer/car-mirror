@@ -11,6 +11,8 @@ public struct CaptureStatus: Codable, Equatable, Sendable {
     public var receivedFrames: Int = 0
     public var encodedFrames: Int = 0
     public var droppedFrames: Int = 0
+    public var videoWidth: Int?
+    public var videoHeight: Int?
     public var segmentCount: Int = 0
     public var bufferedBytes: Int = 0
     public var loopbackURL: URL?
