@@ -197,6 +197,13 @@ final class PlaybackController: ObservableObject {
         guard compatibility == nil, currentNativePiP === controller else { return }
         pictureInPictureAvailabilityChanged()
     }
+    func nativeVideoOutputReadinessChanged(for item: AVPlayerItem, ready: Bool) {
+        guard ready, request?.presentation == .video, compatibility == nil,
+              player.currentItem === item,
+              item.presentationSize.width > 0, item.presentationSize.height > 0,
+              !videoReadyForDisplay else { return }
+        videoReadyForDisplay = true
+    }
     func startPictureInPicture() {
         // A request during the return animation is rejected by AVKit. Do not
         // latch startingPiP for a request that was never sent.
@@ -385,6 +392,10 @@ final class PlaybackController: ObservableObject {
     @Published private(set) var state: State = .idle {
         didSet { measurement.playing(state == .playing) }
     }
+    /// True after the current native/VLC video renderer has a decoded frame.
+    /// The inline player uses this to prevent a fullscreen transition from
+    /// animating an uninitialized video rectangle during startup.
+    @Published private(set) var videoReadyForDisplay = false
     private let measurement = PlaybackMeasurement()
     var hasActivePlayback: Bool { state == .loading || state == .playing || state == .paused }
     var canUseVehicleMode: Bool { state == .playing || state == .paused }
@@ -610,6 +621,7 @@ final class PlaybackController: ObservableObject {
             !hasRemoteVideoOutput
         let wasBackgrounded = enteredBackgroundWithVideo
         stop(stopRemoteCastMedia: !replacingCastMedia, deactivateAudioSession: tvDevice != nil)
+        videoReadyForDisplay = presentation != .video
         measurement.begin(route: tvDevice != nil ? .cast : externalDisplayConnected ? .external
             : requiresExternalPlayback && !playsOnPhone ? .airplay : .phone)
         enteredBackgroundWithVideo = wasBackgrounded && presentation == .video && tvDevice == nil
@@ -738,6 +750,11 @@ final class PlaybackController: ObservableObject {
             engine.onPiPWillStop = { [weak self, weak engine] in
                 guard let self, self.compatibility === engine else { return }
                 self.pictureInPictureWillStop()
+            }
+            engine.onVideoReady = { [weak self, weak engine] in
+                guard let self, let engine, self.compatibility === engine,
+                      self.request?.presentation == .video else { return }
+                self.videoReadyForDisplay = true
             }
             state = .loading
             var resumePosition: Double? = position > 0 ? position : nil
@@ -918,6 +935,7 @@ final class PlaybackController: ObservableObject {
     func stop(stopRemoteCastMedia: Bool = true, deactivateAudioSession: Bool = true) {
         measurement.finish()
         playbackID = UUID()
+        videoReadyForDisplay = false
         liveRecoveryTask?.cancel(); liveRecoveryTask = nil
         liveRecoveryAttempt = 0
         foregroundPiPRestoreTask?.cancel(); foregroundPiPRestoreTask = nil

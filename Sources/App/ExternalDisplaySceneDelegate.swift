@@ -148,6 +148,15 @@ struct ExternalDisplayPlayerView: View {
     @State private var showingChannels = false
     @State private var favoritesOnly = false
     @State private var favoriteSeries: MediaSeries?
+    @State private var browsingCategories = false
+    @State private var browsingSeries: MediaSeries?
+    @State private var selectedCategoryName: String?
+    @State private var sourceCategories: [MediaChannelCategory] = []
+    @State private var selectedSourceCatalog: MediaSeriesCatalog?
+    @State private var catalogLoading = false
+    @State private var catalogError: String?
+    @State private var catalogRequestID = UUID()
+    @State private var catalogTask: Task<Void, Never>?
     @State private var loadingFavorite = false
     @State private var favoriteError: String?
     @State private var scrubbing = false
@@ -164,10 +173,30 @@ struct ExternalDisplayPlayerView: View {
         favoriteSeries?.channels ?? model.playbackQueue
     }
     private var favoriteItems: [FavoriteMedia] { favorites.entries.filter { $0.sourceID == model.playbackSourceID } }
+    private var externalDisplayMode: PlayerVideoDisplayMode {
+        displayMode == .fillScreen ? .fitScreen : displayMode
+    }
+    private var selectedSourceCategory: MediaChannelCategory? {
+        guard let selectedCategoryName else { return nil }
+        return sourceCategories.first { $0.id == selectedCategoryName }
+    }
+    private var categoryPanelTitle: String {
+        browsingSeries?.title ?? selectedSourceCategory.map { $0.name.isEmpty ? L10n.tr("Diğer kanallar") : $0.name }
+            ?? L10n.tr("Kategoriler")
+    }
+    private var panelScrollIdentity: String {
+        if browsingCategories {
+            if let browsingSeries { return "category-series-\(browsingSeries.id)" }
+            if let selectedCategoryName { return "category-items-\(selectedCategoryName)" }
+            return "categories"
+        }
+        if favoritesOnly { return favoriteSeries.map { "favorite-series-\($0.id)" } ?? "favorites" }
+        return "playback-queue"
+    }
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                MediaVideoView(playback: playback, role: .external, displayMode: displayMode)
+                MediaVideoView(playback: playback, role: .external, displayMode: externalDisplayMode)
                     .frame(maxWidth: .infinity, maxHeight: .infinity).clipped()
                 Color.clear.contentShape(Rectangle()).onTapGesture {
                     controlsVisible.toggle(); scheduleHide()
@@ -186,14 +215,14 @@ struct ExternalDisplayPlayerView: View {
                         }
                         Spacer(minLength: 0)
                         HStack(spacing: 22) {
-                            if !model.broadcasting && model.playbackQueue.count > 1 {
+                            if !showingChannels && !model.broadcasting && model.playbackQueue.count > 1 {
                                 transport("backward.end.fill", title: "Önceki", id: "external-previous") { model.switchChannel(-1) }
                                     .disabled(model.adjacentChannel(-1) == nil)
                             }
                             transport(playback.isPlaying ? "pause.fill" : "play.fill", title: playback.isPlaying ? "Duraklat" : "Oynat", id: "external-play-pause") {
                                 playback.togglePlayPause()
                             }
-                            if !model.broadcasting && model.playbackQueue.count > 1 {
+                            if !showingChannels && !model.broadcasting && model.playbackQueue.count > 1 {
                                 transport("forward.end.fill", title: "Sonraki", id: "external-next") { model.switchChannel(1) }
                                     .disabled(model.adjacentChannel(1) == nil)
                             }
@@ -212,10 +241,10 @@ struct ExternalDisplayPlayerView: View {
                             Spacer()
                             if !portraitScreenShare {
                                 Button {
-                                    displayMode = displayMode == .fillScreen ? .normal : .fillScreen
+                                    displayMode = externalDisplayMode == .fitScreen ? .normal : .fitScreen
                                     scheduleHide()
                                 } label: {
-                                    Label(L10n.tr(displayMode == .fillScreen ? "Sığdır" : "Uzat"), systemImage: "aspectratio")
+                                    Label(L10n.tr(externalDisplayMode == .fitScreen ? "Normal" : "Sığdır"), systemImage: "aspectratio")
                                 }.accessibilityIdentifier("external-display-mode")
                             }
                         }.font(.body.weight(.semibold)).buttonStyle(.bordered)
@@ -230,6 +259,7 @@ struct ExternalDisplayPlayerView: View {
                 }
                 if showingChannels && !model.broadcasting {
                     channelPanel.frame(width: min(480, geometry.size.width * 0.48))
+                        .frame(height: max(0, geometry.size.height - 16))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }.foregroundStyle(.white)
@@ -241,16 +271,34 @@ struct ExternalDisplayPlayerView: View {
         .task(id: model.selectedMediaChannel?.id) { await model.restorePlaybackQueueFromSource(); scheduleHide() }
         .onChange(of: playback.isPlaying) { _, _ in controlsVisible = true; scheduleHide() }
         .onChange(of: favoritesOnly) { _, _ in favoriteSeries = nil }
+        .onChange(of: model.playbackSourceID) { _, _ in
+            catalogTask?.cancel()
+            catalogTask = nil
+            catalogRequestID = UUID()
+            catalogLoading = false
+            catalogError = nil
+            sourceCategories = []
+            selectedSourceCatalog = nil
+            browsingCategories = false
+            browsingSeries = nil
+            selectedCategoryName = nil
+        }
         .alert(BrandIdentity.name, isPresented: Binding(get: { favoriteError != nil }, set: { if !$0 { favoriteError = nil } })) {
             Button(L10n.tr("Tamam")) { favoriteError = nil }
         } message: { Text(favoriteError ?? "") }
-        .onDisappear { hideTask?.cancel() }
+        .onDisappear { hideTask?.cancel(); catalogTask?.cancel() }
     }
 
     private var channelPanel: some View {
         VStack(spacing: 12) {
             HStack {
-                if let favoriteSeries {
+                if browsingCategories {
+                    Button { goBackInCategories() } label: {
+                        Image(systemName: "chevron.backward").frame(width: 44, height: 44)
+                    }.buttonStyle(.plain).accessibilityLabel(L10n.tr("Geri"))
+                    Text(categoryPanelTitle).font(.headline).lineLimit(1)
+                    Spacer(minLength: 0)
+                } else if let favoriteSeries {
                     Button { self.favoriteSeries = nil } label: {
                         Label(L10n.tr("Favoriler"), systemImage: "chevron.backward").frame(minHeight: 44)
                     }
@@ -261,6 +309,9 @@ struct ExternalDisplayPlayerView: View {
                         Text(L10n.tr(queueTitle)).tag(false)
                         Text(L10n.tr("Favoriler")).tag(true)
                     }.pickerStyle(.segmented)
+                    Button { showSourceCategories() } label: {
+                        Image(systemName: "square.grid.2x2").frame(width: 44, height: 44)
+                    }.buttonStyle(.plain).accessibilityLabel(L10n.tr("Kategoriler"))
                 }
                 Button { showingChannels = false; scheduleHide() } label: {
                     Image(systemName: "xmark").frame(width: 44, height: 44)
@@ -268,7 +319,30 @@ struct ExternalDisplayPlayerView: View {
             }
             ScrollView {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-                    if favoritesOnly && favoriteSeries == nil {
+                    if browsingCategories {
+                        if let browsingSeries {
+                            ForEach(browsingSeries.channels) { channel in
+                                categoryChannelCard(channel, queue: browsingSeries.channels)
+                            }
+                        } else if selectedCategoryName != nil, let selectedSourceCatalog {
+                            ForEach(selectedSourceCatalog.series) { series in
+                                categorySeriesCard(series)
+                            }
+                            ForEach(selectedSourceCatalog.ungrouped) { channel in
+                                categoryChannelCard(channel, queue: selectedSourceCategory?.channels ?? [])
+                            }
+                        } else if catalogLoading {
+                            ProgressView().frame(maxWidth: .infinity).padding()
+                        } else if !sourceCategories.isEmpty {
+                            ForEach(sourceCategories) { category in
+                                categoryCard(category)
+                            }
+                        } else if let catalogError {
+                            Text(catalogError).font(.subheadline).foregroundStyle(.secondary).padding()
+                        } else {
+                            Text(L10n.tr("İçerik bulunamadı")).font(.subheadline).foregroundStyle(.secondary).padding()
+                        }
+                    } else if favoritesOnly && favoriteSeries == nil {
                         ForEach(favoriteItems) { item in
                             Button { Task { await openFavorite(item) } } label: {
                                 VStack(alignment: .leading, spacing: 6) {
@@ -306,14 +380,136 @@ struct ExternalDisplayPlayerView: View {
                     }
                 }
                 .padding(.horizontal, 8)
-                .padding(.bottom, 12)
+                .padding(.bottom, 16)
                 if loadingFavorite { ProgressView().padding() }
                 if favoritesOnly && favoriteSeries == nil && favoriteItems.isEmpty {
                     Text(L10n.tr("Sevdiğin içerikleri kalp düğmesiyle buraya ekle.")).font(.subheadline).padding()
                 }
             }
-        }.padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
-            .padding(8).accessibilityIdentifier("external-channel-panel")
+            .id(panelScrollIdentity)
+            .scrollIndicators(.hidden)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .padding(8)
+        .accessibilityIdentifier("external-channel-panel")
+    }
+
+    private func categoryCard(_ category: MediaChannelCategory) -> some View {
+        Button {
+            selectedCategoryName = category.id
+            selectedSourceCatalog = MediaSeriesCatalog(category.channels)
+            browsingSeries = nil
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                if let channel = category.channels.first {
+                    MediaArtworkView(channel: channel, cornerRadius: 10)
+                        .aspectRatio(16 / 9, contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                Text(category.name.isEmpty ? L10n.tr("Diğer kanallar") : category.name)
+                    .font(.subheadline.weight(.medium)).lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(String(format: L10n.tr("%d içerik"), category.channels.count))
+                    .font(.caption).foregroundStyle(.secondary)
+            }.contentShape(Rectangle())
+        }.buttonStyle(.plain)
+    }
+
+    private func categorySeriesCard(_ series: MediaSeries) -> some View {
+        Button { browsingSeries = series } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                if let channel = series.artworkChannel {
+                    MediaArtworkView(channel: channel, cornerRadius: 10)
+                        .aspectRatio(16 / 9, contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                Text(series.title).font(.subheadline.weight(.medium)).lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(L10n.tr("Dizi")).font(.caption).foregroundStyle(.secondary)
+            }.contentShape(Rectangle())
+        }.buttonStyle(.plain)
+    }
+
+    private func categoryChannelCard(_ channel: MediaChannel, queue: [MediaChannel]) -> some View {
+        Button {
+            let playbackQueue = MediaSeriesCatalog.playbackQueue(for: channel, in: queue)
+            _ = model.playMedia(channel, queue: playbackQueue, sourceID: model.playbackSourceID)
+            showingChannels = false
+            controlsVisible = true
+            scheduleHide()
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                MediaArtworkView(channel: channel, cornerRadius: 10)
+                    .aspectRatio(16 / 9, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                Text(channelPanelTitle(for: channel))
+                    .font(.subheadline.weight(.medium)).lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }.contentShape(Rectangle())
+        }.buttonStyle(.plain)
+    }
+
+    private func showSourceCategories() {
+        favoritesOnly = false
+        favoriteSeries = nil
+        browsingCategories = true
+        browsingSeries = nil
+        selectedCategoryName = nil
+        selectedSourceCatalog = nil
+        catalogError = nil
+        catalogTask?.cancel()
+        catalogTask = nil
+        let requestID = UUID()
+        catalogRequestID = requestID
+        let sourceID = model.playbackSourceID
+        guard let sourceID,
+              let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) else {
+            sourceCategories = MediaChannelCategory.group(model.playbackQueue)
+            catalogLoading = false
+            return
+        }
+        if let cached = SourceLibrary.shared.cachedChannels(for: source) {
+            sourceCategories = MediaChannelCategory.group(cached)
+            catalogLoading = false
+            if cached.isEmpty { catalogError = L10n.tr("İçerik bulunamadı") }
+            return
+        }
+        sourceCategories = []
+        catalogLoading = true
+        catalogTask = Task { @MainActor in
+            defer {
+                if self.catalogRequestID == requestID {
+                    self.catalogLoading = false
+                    self.catalogTask = nil
+                }
+            }
+            do {
+                let loaded = try await SourceLibrary.shared.channels(for: source)
+                guard !Task.isCancelled, self.catalogRequestID == requestID,
+                      self.model.playbackSourceID == sourceID else { return }
+                self.sourceCategories = MediaChannelCategory.group(loaded)
+                if loaded.isEmpty { self.catalogError = L10n.tr("İçerik bulunamadı") }
+            } catch {
+                guard !Task.isCancelled, self.catalogRequestID == requestID,
+                      self.model.playbackSourceID == sourceID else { return }
+                self.catalogError = L10n.tr("İçerikler yüklenemedi.")
+            }
+        }
+    }
+
+    private func goBackInCategories() {
+        if browsingSeries != nil { browsingSeries = nil }
+        else if selectedCategoryName != nil {
+            selectedCategoryName = nil
+            selectedSourceCatalog = nil
+        }
+        else { browsingCategories = false }
     }
     private func channelPanelTitle(for channel: MediaChannel) -> String {
         guard let episode = channel.episode else { return channel.title }

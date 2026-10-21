@@ -24,6 +24,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
     var onPiPStarted: (() -> Void)?
     var onPiPWillStop: (() -> Void)?
     var onPiPStopped: (() -> Void)?
+    var onVideoReady: (() -> Void)?
     private var active = false
     private var lowLatency = false
     private var stoppingRetention: CompatibilityPlayback?
@@ -90,6 +91,7 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         active = false
         awaitingPause = false; resumeAfterPause = false
         errorConfirmationTask?.cancel(); errorConfirmationTask = nil
+        videoView.stopObservingVideoReadiness()
         videoView.prepareForPictureInPicture()
         seekTask?.cancel(); seekTask = nil
         seekTimeoutTask?.cancel(); seekTimeoutTask = nil
@@ -246,7 +248,13 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
             videoView.frame = frame
             CATransaction.commit()
         }
+        videoView.observeVideoReadiness()
         setVideoDisplayMode(selected.displayMode, in: frame)
+    }
+    fileprivate func videoOutputBecameReady(_ layer: AVSampleBufferDisplayLayer) {
+        guard active, videoView.pictureInPictureLayer === layer,
+              mediaPlayer.videoSize.width > 0, mediaPlayer.videoSize.height > 0 else { return }
+        onVideoReady?()
     }
     private final class WeakVideoHost {
         weak var value: CompatibilityVideoHost?
@@ -474,6 +482,8 @@ final class CompatibilityVideoHost: UIView {
 final class CompatibilityVideoSurface: UIView {
     weak var owner: CompatibilityPlayback?
     private lazy var videoClipping = PlayerVideoClipping(root: layer)
+    private weak var readinessLayer: AVSampleBufferDisplayLayer?
+    private var readinessObserver: NSObjectProtocol?
     // Restore phone/PiP protection when the drawable returns to a local host.
     var captureProtectionEnabled = true {
         didSet { if oldValue != captureProtectionEnabled { protectVideoLayers(in: layer) } }
@@ -516,7 +526,34 @@ final class CompatibilityVideoSurface: UIView {
         }
         return videoLayer(in: layer)
     }
+    func observeVideoReadiness() {
+        guard let video = pictureInPictureLayer else {
+            stopObservingVideoReadiness()
+            return
+        }
+        if readinessLayer !== video {
+            stopObservingVideoReadiness()
+            readinessLayer = video
+            readinessObserver = NotificationCenter.default.addObserver(
+                forName: .AVSampleBufferDisplayLayerReadyForDisplayDidChange,
+                object: video,
+                queue: .main
+            ) { [weak self, weak video] _ in
+                MainActor.assumeIsolated {
+                    guard let self, let video, video.isReadyForDisplay else { return }
+                    self.owner?.videoOutputBecameReady(video)
+                }
+            }
+        }
+        if video.isReadyForDisplay { owner?.videoOutputBecameReady(video) }
+    }
+    func stopObservingVideoReadiness() {
+        if let readinessObserver { NotificationCenter.default.removeObserver(readinessObserver) }
+        readinessObserver = nil
+        readinessLayer = nil
+    }
     private func preparePictureInPictureSource() {
+        observeVideoReadiness()
         if let video = pictureInPictureLayer { owner?.preparePictureInPicture(with: video) }
     }
 }

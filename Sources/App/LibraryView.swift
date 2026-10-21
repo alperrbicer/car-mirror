@@ -1717,7 +1717,9 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
     private weak var playback: PlaybackController?
     var displayMode: PlayerVideoDisplayMode = .normal
     private var possibleObservation: NSKeyValueObservation?
+    private var currentItemObservation: NSKeyValueObservation?
     private var presentationSizeObservation: NSKeyValueObservation?
+    private var readyForDisplayObservation: NSKeyValueObservation?
     private weak var observedItem: AVPlayerItem?
     private var pipPlaybackID: UUID?
     private var stoppingRetention: NativeVideoController?
@@ -1729,6 +1731,16 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         super.init(nibName: nil, bundle: nil)
         videoLayer.player = player
         observePresentationSize(of: player.currentItem)
+        currentItemObservation = player.observe(\.currentItem, options: [.initial, .new]) { [weak self, weak player] _, _ in
+            Task { @MainActor in
+                guard let self, let player else { return }
+                self.observePresentationSize(of: player.currentItem)
+                self.requestVideoLayout(for: player.currentItem)
+            }
+        }
+        readyForDisplayObservation = videoLayer.observe(\.isReadyForDisplay, options: [.initial, .new]) { [weak self] _, _ in
+            Task { @MainActor in self?.requestVideoLayout(for: self?.videoLayer.player?.currentItem) }
+        }
         if AVPictureInPictureController.isPictureInPictureSupported(), playback != nil {
             pip = AVPictureInPictureController(playerLayer: videoLayer)
             pip?.delegate = self
@@ -1764,11 +1776,18 @@ final class NativeVideoController: UIViewController, @preconcurrency AVPictureIn
         observedItem = item
         presentationSizeObservation = item?.observe(\.presentationSize, options: [.initial, .new]) { [weak self] _, _ in
             Task { @MainActor in
-                guard let self, self.videoLayer.player?.currentItem === item else { return }
-                self.view.setNeedsLayout()
-                self.view.layoutIfNeeded()
+                guard let self else { return }
+                self.requestVideoLayout(for: item)
             }
         }
+    }
+    private func requestVideoLayout(for item: AVPlayerItem?) {
+        guard videoLayer.player?.currentItem === item else { return }
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+        guard let item else { return }
+        playback?.nativeVideoOutputReadinessChanged(for: item,
+            ready: videoLayer.isReadyForDisplay && item.presentationSize.width > 0 && item.presentationSize.height > 0)
     }
     func setPrimary(_ primary: Bool) {
         let automatic = primary && !stoppingForPlaybackReplacement
@@ -2139,6 +2158,10 @@ struct MediaPlayerScreen: View {
             updateOrientationPolicy()
             if active && landscapeLayout && playerVisible && !automaticLandscapeSuppressed { setFullscreen(true) }
         }
+        .onChange(of: playback.videoReadyForDisplay) { _, ready in
+            updateOrientationPolicy()
+            if ready && landscapeLayout && playerVisible && !automaticLandscapeSuppressed { setFullscreen(true) }
+        }
         .task(id: model.selectedMediaChannel?.id) { await model.restorePlaybackQueueFromSource() }
         .alert(BrandIdentity.name, isPresented: Binding(get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })) {
             Button(L10n.tr("Tamam")) { model.errorMessage = nil }
@@ -2214,7 +2237,7 @@ struct MediaPlayerScreen: View {
     }
 
     private var fullscreenAllowed: Bool {
-        playback.hasActivePlayback && !playback.hasRemoteVideoOutput
+        playback.hasActivePlayback && playback.videoReadyForDisplay && !playback.hasRemoteVideoOutput
     }
 
     private func updateOrientationPolicy() {
@@ -2566,6 +2589,7 @@ private struct PlayerChrome: View {
                 headerButton("arrow.up.left.and.arrow.down.right", label: "Tam ekran", id: "player-fullscreen") {
                     largeControls = false; changeFullscreen(true, isLandscape)
                 }
+                .disabled(!playback.videoReadyForDisplay)
             }
         }
         .padding(2)
@@ -2692,6 +2716,7 @@ private struct PlayerChrome: View {
                            vertical: vertical, selected: fullscreen && largeControls) {
                     largeControls = true; changeFullscreen(true, !vertical); revealControls()
                 }
+                .disabled(!playback.videoReadyForDisplay)
                 if fullscreen {
                     modeButton(largeControls ? "Tam ekran" : "Tam ekrandan çık", icon: !largeControls ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
                                id: "player-fullscreen", compact: true, vertical: vertical, selected: !largeControls) {
