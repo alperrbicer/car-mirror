@@ -117,7 +117,12 @@ final class SampleHandler: RPBroadcastSampleHandler, @unchecked Sendable {
         let sessionID = status.sessionID
         let buffer = HLSBuffer(retainedSegments: 24, playlistSegments: 12, targetDuration: 1)
         status.audioMode = options.audioMode
-        let encoder = ScreenStreamEncoder(buffer: buffer, quality: options.quality, includesAudio: options.audioMode == .synchronized, segmentInterval: 0.35)
+        let encoder = ScreenStreamEncoder(
+            buffer: buffer,
+            quality: options.quality,
+            includesAudio: options.audioMode == .synchronized,
+            segmentInterval: 0.25
+        )
         if options.captionsEnabled, #available(iOS 26, *) {
             captionService = LiveCaptionTranscriber(locale: options.captionLocale,
                 onText: { [weak encoder] text in encoder?.setCaption(text) }, onUnavailable: { [weak self] in

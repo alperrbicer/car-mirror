@@ -75,8 +75,8 @@ final class CompatibilityPlayback: NSObject, @preconcurrency VLCMediaPlayerDeleg
         awaitingPause = false; resumeAfterPause = false
         let media = VLCMedia(url: url)
         if lowLatency {
-            media?.addOption(":network-caching=150")
-            media?.addOption(":live-caching=150")
+            media?.addOption(":network-caching=80")
+            media?.addOption(":live-caching=80")
             media?.addOption(":demux=mp4")
         }
         if !url.isFileURL && url.pathExtension.lowercased() == "mkv" {

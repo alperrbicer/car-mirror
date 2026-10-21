@@ -2,6 +2,7 @@ import AVFoundation
 import CoreImage
 import ImageIO
 import UniformTypeIdentifiers
+import VideoToolbox
 #if SWIFT_PACKAGE
 import MirrorCore
 #endif
@@ -63,8 +64,9 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
     private var input: AVAssetWriterInput?
     private var adaptor: AVAssetWriterInputPixelBufferAdaptor?
     private var lastTime = CMTime.invalid
-    // Broadcast extensions can run while the device disallows background GPU work.
-    private let context = CIContext(options: [.cacheIntermediates: false, .useSoftwareRenderer: true])
+    // Let Core Image use an available accelerated renderer instead of forcing
+    // every captured frame through the broadcast extension's CPU.
+    private let context = CIContext(options: [.cacheIntermediates: false])
     private let colorSpace = CGColorSpaceCreateDeviceRGB()
 
     public init(buffer: HLSBuffer, quality: StreamQuality = .balanced, includesAudio: Bool = true, segmentInterval: Double = 1) {
@@ -276,6 +278,9 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: AVVideoCodecType.h264,
             AVVideoWidthKey: outputWidth, AVVideoHeightKey: outputHeight,
+            AVVideoEncoderSpecificationKey: [
+                kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder as String: true
+            ],
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: quality.bitrate,
                 AVVideoMaxKeyFrameIntervalKey: max(1, Int(Double(quality.framesPerSecond) * segmentInterval)),
