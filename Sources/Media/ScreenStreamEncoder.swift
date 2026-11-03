@@ -183,7 +183,12 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         guard let frame, let startedAt else { return }
         autoreleasepool {
             do {
-                let source = CIImage(cvPixelBuffer: frame).oriented(orientation)
+                // ReplayKit reports CGImagePropertyOrientation metadata, whose
+                // image-coordinate convention is opposite to the screen buffer's
+                // top-left origin for the two landscape directions. Normalize
+                // using Core Image's explicit CG orientation transform so both
+                // landscape rotations keep the captured screen upright.
+                let source = CIImage(cvPixelBuffer: frame).oriented(forExifOrientation: Int32(orientation.rawValue))
                 let extent = source.extent
                 let dimensions = Self.outputSize(source: extent.size, maximumEdge: quality.width)
                 let elapsed = ProcessInfo.processInfo.systemUptime - startedAt
@@ -278,9 +283,6 @@ public final class ScreenStreamEncoder: NSObject, AVAssetWriterDelegate, @unchec
         let input = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: AVVideoCodecType.h264,
             AVVideoWidthKey: outputWidth, AVVideoHeightKey: outputHeight,
-            AVVideoEncoderSpecificationKey: [
-                kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder as String: true
-            ],
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: quality.bitrate,
                 AVVideoMaxKeyFrameIntervalKey: max(1, Int(Double(quality.framesPerSecond) * segmentInterval)),

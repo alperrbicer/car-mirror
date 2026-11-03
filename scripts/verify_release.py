@@ -38,9 +38,10 @@ ats=app_info.get('NSAppTransportSecurity',{})
 if ats.get('NSAllowsArbitraryLoads') is not True:errors.append('User-provided HTTP playlists require URLSession ATS access')
 if any(key in ats for key in ['NSAllowsLocalNetworking','NSAllowsArbitraryLoadsForMedia','NSAllowsArbitraryLoadsInWebContent']):
  errors.append('Fine-grained ATS keys override arbitrary HTTP playlist access on supported iOS versions')
-with (ROOT/'Config/App.entitlements').open('rb') as f:entitlements=plistlib.load(f)
-if entitlements.get('com.apple.developer.carplay-video') is not True:errors.append('CarPlay Video entitlement is required')
-if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append('CarPlay Audio entitlement is required for standard CarPlay visibility')
+for filename in ['App','SimulatorDebug']:
+ with (ROOT/f'Config/{filename}.entitlements').open('rb') as f:entitlements=plistlib.load(f)
+ if 'com.apple.developer.carplay-video' in entitlements:errors.append(f'{filename}: remove the CarPlay Video entitlement as requested by App Review')
+ if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append(f'{filename}: CarPlay Audio entitlement is required')
 scenes=app_info.get('UIApplicationSceneManifest',{}).get('UISceneConfigurations',{})
 if not scenes.get('CPTemplateApplicationSceneSessionRoleApplication'):errors.append('CarPlay Video scene is required')
 if app_info.get('CMCarPlayAudioEnabled') in [True,'YES']:errors.append('CarPlay Audio runtime flag must be absent')
@@ -87,7 +88,7 @@ with zipfile.ZipFile(ROOT/'Release/mirivo-netlify.zip') as archive:
  if archive.testzip():errors.append('Corrupt ZIP')
  if 'index.html' not in archive.namelist():errors.append('ZIP index is not at root')
  for path in web.rglob('*'):
-  if path.is_file() and archive.read(str(path.relative_to(web)))!=path.read_bytes():errors.append(f'Stale ZIP: {path}')
+  if path.is_file() and path.name!='.DS_Store' and archive.read(str(path.relative_to(web)))!=path.read_bytes():errors.append(f'Stale ZIP: {path}')
 report={'htmlPages':count,'languages':languages,'localizedKeys':len(reference),'translatedValues':sum(len(v) for v in catalogs.values()),'errors':errors,'passed':not errors}
 (ROOT/'build/release-static-checks.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps(report,ensure_ascii=False,indent=2));sys.exit(bool(errors))

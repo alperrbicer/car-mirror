@@ -42,7 +42,7 @@ const settings = { PRODUCT_BUNDLE_IDENTIFIER: bundleId, APP_GROUP_IDENTIFIER: ap
 function signing() {
   const entitlements = { 'application-identifier': `${team}.${bundleId}`, 'com.apple.developer.team-identifier': team,
     'aps-environment': 'production', 'com.apple.developer.devicecheck.appattest-environment': 'production',
-    'com.apple.security.application-groups': [appGroup], 'com.apple.developer.carplay-video': true, 'com.apple.developer.carplay-audio': true }
+    'com.apple.security.application-groups': [appGroup], 'com.apple.developer.carplay-audio': true }
   return { entitlements, profile: { Entitlements: structuredClone(entitlements), TeamIdentifier: [team],
     ApplicationIdentifierPrefix: [team], ExpirationDate: '2027-01-01T00:00:00Z' } }
 }
@@ -196,7 +196,7 @@ test('profile checks reject expired, foreign-team, unregistered-device and non-A
   assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, { ...config, distribution: true }), /App Store/)
 })
 
-test('explicit iPhone preview retains the CarPlay Video profile and signing checks', () => {
+test('explicit iPhone preview retains the CarPlay Audio profile and signing checks', () => {
   const fixture = signing()
   fixture.profile.ProvisionedDevices = ['my-udid']
   const preview = { ...config, preview: true, device: 'my-udid' }
@@ -482,7 +482,7 @@ test('preview overrides only the install entitlements and preserves device signi
   const env = { ...fixture.env, PATH: '/nonexistent' }
   const result = spawnSync(process.execPath, [fixture.script, 'install', '--preview', '--allow-provisioning-updates', '--dry-run'], { env, encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /CarPlay Video is enabled/)
+  assert.match(result.stdout, /CarPlay Audio entitlement is used/)
   assert.match(result.stdout, /App Groups and standalone iPhone profiles/)
   assert.match(result.stdout, /-allowProvisioningUpdates/)
   assert.ok(!result.stdout.includes('CODE_SIGNING_ALLOWED=NO'))
@@ -540,7 +540,7 @@ else if (command === 'xcrun' && args.includes('list') && args.includes('devices'
   assert.ok(!calls.some(call => call.args.includes('build') || call.args.includes('install') || call.args.includes('launch')))
 })
 
-test('release requires a CarPlay Video scene and Audio and Video signing', () => {
+test('release keeps CarPlay scenes and requires Audio signing with an Audio-capable profile', () => {
   const scene = { UIApplicationSceneManifest: { UISceneConfigurations: {
     CPTemplateApplicationSceneSessionRoleApplication: [{ UISceneClassName: 'CPTemplateApplicationScene' }],
   } } }
@@ -549,9 +549,9 @@ test('release requires a CarPlay Video scene and Audio and Video signing', () =>
   assert.throws(() => assertCarPlayVideo({ ...scene, CMCarPlayAudioEnabled: 'YES' }), /Video scene/)
   const fixture = signing()
   validateProfile(fixture.entitlements, fixture.profile, config)
-  delete fixture.profile.Entitlements['com.apple.developer.carplay-video']
-  assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /CarPlay Video/)
+  // Provisioning profiles may authorize more capabilities than the app requests.
   fixture.profile.Entitlements['com.apple.developer.carplay-video'] = true
+  assert.doesNotThrow(() => validateProfile(fixture.entitlements, fixture.profile, config))
   delete fixture.profile.Entitlements['com.apple.developer.carplay-audio']
   assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /CarPlay Audio/)
   fixture.profile.Entitlements['com.apple.developer.carplay-audio'] = true
@@ -560,5 +560,14 @@ test('release requires a CarPlay Video scene and Audio and Video signing', () =>
   assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /CarPlay Audio/)
   for (const command of ['install', 'archive', 'upload', 'check']) {
     assert.throws(() => argumentsFor([command, '--carplay-video']), /Unknown option/)
+  }
+})
+
+test('signing rejects the removed CarPlay Video entitlement even when the profile grants it', () => {
+  for (const value of [true, false]) {
+    const fixture = signing()
+    fixture.profile.Entitlements['com.apple.developer.carplay-video'] = true
+    fixture.entitlements['com.apple.developer.carplay-video'] = value
+    assert.throws(() => validateProfile(fixture.entitlements, fixture.profile, config), /Remove the CarPlay Video entitlement/)
   }
 })

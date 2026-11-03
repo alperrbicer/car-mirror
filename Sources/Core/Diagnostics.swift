@@ -108,6 +108,52 @@ public struct DiagnosticReport: Codable, Sendable {
     }
 }
 
+/// Cancellation and file-access lifetime shared with the iOS expiration handler.
+public final class DiagnosticActivity: @unchecked Sendable {
+    private let condition = NSCondition()
+    private var cancelled = false
+    private var started = false
+    private var fileAccesses = 0
+
+    public init() {}
+
+    public func checkCancellation() throws {
+        condition.lock()
+        defer { condition.unlock() }
+        if cancelled { throw CancellationError() }
+    }
+
+    /// Do not allow suspension until an already acquired file lock has unwound.
+    public func cancelAndWaitForFileAccess() {
+        condition.lock()
+        defer { condition.unlock() }
+        cancelled = true
+        while fileAccesses > 0 { condition.wait() }
+    }
+
+    func performOnce(_ body: () -> Void) {
+        condition.lock()
+        let shouldStart = !started
+        started = true
+        condition.unlock()
+        if shouldStart { body() }
+    }
+
+    fileprivate func withFileAccess<T>(_ body: () throws -> T) throws -> T {
+        condition.lock()
+        if cancelled { condition.unlock(); throw CancellationError() }
+        fileAccesses += 1
+        condition.unlock()
+        defer {
+            condition.lock()
+            fileAccesses -= 1
+            condition.broadcast()
+            condition.unlock()
+        }
+        return try body()
+    }
+}
+
 /// A file lock serializes app/extension writes, trimming, export and clearing.
 /// Each producer owns its file; at most 10 sessions x 2 x 256 KiB = 5 MiB.
 public final class DiagnosticJournal: @unchecked Sendable {
@@ -122,8 +168,8 @@ public final class DiagnosticJournal: @unchecked Sendable {
         self.maximumFileBytes = max(2048, maximumFileBytes)
     }
 
-    public func append(_ event: DiagnosticEvent) throws {
-        try locked {
+    public func append(_ event: DiagnosticEvent, activity: DiagnosticActivity? = nil) throws {
+        try locked(activity: activity) {
             let session = directory.appendingPathComponent(event.sessionID.uuidString, isDirectory: true)
             try FileManager.default.createDirectory(at: session, withIntermediateDirectories: true)
             let file = session.appendingPathComponent("\(event.process.rawValue).jsonl")
@@ -131,6 +177,7 @@ public final class DiagnosticJournal: @unchecked Sendable {
             line.append(0x0A)
             guard line.count <= maximumFileBytes else { return }
             var data = (try? Data(contentsOf: file)) ?? Data()
+            try activity?.checkCancellation()
             if data.count + line.count > maximumFileBytes {
                 let remaining = maximumFileBytes - line.count
                 data = Data(data.suffix(remaining))
@@ -139,28 +186,41 @@ public final class DiagnosticJournal: @unchecked Sendable {
             }
             data.append(line)
             try data.write(to: file, options: .atomic)
+            try activity?.checkCancellation()
             try FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: session.path)
-            try prune()
+            try prune(activity: activity)
         }
     }
 
-    public func events() throws -> [DiagnosticEvent] {
-        try locked {
-            try prune()
-            let decoder = JSONDecoder()
+    public func events(activity: DiagnosticActivity? = nil) throws -> [DiagnosticEvent] {
+        // Only copy file contents under the lock. Decoding the report must not
+        // delay releasing a shared-container lock when background time expires.
+        let snapshots: [Data] = try locked(activity: activity) {
+            try prune(activity: activity)
             return try sessions().flatMap { session in
-                DiagnosticProcess.all.map { process in
-                    (try? Data(contentsOf: session.appendingPathComponent("\(process.rawValue).jsonl"))) ?? Data()
-                }.flatMap { data in
-                    data.split(separator: 0x0A).compactMap { try? decoder.decode(DiagnosticEvent.self, from: Data($0)) }
+                try DiagnosticProcess.all.map { process in
+                    try activity?.checkCancellation()
+                    return (try? Data(contentsOf: session.appendingPathComponent("\(process.rawValue).jsonl"))) ?? Data()
                 }
-            }.sorted { $0.timestamp < $1.timestamp }
+            }
         }
+        let decoder = JSONDecoder()
+        var events: [DiagnosticEvent] = []
+        for data in snapshots {
+            for line in data.split(separator: 0x0A) {
+                try activity?.checkCancellation()
+                if let event = try? decoder.decode(DiagnosticEvent.self, from: Data(line)) { events.append(event) }
+            }
+        }
+        return events.sorted { $0.timestamp < $1.timestamp }
     }
 
-    public func clear() throws {
-        try locked {
-            for session in try sessions() { try FileManager.default.removeItem(at: session) }
+    public func clear(activity: DiagnosticActivity? = nil) throws {
+        try locked(activity: activity) {
+            for session in try sessions() {
+                try activity?.checkCancellation()
+                try FileManager.default.removeItem(at: session)
+            }
         }
     }
 
@@ -169,24 +229,51 @@ public final class DiagnosticJournal: @unchecked Sendable {
             options: [.skipsHiddenFiles]).filter { UUID(uuidString: $0.lastPathComponent) != nil }
     }
 
-    private func prune() throws {
+    private func prune(activity: DiagnosticActivity?) throws {
+        try activity?.checkCancellation()
         let ordered = try sessions().sorted {
             let left = (try? $0.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
             let right = (try? $1.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
             return left > right
         }
-        for old in ordered.dropFirst(maximumSessions) { try FileManager.default.removeItem(at: old) }
+        for old in ordered.dropFirst(maximumSessions) {
+            try activity?.checkCancellation()
+            try FileManager.default.removeItem(at: old)
+        }
     }
 
-    private func locked<T>(_ body: () throws -> T) throws -> T {
-        threadLock.lock()
+    private func locked<T>(activity: DiagnosticActivity?, _ body: () throws -> T) throws -> T {
+        if let activity {
+            return try activity.withFileAccess { try acquireLock(activity: activity, body) }
+        }
+        return try acquireLock(activity: nil, body)
+    }
+
+    private func acquireLock<T>(activity: DiagnosticActivity?, _ body: () throws -> T) throws -> T {
+        if let activity {
+            while !threadLock.try() {
+                try activity.checkCancellation()
+                Thread.sleep(forTimeInterval: 0.005)
+            }
+        } else { threadLock.lock() }
         defer { threadLock.unlock() }
+        try activity?.checkCancellation()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let descriptor = open(directory.appendingPathComponent(".lock").path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)
         guard descriptor >= 0 else { throw POSIXError(.EIO) }
         defer { close(descriptor) }
-        guard flock(descriptor, LOCK_EX) == 0 else { throw POSIXError(.EIO) }
+        // Never block indefinitely behind a suspended app/extension. Expiration
+        // must be able to cancel a waiter before it acquires another file lock.
+        while flock(descriptor, activity == nil ? LOCK_EX : LOCK_EX | LOCK_NB) != 0 {
+            let code = errno
+            guard code == EINTR || (activity != nil && (code == EWOULDBLOCK || code == EAGAIN)) else {
+                throw POSIXError(POSIXErrorCode(rawValue: code) ?? .EIO)
+            }
+            try activity?.checkCancellation()
+            Thread.sleep(forTimeInterval: 0.005)
+        }
         defer { flock(descriptor, LOCK_UN) }
+        try activity?.checkCancellation()
         return try body()
     }
 }

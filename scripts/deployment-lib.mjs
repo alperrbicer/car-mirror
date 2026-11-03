@@ -10,7 +10,15 @@ export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const outputRoot = join(root, 'build/deploy')
 export const derivedDataRoot = join(root, 'build/cache/DerivedData')
 export const packageCacheRoot = join(root, 'build/cache/SourcePackages')
+export const carPlayAudioKey = 'com.apple.developer.carplay-audio'
 export const carPlayVideoKey = 'com.apple.developer.carplay-video'
+export function assertCarPlayEntitlements(entitlements) {
+  if (entitlements[carPlayAudioKey] !== true)
+    throw new Error('The app must request the CarPlay Audio entitlement.')
+  if (Object.hasOwn(entitlements, carPlayVideoKey))
+    throw new Error('Remove the CarPlay Video entitlement from the app as requested by App Review; keep CarPlay Audio.')
+}
+
 export function assertCarPlayVideo(info) {
   const scenes = info.UIApplicationSceneManifest?.UISceneConfigurations || {}
   if (!Array.isArray(scenes.CPTemplateApplicationSceneSessionRoleApplication) ||
@@ -111,7 +119,7 @@ export function configurationFromSettings(rows) {
     if (!settings[key] || settings[key].includes('$(')) throw new Error(`Xcode did not resolve ${key}. Check Config/Base.xcconfig and Config/Local.xcconfig.`)
   }
   if (settings.CODE_SIGN_ENTITLEMENTS !== 'Config/App.entitlements') {
-    throw new Error('CarMirror must use Config/App.entitlements with CarPlay Video.')
+    throw new Error('CarMirror must use Config/App.entitlements with CarPlay Audio.')
   }
   return { bundleId: settings.PRODUCT_BUNDLE_IDENTIFIER, appGroup: settings.APP_GROUP_IDENTIFIER,
     team: settings.DEVELOPMENT_TEAM || '', version: settings.MARKETING_VERSION, build: settings.CURRENT_PROJECT_VERSION }
@@ -142,10 +150,9 @@ export function validateProfile(entitlements, profile, { bundleId, appGroup, tea
   if (preview && distribution) throw new Error('iPhone preview builds cannot be used for App Store distribution.')
   const granted = profile.Entitlements || {}
   if (mainApp) {
-    if (entitlements[carPlayVideoKey] !== true || granted[carPlayVideoKey] !== true)
-      throw new Error(`${bundleId}: CarPlay Video entitlement/profile mismatch. Enable CarPlay Video and regenerate the profile.`)
-    if (entitlements['com.apple.developer.carplay-audio'] !== true || granted['com.apple.developer.carplay-audio'] !== true)
-      throw new Error(`${bundleId}: CarPlay Audio entitlement/profile mismatch. Both Audio and Video are required.`)
+    assertCarPlayEntitlements(entitlements)
+    if (granted[carPlayAudioKey] !== true)
+      throw new Error(`${bundleId}: CarPlay Audio entitlement/profile mismatch. Enable CarPlay Audio and regenerate the profile.`)
     if (!['development', 'production'].includes(entitlements['aps-environment']) ||
         entitlements['aps-environment'] !== granted['aps-environment']) {
       throw new Error(`${bundleId}: Push Notifications entitlement/profile mismatch. Enable Push Notifications and regenerate the profile.`)
@@ -160,7 +167,7 @@ export function validateProfile(entitlements, profile, { bundleId, appGroup, tea
   } else {
     if (entitlements['aps-environment']) throw new Error(`${bundleId}: the broadcast extension must not inherit the main app's push entitlement.`)
     if (Object.hasOwn(entitlements, carPlayVideoKey) || Object.hasOwn(granted, carPlayVideoKey) ||
-        Object.hasOwn(entitlements, 'com.apple.developer.carplay-audio') || Object.hasOwn(granted, 'com.apple.developer.carplay-audio'))
+        Object.hasOwn(entitlements, carPlayAudioKey) || Object.hasOwn(granted, carPlayAudioKey))
       throw new Error(`${bundleId}: the broadcast extension must not contain CarPlay entitlements.`)
   }
   const prefixes = profile.ApplicationIdentifierPrefix || profile.TeamIdentifier || []

@@ -4,7 +4,7 @@ import { homedir } from 'node:os'
 import { join, resolve, sep } from 'node:path'
 import { completeArchiveStubSymbols } from './archive-symbols.mjs'
 import {
-  argumentsFor, carPlayVideoKey, assertCarPlayVideo, configurationFromSettings, exportPlist, filePath, loadEnvironment, keepBuildCache,
+  argumentsFor, carPlayVideoKey, assertCarPlayEntitlements, assertCarPlayVideo, configurationFromSettings, exportPlist, filePath, loadEnvironment, keepBuildCache,
   outputRoot, derivedDataRoot, packageCacheRoot, parsePlist, parseProfile, physicalPhones, readPlist, requireFile, requireMac,
   reserveBuild, root, run, runDirectory, selectDevice, validateProfile, withBuildCacheCleanup, withNativeBuildLock, writeJson,
 } from './deployment-lib.mjs'
@@ -44,7 +44,7 @@ testflight  mobile:ios:testflight     Alias for upload
 --clean-cache              Remove temporary build caches after the command
 
 Setup and examples: ${join(root, 'docs/DEPLOYMENT.md')}
-The app uses CarPlay Audio and Video. App Groups, push notifications and App Attest signing remain required.
+The app requests CarPlay Audio without the Video entitlement, as requested by App Review. App Groups, push notifications and App Attest signing remain required.
 Upload does not submit App Review or publish the app.`)
 }
 
@@ -176,7 +176,7 @@ function install(simulator = false) {
   const config = settings('Debug')
   config.preview = Boolean(options.preview)
   config.version = options.version || config.version
-  if (config.preview) console.log('iPhone install compatibility alias; CarPlay Video is enabled for supported vehicles.')
+  if (config.preview) console.log('iPhone install compatibility alias; CarPlay Audio entitlement is used for supported vehicles.')
   if (!simulator) requireTeam(config)
   let device = { id: '<device identifier>', udid: options.device || '<device UDID>', name: '<iPhone>', state: 'Shutdown' }
   if (!dryRun) {
@@ -301,8 +301,7 @@ function doctor() {
   requireTeam(config)
   console.log(`App: ${config.bundleId}\nExtension: ${config.bundleId}.broadcast\nApp Group: ${config.appGroup}\nTeam: ${config.team}\nVersion: ${config.version} (${config.build})`)
   const source = readPlist(join(root, 'Config/App.entitlements'))
-  if (source[carPlayVideoKey] !== true || source['com.apple.developer.carplay-audio'] !== true)
-    throw new Error('The app must request CarPlay Audio and Video; enable both capabilities for its App ID and refresh profiles.')
+  assertCarPlayEntitlements(source)
   const identities = run('security', ['find-identity', '-v', '-p', 'codesigning'], { capture: true, quiet: true })
   const hasIdentity = /[1-9]\d* valid identities found/.test(identities)
   console.log(hasIdentity ? 'Signing identity: available in the current keychain.' : 'Signing identity: not available. Configure your Apple account/certificate in Xcode.')
@@ -321,6 +320,8 @@ function doctor() {
     const bundleId = `${config.bundleId}${mainApp ? '' : '.broadcast'}`
     const matching = profiles.filter(profile => {
       const requested = { ...profile.Entitlements }
+      // A profile may still grant Video even though the app no longer requests it.
+      if (mainApp) delete requested[carPlayVideoKey]
       try { validateProfile(requested, profile, { ...config, bundleId, mainApp }); return true } catch { return false }
     })
     console.log(`${bundleId}: ${matching.length} local, unexpired profile(s) with the required capabilities.`)

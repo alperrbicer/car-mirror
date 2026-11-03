@@ -46,7 +46,7 @@ final class MirrorModel: ObservableObject {
     private var resumeRecordingEnabled = false
     private var backgroundObserver: NSObjectProtocol?
     let playback = PlaybackController()
-    let diagnostics = SessionDiagnostics(process: .app)
+    let diagnostics = SessionDiagnostics(process: .app, performActivity: DiagnosticBackgroundTask().perform)
     private var store: BroadcastSessionStore?
     private var timer: Timer?
     private var playbackSessionID: UUID?
@@ -652,5 +652,58 @@ final class MirrorModel: ObservableObject {
             playing: playback.isPlaying, stopRequested: stopRequestedID == capture?.sessionID && stopRequestedID != nil,
             playbackFailed: playbackAttemptFailed || playback.errorMessage != nil)
         if sessionState != next { sessionState = next }
+    }
+}
+
+/// Captures UIApplication on the main actor; its task APIs are safe on the
+/// diagnostic queue. The broadcast target uses ProcessInfo instead of UIKit.
+private final class DiagnosticBackgroundTask: @unchecked Sendable {
+    private let application: UIApplication
+
+    @MainActor init() { application = .shared }
+
+    func perform(_ activity: DiagnosticActivity, operation: @escaping @Sendable () -> Void) {
+        let lease = Lease(application: application, activity: activity)
+        lease.begin()
+        defer { lease.end() }
+        operation()
+    }
+
+    private final class Lease: @unchecked Sendable {
+        private let application: UIApplication
+        private let activity: DiagnosticActivity
+        private let lock = NSLock()
+        private var identifier: UIBackgroundTaskIdentifier = .invalid
+        private var ended = false
+
+        init(application: UIApplication, activity: DiagnosticActivity) {
+            self.application = application
+            self.activity = activity
+        }
+
+        func begin() {
+            let identifier = application.beginBackgroundTask(withName: "Finish diagnostic file access") { [self] in
+                // Cancel waiters and let the bounded file operation unwind its
+                // flock before allowing the system to suspend the app.
+                activity.cancelAndWaitForFileAccess()
+                end()
+            }
+            lock.lock()
+            let alreadyEnded = ended
+            if !alreadyEnded { self.identifier = identifier }
+            lock.unlock()
+            // Expiration may arrive before beginBackgroundTask returns its ID.
+            if alreadyEnded, identifier != .invalid { application.endBackgroundTask(identifier) }
+            if identifier == .invalid { activity.cancelAndWaitForFileAccess() }
+        }
+
+        func end() {
+            lock.lock()
+            let identifier = self.identifier
+            self.identifier = .invalid
+            ended = true
+            lock.unlock()
+            if identifier != .invalid { application.endBackgroundTask(identifier) }
+        }
     }
 }
