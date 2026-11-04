@@ -224,6 +224,39 @@ final class PerformanceRegressionTests: XCTestCase {
 
 @MainActor
 final class VehiclePlaybackTests: XCTestCase {
+    func testCarPlayStartsPlaybackOnlyAfterWaitingScreenAndSelectionHandlerFinish() async throws {
+        let transition = CarPlayPlaybackTransition()
+        var presented: ((Bool) -> Void)?
+        var events: [String] = []
+        transition.start(showWaiting: { completed in
+            events.append("waiting")
+            presented = completed
+        }, playback: { events.append("playback") })
+        XCTAssertEqual(events, ["waiting"])
+        try XCTUnwrap(presented)(true)
+        events.append("handler-finished")
+        XCTAssertEqual(events, ["waiting", "handler-finished"])
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertEqual(events, ["waiting", "handler-finished", "playback"])
+    }
+
+    func testCarPlayDoesNotStartStaleFailedOrDisconnectedSelections() async {
+        let transition = CarPlayPlaybackTransition()
+        var callbacks: [(Bool) -> Void] = []
+        var started: [Int] = []
+        transition.start(showWaiting: { callbacks.append($0) }, playback: { started.append(1) })
+        transition.start(showWaiting: { callbacks.append($0) }, playback: { started.append(2) })
+        callbacks[0](true)
+        callbacks[1](false)
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertTrue(started.isEmpty)
+        transition.start(showWaiting: { callbacks.append($0) }, playback: { started.append(3) })
+        callbacks[2](true)
+        transition.cancel()
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertTrue(started.isEmpty)
+    }
+
     func testCarPlayFavoritesPreserveSourcesAndSeparateSeriesNavigationFromPlayback() throws {
         let sourceA = UUID(), sourceB = UUID()
         let episode = MediaChannel(title: "Coast S01-E01", url: URL(string: "https://example.com/series/1.mp4")!)

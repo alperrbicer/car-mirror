@@ -73,6 +73,7 @@ final class PlaybackController: ObservableObject {
     @Published private(set) var playsOnPhone = false
     @Published private(set) var carPlayConnected = false
     private var carPlayVideoSupported = false
+    private var pendingCarPlayVideoPresentation: UUID?
     @Published private(set) var externalTVDisplayConnected = false
     @Published private(set) var airPlayName = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }?.portName
     var displayConnection: DisplayConnection {
@@ -162,6 +163,32 @@ final class PlaybackController: ObservableObject {
         externalTVDisplayConnected = externalTV
         updateVideoOutput()
         reconcileVideoDecoder(previousSystemRoute: previousSystemRoute)
+    }
+
+    func presentCarPlayVideoWhenReady() {
+        guard usesSystemCarPlayVideo, hasActivePlayback else { return }
+        pendingCarPlayVideoPresentation = playbackID
+        preparePendingCarPlayVideoPresentation()
+    }
+
+    private func preparePendingCarPlayVideoPresentation() {
+        guard pendingCarPlayVideoPresentation == playbackID, usesSystemCarPlayVideo,
+              player.currentItem?.status == .readyToPlay, player.timeControlStatus == .playing else { return }
+        pendingCarPlayVideoPresentation = nil
+        guard !player.isExternalPlaybackActive else { return }
+        let attemptID = playbackID
+        onDiagnostic?(.carVideoRouteRequested, DiagnosticValues())
+        AVAudioSession.sharedInstance().prepareRouteSelectionForPlayback { [weak self] shouldStart, route in
+            Task { @MainActor in
+                guard let self, self.playbackID == attemptID, self.usesSystemCarPlayVideo else { return }
+                var values = DiagnosticValues()
+                values.shouldStartPlayback = shouldStart
+                values.routeSelection = route == .external ? .external : route == .local ? .local : .none
+                self.onDiagnostic?(.carVideoRoutePrepared, values)
+                if shouldStart { self.playNative() }
+                else { self.pause() }
+            }
+        }
     }
     private var pauseRequested = false
     @Published private(set) var currentTime: Double = 0
@@ -560,6 +587,7 @@ final class PlaybackController: ObservableObject {
                     self.carPlayBridge?.setPaused(true)
                 }
                 if self.player.timeControlStatus == .playing {
+                    self.preparePendingCarPlayVideoPresentation()
                     if self.continuingRemoteVideo, !self.player.isExternalPlaybackActive, let item = self.player.currentItem {
                         self.externalPlaybackLossTask?.cancel()
                         self.externalPlaybackLossTask = Task { [weak self, weak item] in
@@ -1150,6 +1178,7 @@ final class PlaybackController: ObservableObject {
         continuingRemoteVideo = preserveVideoRoute && (externalPlaybackActive || continuingRemoteVideo)
         measurement.finish()
         playbackID = UUID()
+        pendingCarPlayVideoPresentation = nil
         videoReadyForDisplay = false
         liveRecoveryTask?.cancel(); liveRecoveryTask = nil
         liveRecoveryAttempt = 0
