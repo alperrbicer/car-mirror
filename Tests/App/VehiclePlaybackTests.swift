@@ -224,6 +224,68 @@ final class PerformanceRegressionTests: XCTestCase {
 
 @MainActor
 final class VehiclePlaybackTests: XCTestCase {
+    func testCarPlayPreparedVideoAutoplaysAndAnExplicitPauseSurvivesPreparation() async throws {
+        let native = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let converted = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let multiAudio = URL(string: "http://127.0.0.1:8769/tracks/options.mkv")!
+        let errorObserver = NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry,
+            object: nil, queue: .main) { notification in
+            if let item = notification.object as? AVPlayerItem, let event = item.errorLog()?.events.last {
+                print("CarPlay fixture error: \(event.errorDomain) \(event.errorStatusCode) \(event.errorComment ?? "")")
+            }
+        }
+        defer { NotificationCenter.default.removeObserver(errorObserver) }
+        for (source, live) in [(native, true), (native, false), (converted, false), (multiAudio, false)] {
+            let playback = PlaybackController()
+            var preparationFailure: DiagnosticFailure?
+            playback.onDiagnostic = { kind, values in
+                if kind == .failure { preparationFailure = values.failure }
+            }
+            playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+            defer { playback.stop() }
+            try playback.play(url: source, requiresExternalPlayback: false, live: live, startPaused: true)
+            // Preparing a selection must not activate the video receiver.
+            XCTAssertFalse(playback.player.allowsExternalPlayback)
+            for _ in 0..<600 {
+                if playback.player.currentItem?.status == .readyToPlay && playback.player.allowsExternalPlayback { break }
+                if playback.state == .failed { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertEqual(playback.player.currentItem?.status, .readyToPlay,
+                           "\(source.lastPathComponent), state=\(playback.state), failure=\(String(describing: preparationFailure))")
+            XCTAssertTrue(playback.player.allowsExternalPlayback, "Preparation must finish without pressing Play")
+            XCTAssertFalse(playback.isPlaying, "An explicit pause must survive preparation")
+            let item = try XCTUnwrap(playback.player.currentItem)
+            let video = AVPlayerItemVideoOutput(pixelBufferAttributes: nil)
+            item.add(video)
+            playback.resume()
+            var frame: CVPixelBuffer?
+            for _ in 0..<200 {
+                frame = video.copyPixelBuffer(forItemTime: playback.player.currentTime(), itemTimeForDisplay: nil)
+                if playback.isPlaying && frame != nil { break }
+                if playback.state == .failed { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertTrue(playback.isPlaying, "Prepared media must start automatically on resume")
+            XCTAssertNotNil(frame, "Playing must produce an actual decoded video frame")
+            playback.stop()
+            XCTAssertNil(playback.player.currentItem)
+            XCTAssertFalse(playback.isPlaying)
+        }
+    }
+
+    func testCarPlayStopCancelsAnUnfinishedVideoPreparation() async throws {
+        let source = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let playback = PlaybackController()
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        try playback.play(url: source, requiresExternalPlayback: false, live: false)
+        playback.stop()
+        try await Task.sleep(for: .milliseconds(500))
+        XCTAssertNil(playback.player.currentItem)
+        XCTAssertFalse(playback.isPlaying)
+        XCTAssertEqual(playback.state, .idle)
+    }
+
     func testCarPlayVODServerGeneratesARequestedFutureSegment() async throws {
         let playlist = try CarPlayVODPlaylist(duration: 3_441)
         let server = try CarPlayHLSServer(vod: true, playlist: playlist)

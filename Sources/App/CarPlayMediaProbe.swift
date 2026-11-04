@@ -1,6 +1,16 @@
 import Foundation
 @preconcurrency import VLCKit
 
+enum CarPlayPlaybackTrace {
+    static func record(_ event: String) {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-mirivo-carplay-trace") {
+            NSLog("[Mirivo.CarPlay.Startup] %@ uptime=%.3f", event, ProcessInfo.processInfo.systemUptime)
+        }
+        #endif
+    }
+}
+
 /// Pre-parsing is not playback: remote providers can omit preparse metadata
 /// while VLC can still open the media. Read the actual demuxed tracks silently.
 @MainActor
@@ -64,7 +74,7 @@ final class CarPlayMediaProbe: NSObject, @preconcurrency VLCMediaPlayerDelegate 
                 duration: max(0, Double(self.player.media?.length.intValue ?? 0) / 1_000))
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-mirivo-carplay-trace") {
-                print("[Mirivo.CarPlay] probe-ready video=\(video.trackId) codec=\(video.codec) audio=\(self.player.audioTracks.count)")
+                print("[Mirivo.CarPlay] probe-ready video=\(video.trackId) codec=\(video.codec) audio=\(self.player.audioTracks.map(\.codec))")
             }
             #endif
             self.finish(error: nil)

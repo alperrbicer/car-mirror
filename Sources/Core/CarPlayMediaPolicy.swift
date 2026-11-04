@@ -73,7 +73,8 @@ public struct CarPlayVODPlaylist: Sendable {
     public let duration: Double
     public let startPosition: Double
     public let segmentDuration: Double = 16
-    public var segmentCount: Int { Int(ceil(duration / segmentDuration)) }
+    public let firstSegmentDuration: Double = 4
+    public var segmentCount: Int { 1 + Int(ceil(max(0, duration - firstSegmentDuration) / segmentDuration)) }
 
     public init(duration: Double, startPosition: Double = 0) throws {
         guard duration.isFinite, duration > 0, duration <= 86_400,
@@ -84,8 +85,14 @@ public struct CarPlayVODPlaylist: Sendable {
 
     public func interval(for index: Int) -> Range<Double>? {
         guard (0..<segmentCount).contains(index) else { return nil }
-        let start = Double(index) * segmentDuration
+        if index == 0 { return 0..<min(firstSegmentDuration, duration) }
+        let start = firstSegmentDuration + Double(index - 1) * segmentDuration
         return start..<min(start + segmentDuration, duration)
+    }
+
+    public func index(at time: Double) -> Int {
+        guard time.isFinite, time >= firstSegmentDuration else { return 0 }
+        return min(segmentCount - 1, 1 + Int(min(time, duration) - firstSegmentDuration) / Int(segmentDuration))
     }
 
     public func name(for index: Int) -> String { "vod-\(index).ts" }
@@ -183,7 +190,8 @@ public struct CarPlayVODPlaylist: Sendable {
                      "#EXT-X-START:TIME-OFFSET=\(decimal(startPosition)),PRECISE=YES"]
         for index in 0..<segmentCount {
             if index > 0 { lines.append("#EXT-X-DISCONTINUITY") }
-            let length = min(segmentDuration, duration - Double(index) * segmentDuration)
+            let range = interval(for: index)!
+            let length = range.upperBound - range.lowerBound
             lines += ["#EXTINF:\(decimal(length)),", name(for: index)]
         }
         lines.append("#EXT-X-ENDLIST")

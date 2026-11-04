@@ -26,6 +26,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
     private var vodPlaylist: CarPlayVODPlaylist?
     private var vodAddress: URL?
     private var pendingSegments: [Int] = []
+    private var prefetchThroughIndex = -1
     private var encodingSegment: Int?
     private var segmentOutput: URL?
     private var vodTranscodesAudio = false
@@ -49,6 +50,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     func start() {
         guard !stopped, probe == nil, !outputStarted else { return }
+        CarPlayPlaybackTrace.record("probe-start")
         let probe = CarPlayMediaProbe()
         self.probe = probe
         probe.onComplete = { [weak self, weak probe] result in
@@ -64,6 +66,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     private func prepareOutput(_ metadata: CarPlayMediaProbe.Result) {
         guard !stopped, !outputStarted else { return }
+        CarPlayPlaybackTrace.record("probe-finished")
         guard !metadata.videoID.isEmpty,
               metadata.videoID.utf8.allSatisfy({ (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 47 }),
               let media = VLCMedia(url: source) else { fail(URLError(.cannotDecodeContentData)); return }
@@ -100,7 +103,6 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
             let playlist = try CarPlayVODPlaylist(duration: duration, startPosition: startPosition)
             vodPlaylist = playlist
             transcodesVideo = true
-            vodTranscodesAudio = true
             // The receiver can request any part of the finite source timeline.
             let server = try CarPlayHLSServer(vod: true, playlist: playlist)
             self.server = server
@@ -111,7 +113,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
                 Task { @MainActor in
                     guard let self, let server, self.server === server, !self.stopped else { return }
                     self.vodAddress = address
-                    self.requestSegment(min(playlist.segmentCount - 1, Int(playlist.startPosition / playlist.segmentDuration)))
+                    self.requestSegment(playlist.index(at: playlist.startPosition))
                 }
             }, onFailure: { [weak self] error in
                 Task { @MainActor in self?.fail(error) }
@@ -121,6 +123,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     private func requestSegment(_ index: Int) {
         guard !stopped, let playlist = vodPlaylist, let server, playlist.interval(for: index) != nil else { return }
+        prefetchThroughIndex = min(playlist.segmentCount - 1, index + 1)
         if FileManager.default.fileExists(atPath: server.directory.appendingPathComponent(playlist.name(for: index)).path) {
             server.segmentReady(index)
             return
@@ -153,6 +156,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
         player.delegate = delegate
         player.enableCarPlayDebugLogging()
         encodingSegment = index
+        CarPlayPlaybackTrace.record("segment-start \(index)")
         segmentOutput = output
         self.media = media
         if source.pathExtension.lowercased() == "mkv" { media.addOption(":demux=mkv_trusted") }
@@ -161,7 +165,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
         media.addOption(":no-input-fast-seek")
         media.addOption(":network-caching=300")
         media.addOption(":file-caching=300")
-        media.addOption(":sout-all")
+        media.addOption(":no-sout-all")
         media.addOption(":no-sout-keep")
         var conversion: [String] = []
         if transcodesVideo {
@@ -200,10 +204,17 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
             let target = server.directory.appendingPathComponent(playlist.name(for: index))
             try FileManager.default.moveItem(at: output, to: target)
             encodingSegment = nil; segmentOutput = nil
+            CarPlayPlaybackTrace.record("segment-ready \(index)")
             server.segmentReady(index)
             if !ready, let address = vodAddress {
                 ready = true
                 onReady?(address)
+            }
+            // Generate the next range while the consumer loads this one.
+            // Waiting for its HTTP request would add a fresh provider open
+            // exactly when the short startup segment runs out.
+            if index + 1 <= prefetchThroughIndex, pendingSegments.isEmpty {
+                pendingSegments.append(index + 1)
             }
             encodeNextSegment()
         } catch { fail(error) }

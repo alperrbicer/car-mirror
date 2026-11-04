@@ -41,8 +41,14 @@ final class CarPlayMediaPolicyTests: XCTestCase {
         XCTAssertTrue(manifest.hasSuffix("#EXT-X-ENDLIST\n"))
         XCTAssertTrue(manifest.contains("TIME-OFFSET=31.000000,PRECISE=YES"))
         XCTAssertEqual(playlist.segmentCount, 216)
-        XCTAssertEqual(playlist.interval(for: 0), 0..<16)
-        XCTAssertEqual(playlist.interval(for: 215), 3_440..<3_441)
+        XCTAssertEqual(playlist.interval(for: 0), 0..<4)
+        XCTAssertEqual(playlist.interval(for: 1), 4..<20)
+        XCTAssertEqual(playlist.interval(for: 215), 3_428..<3_441)
+        for time in [0.0, 3.999, 4, 19.999, 20, 31, 3_440.999] {
+            XCTAssertTrue(try XCTUnwrap(playlist.interval(for: playlist.index(at: time))).contains(time))
+        }
+        XCTAssertEqual(playlist.index(at: .infinity), 0)
+        XCTAssertEqual(playlist.index(at: 90_000), playlist.segmentCount - 1)
         XCTAssertEqual(manifest.components(separatedBy: "#EXTINF:").count - 1, playlist.segmentCount)
         let lengths = (0..<playlist.segmentCount).compactMap { playlist.interval(for: $0) }.map { $0.upperBound - $0.lowerBound }
         XCTAssertEqual(lengths.reduce(0, +), playlist.duration)
@@ -53,7 +59,7 @@ final class CarPlayMediaPolicyTests: XCTestCase {
         let playlist = try CarPlayVODPlaylist(duration: 40, startPosition: -12)
         XCTAssertEqual(playlist.startPosition, 0)
         XCTAssertEqual(playlist.index(for: "vod-2.ts"), 2)
-        for name in ["vod--1.ts", "vod-3.ts", "vod-02.ts", "vod-2.ts?source=private", "../vod-1.ts", "vod-999999999999999999999.ts"] {
+        for name in ["vod--1.ts", "vod-4.ts", "vod-02.ts", "vod-2.ts?source=private", "../vod-1.ts", "vod-999999999999999999999.ts"] {
             XCTAssertNil(playlist.index(for: name))
         }
         for duration in [0.0, -1, .nan, .infinity, 86_401] {

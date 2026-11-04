@@ -4,6 +4,49 @@ import MirrorCore
 @testable import MirrorMedia
 
 final class MediaRelayTests: XCTestCase {
+    func testHLSHandoffReusesCompleteSegmentsButForwardsRangesAndProgressiveFiles() async throws {
+        let count = RelayRequestCount()
+        let payload = Data(repeating: 0x47, count: 1_880)
+        let fixture = try RelayFixture { path, headers in
+            if path == "/list.m3u8" {
+                return (200, ["Content-Type": "application/vnd.apple.mpegurl"],
+                        Data("#EXTM3U\n#EXT-X-TARGETDURATION:2\n#EXTINF:2,\nvideo.ts\n#EXT-X-ENDLIST\n".utf8))
+            }
+            count.increment()
+            if headers.lowercased().contains("range:") {
+                return (206, ["Content-Type": "video/mp2t", "Content-Range": "bytes 0-1879/1880"], payload)
+            }
+            return (200, ["Content-Type": "video/mp2t"], payload)
+        }
+        defer { fixture.stop() }
+        let origin = try await fixture.start()
+        let relay = try MediaRelayServer(source: origin.appendingPathComponent("list.m3u8"))
+        defer { relay.stop() }
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let address = try await start(relay)
+        let (manifest, _) = try await session.data(from: address)
+        let segment = try XCTUnwrap(String(decoding: manifest, as: UTF8.self).components(separatedBy: .newlines)
+            .first { $0.hasPrefix("http://") }.flatMap(URL.init(string:)))
+        for _ in 0..<2 {
+            let (bytes, response) = try await session.data(from: segment)
+            XCTAssertEqual(bytes, payload)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        }
+        XCTAssertEqual(count.value, 1, "The receiver must reuse the phone's completed startup segment")
+        var range = URLRequest(url: segment)
+        range.setValue("bytes=0-", forHTTPHeaderField: "Range")
+        let (bytes, response) = try await session.data(for: range)
+        XCTAssertEqual(bytes, payload)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 206)
+        XCTAssertEqual(count.value, 2, "A partial response must keep provider range semantics")
+        let progressive = try MediaRelayServer(source: origin.appendingPathComponent("movie.mp4"))
+        defer { progressive.stop() }
+        let file = try await start(progressive)
+        for _ in 0..<2 { _ = try await session.data(from: file) }
+        XCTAssertEqual(count.value, 4, "A progressive movie must remain a bounded streaming response")
+    }
+
     func testRelaysManifestRedirectCookiesAndRangesAndRevokesOnStop() async throws {
         let fixture = try RelayFixture { path, headers in
             if path == "/start.m3u8" {
@@ -101,6 +144,13 @@ final class MediaRelayTests: XCTestCase {
             server.start(host: "127.0.0.1", onReady: { continuation.resume(returning: $0) }, onFailure: { continuation.resume(throwing: $0) })
         }
     }
+}
+
+private final class RelayRequestCount: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+    var value: Int { lock.lock(); defer { lock.unlock() }; return count }
+    func increment() { lock.lock(); defer { lock.unlock() }; count += 1 }
 }
 
 private final class RelayFixture: @unchecked Sendable {

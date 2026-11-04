@@ -19,6 +19,12 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
     private struct Resource { let url: URL; var accessed: Date }
     private var resources: [String: Resource] = [:]
     private var paths: [URL: String] = [:]
+    private struct CachedSegment { let response: HTTPURLResponse; let body: Data; let stored: Date }
+    private var cachedSegments: [URL: CachedSegment] = [:]
+    private var cachedSegmentOrder: [URL] = []
+    private var cachedSegmentBytes = 0
+    private let maximumCachedSegmentBytes = 4 * 1_024 * 1_024
+    private let maximumCacheBytes = 24 * 1_024 * 1_024
     private struct Client {
         let connection: NWConnection
         var task: URLSessionDataTask?
@@ -33,6 +39,8 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
         var suspended = false
         var completed = false
         var activity = Date()
+        var cacheURL: URL?
+        var cacheBody: Data?
     }
     private var clients: [UUID: Client] = [:]
     private var tasks: [Int: UUID] = [:]
@@ -96,6 +104,7 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
             for id in Array(clients.keys) { close(id) }
             session?.invalidateAndCancel(); session = nil
             resources.removeAll(); paths.removeAll(); baseURL = nil
+            cachedSegments.removeAll(); cachedSegmentOrder.removeAll(); cachedSegmentBytes = 0
         }
     }
 
@@ -161,6 +170,20 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
         request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
         let ranges = lines.dropFirst().filter { $0.lowercased().hasPrefix("range:") }
         guard ranges.count <= 1 else { reject(id, status: 400); return }
+        // The phone primes the same HLS media that the video receiver opens
+        // next. Reuse only complete, small segments from this playback session
+        // so that handoff does not download the first video twice.
+        let cacheable = resource.url != source && first[0] == "GET" && ranges.isEmpty &&
+            ["ts", "m4s", "aac", "mp4"].contains(resource.url.pathExtension.lowercased())
+        if cacheable, let cached = cachedSegments[resource.url], Date().timeIntervalSince(cached.stored) < 8 {
+            var header = "HTTP/1.1 200 OK\r\nContent-Length: \(cached.body.count)\r\nCache-Control: no-store\r\nConnection: close\r\n"
+            if let mime = cached.response.value(forHTTPHeaderField: "Content-Type"), !mime.contains("\r"), !mime.contains("\n") {
+                header += "Content-Type: \(mime)\r\n"
+            }
+            send(id, data: Data((header + "\r\n").utf8) + cached.body, finish: true)
+            return
+        }
+        if cacheable { clients[id]?.cacheURL = resource.url }
         if let range = ranges.first { request.setValue(String(range.dropFirst(6)).trimmingCharacters(in: .whitespaces), forHTTPHeaderField: "Range") }
         // URL userinfo is valid input but must not become receiver-visible metadata.
         if var components = URLComponents(url: resource.url, resolvingAgainstBaseURL: false),
@@ -188,6 +211,10 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
             completionHandler(.cancel); return
         }
         let mime = response.mimeType?.lowercased() ?? ""
+        if client.cacheURL != nil, response.statusCode == 200,
+           response.expectedContentLength <= maximumCachedSegmentBytes {
+            clients[id]?.cacheBody = Data()
+        }
         if response.url?.pathExtension.lowercased() == "m3u8" || mime.contains("mpegurl") {
             guard response.expectedContentLength <= maximumManifestBytes else {
                 reject(id, status: 502); completionHandler(.cancel); return
@@ -200,6 +227,10 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         guard let id = tasks[dataTask.taskIdentifier], let client = clients[id], !stopped else { return }
         clients[id]?.activity = Date()
+        if let body = client.cacheBody {
+            if body.count + data.count <= maximumCachedSegmentBytes { clients[id]?.cacheBody?.append(data) }
+            else { clients[id]?.cacheBody = nil }
+        }
         if client.manifest != nil {
             guard (client.manifest?.count ?? 0) + data.count <= maximumManifestBytes else { reject(id, status: 502); return }
             clients[id]?.manifest?.append(data)
@@ -250,6 +281,10 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
             } catch { reject(id, status: 502) }
             return
         }
+        if let url = client.cacheURL, let body = client.cacheBody, !body.isEmpty,
+           response.expectedContentLength < 0 || response.expectedContentLength == body.count {
+            storeSegment(body, response: response, for: url)
+        }
         if !client.headersSent {
             let header = headers(response)
             clients[id]?.chunks.append(header); clients[id]?.queuedBytes += header.count; clients[id]?.headersSent = true
@@ -257,6 +292,19 @@ public final class MediaRelayServer: NSObject, URLSessionDataDelegate, @unchecke
         let end = Data("0\r\n\r\n".utf8)
         clients[id]?.chunks.append(end); clients[id]?.queuedBytes += end.count; clients[id]?.completed = true
         drain(id)
+    }
+
+    private func storeSegment(_ body: Data, response: HTTPURLResponse, for url: URL) {
+        if let previous = cachedSegments.removeValue(forKey: url) { cachedSegmentBytes -= previous.body.count }
+        cachedSegmentOrder.removeAll { $0 == url }
+        while cachedSegmentBytes + body.count > maximumCacheBytes || cachedSegmentOrder.count >= 8 {
+            guard !cachedSegmentOrder.isEmpty else { return }
+            let oldest = cachedSegmentOrder.removeFirst()
+            if let previous = cachedSegments.removeValue(forKey: oldest) { cachedSegmentBytes -= previous.body.count }
+        }
+        cachedSegments[url] = CachedSegment(response: response, body: body, stored: Date())
+        cachedSegmentOrder.append(url)
+        cachedSegmentBytes += body.count
     }
 
     private func headers(_ response: HTTPURLResponse, head: Bool = false) -> Data {

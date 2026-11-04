@@ -66,6 +66,10 @@ final class PlaybackController: ObservableObject {
     }
     private var request: Request?
     private var nativeResumePosition: Double?
+    private weak var carPlayPrerollItem: AVPlayerItem?
+    private var carPlayPrerollPending = false
+    private var carPlayPrerollReady = false
+    private var preparingCarPlayVideo = false
     private var restoringCompatibilityPosition = false
     @Published var externalDisplayConnected = false {
         didSet { updateVideoOutput() }
@@ -103,13 +107,16 @@ final class PlaybackController: ObservableObject {
     }
 
     private func updateVideoOutput() {
+        if !usesSystemCarPlayVideo { preparingCarPlayVideo = false }
         // A CarPlay receiver must remain eligible even if iOS also supplies a
         // scene. Only an app-owned TV/HDMI output should suppress AirPlay video.
-        if player.usesExternalPlaybackWhileExternalScreenIsActive != usesSystemCarPlayVideo {
-            player.usesExternalPlaybackWhileExternalScreenIsActive = usesSystemCarPlayVideo
+        let externalVideo = outputPolicy.allowsExternalPlayback && !preparingCarPlayVideo
+        let systemVideo = usesSystemCarPlayVideo && !preparingCarPlayVideo
+        if player.usesExternalPlaybackWhileExternalScreenIsActive != systemVideo {
+            player.usesExternalPlaybackWhileExternalScreenIsActive = systemVideo
         }
-        if player.allowsExternalPlayback != outputPolicy.allowsExternalPlayback {
-            player.allowsExternalPlayback = outputPolicy.allowsExternalPlayback
+        if player.allowsExternalPlayback != externalVideo {
+            player.allowsExternalPlayback = externalVideo
         }
         compatibility?.setExternalVideoEnabled(!playsOnPhone)
         if usesOwnedVideoDisplay || playsOnPhone { waitingForExternalPlayback = false }
@@ -541,7 +548,8 @@ final class PlaybackController: ObservableObject {
                 guard let self, self.compatibility == nil, self.casting == nil else { return }
                 // Mounting a new output or a delayed player callback must not
                 // undo Pause. Only an explicit Play (including AVKit PiP) may.
-                if self.pauseRequested, self.externalDisplayConnected, !self.playsOnPhone,
+                if self.pauseRequested,
+                   (self.pendingSeek != nil || (self.externalDisplayConnected && !self.playsOnPhone)),
                    !self.pictureInPictureActiveOrStarting,
                    self.player.timeControlStatus == .playing {
                     self.pause()
@@ -725,10 +733,12 @@ final class PlaybackController: ObservableObject {
         pendingAutomaticPiP = resumePiPAfterReplacement
         liveRecoveryAttempt = recoveryAttempt
         let attemptID = playbackID
+        if carPlayConnected { CarPlayPlaybackTrace.record("selection") }
         request = Request(url: url, preserveSourceAudio: preserveSourceAudio, muted: muted,
                           requiresExternalPlayback: requiresExternalPlayback, title: title, live: live,
                           presentation: presentation, useCompatibility: useCompatibility, lowLatency: lowLatency,
                           artworkURL: artworkURL)
+        preparingCarPlayVideo = usesSystemCarPlayVideo
         let position = startAt.isFinite ? max(0, startAt) : 0
         currentTime = position
         let startsPaused = startPaused || (screenCaptureBlocked && !hasRemoteVideoOutput && presentation == .video)
@@ -992,6 +1002,12 @@ final class PlaybackController: ObservableObject {
     }
 
     private func clearNativeItemForReplacement() {
+        player.cancelPendingPrerolls()
+        carPlayPrerollItem = nil
+        carPlayPrerollPending = false
+        carPlayPrerollReady = false
+        preparingCarPlayVideo = usesSystemCarPlayVideo
+        updateVideoOutput()
         continuingRemoteVideo = usesSystemCarPlayVideo && hasRemoteVideoOutput
         externalPlaybackLossTask?.cancel(); externalPlaybackLossTask = nil
         itemObservation = nil; durationObservation = nil
@@ -1075,6 +1091,9 @@ final class PlaybackController: ObservableObject {
                              transport: carPlayBridge != nil ? .converted : mediaRelay != nil ? .relay : personalMediaServer != nil ? .localFile : .direct)
         startupTask?.cancel(); startupTask = nil
         let item = AVPlayerItem(url: url)
+        carPlayPrerollItem = usesSystemCarPlayVideo ? item : nil
+        carPlayPrerollPending = false
+        carPlayPrerollReady = false
         applySubtitlePosition(to: item)
         // Pausing at startup must not seek a live stream to time zero.
         nativeResumePosition = position > 0 || (carPlayBridge != nil && carPlayBridge?.supportsNativeSeeking != true && !requestedLive) ? position : nil
@@ -1087,6 +1106,7 @@ final class PlaybackController: ObservableObject {
                     self.fail(L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."),
                               reason: .playback, failure: item.error.map(DiagnosticFailure.init), expectedPlaybackID: attemptID)
                 } else if item.status == .readyToPlay {
+                    if self.usesSystemCarPlayVideo { CarPlayPlaybackTrace.record("native-ready") }
                     if self.carPlayBridge != nil {
                         self.bridgeTimeOrigin = item.seekableTimeRanges.first?.timeRangeValue.start.seconds ?? 0
                     }
@@ -1096,6 +1116,7 @@ final class PlaybackController: ObservableObject {
                     guard let position = self.nativeResumePosition, self.pendingSeek == nil else {
                         self.refreshNativeTimeline(item)
                         if self.pauseRequested { self.pause() }
+                        if self.usesSystemCarPlayVideo { self.prepareCarPlayPreroll(item) }
                         return
                     }
                     let seekID = UUID()
@@ -1110,6 +1131,7 @@ final class PlaybackController: ObservableObject {
                             self.refreshNativeTimeline(item)
                             if self.pauseRequested { self.pause() }
                             else { self.resume() }
+                            if self.usesSystemCarPlayVideo { self.prepareCarPlayPreroll(item) }
                         }
                     }
                 } else { self.refreshNativeTimeline(item) }
@@ -1191,6 +1213,11 @@ final class PlaybackController: ObservableObject {
     }
 
     func stop(stopRemoteCastMedia: Bool = true, deactivateAudioSession: Bool = true, preserveVideoRoute: Bool = false) {
+        preparingCarPlayVideo = false
+        carPlayPrerollItem = nil
+        carPlayPrerollPending = false
+        carPlayPrerollReady = false
+        player.cancelPendingPrerolls()
         pendingCarPlayResume = nil
         nowPlayingArtworkTask?.cancel(); nowPlayingArtworkTask = nil
         continuingRemoteVideo = preserveVideoRoute && (externalPlaybackActive || continuingRemoteVideo)
@@ -1326,7 +1353,7 @@ final class PlaybackController: ObservableObject {
 
     func togglePlayPause() {
         guard hasActivePlayback || pendingCarPlayResume != nil else { return }
-        if isPlaying { pause() } else { resume() }
+        if isPlaying || (state == .loading && !pauseRequested) { pause() } else { resume() }
     }
 
     func selectAudioTrack(_ id: String) {
@@ -1433,8 +1460,37 @@ final class PlaybackController: ObservableObject {
     }
 
     private func playNative() {
+        if usesSystemCarPlayVideo, let item = player.currentItem, carPlayPrerollItem === item {
+            guard carPlayPrerollReady else {
+                prepareCarPlayPreroll(item)
+                return
+            }
+            CarPlayPlaybackTrace.record("play-ready")
+        }
         if requestedLive && usesSystemCarPlayVideo { player.playImmediately(atRate: 1) }
         else { player.play() }
+    }
+
+    private func prepareCarPlayPreroll(_ item: AVPlayerItem) {
+        guard usesSystemCarPlayVideo, player.currentItem === item, carPlayPrerollItem === item,
+              item.status == .readyToPlay, player.status == .readyToPlay,
+              nativeResumePosition == nil, pendingSeek == nil,
+              !carPlayPrerollPending, !carPlayPrerollReady else { return }
+        carPlayPrerollPending = true
+        CarPlayPlaybackTrace.record("preroll-start")
+        player.preroll(atRate: 1) { [weak self, weak item] finished in
+            Task { @MainActor in
+                guard let self, let item, self.player.currentItem === item,
+                      self.carPlayPrerollItem === item else { return }
+                self.carPlayPrerollPending = false
+                guard finished else { return }
+                self.carPlayPrerollReady = true
+                self.preparingCarPlayVideo = false
+                self.updateVideoOutput()
+                CarPlayPlaybackTrace.record("preroll-ready")
+                if !self.pauseRequested { self.playNative() }
+            }
+        }
     }
 
     func seek(by seconds: Double) {
@@ -1473,6 +1529,7 @@ final class PlaybackController: ObservableObject {
                 Task { @MainActor in
                     guard let self, let item, self.player.currentItem === item, self.pendingSeek == request else { return }
                     self.pendingSeek = nil
+                    if self.pauseRequested { self.pause() }
                     self.refreshNativeTimeline(item)
                 }
             }
@@ -1598,6 +1655,9 @@ final class PlaybackController: ObservableObject {
     private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil,
                       expectedPlaybackID: UUID? = nil) {
         guard expectedPlaybackID == nil || expectedPlaybackID == playbackID else { return }
+        if carPlayConnected {
+            CarPlayPlaybackTrace.record("failure \(reason.rawValue) \(failure?.family.rawValue ?? "none"):\(failure?.code ?? 0)")
+        }
         // Preserve the original source and timeline. The receiver sometimes
         // cannot read a provider URL/cookie that works on the phone (-1102).
         // Retry through a bounded phone-side HTTP relay exactly once.
