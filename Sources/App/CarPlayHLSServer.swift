@@ -7,10 +7,14 @@ final class CarPlayHLSServer: @unchecked Sendable {
     let token = UUID().uuidString
     let directory: URL
     private let vod: Bool
+    private let vodPlaylist: CarPlayVODPlaylist?
+    var onSegmentRequested: (@Sendable (Int) -> Void)?
     private let queue = DispatchQueue(label: "Mirivo.CarPlay.HLS", qos: .userInitiated)
     private var listener: NWListener?
     private var stopped = false
     private var manifests: [String: Data] = [:]
+    private var pendingResources: [UUID: (name: String, request: Data)] = [:]
+    private var cachedSegments: [Int] = []
     #if DEBUG
     private var tracedRequests: Set<String> = []
     #endif
@@ -21,19 +25,25 @@ final class CarPlayHLSServer: @unchecked Sendable {
     }
     private var clients: [UUID: Client] = [:]
 
-    init(vod: Bool) throws {
+    init(vod: Bool, playlist: CarPlayVODPlaylist? = nil) throws {
         self.vod = vod
+        vodPlaylist = playlist
         directory = FileManager.default.temporaryDirectory.appendingPathComponent("Mirivo-CarPlay-\(token)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         var directory = directory
         var values = URLResourceValues(); values.isExcludedFromBackup = true
         try directory.setResourceValues(values)
+        if let playlist {
+            let body = playlist.manifest
+            try body.write(to: directory.appendingPathComponent("index.m3u8"), options: .atomic)
+            manifests["index.m3u8"] = body
+        }
     }
 
-    func start(onReady: @escaping @Sendable (URL) -> Void, onFailure: @escaping @Sendable (Error) -> Void) {
+    func start(host: String? = nil, onReady: @escaping @Sendable (URL) -> Void, onFailure: @escaping @Sendable (Error) -> Void) {
         queue.async { [self] in
             guard !stopped else { return }
-            guard let host = MediaRelayServer.wifiAddress() else { onFailure(URLError(.notConnectedToInternet)); return }
+            guard let host = host ?? MediaRelayServer.wifiAddress() else { onFailure(URLError(.notConnectedToInternet)); return }
             do {
                 let parameters = NWParameters.tcp
                 parameters.prohibitedInterfaceTypes = [.cellular]
@@ -131,6 +141,7 @@ final class CarPlayHLSServer: @unchecked Sendable {
     }
 
     private func manifest(named name: String) -> Data? {
+        if vodPlaylist != nil { return name == "index.m3u8" ? manifests[name] : nil }
         let file = directory.appendingPathComponent(name)
         if let size = try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 1_048_576,
            let data = try? Data(contentsOf: file), let text = String(data: data, encoding: .utf8),
@@ -160,9 +171,37 @@ final class CarPlayHLSServer: @unchecked Sendable {
     func stop() {
         queue.async { [self] in
             stopped = true
+            onSegmentRequested = nil
             listener?.cancel(); listener = nil
             for id in Array(clients.keys) { close(id) }
             manifests.removeAll()
+        }
+    }
+
+    func segmentReady(_ index: Int) {
+        queue.async { [self] in
+            guard !stopped, let playlist = vodPlaylist, playlist.interval(for: index) != nil else { return }
+            retainSegment(index)
+            let name = playlist.name(for: index)
+            let waiting = pendingResources.filter { $0.value.name == name }
+            for (id, resource) in waiting {
+                pendingResources.removeValue(forKey: id)
+                clients[id]?.activity = Date()
+                respond(id, request: resource.request)
+            }
+        }
+    }
+
+    private func retainSegment(_ index: Int) {
+        cachedSegments.removeAll { $0 == index }
+        cachedSegments.append(index)
+        // Eight 16-second, 4-Mbit segments stay well below the live server's
+        // storage ceiling. An evicted segment is generated again on a seek.
+        while cachedSegments.count > 8 {
+            let oldest = cachedSegments.removeFirst()
+            if let playlist = vodPlaylist {
+                try? FileManager.default.removeItem(at: directory.appendingPathComponent(playlist.name(for: oldest)))
+            }
         }
     }
 
@@ -221,18 +260,33 @@ final class CarPlayHLSServer: @unchecked Sendable {
         }
         #endif
         let file = directory.appendingPathComponent(name)
+        if let playlist = vodPlaylist {
+            guard name == "index.m3u8" || playlist.index(for: name) != nil else { reject(id, status: 404); return }
+            if let index = playlist.index(for: name) {
+                if !FileManager.default.fileExists(atPath: file.path) {
+                    let requested = pendingResources.values.contains { $0.name == name }
+                    pendingResources[id] = (name, request)
+                    if !requested { onSegmentRequested?(index) }
+                    return
+                }
+                retainSegment(index)
+            }
+        }
         let manifest = name.hasSuffix(".m3u8") ? manifest(named: name) : nil
         guard let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey]),
               values.isRegularFile == true, values.isSymbolicLink != true,
               let fileSize = values.fileSize, fileSize <= 32 * 1_024 * 1_024 else { reject(id, status: 404); return }
         if name.hasSuffix(".m3u8") && manifest == nil { reject(id, status: 503); return }
         let size = Int64(manifest?.count ?? fileSize)
-        let ranges = lines.dropFirst().filter { $0.lowercased().hasPrefix("range:") }
+        // Each VOD TS file is an independent segment. Starting in its middle
+        // can skip the reference frames needed for an accurate video seek.
+        let supportsRanges = vodPlaylist == nil || !name.hasSuffix(".ts")
+        let ranges = supportsRanges ? lines.dropFirst().filter { $0.lowercased().hasPrefix("range:") } : []
         let range = ranges.first.flatMap { MediaByteRange.parse(String($0.dropFirst(6)).trimmingCharacters(in: .whitespaces), size: size) }
         guard ranges.count <= 1, ranges.isEmpty || range != nil else { reject(id, status: 416); return }
         let length = range?.length ?? size
         let type = manifest != nil ? "application/vnd.apple.mpegurl" : name.hasSuffix(".vtt") ? "text/vtt" : name.hasSuffix(".ts") ? "video/mp2t" : "video/mp4"
-        var headers = "HTTP/1.1 \(range == nil ? "200 OK" : "206 Partial Content")\r\nContent-Type: \(type)\r\nContent-Length: \(length)\r\nAccept-Ranges: bytes\r\nCache-Control: no-store\r\nConnection: close\r\n"
+        var headers = "HTTP/1.1 \(range == nil ? "200 OK" : "206 Partial Content")\r\nContent-Type: \(type)\r\nContent-Length: \(length)\r\nAccept-Ranges: \(supportsRanges ? "bytes" : "none")\r\nCache-Control: no-store\r\nConnection: close\r\n"
         if let range { headers += "Content-Range: bytes \(range.start)-\(range.end)/\(size)\r\n" }
         let head = first[0] == "HEAD"
         var body: Data?
@@ -271,6 +325,7 @@ final class CarPlayHLSServer: @unchecked Sendable {
     }
 
     private func close(_ id: UUID) {
+        pendingResources.removeValue(forKey: id)
         guard let client = clients.removeValue(forKey: id) else { return }
         try? client.file?.close()
         client.connection.cancel()

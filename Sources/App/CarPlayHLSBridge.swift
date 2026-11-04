@@ -11,7 +11,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
     let startPosition: Double
     private let forceTranscode: Bool
     private var probe: CarPlayMediaProbe?
-    private let encoder = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show"])
+    private var encoder = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show"])
     private var media: VLCMedia?
     private var server: CarPlayHLSServer?
     private var monitor: Task<Void, Never>?
@@ -23,9 +23,17 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
     private var stoppingRetention: CarPlayHLSBridge?
     private var requestedPause = false
     private var pausePending = false
+    private var vodPlaylist: CarPlayVODPlaylist?
+    private var vodAddress: URL?
+    private var pendingSegments: [Int] = []
+    private var encodingSegment: Int?
+    private var segmentOutput: URL?
+    private var vodTranscodesAudio = false
+    private var segmentDelegate: SegmentDelegate?
     private(set) var duration: Double = 0
     private(set) var transcodesVideo = false
     var canRetryTranscoding: Bool { outputStarted && !transcodesVideo }
+    var supportsNativeSeeking: Bool { vodPlaylist != nil }
     var onReady: ((URL) -> Void)?
     var onFailure: ((Error) -> Void)?
 
@@ -67,6 +75,11 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
         // device's H.264 encoder so their container extension is never a gate.
         transcodesVideo = forceTranscode || metadata.videoCodec != Self.fourCC("h264")
         let transcodesAudio = forceTranscode || metadata.audioCodecs.contains { $0 != Self.fourCC("mp4a") }
+        if !live && duration > 0 {
+            vodTranscodesAudio = transcodesAudio
+            prepareVOD()
+            return
+        }
         do {
             let server = try CarPlayHLSServer(vod: !live)
             self.server = server
@@ -79,6 +92,120 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
             }, onFailure: { [weak self] error in
                 Task { @MainActor in self?.fail(error) }
             })
+        } catch { fail(error) }
+    }
+
+    private func prepareVOD() {
+        do {
+            let playlist = try CarPlayVODPlaylist(duration: duration, startPosition: startPosition)
+            vodPlaylist = playlist
+            transcodesVideo = true
+            vodTranscodesAudio = true
+            // The receiver can request any part of the finite source timeline.
+            let server = try CarPlayHLSServer(vod: true, playlist: playlist)
+            self.server = server
+            server.onSegmentRequested = { [weak self] index in
+                Task { @MainActor in self?.requestSegment(index) }
+            }
+            server.start(onReady: { [weak self, weak server] address in
+                Task { @MainActor in
+                    guard let self, let server, self.server === server, !self.stopped else { return }
+                    self.vodAddress = address
+                    self.requestSegment(min(playlist.segmentCount - 1, Int(playlist.startPosition / playlist.segmentDuration)))
+                }
+            }, onFailure: { [weak self] error in
+                Task { @MainActor in self?.fail(error) }
+            })
+        } catch { fail(error) }
+    }
+
+    private func requestSegment(_ index: Int) {
+        guard !stopped, let playlist = vodPlaylist, let server, playlist.interval(for: index) != nil else { return }
+        if FileManager.default.fileExists(atPath: server.directory.appendingPathComponent(playlist.name(for: index)).path) {
+            server.segmentReady(index)
+            return
+        }
+        guard encodingSegment != index else { return }
+        pendingSegments.removeAll { $0 == index }
+        pendingSegments.insert(index, at: 0)
+        if pendingSegments.count > 12 { pendingSegments.removeLast() }
+        encodeNextSegment()
+    }
+
+    private func encodeNextSegment() {
+        guard !stopped, encodingSegment == nil, !pendingSegments.isEmpty,
+              let playlist = vodPlaylist, let server else { return }
+        let index = pendingSegments.removeFirst()
+        guard let interval = playlist.interval(for: index), let media = VLCMedia(url: source) else {
+            fail(URLError(.cannotDecodeContentData)); return
+        }
+        let output = server.directory.appendingPathComponent("encoding-\(UUID().uuidString).part")
+        // Use an independent player and clock for every segment. Reusing VLC's
+        // output resources can carry timing from a previously encoded range.
+        encoder.delegate = nil
+        let player = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show", "--codec=avcodec", "--no-hw-dec"])
+        encoder = player
+        let delegate = SegmentDelegate { [weak self, weak player] state in
+            guard let self, let player, self.encoder === player else { return }
+            self.encoderStateChanged(state)
+        }
+        segmentDelegate = delegate
+        player.delegate = delegate
+        player.enableCarPlayDebugLogging()
+        encodingSegment = index
+        segmentOutput = output
+        self.media = media
+        if source.pathExtension.lowercased() == "mkv" { media.addOption(":demux=mkv_trusted") }
+        media.addOption(":start-time=\(interval.lowerBound)")
+        media.addOption(":stop-time=\(interval.upperBound)")
+        media.addOption(":no-input-fast-seek")
+        media.addOption(":network-caching=300")
+        media.addOption(":file-caching=300")
+        media.addOption(":sout-all")
+        media.addOption(":no-sout-keep")
+        var conversion: [String] = []
+        if transcodesVideo {
+            conversion += ["vcodec=h264", "venc=avcodec{codec=h264_videotoolbox,keyint=1,bframes=0}",
+                           "vb=4000", "maxwidth=1280", "maxheight=720"]
+        }
+        if vodTranscodesAudio { conversion += ["acodec=mp4a", "aenc=avcodec{codec=aac}", "ab=160", "channels=2", "samplerate=48000"] }
+        let transcode = conversion.isEmpty ? "" : "transcode{\(conversion.joined(separator: ","))}:"
+        media.addOption(":sout=#\(transcode)std{access=file,mux=ts,dst='\(output.path)'}")
+        encoder.media = media
+        encodingBegan = true
+        encoder.play()
+        monitor?.cancel()
+        monitor = Task { [weak self] in
+            do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            guard let self, !self.stopped, self.encodingSegment == index else { return }
+            self.fail(URLError(.timedOut))
+        }
+    }
+
+    private func finishSegment() {
+        guard let index = encodingSegment, let output = segmentOutput,
+              let playlist = vodPlaylist, let server else { return }
+        monitor?.cancel(); monitor = nil
+        do {
+            let values = try output.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey, .isSymbolicLinkKey])
+            guard values.isRegularFile == true, values.isSymbolicLink != true,
+                  let size = values.fileSize, size > 0, size <= 32 * 1_024 * 1_024 else {
+                throw URLError(.cannotDecodeContentData)
+            }
+            if let interval = playlist.interval(for: index), interval.lowerBound > 0 {
+                let data = try Data(contentsOf: output)
+                let trimmed = try CarPlayVODPlaylist.removingSeekPreroll(from: data, before: interval.lowerBound)
+                try trimmed.write(to: output, options: .atomic)
+            }
+            let target = server.directory.appendingPathComponent(playlist.name(for: index))
+            try FileManager.default.moveItem(at: output, to: target)
+            encodingSegment = nil; segmentOutput = nil
+            server.segmentReady(index)
+            if !ready, let address = vodAddress {
+                ready = true
+                onReady?(address)
+            }
+            encodeNextSegment()
         } catch { fail(error) }
     }
 
@@ -141,6 +268,8 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     func setPaused(_ paused: Bool) {
         requestedPause = paused
+        // A requested VOD segment must finish even when the consumer is paused.
+        if vodPlaylist != nil { return }
         guard ready, !stopped, !producerFinished else { return }
         if paused {
             if encoder.state != .paused && !pausePending { pausePending = true; encoder.pause() }
@@ -153,7 +282,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     func mediaPlayerLengthChanged(_ length: Int64) {
         Task { @MainActor [weak self] in
-            guard let self, !self.stopped, !self.live, length > 0 else { return }
+            guard let self, !self.stopped, !self.live, self.vodPlaylist == nil, length > 0 else { return }
             self.duration = Double(length) / 1_000
         }
     }
@@ -161,6 +290,11 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
     private func encoderStateChanged(_ newState: VLCMediaPlayerState) {
         if stopped {
             if newState == .stopped || newState == .nothingSpecial { finishStopping() }
+            return
+        }
+        if vodPlaylist != nil {
+            if newState == .error && encoder.state == .error { fail(URLError(.cannotDecodeContentData)) }
+            else if newState == .stopped && encoder.state == .stopped { finishSegment() }
             return
         }
         if newState == .error && encoder.state == .error { fail(URLError(.cannotDecodeContentData)) }
@@ -176,6 +310,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
     func stop() {
         guard !stopped else { return }
         stopped = true
+        pendingSegments.removeAll()
         monitor?.cancel(); monitor = nil
         onReady = nil; onFailure = nil
         probe?.stop(); probe = nil
@@ -227,5 +362,14 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     private static func fourCC(_ text: String) -> UInt32 {
         text.utf8.enumerated().reduce(0) { $0 | UInt32($1.element) << (8 * $1.offset) }
+    }
+
+    @MainActor
+    private final class SegmentDelegate: NSObject, @preconcurrency VLCMediaPlayerDelegate {
+        private let stateChanged: (VLCMediaPlayerState) -> Void
+        init(stateChanged: @escaping (VLCMediaPlayerState) -> Void) { self.stateChanged = stateChanged }
+        func mediaPlayerStateChanged(_ state: VLCMediaPlayerState) {
+            Task { @MainActor [weak self] in self?.stateChanged(state) }
+        }
     }
 }

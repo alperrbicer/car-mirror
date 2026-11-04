@@ -32,6 +32,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                 let model = MirrorModel.shared
                 if success {
                     model.record(.carTemplateReady)
+                    if model.prepareCarPlayNowPlaying() {
+                        interfaceController.pushTemplate(CPNowPlayingTemplate.shared, animated: false) { [weak self] _, error in
+                            if let error { self?.recordTemplateError(error) }
+                        }
+                    }
                     if sources.count == 1, let source = sources.first {
                         self.openSource(source, replacing: root, completion: {})
                     } else if !sources.isEmpty {
@@ -370,27 +375,36 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func play(_ channel: MediaChannel, channels: [MediaChannel], sourceID: UUID?) {
         guard let controller else { return }
-        // Finish presenting Now Playing before AVPlayer starts negotiating its
-        // video output. Presenting it after playMedia can cover the video UI.
-        playbackTransition.start(showWaiting: { [weak self, weak controller] completed in
-            guard let self, let controller, self.controller === controller else { completed(false); return }
-            if controller.topTemplate === CPNowPlayingTemplate.shared { completed(true); return }
-            controller.pushTemplate(CPNowPlayingTemplate.shared, animated: true) { [weak self] success, error in
-                if let error { self?.recordTemplateError(error) }
-                completed(success)
-            }
-        }, playback: { [weak self, weak controller] in
-            guard let self, let controller, self.controller === controller,
-                  controller.topTemplate === CPNowPlayingTemplate.shared else { return }
+        // Publish the selected item's metadata before opening Now Playing.
+        // Keep playback paused until the waiting screen has been presented.
+        playbackTransition.start(preparePlayback: { [weak self, weak controller] in
+            guard let self, let controller, self.controller === controller else { return false }
             let model = MirrorModel.shared
             let presentation: MediaPlaybackPresentation = self.supportsVideo && !channel.isAudio ? .video : .audio
             model.returnToDisplay()
-            let started = model.playMedia(channel, presentation: presentation,
-                queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels), sourceID: sourceID)
-            if started, presentation == .video { model.playback.presentCarPlayVideoWhenReady() }
-            if !started {
+            let prepared = model.playMedia(channel, presentation: presentation,
+                queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels), sourceID: sourceID, startPaused: true)
+            if !prepared {
                 self.showError(model.requiresMembership ? "Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
             }
+            return prepared
+        }, showWaiting: { [weak self, weak controller] completed in
+            guard let self, let controller, self.controller === controller else { completed(false); return }
+            if controller.topTemplate === CPNowPlayingTemplate.shared { completed(true); return }
+            let presented: (Bool, Error?) -> Void = { [weak self] success, error in
+                if let error { self?.recordTemplateError(error) }
+                completed(success)
+            }
+            if controller.templates.contains(where: { $0 === CPNowPlayingTemplate.shared }) {
+                controller.pop(to: CPNowPlayingTemplate.shared, animated: true, completion: presented)
+            } else {
+                controller.pushTemplate(CPNowPlayingTemplate.shared, animated: true, completion: presented)
+            }
+        }, playback: { [weak self, weak controller] in
+            guard let self, let controller, self.controller === controller else { return }
+            // CarPlay may already be changing the top template for video.
+            // The successful presentation callback and selection token own ordering.
+            MirrorModel.shared.playback.resume()
         })
     }
 
@@ -401,10 +415,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         var items = channels.dropFirst(offset).prefix(pageSize).map { channel in
             let item = CPListItem(text: channel.title, detailText: channel.group.isEmpty ? nil : channel.group)
             if #available(iOS 26.4, *) {
-                // Open Now Playing first so the handler can start the stream.
-                // The player requests video after playback becomes ready.
-                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
-                    playbackAction: .play, elapsedTime: .zero, duration: .zero)
+                item.playbackConfiguration = CarPlayPlaybackTransition.configuration(for: channel, supportsVideo: supportsVideo)
             }
             item.handler = { [weak self] _, completion in
                 guard let self else { completion(); return }
@@ -454,17 +465,25 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 }
 
-/// Selection first finishes its Now Playing presentation, then starts media on
-/// the next actor turn so the list handler can finish before video takes over.
+/// Prepare paused media before Now Playing, then resume on the next actor turn
+/// so the selection handler finishes before CarPlay automatically presents video.
 @MainActor
 final class CarPlayPlaybackTransition {
     private var generation = UUID()
 
+    @available(iOS 26.4, *)
+    static func configuration(for channel: MediaChannel, supportsVideo: Bool) -> CPPlaybackConfiguration {
+        CPPlaybackConfiguration(preferredPresentation: supportsVideo && !channel.isAudio ? .video : .audio,
+            playbackAction: .play, elapsedTime: .zero, duration: .zero)
+    }
+
     func cancel() { generation = UUID() }
 
-    func start(showWaiting: (@escaping (Bool) -> Void) -> Void, playback: @escaping () -> Void) {
+    func start(preparePlayback: () -> Bool, showWaiting: (@escaping (Bool) -> Void) -> Void,
+               playback: @escaping () -> Void) {
         cancel()
         let selection = generation
+        guard preparePlayback(), generation == selection else { return }
         showWaiting { [weak self] ready in
             guard let self, self.generation == selection else { return }
             guard ready else { self.cancel(); return }
@@ -541,8 +560,7 @@ enum CarPlayFavoritesMenu {
             let item = CPListItem(text: favorite.title, detailText: details,
                                  image: UIImage(systemName: favorite.series != nil ? "rectangle.stack" : "heart.fill"))
             if #available(iOS 26.4, *), favorite.series == nil {
-                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
-                    playbackAction: .play, elapsedTime: .zero, duration: .zero)
+                item.playbackConfiguration = CarPlayPlaybackTransition.configuration(for: favorite.channel, supportsVideo: supportsVideo)
             }
             item.handler = { _, completion in open(favorite, completion) }
             return item

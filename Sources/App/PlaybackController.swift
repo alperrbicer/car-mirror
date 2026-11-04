@@ -73,7 +73,6 @@ final class PlaybackController: ObservableObject {
     @Published private(set) var playsOnPhone = false
     @Published private(set) var carPlayConnected = false
     private var carPlayVideoSupported = false
-    private var pendingCarPlayVideoPresentation: UUID?
     @Published private(set) var externalTVDisplayConnected = false
     @Published private(set) var airPlayName = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }?.portName
     var displayConnection: DisplayConnection {
@@ -163,38 +162,16 @@ final class PlaybackController: ObservableObject {
         externalTVDisplayConnected = externalTV
         updateVideoOutput()
         reconcileVideoDecoder(previousSystemRoute: previousSystemRoute)
+        updateRemoteSeekCommands()
     }
 
-    func presentCarPlayVideoWhenReady() {
-        guard usesSystemCarPlayVideo, hasActivePlayback else { return }
-        pendingCarPlayVideoPresentation = playbackID
-        preparePendingCarPlayVideoPresentation()
-    }
-
-    private func preparePendingCarPlayVideoPresentation() {
-        guard pendingCarPlayVideoPresentation == playbackID, usesSystemCarPlayVideo,
-              player.currentItem?.status == .readyToPlay, player.timeControlStatus == .playing else { return }
-        pendingCarPlayVideoPresentation = nil
-        guard !player.isExternalPlaybackActive else { return }
-        let attemptID = playbackID
-        onDiagnostic?(.carVideoRouteRequested, DiagnosticValues())
-        AVAudioSession.sharedInstance().prepareRouteSelectionForPlayback { [weak self] shouldStart, route in
-            Task { @MainActor in
-                guard let self, self.playbackID == attemptID, self.usesSystemCarPlayVideo else { return }
-                var values = DiagnosticValues()
-                values.shouldStartPlayback = shouldStart
-                values.routeSelection = route == .external ? .external : route == .local ? .local : .none
-                self.onDiagnostic?(.carVideoRoutePrepared, values)
-                if shouldStart { self.playNative() }
-                else { self.pause() }
-            }
-        }
-    }
     private var pauseRequested = false
     @Published private(set) var currentTime: Double = 0
     @Published private(set) var duration: Double = 0
     @Published private(set) var isLive = false
-    @Published private(set) var canSeek = false
+    @Published private(set) var canSeek = false {
+        didSet { updateRemoteSeekCommands() }
+    }
     @Published private(set) var audioTracks: [PlaybackTrack] = []
     @Published private(set) var subtitleTracks: [PlaybackTrack] = []
     @Published private(set) var canDisableSubtitles = false
@@ -461,7 +438,11 @@ final class PlaybackController: ObservableObject {
         restorePlayerInterface(completion: finish)
     }
     @Published private(set) var state: State = .idle {
-        didSet { measurement.playing(state == .playing) }
+        didSet {
+            measurement.playing(state == .playing)
+            updateRemoteTrackCommands()
+            updateRemoteSeekCommands()
+        }
     }
     /// True after the current native/VLC video renderer has a decoded frame.
     /// The inline player uses this to prevent a fullscreen transition from
@@ -477,11 +458,14 @@ final class PlaybackController: ObservableObject {
     private var itemObservation: NSKeyValueObservation?
     private var playingObservation: NSKeyValueObservation?
     private var activatedAudioSession = false
+    private var pendingCarPlayResume: (() -> Void)?
     private var waitingForExternalPlayback = false
     var onDiagnostic: ((DiagnosticKind, DiagnosticValues) -> Void)?
     var onFinished: (() -> Void)?
     var onFailure: ((String) -> Void)?
     var onRemoteStop: (() -> Void)?
+    var remoteTrackAvailability: (() -> (previous: Bool, next: Bool))?
+    var onRemoteTrackChange: ((Int) -> Void)?
     private var notificationTokens: [NSObjectProtocol] = []
     private var startupTask: Task<Void, Never>?
     private var stallTask: Task<Void, Never>?
@@ -587,7 +571,6 @@ final class PlaybackController: ObservableObject {
                     self.carPlayBridge?.setPaused(true)
                 }
                 if self.player.timeControlStatus == .playing {
-                    self.preparePendingCarPlayVideoPresentation()
                     if self.continuingRemoteVideo, !self.player.isExternalPlaybackActive, let item = self.player.currentItem {
                         self.externalPlaybackLossTask?.cancel()
                         self.externalPlaybackLossTask = Task { [weak self, weak item] in
@@ -992,7 +975,8 @@ final class PlaybackController: ObservableObject {
             guard let self, let bridge, self.carPlayBridge === bridge, self.playbackID == attemptID else { return }
             self.duration = bridge.duration
             self.canSeek = bridge.duration > 0 && !self.requestedLive
-            self.startNativePlayback(url: address, position: 0, startsPaused: self.pauseRequested, attemptID: attemptID)
+            self.startNativePlayback(url: address, position: bridge.supportsNativeSeeking ? bridge.startPosition : 0,
+                                     startsPaused: self.pauseRequested, attemptID: attemptID)
         }
         bridge.onFailure = { [weak self, weak bridge] error in
             guard let self, let bridge, self.carPlayBridge === bridge, self.playbackID == attemptID else { return }
@@ -1092,7 +1076,8 @@ final class PlaybackController: ObservableObject {
         startupTask?.cancel(); startupTask = nil
         let item = AVPlayerItem(url: url)
         applySubtitlePosition(to: item)
-        nativeResumePosition = position > 0 || startsPaused || (carPlayBridge != nil && !requestedLive) ? position : nil
+        // Pausing at startup must not seek a live stream to time zero.
+        nativeResumePosition = position > 0 || (carPlayBridge != nil && carPlayBridge?.supportsNativeSeeking != true && !requestedLive) ? position : nil
         item.preferredForwardBufferDuration = requestedLive ? 1 : 2
         player.automaticallyWaitsToMinimizeStalling = !(requestedLive && usesSystemCarPlayVideo)
         itemObservation = item.observe(\.status, options: [.new]) { [weak self, weak item] _, _ in
@@ -1108,10 +1093,15 @@ final class PlaybackController: ObservableObject {
                     self.loadNativeTracks(item)
                     self.loadNativeVideoQualities(item)
                     self.startPendingPictureInPicture()
-                    guard let position = self.nativeResumePosition, self.pendingSeek == nil else { self.refreshNativeTimeline(item); return }
+                    guard let position = self.nativeResumePosition, self.pendingSeek == nil else {
+                        self.refreshNativeTimeline(item)
+                        if self.pauseRequested { self.pause() }
+                        return
+                    }
                     let seekID = UUID()
                     self.pendingSeek = seekID
-                    let nativePosition = self.carPlayBridge != nil ? self.bridgeTimeOrigin ?? 0 : position
+                    let nativePosition = self.carPlayBridge != nil && self.carPlayBridge?.supportsNativeSeeking != true
+                        ? self.bridgeTimeOrigin ?? 0 : position
                     self.player.seek(to: CMTime(seconds: nativePosition, preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { [weak self, weak item] _ in
                         Task { @MainActor in
                             guard let self, let item, self.player.currentItem === item, self.pendingSeek == seekID else { return }
@@ -1139,7 +1129,7 @@ final class PlaybackController: ObservableObject {
                 self.refreshNativeTimeline(item)
             }
         }
-        if nativeResumePosition == nil { playNative() }
+        if nativeResumePosition == nil && !startsPaused { playNative() }
         startupTask = Task { [weak self, weak item] in
             // Some IPTV endpoints need longer than a few seconds to return
             // the first playable segment after a channel switch.
@@ -1148,6 +1138,33 @@ final class PlaybackController: ObservableObject {
                   (self.waitingForExternalPlayback ? !self.player.isExternalPlaybackActive : self.player.timeControlStatus != .playing) else { return }
             self.fail(self.waitingForExternalPlayback ? self.displayConnection.failureMessage : L10n.tr("Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene."), reason: .unavailable, expectedPlaybackID: attemptID)
         }
+    }
+
+    func prepareCarPlayResume(_ saved: LastPlaybackRecord, presentation: MediaPlaybackPresentation,
+                              onPlay: @escaping () -> Void) throws {
+        guard !hasActivePlayback else { return }
+        stop()
+        // Claim Now Playing without creating a decoder or opening the media URL.
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .default, policy: .longFormAudio, options: [])
+        try session.setActive(true)
+        activatedAudioSession = true
+        pendingCarPlayResume = onPlay
+        currentTime = saved.resumePosition
+        duration = saved.duration
+        isLive = saved.isLive
+        var metadata: [String: Any] = [
+            MPMediaItemPropertyTitle: saved.title,
+            MPMediaItemPropertyArtist: BrandIdentity.name,
+            MPNowPlayingInfoPropertyIsLiveStream: saved.isLive,
+            MPNowPlayingInfoPropertyMediaType: presentation == .audio ? MPNowPlayingInfoMediaType.audio.rawValue : MPNowPlayingInfoMediaType.video.rawValue,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: saved.resumePosition,
+            MPNowPlayingInfoPropertyPlaybackRate: 0.0
+        ]
+        if saved.duration > 0 { metadata[MPMediaItemPropertyPlaybackDuration] = saved.duration }
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = metadata
+        updateNowPlayingArtwork(url: saved.channel.metadata.artworkURL)
+        installRemoteCommands()
     }
 
     private func updateNowPlayingArtwork(url: URL?) {
@@ -1174,11 +1191,11 @@ final class PlaybackController: ObservableObject {
     }
 
     func stop(stopRemoteCastMedia: Bool = true, deactivateAudioSession: Bool = true, preserveVideoRoute: Bool = false) {
+        pendingCarPlayResume = nil
         nowPlayingArtworkTask?.cancel(); nowPlayingArtworkTask = nil
         continuingRemoteVideo = preserveVideoRoute && (externalPlaybackActive || continuingRemoteVideo)
         measurement.finish()
         playbackID = UUID()
-        pendingCarPlayVideoPresentation = nil
         videoReadyForDisplay = false
         liveRecoveryTask?.cancel(); liveRecoveryTask = nil
         liveRecoveryAttempt = 0
@@ -1308,7 +1325,7 @@ final class PlaybackController: ObservableObject {
     }
 
     func togglePlayPause() {
-        guard hasActivePlayback else { return }
+        guard hasActivePlayback || pendingCarPlayResume != nil else { return }
         if isPlaying { pause() } else { resume() }
     }
 
@@ -1400,6 +1417,7 @@ final class PlaybackController: ObservableObject {
 
     func resume() {
         guard !shouldBlockCapturedPlayback else { return }
+        if let pendingCarPlayResume { pendingCarPlayResume(); return }
         pauseRequested = false
         if interruptedPlaybackID == playbackID {
             resumeAfterInterruption = true
@@ -1419,10 +1437,14 @@ final class PlaybackController: ObservableObject {
         else { player.play() }
     }
 
+    func seek(by seconds: Double) {
+        seek(to: currentTime + seconds)
+    }
+
     func seek(to seconds: Double) {
         guard hasActivePlayback, canSeek, seconds.isFinite else { return }
         let target = min(max(0, seconds), duration)
-        if let bridge = carPlayBridge, let source = self.request {
+        if let bridge = carPlayBridge, !bridge.supportsNativeSeeking, let source = self.request {
             // This HLS window is bounded; seeking a movie is a source seek,
             // not a seek into a short rolling live window on the receiver.
             startCarPlayBridge(url: source.url, position: target, attemptID: playbackID,
@@ -1462,7 +1484,7 @@ final class PlaybackController: ObservableObject {
         if let bridge = carPlayBridge {
             let time = player.currentTime().seconds
             let origin = bridgeTimeOrigin ?? 0
-            updateTimeline(time: bridge.startPosition + max(0, time - origin), length: bridge.duration,
+            updateTimeline(time: bridge.supportsNativeSeeking ? time : bridge.startPosition + max(0, time - origin), length: bridge.duration,
                            seekable: bridge.duration > 0 && item.status == .readyToPlay, live: requestedLive)
             return
         }
@@ -1493,7 +1515,7 @@ final class PlaybackController: ObservableObject {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = metadata
     }
 
-    private func pause() {
+    func pause() {
         pauseRequested = true
         resumeAfterInterruption = false
         startupTask?.cancel(); startupTask = nil
@@ -1504,9 +1526,31 @@ final class PlaybackController: ObservableObject {
         state = .paused
     }
 
+    func updateRemoteTrackCommands() {
+        let available = (hasActivePlayback || pendingCarPlayResume != nil) ? remoteTrackAvailability?() : nil
+        let center = MPRemoteCommandCenter.shared()
+        center.previousTrackCommand.isEnabled = onRemoteTrackChange != nil && available?.previous == true
+        center.nextTrackCommand.isEnabled = onRemoteTrackChange != nil && available?.next == true
+    }
+
+    func changeTrack(_ offset: Int) {
+        guard hasActivePlayback || pendingCarPlayResume != nil, let available = remoteTrackAvailability?(),
+              (offset == -1 && available.previous) || (offset == 1 && available.next) else { return }
+        onRemoteTrackChange?(offset)
+    }
+
+    private func updateRemoteSeekCommands() {
+        let enabled = hasActivePlayback && canSeek
+        let center = MPRemoteCommandCenter.shared()
+        center.changePlaybackPositionCommand.isEnabled = enabled
+        // CarPlay Now Playing chooses interval buttons over track navigation.
+        // Its video receiver seeks the media timeline independently.
+        center.skipBackwardCommand.isEnabled = enabled && !carPlayConnected
+        center.skipForwardCommand.isEnabled = enabled && !carPlayConnected
+    }
+
     private func installRemoteCommands() {
         let center = MPRemoteCommandCenter.shared()
-        center.changePlaybackPositionCommand.isEnabled = true
         let seekTarget = center.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let event = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
             let position = event.positionTime
@@ -1514,13 +1558,24 @@ final class PlaybackController: ObservableObject {
             return .success
         }
         remoteTargets.append((center.changePlaybackPositionCommand, seekTarget))
+        for (command, direction) in [(center.skipBackwardCommand, -1.0), (center.skipForwardCommand, 1.0)] {
+            command.preferredIntervals = [10]
+            let target = command.addTarget { [weak self] event in
+                guard let event = event as? MPSkipIntervalCommandEvent,
+                      event.interval.isFinite, event.interval > 0 else { return .commandFailed }
+                let offset = direction * event.interval
+                Task { @MainActor in self?.seek(by: offset) }
+                return .success
+            }
+            remoteTargets.append((command, target))
+        }
         for (command, action) in [(center.playCommand, 0), (center.pauseCommand, 1), (center.togglePlayPauseCommand, 2), (center.stopCommand, 3)] {
-            command.isEnabled = true
+            command.isEnabled = action != 1 || pendingCarPlayResume == nil
             let target = command.addTarget { [weak self] _ in
                 Task { @MainActor in
-                    guard let self, self.hasActivePlayback else { return }
+                    guard let self, self.hasActivePlayback || self.pendingCarPlayResume != nil else { return }
                     if action == 0 { self.resume() }
-                    else if action == 1 { self.pause() }
+                    else if action == 1 { if self.hasActivePlayback { self.pause() } }
                     else if action == 2 { self.togglePlayPause() }
                     else if let onRemoteStop = self.onRemoteStop { onRemoteStop() }
                     else { self.stop() }
@@ -1529,6 +1584,15 @@ final class PlaybackController: ObservableObject {
             }
             remoteTargets.append((command, target))
         }
+        for (command, offset) in [(center.previousTrackCommand, -1), (center.nextTrackCommand, 1)] {
+            let target = command.addTarget { [weak self] _ in
+                Task { @MainActor in self?.changeTrack(offset) }
+                return .success
+            }
+            remoteTargets.append((command, target))
+        }
+        updateRemoteTrackCommands()
+        updateRemoteSeekCommands()
     }
 
     private func fail(_ message: String, reason: DiagnosticReason, failure: DiagnosticFailure? = nil,

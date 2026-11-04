@@ -42,6 +42,7 @@ final class MirrorModel: ObservableObject {
     private var pendingPlayerRestores: [(Bool) -> Void] = []
     private var mediaPresentation: MediaPlaybackPresentation?
     private var mediaSourceID: UUID?
+    private var carPlayResumeRecord: LastPlaybackRecord?
     private var resumeCheckpoint = Date.distantPast
     private var resumeRecordingEnabled = false
     private var backgroundObserver: NSObjectProtocol?
@@ -82,6 +83,11 @@ final class MirrorModel: ObservableObject {
             }
         }
         playback.onRemoteStop = { [weak self] in self?.stopBroadcast(hideSavedPlaybackBar: true) }
+        playback.remoteTrackAvailability = { [weak self] in
+            guard let self, self.mediaTitle != nil else { return (false, false) }
+            return (self.adjacentChannel(-1) != nil, self.adjacentChannel(1) != nil)
+        }
+        playback.onRemoteTrackChange = { [weak self] offset in self?.switchChannel(offset) }
         playback.onFinished = { [weak self] in
             guard let self else { return }
             if self.resumeRecordingEnabled, let last = LastPlaybackStore.shared.record,
@@ -198,6 +204,8 @@ final class MirrorModel: ObservableObject {
 
     func disconnected() {
         refreshPlaybackAccess()
+        let interruptedPlayback = playbackToRestoreAfterCarPlayDisconnect()
+        carPlayResumeRecord = interruptedPlayback
         var values = DiagnosticValues()
         values.reason = .disconnected
         record(.carDisconnected, values: values)
@@ -207,9 +215,40 @@ final class MirrorModel: ObservableObject {
         updateConnectedDisplays()
         if externalScreenCount == 0 && playback.tvDevice == nil {
             stopBroadcast()
-            stopProbe()
+            carPlayResumeRecord = interruptedPlayback
         }
         updateSessionState()
+    }
+
+    private func playbackToRestoreAfterCarPlayDisconnect() -> LastPlaybackRecord? {
+        guard playback.hasActivePlayback else { return carPlayResumeRecord }
+        guard let channel = selectedMediaChannel, mediaTitle != nil else { return nil }
+        return LastPlaybackRecord(channel: channel, sourceID: mediaSourceID,
+                                  position: playback.currentTime, duration: playback.duration, isLive: playback.isLive)
+    }
+
+    /// Restore only the waiting screen. The saved URL is opened by an explicit Play action.
+    func prepareCarPlayNowPlaying() -> Bool {
+        guard carPlayConnected, !playback.hasActivePlayback, let saved = carPlayResumeRecord else { return false }
+        if let sourceID = saved.sourceID, !SourceLibrary.shared.sources.contains(where: { $0.id == sourceID }) {
+            carPlayResumeRecord = nil
+            return false
+        }
+        let presentation: MediaPlaybackPresentation = supportsVideo == true && !saved.channel.isAudio ? .video : .audio
+        do {
+            try playback.prepareCarPlayResume(saved, presentation: presentation) { [weak self] in
+                self?.resumePlayback(saved, presentation: presentation)
+            }
+            selectedMediaChannel = saved.channel
+            mediaSourceID = saved.sourceID
+            mediaPresentation = presentation
+            mediaTitle = saved.title
+            mediaErrorMessage = nil
+            playback.updateRemoteTrackCommands()
+            return true
+        } catch {
+            return false
+        }
     }
 
     func playOnDisplay() {
@@ -306,9 +345,11 @@ final class MirrorModel: ObservableObject {
 
     @discardableResult
     func playMedia(_ channel: MediaChannel, presentation: MediaPlaybackPresentation? = nil, queue: [MediaChannel]? = nil,
-                   advanceAutomatically: Bool = false, sourceID: UUID? = nil, startAt: Double = 0) -> Bool {
+                   advanceAutomatically: Bool = false, sourceID: UUID? = nil, startAt: Double = 0,
+                   startPaused: Bool = false) -> Bool {
         guard AppUpdateStore.shared.requiredURL == nil else { return false }
         guard allowViewing() else { return false }
+        carPlayResumeRecord = nil
         if selectedMediaChannel == channel, playback.hasActivePlayback,
            presentation == nil || presentation == mediaPresentation {
             // Selecting the already-playing channel from a category must still
@@ -320,6 +361,8 @@ final class MirrorModel: ObservableObject {
             playbackQueue = nextQueue
             if queue != nil { advancesQueue = advanceAutomatically }
             if let sourceID { mediaSourceID = sourceID }
+            if startPaused { playback.pause() }
+            playback.updateRemoteTrackCommands()
             return true
         }
         let nextQueue = queue ?? (playbackQueue.contains(where: { $0.id == channel.id }) ? playbackQueue : [channel])
@@ -361,10 +404,11 @@ final class MirrorModel: ObservableObject {
                               // Remember the phone decoder preference. PlaybackController
                               // resolves a native source for system-managed CarPlay video.
                               useCompatibility: channel.requiresCompatibilityPlayback || (channel.isLive && resolvedPresentation == .video),
-                              startAt: startAt, artworkURL: channel.metadata.artworkURL)
+                              startAt: startAt, startPaused: startPaused, artworkURL: channel.metadata.artworkURL)
             guard playback.hasActivePlayback else { return false }
             mediaTitle = channel.title
             hidesSavedPlaybackBar = false
+            playback.updateRemoteTrackCommands()
             return true
         } catch {
             playback.stop()
@@ -405,10 +449,11 @@ final class MirrorModel: ObservableObject {
         guard mediaSourceID == sourceID, self.selectedMediaChannel?.id == selectedChannelID,
               channels.contains(where: { $0.id == selectedChannelID }) else { return }
         playbackQueue = MediaSeriesCatalog.playbackQueue(for: selectedMediaChannel, in: channels)
+        playback.updateRemoteTrackCommands()
     }
     func switchChannel(_ offset: Int) {
         guard let channel = adjacentChannel(offset) else { return }
-        playMedia(channel)
+        playMedia(channel, presentation: channel.isAudio ? .audio : mediaPresentation)
     }
     private func refreshPlaybackAccess() {
         let required = !viewingAccess().fullAccess
@@ -485,7 +530,7 @@ final class MirrorModel: ObservableObject {
     }
 
     @discardableResult
-    func resumePlayback(_ last: LastPlaybackRecord) -> Bool {
+    func resumePlayback(_ last: LastPlaybackRecord, presentation: MediaPlaybackPresentation? = nil) -> Bool {
         if let sourceID = last.sourceID, !SourceLibrary.shared.sources.contains(where: { $0.id == sourceID }) {
             try? LastPlaybackStore.shared.clear(sourceID: sourceID)
             return false
@@ -496,10 +541,10 @@ final class MirrorModel: ObservableObject {
            let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }),
            let channels = SourceLibrary.shared.cachedChannels(for: source),
            let channel = channels.first(where: { $0.id == last.channel.id }) {
-            started = playMedia(channel, queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels),
+            started = playMedia(channel, presentation: presentation, queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels),
                                 sourceID: sourceID, startAt: last.resumePosition)
         } else {
-            started = playMedia(last.channel, sourceID: last.sourceID, startAt: last.resumePosition)
+            started = playMedia(last.channel, presentation: presentation, sourceID: last.sourceID, startAt: last.resumePosition)
         }
         // Reusing an active decoder also reuses its paused state. Continue
         // Watching is an explicit Play action, including for that existing item.
@@ -519,11 +564,13 @@ final class MirrorModel: ObservableObject {
 
     func discardLastPlayback(sourceID: UUID? = nil) {
         if sourceID == nil || mediaSourceID == sourceID { resumeRecordingEnabled = false }
+        if sourceID == nil || carPlayResumeRecord?.sourceID == sourceID { carPlayResumeRecord = nil }
         try? LastPlaybackStore.shared.clear(sourceID: sourceID)
     }
 
     func stopPlayback(hideSavedPlaybackBar: Bool = false) {
         saveLastPlayback(force: true)
+        carPlayResumeRecord = nil
         if hideSavedPlaybackBar { hidesSavedPlaybackBar = true }
         membershipResumePosition = nil
         finishPlayerRestoration(false)
@@ -586,13 +633,24 @@ final class MirrorModel: ObservableObject {
 
     func externalScreenDisconnected(_ id: UUID) {
         refreshPlaybackAccess()
+        let wasCarPlay = externalScreens[id] == .carPlay
+        let interruptedPlayback = wasCarPlay ? playbackToRestoreAfterCarPlayDisconnect() : nil
+        if wasCarPlay { carPlayResumeRecord = interruptedPlayback }
         externalScreens.removeValue(forKey: id)
         externalScreenCount = externalScreens.count
         carPlayConnected = carPlayTemplateConnected || hasCarPlayDisplay
         updateConnectedDisplays()
         playback.externalDisplayConnected = externalScreenCount > 0
         record(.externalScreenDisconnected)
-        if externalScreenCount == 0 { stopProbe(); if playbackSessionID != nil { stopBroadcast() } }
+        if externalScreenCount == 0 {
+            if wasCarPlay && !carPlayConnected && playback.tvDevice == nil {
+                stopBroadcast()
+                carPlayResumeRecord = interruptedPlayback
+            } else {
+                stopProbe()
+                if playbackSessionID != nil { stopBroadcast() }
+            }
+        }
     }
 
     func startExternalProbe() {

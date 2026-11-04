@@ -2,6 +2,67 @@ import XCTest
 @testable import MirrorCore
 
 final class CarPlayMediaPolicyTests: XCTestCase {
+    func testVODSegmentDropsInitialPESFramesBeforeTheSeekPosition() throws {
+        func packet(pid: Int, time: Double?, counter: UInt8) -> Data {
+            var bytes = [UInt8](repeating: 0xff, count: 188)
+            bytes[0] = 0x47
+            bytes[1] = UInt8(pid >> 8) | (time == nil ? 0 : 0x40)
+            bytes[2] = UInt8(pid & 0xff)
+            bytes[3] = 0x10 | counter
+            if let time {
+                let ticks = UInt64(time * 90_000)
+                bytes.replaceSubrange(4..<13, with: [0, 0, 1, 0xe0, 0, 0, 0x80, 0x80, 5])
+                bytes[13] = UInt8((ticks >> 29) & 0x0e) | 0x21
+                bytes[14] = UInt8((ticks >> 22) & 0xff)
+                bytes[15] = UInt8((ticks >> 14) & 0xfe) | 1
+                bytes[16] = UInt8((ticks >> 7) & 0xff)
+                bytes[17] = UInt8((ticks << 1) & 0xfe) | 1
+            }
+            return Data(bytes)
+        }
+        let tables = packet(pid: 0, time: nil, counter: 0)
+        let initial = packet(pid: 256, time: 0.4, counter: 0)
+        let initialTail = packet(pid: 256, time: nil, counter: 1)
+        let target = packet(pid: 256, time: 16.4, counter: 2)
+        let tail = packet(pid: 256, time: nil, counter: 3)
+        let source = tables + initial + initialTail + target + tail
+        let result = try CarPlayVODPlaylist.removingSeekPreroll(from: source, before: 16)
+        XCTAssertEqual(result, tables + packet(pid: 256, time: 0.4, counter: 2) + tail,
+                       "Drop initial PES units and restart the transport clock at the requested segment")
+        XCTAssertEqual(try CarPlayVODPlaylist.removingSeekPreroll(from: source, before: 0), source)
+        XCTAssertThrowsError(try CarPlayVODPlaylist.removingSeekPreroll(from: Data([0x47]), before: 16))
+        XCTAssertThrowsError(try CarPlayVODPlaylist.removingSeekPreroll(from: source, before: .nan))
+    }
+
+    func testVODPlaylistDescribesTheWholeEpisodeInsteadOfALiveWindow() throws {
+        let playlist = try CarPlayVODPlaylist(duration: 3_441, startPosition: 31)
+        let manifest = String(decoding: playlist.manifest, as: UTF8.self)
+        XCTAssertTrue(manifest.contains("#EXT-X-PLAYLIST-TYPE:VOD\n"))
+        XCTAssertTrue(manifest.hasSuffix("#EXT-X-ENDLIST\n"))
+        XCTAssertTrue(manifest.contains("TIME-OFFSET=31.000000,PRECISE=YES"))
+        XCTAssertEqual(playlist.segmentCount, 216)
+        XCTAssertEqual(playlist.interval(for: 0), 0..<16)
+        XCTAssertEqual(playlist.interval(for: 215), 3_440..<3_441)
+        XCTAssertEqual(manifest.components(separatedBy: "#EXTINF:").count - 1, playlist.segmentCount)
+        let lengths = (0..<playlist.segmentCount).compactMap { playlist.interval(for: $0) }.map { $0.upperBound - $0.lowerBound }
+        XCTAssertEqual(lengths.reduce(0, +), playlist.duration)
+        XCTAssertLessThan(playlist.manifest.count, 1_048_576)
+    }
+
+    func testVODSegmentRequestsAreBoundedAndCanonical() throws {
+        let playlist = try CarPlayVODPlaylist(duration: 40, startPosition: -12)
+        XCTAssertEqual(playlist.startPosition, 0)
+        XCTAssertEqual(playlist.index(for: "vod-2.ts"), 2)
+        for name in ["vod--1.ts", "vod-3.ts", "vod-02.ts", "vod-2.ts?source=private", "../vod-1.ts", "vod-999999999999999999999.ts"] {
+            XCTAssertNil(playlist.index(for: name))
+        }
+        for duration in [0.0, -1, .nan, .infinity, 86_401] {
+            XCTAssertThrowsError(try CarPlayVODPlaylist(duration: duration))
+        }
+        XCTAssertThrowsError(try CarPlayVODPlaylist(duration: 40, startPosition: .infinity))
+        XCTAssertEqual(try CarPlayVODPlaylist(duration: 40, startPosition: 50).startPosition, 39.999, accuracy: 0.001)
+    }
+
     func testSystemCarPlayDoesNotLoseVideoWhenASceneIsPresent() {
         let policy = VideoOutputPolicy(video: true, phone: false, carPlay: true, supportsVideo: true,
             externalDisplay: true, externalTV: false, cast: false)

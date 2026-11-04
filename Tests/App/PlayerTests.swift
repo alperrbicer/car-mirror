@@ -2382,9 +2382,12 @@ final class PlayerTests: XCTestCase {
     func testNativeTimelineShowsDurationSeeksWhilePausedAndResets() async throws {
         let url = try audioFixture()
         let playback = PlaybackController()
+        let commands = MPRemoteCommandCenter.shared()
         defer { playback.stop(); try? FileManager.default.removeItem(at: url) }
         // Metadata must identify finite media even when its URL was classified as live.
         try playback.play(url: url, requiresExternalPlayback: false, live: true, presentation: .audio)
+        XCTAssertFalse(commands.skipBackwardCommand.isEnabled)
+        XCTAssertFalse(commands.skipForwardCommand.isEnabled)
         for _ in 0..<100 {
             if playback.currentTime > 0.1 && playback.canSeek { break }
             try await Task.sleep(for: .milliseconds(50))
@@ -2393,6 +2396,11 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(playback.duration, 10, accuracy: 0.1)
         XCTAssertFalse(playback.isLive)
         XCTAssertTrue(playback.canSeek)
+        XCTAssertTrue(commands.changePlaybackPositionCommand.isEnabled)
+        XCTAssertTrue(commands.skipBackwardCommand.isEnabled)
+        XCTAssertTrue(commands.skipForwardCommand.isEnabled)
+        XCTAssertEqual(commands.skipBackwardCommand.preferredIntervals, [10])
+        XCTAssertEqual(commands.skipForwardCommand.preferredIntervals, [10])
         playback.togglePlayPause()
         try await Task.sleep(for: .milliseconds(100))
         playback.seek(to: 6)
@@ -2403,6 +2411,19 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(playback.player.currentTime().seconds, 6, accuracy: 0.1)
         XCTAssertEqual(playback.currentTime, 6, accuracy: 0.1)
         XCTAssertFalse(playback.isPlaying, "Seeking must not undo a user pause")
+        for (offset, target) in [(-2.0, 4.0), (3.0, 7.0)] {
+            playback.seek(by: offset)
+            for _ in 0..<100 {
+                if abs(playback.player.currentTime().seconds - target) < 0.1 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertEqual(playback.player.currentTime().seconds, target, accuracy: 0.1)
+            XCTAssertEqual(playback.currentTime, target, accuracy: 0.1)
+            XCTAssertFalse(playback.isPlaying, "Skipping must keep paused playback paused")
+        }
+        playback.seek(by: .infinity)
+        playback.seek(by: .nan)
+        XCTAssertEqual(playback.currentTime, 7, accuracy: 0.1)
         let metadata = MPNowPlayingInfoCenter.default().nowPlayingInfo
         XCTAssertEqual(metadata?[MPMediaItemPropertyPlaybackDuration] as? Double, 10)
         XCTAssertEqual(metadata?[MPNowPlayingInfoPropertyIsLiveStream] as? Bool, false)
@@ -2411,11 +2432,15 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(playback.currentTime, 0)
         XCTAssertEqual(playback.duration, 0)
         XCTAssertFalse(playback.canSeek)
+        XCTAssertFalse(commands.changePlaybackPositionCommand.isEnabled)
+        XCTAssertFalse(commands.skipBackwardCommand.isEnabled)
+        XCTAssertFalse(commands.skipForwardCommand.isEnabled)
     }
 
     func testCompatibilityTimelineSeeksAndIgnoresReplacedEngine() async throws {
         let url = try audioFixture()
         let playback = PlaybackController()
+        let commands = MPRemoteCommandCenter.shared()
         defer { playback.stop(); try? FileManager.default.removeItem(at: url) }
         try playback.play(url: url, requiresExternalPlayback: false, live: false, presentation: .audio, useCompatibility: true)
         let engine = try XCTUnwrap(playback.compatibility)
@@ -2427,6 +2452,8 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual(playback.duration, 10, accuracy: 0.1)
         XCTAssertFalse(playback.isLive)
         XCTAssertTrue(playback.canSeek)
+        XCTAssertTrue(commands.skipBackwardCommand.isEnabled)
+        XCTAssertTrue(commands.skipForwardCommand.isEnabled)
         playback.togglePlayPause()
         try await Task.sleep(for: .milliseconds(200))
         playback.seek(to: 6)
@@ -2436,11 +2463,23 @@ final class PlayerTests: XCTestCase {
         }
         XCTAssertEqual(Double(engine.mediaTime()) / 1000, 6, accuracy: 0.25)
         XCTAssertFalse(playback.isPlaying)
+        for (offset, target) in [(-2.0, 4.0), (3.0, 7.0)] {
+            playback.seek(by: offset)
+            for _ in 0..<100 {
+                if abs(Double(engine.mediaTime()) / 1000 - target) < 0.25 { break }
+                try await Task.sleep(for: .milliseconds(50))
+            }
+            XCTAssertEqual(Double(engine.mediaTime()) / 1000, target, accuracy: 0.25)
+            XCTAssertFalse(playback.isPlaying)
+        }
         try playback.play(url: url, requiresExternalPlayback: false, live: true, presentation: .audio)
         engine.onTime?(99, 100)
         XCTAssertEqual(playback.currentTime, 0)
         XCTAssertEqual(playback.duration, 0)
         XCTAssertTrue(playback.isLive)
+        XCTAssertFalse(commands.changePlaybackPositionCommand.isEnabled)
+        XCTAssertFalse(commands.skipBackwardCommand.isEnabled)
+        XCTAssertFalse(commands.skipForwardCommand.isEnabled)
     }
 
     func testAudioPlaybackPublishesAudioMetadataAndCleansUpControls() async throws {
@@ -2489,6 +2528,130 @@ final class PlayerTests: XCTestCase {
         XCTAssertEqual((MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyMediaType] as? NSNumber)?.uintValue,
                        MPNowPlayingInfoMediaType.audio.rawValue)
         XCTAssertEqual(AVAudioSession.sharedInstance().routeSharingPolicy, .longFormAudio)
+    }
+
+    func testCarPlayPreparesNowPlayingMetadataWhilePausedBeforeOpeningWaitingScreen() async throws {
+        let suite = "CarPlayWaiting-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) },
+                                startsTimer: false, playbackBarDefaults: defaults)
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let channel = MediaChannel(title: "CarPlay waiting QA", url: url)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        XCTAssertTrue(model.playMedia(channel, presentation: .audio, startPaused: true))
+        XCTAssertEqual(model.mediaTitle, channel.title)
+        XCTAssertEqual(MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyTitle] as? String, channel.title)
+        XCTAssertFalse(model.playback.isPlaying)
+        for _ in 0..<100 {
+            if model.playback.state == .paused { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertEqual(model.playback.player.currentItem?.status, .readyToPlay)
+        XCTAssertEqual(model.playback.state, .paused)
+        XCTAssertFalse(model.playback.isPlaying, "Loading metadata must not present video before the waiting screen")
+        model.playback.resume()
+        for _ in 0..<100 {
+            if model.playback.isPlaying { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.isPlaying)
+        let item = try XCTUnwrap(model.playback.player.currentItem)
+        let playbackID = model.playback.playbackID
+        XCTAssertTrue(model.playMedia(channel, presentation: .audio, startPaused: true))
+        XCTAssertTrue(model.playback.player.currentItem === item, "Selecting the active item must retain its decoder")
+        XCTAssertEqual(model.playback.playbackID, playbackID)
+        XCTAssertEqual(model.playback.state, .paused)
+        XCTAssertFalse(model.playback.isPlaying)
+    }
+
+    func testCarPlayReconnectRestoresWaitingScreenWithoutOpeningLiveMovieOrEpisode() throws {
+        let suite = "CarPlayReconnect-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) },
+                                startsTimer: false, playbackBarDefaults: defaults)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite) }
+        let channels = [
+            MediaChannel(title: "Live QA", url: URL(string: "https://example.invalid/live/1.m3u8")!),
+            MediaChannel(title: "Movie QA", url: URL(string: "https://example.invalid/movie/2.mp4")!),
+            MediaChannel(title: "Series QA S01-E01", url: URL(string: "https://example.invalid/series/3.mp4")!)
+        ]
+        for channel in channels {
+            model.connected(supportsVideo: false)
+            XCTAssertTrue(model.playMedia(channel, presentation: .audio, startAt: 42))
+            model.disconnected()
+            XCTAssertFalse(model.playback.hasActivePlayback)
+            model.connected(supportsVideo: false)
+            XCTAssertTrue(model.prepareCarPlayNowPlaying())
+            let metadata = MPNowPlayingInfoCenter.default().nowPlayingInfo
+            XCTAssertEqual(metadata?[MPMediaItemPropertyTitle] as? String, channel.title)
+            XCTAssertEqual(metadata?[MPNowPlayingInfoPropertyIsLiveStream] as? Bool, channel.isLive)
+            XCTAssertEqual(metadata?[MPNowPlayingInfoPropertyPlaybackRate] as? Double, 0)
+            XCTAssertEqual(metadata?[MPNowPlayingInfoPropertyElapsedPlaybackTime] as? Double, channel.isLive ? 0 : 42)
+            XCTAssertNil(model.playback.player.currentItem, "Reconnect must not open the media URL")
+            XCTAssertNil(model.playback.compatibility)
+            XCTAssertFalse(model.playback.hasActivePlayback)
+            XCTAssertFalse(model.playback.isPlaying)
+            XCTAssertTrue(MPRemoteCommandCenter.shared().playCommand.isEnabled)
+            XCTAssertFalse(MPRemoteCommandCenter.shared().pauseCommand.isEnabled)
+            XCTAssertFalse(MPRemoteCommandCenter.shared().changePlaybackPositionCommand.isEnabled)
+            XCTAssertFalse(MPRemoteCommandCenter.shared().skipBackwardCommand.isEnabled)
+            XCTAssertFalse(MPRemoteCommandCenter.shared().skipForwardCommand.isEnabled)
+            model.disconnected()
+            model.connected(supportsVideo: false)
+            XCTAssertTrue(model.prepareCarPlayNowPlaying(), "Reconnecting again before Play must retain the waiting screen")
+            model.stopPlayback(hideSavedPlaybackBar: true)
+            model.disconnected()
+            model.connected(supportsVideo: false)
+            XCTAssertFalse(model.prepareCarPlayNowPlaying(), "An explicit Stop must not restore the old item")
+        }
+    }
+
+    func testCarPlayReconnectHandlesBothSceneOrdersAndWaitsForExplicitPlay() throws {
+        let suite = "CarPlayReconnectScenes-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) },
+                                startsTimer: false, playbackBarDefaults: defaults)
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        let channel = MediaChannel(title: "Reconnect QA", url: url)
+        let screen = UUID(), size = CGSize(width: 800, height: 480)
+        defer { model.stopPlayback(); model.externalScreenDisconnected(screen); model.disconnected(); defaults.removePersistentDomain(forName: suite) }
+        for windowFirst in [true, false] {
+            model.externalScreenConnected(screen, role: .carPlay, size: size)
+            model.connected(supportsVideo: false)
+            XCTAssertTrue(model.playMedia(channel, presentation: .audio, startAt: 1))
+            if windowFirst {
+                model.externalScreenDisconnected(screen)
+                model.disconnected()
+            } else {
+                model.disconnected()
+                model.externalScreenDisconnected(screen)
+            }
+            XCTAssertFalse(model.playback.hasActivePlayback)
+            model.externalScreenConnected(screen, role: .carPlay, size: size)
+            model.connected(supportsVideo: false)
+            XCTAssertTrue(model.prepareCarPlayNowPlaying())
+            XCTAssertNil(model.playback.player.currentItem)
+            model.playback.resume()
+            XCTAssertTrue(model.playback.hasActivePlayback, "The restored Play action must reopen playback")
+            XCTAssertNotNil(model.playback.player.currentItem)
+            XCTAssertEqual(model.mediaTitle, channel.title)
+            model.stopPlayback()
+            model.externalScreenDisconnected(screen)
+            model.disconnected()
+        }
+    }
+
+    func testCarPlayReconnectDoesNotRestoreADeletedSource() throws {
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); model.disconnected() }
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        model.connected(supportsVideo: false)
+        XCTAssertTrue(model.playMedia(MediaChannel(title: "Removed source QA", url: url), presentation: .audio, sourceID: UUID()))
+        model.disconnected()
+        model.connected(supportsVideo: false)
+        XCTAssertFalse(model.prepareCarPlayNowPlaying())
+        XCTAssertNil(MPNowPlayingInfoCenter.default().nowPlayingInfo)
+        XCTAssertFalse(model.playback.hasActivePlayback)
     }
 
     func testCarPlayAudioSelectionReconfiguresAlreadyPlayingVideo() throws {
@@ -2556,6 +2719,130 @@ final class PlayerTests: XCTestCase {
         XCTAssertNil(model.selectedMediaChannel)
         XCTAssertNil(model.mediaTitle)
         XCTAssertNil(model.mediaErrorMessage)
+    }
+
+    private func remoteTrackFixtures(in directory: URL, titles: [String]) throws -> [MediaChannel] {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let fixture = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
+        return try titles.enumerated().map { index, title in
+            let url = directory.appendingPathComponent("\(index).mp4")
+            try FileManager.default.copyItem(at: fixture, to: url)
+            return MediaChannel(title: title, group: "Remote navigation QA", url: url)
+        }
+    }
+
+    func testCarPlayKeepsPreviousNextButtonsWhenTheEpisodeBecomesSeekable() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let channels = try remoteTrackFixtures(in: directory, titles: ["Series S01-E01", "Series S01-E02", "Series S01-E03"])
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); model.disconnected(); try? FileManager.default.removeItem(at: directory) }
+        model.connected(supportsVideo: false)
+        XCTAssertTrue(model.playMedia(channels[1], presentation: .audio, queue: channels))
+        for _ in 0..<100 {
+            if model.playback.canSeek { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(model.playback.canSeek)
+        let commands = MPRemoteCommandCenter.shared()
+        XCTAssertTrue(commands.previousTrackCommand.isEnabled)
+        XCTAssertTrue(commands.nextTrackCommand.isEnabled)
+        XCTAssertTrue(commands.changePlaybackPositionCommand.isEnabled)
+        XCTAssertFalse(commands.skipBackwardCommand.isEnabled, "Now Playing must keep the previous-episode button")
+        XCTAssertFalse(commands.skipForwardCommand.isEnabled, "Now Playing must keep the next-episode button")
+    }
+
+    func testRemotePreviousNextCommandsFollowLiveMovieAndEpisodeQueue() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let suite = "RemoteTrackQueue-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) },
+                                startsTimer: false, playbackBarDefaults: defaults)
+        defer { model.stopPlayback(); defaults.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        let center = MPRemoteCommandCenter.shared()
+        let catalogs = [
+            ("live", ["Channel 1", "Channel 2", "Channel 3"]),
+            ("movie", ["Movie 1", "Movie 2", "Movie 3"]),
+            ("series", ["Series QA S01-E01", "Series QA S01-E02", "Series QA S01-E03"])
+        ]
+        for (kind, titles) in catalogs {
+            let channels = try remoteTrackFixtures(in: directory.appendingPathComponent(kind), titles: titles)
+            let queue = MediaSeriesCatalog.playbackQueue(for: channels[0], in: channels)
+            XCTAssertTrue(model.playMedia(channels[0], presentation: .audio, queue: queue))
+            XCTAssertFalse(center.previousTrackCommand.isEnabled)
+            XCTAssertTrue(center.nextTrackCommand.isEnabled)
+            model.playback.changeTrack(-1)
+            XCTAssertEqual(model.selectedMediaChannel, channels[0])
+            model.playback.changeTrack(1)
+            XCTAssertEqual(model.selectedMediaChannel, channels[1])
+            XCTAssertTrue(center.previousTrackCommand.isEnabled)
+            XCTAssertTrue(center.nextTrackCommand.isEnabled)
+            XCTAssertEqual(AVAudioSession.sharedInstance().routeSharingPolicy, .longFormAudio,
+                           "A CarPlay audio selection must keep its presentation when changing tracks")
+            XCTAssertEqual((MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyMediaType] as? NSNumber)?.uintValue,
+                           MPNowPlayingInfoMediaType.audio.rawValue)
+            model.playback.changeTrack(1)
+            XCTAssertEqual(model.selectedMediaChannel, channels[2])
+            XCTAssertTrue(center.previousTrackCommand.isEnabled)
+            XCTAssertFalse(center.nextTrackCommand.isEnabled)
+            model.playback.changeTrack(1)
+            XCTAssertEqual(model.selectedMediaChannel, channels[2])
+            model.playback.changeTrack(-1)
+            XCTAssertEqual(model.selectedMediaChannel, channels[1])
+            XCTAssertEqual(model.playbackQueue, queue)
+            model.stopPlayback()
+            XCTAssertFalse(center.previousTrackCommand.isEnabled)
+            XCTAssertFalse(center.nextTrackCommand.isEnabled)
+            model.playback.changeTrack(1)
+            XCTAssertNil(model.selectedMediaChannel)
+        }
+    }
+
+    func testRemoteTrackCommandsRefreshWhenActiveItemGetsANewQueue() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let channels = try remoteTrackFixtures(in: directory, titles: ["First", "Current", "Last"])
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); try? FileManager.default.removeItem(at: directory) }
+        let center = MPRemoteCommandCenter.shared()
+        XCTAssertTrue(model.playMedia(channels[1], presentation: .audio, queue: [channels[1]]))
+        let item = try XCTUnwrap(model.playback.player.currentItem)
+        let playbackID = model.playback.playbackID
+        XCTAssertFalse(center.previousTrackCommand.isEnabled)
+        XCTAssertFalse(center.nextTrackCommand.isEnabled)
+        XCTAssertTrue(model.playMedia(channels[1], presentation: .audio, queue: channels))
+        XCTAssertTrue(model.playback.player.currentItem === item)
+        XCTAssertEqual(model.playback.playbackID, playbackID)
+        XCTAssertTrue(center.previousTrackCommand.isEnabled)
+        XCTAssertTrue(center.nextTrackCommand.isEnabled)
+        XCTAssertTrue(model.playMedia(channels[1], presentation: .audio, queue: [channels[1]]))
+        XCTAssertFalse(center.previousTrackCommand.isEnabled)
+        XCTAssertFalse(center.nextTrackCommand.isEnabled)
+        XCTAssertTrue(model.playMedia(channels[1], presentation: .video, queue: channels))
+        model.playback.changeTrack(1)
+        XCTAssertEqual(model.selectedMediaChannel, channels[2])
+        XCTAssertEqual(AVAudioSession.sharedInstance().routeSharingPolicy, .longFormVideo)
+        XCTAssertEqual((MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyMediaType] as? NSNumber)?.uintValue,
+                       MPNowPlayingInfoMediaType.video.rawValue)
+    }
+
+    func testRemoteTrackCommandsRestoreOnCarPlayWaitingScreenWithoutAutoplay() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let channels = try remoteTrackFixtures(in: directory, titles: ["First", "Current", "Last"])
+        let model = MirrorModel(viewingAccess: { ProductAccess(salesEnabled: false, verifiedPro: false) }, startsTimer: false)
+        defer { model.stopPlayback(); model.disconnected(); try? FileManager.default.removeItem(at: directory) }
+        model.connected(supportsVideo: false)
+        XCTAssertTrue(model.playMedia(channels[1], presentation: .audio, queue: channels))
+        model.disconnected()
+        model.connected(supportsVideo: false)
+        XCTAssertTrue(model.prepareCarPlayNowPlaying())
+        XCTAssertFalse(model.playback.hasActivePlayback)
+        XCTAssertNil(model.playback.player.currentItem)
+        XCTAssertTrue(MPRemoteCommandCenter.shared().previousTrackCommand.isEnabled)
+        XCTAssertTrue(MPRemoteCommandCenter.shared().nextTrackCommand.isEnabled)
+        model.playback.changeTrack(1)
+        XCTAssertEqual(model.selectedMediaChannel, channels[2])
+        XCTAssertTrue(model.playback.hasActivePlayback)
+        XCTAssertTrue(MPRemoteCommandCenter.shared().previousTrackCommand.isEnabled)
+        XCTAssertFalse(MPRemoteCommandCenter.shared().nextTrackCommand.isEnabled)
     }
 
     func testChannelQueuePreservesActiveSessionAndMovesBetweenChannels() throws {

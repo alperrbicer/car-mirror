@@ -224,35 +224,107 @@ final class PerformanceRegressionTests: XCTestCase {
 
 @MainActor
 final class VehiclePlaybackTests: XCTestCase {
+    func testCarPlayVODServerGeneratesARequestedFutureSegment() async throws {
+        let playlist = try CarPlayVODPlaylist(duration: 3_441)
+        let server = try CarPlayHLSServer(vod: true, playlist: playlist)
+        defer { server.stop(); server.removeOutput() }
+        let segment = Data(repeating: 0x47, count: 1_880)
+        server.onSegmentRequested = { index in
+            do {
+                try segment.write(to: server.directory.appendingPathComponent(playlist.name(for: index)), options: .atomic)
+                server.segmentReady(index)
+            } catch { XCTFail("Segment generation failed: \(error)") }
+        }
+        let address: URL = try await withCheckedThrowingContinuation { continuation in
+            server.start(host: "127.0.0.1", onReady: { continuation.resume(returning: $0) },
+                         onFailure: { continuation.resume(throwing: $0) })
+        }
+        let (manifest, _) = try await URLSession.shared.data(from: address)
+        XCTAssertEqual(manifest, playlist.manifest)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: server.directory.appendingPathComponent("vod-215.ts").path))
+        let (bytes, response) = try await URLSession.shared.data(from: address.deletingLastPathComponent().appendingPathComponent("vod-215.ts"))
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        XCTAssertEqual(bytes, segment)
+        var seekRequest = URLRequest(url: address.deletingLastPathComponent().appendingPathComponent("vod-215.ts"))
+        seekRequest.setValue("bytes=188-", forHTTPHeaderField: "Range")
+        let (wholeSegment, seekResponse) = try await URLSession.shared.data(for: seekRequest)
+        XCTAssertEqual((seekResponse as? HTTPURLResponse)?.statusCode, 200)
+        XCTAssertEqual(wholeSegment, segment, "A VOD seek must retain the segment's reference frames")
+        let (_, invalid) = try await URLSession.shared.data(from: address.deletingLastPathComponent().appendingPathComponent("vod-216.ts"))
+        XCTAssertEqual((invalid as? HTTPURLResponse)?.statusCode, 404)
+    }
+
+    func testConvertedCarPlayEpisodeHasAFiniteNativeTimelineAndCanSeek() async throws {
+        let source = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        try playback.play(url: source, requiresExternalPlayback: false, title: "VOD seek QA", live: false, presentation: .video)
+        for _ in 0..<600 {
+            if playback.player.currentItem?.status == .readyToPlay && playback.canSeek { break }
+            if playback.state == .failed { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        let item = try XCTUnwrap(playback.player.currentItem)
+        XCTAssertEqual(item.status, .readyToPlay)
+        XCTAssertTrue(item.duration.seconds.isFinite)
+        XCTAssertGreaterThan(item.duration.seconds, 6)
+        XCTAssertFalse(item.duration.isIndefinite, "The video receiver must not see an episode as LIVE")
+        let output = AVPlayerItemVideoOutput(pixelBufferAttributes: nil)
+        item.add(output)
+        playback.pause()
+        playback.seek(to: 6)
+        for _ in 0..<100 {
+            if abs(playback.player.currentTime().seconds - 6) < 0.2 { break }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        XCTAssertTrue(playback.player.currentItem === item, "Native seeking must retain the VOD item")
+        XCTAssertEqual(playback.player.currentTime().seconds, 6, accuracy: 0.2)
+        XCTAssertFalse(playback.isPlaying)
+        var frame: CVPixelBuffer?
+        var frameTime = CMTime.invalid
+        for _ in 0..<100 {
+            frame = output.copyPixelBuffer(forItemTime: playback.player.currentTime(), itemTimeForDisplay: &frameTime)
+            if frame != nil, frameTime.seconds.isFinite, abs(frameTime.seconds - 6) < 0.2 { break }
+            frame = nil
+            try await Task.sleep(for: .milliseconds(30))
+        }
+        XCTAssertNotNil(frame, "Seeking must decode the target video frame")
+    }
+
     func testCarPlayStartsPlaybackOnlyAfterWaitingScreenAndSelectionHandlerFinish() async throws {
         let transition = CarPlayPlaybackTransition()
         var presented: ((Bool) -> Void)?
         var events: [String] = []
-        transition.start(showWaiting: { completed in
+        transition.start(preparePlayback: { events.append("prepared-paused"); return true }, showWaiting: { completed in
             events.append("waiting")
             presented = completed
         }, playback: { events.append("playback") })
-        XCTAssertEqual(events, ["waiting"])
+        XCTAssertEqual(events, ["prepared-paused", "waiting"])
         try XCTUnwrap(presented)(true)
         events.append("handler-finished")
-        XCTAssertEqual(events, ["waiting", "handler-finished"])
+        XCTAssertEqual(events, ["prepared-paused", "waiting", "handler-finished"])
         for _ in 0..<10 { await Task.yield() }
-        XCTAssertEqual(events, ["waiting", "handler-finished", "playback"])
+        XCTAssertEqual(events, ["prepared-paused", "waiting", "handler-finished", "playback"])
     }
 
     func testCarPlayDoesNotStartStaleFailedOrDisconnectedSelections() async {
         let transition = CarPlayPlaybackTransition()
         var callbacks: [(Bool) -> Void] = []
         var started: [Int] = []
-        transition.start(showWaiting: { callbacks.append($0) }, playback: { started.append(1) })
-        transition.start(showWaiting: { callbacks.append($0) }, playback: { started.append(2) })
+        transition.start(preparePlayback: { true }, showWaiting: { callbacks.append($0) }, playback: { started.append(1) })
+        transition.start(preparePlayback: { true }, showWaiting: { callbacks.append($0) }, playback: { started.append(2) })
         callbacks[0](true)
         callbacks[1](false)
         for _ in 0..<10 { await Task.yield() }
         XCTAssertTrue(started.isEmpty)
-        transition.start(showWaiting: { callbacks.append($0) }, playback: { started.append(3) })
+        transition.start(preparePlayback: { true }, showWaiting: { callbacks.append($0) }, playback: { started.append(3) })
         callbacks[2](true)
         transition.cancel()
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertTrue(started.isEmpty)
+        transition.start(preparePlayback: { false }, showWaiting: { _ in XCTFail("Failed preparation must not open Now Playing") },
+                         playback: { started.append(4) })
         for _ in 0..<10 { await Task.yield() }
         XCTAssertTrue(started.isEmpty)
     }
@@ -314,7 +386,7 @@ final class VehiclePlaybackTests: XCTestCase {
         XCTAssertFalse(template.emptyViewSubtitleVariants.isEmpty)
     }
 
-    func testCarPlayFavoritesOpenNowPlayingFirstForLiveMoviesAndEpisodes() throws {
+    func testCarPlayRequestsAutomaticVideoForLiveMoviesAndEpisodesAndAudioForRadio() throws {
         let channels = [
             MediaChannel(title: "Live", url: URL(string: "https://example.com/live/1.m3u8")!),
             MediaChannel(title: "Movie", url: URL(string: "https://example.com/movie/2.mp4")!),
@@ -330,8 +402,14 @@ final class VehiclePlaybackTests: XCTestCase {
             XCTAssertEqual(items.count, 4)
             if #available(iOS 26.4, *) {
                 let presentations = try items.map { try XCTUnwrap($0.playbackConfiguration).preferredPresentation }
-                XCTAssertEqual(presentations, [.audio, .audio, .audio, .audio],
-                    "Video-capable sessions must still start through Now Playing so the selection handler can start the stream")
+                let expected: [CPPlaybackConfiguration.Presentation] = supportsVideo
+                    ? [.video, .video, .video, .audio] : [.audio, .audio, .audio, .audio]
+                XCTAssertEqual(presentations, expected)
+                for (channel, expectedPresentation) in zip(channels, expected) {
+                    let configuration = CarPlayPlaybackTransition.configuration(for: channel, supportsVideo: supportsVideo)
+                    XCTAssertEqual(configuration.preferredPresentation, expectedPresentation)
+                    XCTAssertEqual(configuration.playbackAction, .play)
+                }
             }
         }
     }
