@@ -1920,8 +1920,17 @@ struct MediaVideoView: View {
     var role: CompatibilityVideoHost.Role = .inline
     var displayMode: PlayerVideoDisplayMode = .normal
     var showsControls = false
+    var keepsNativeSurface = false
     var body: some View {
-        if playback.hasRemoteVideoOutput && role != .external {
+        if keepsNativeSurface && playback.compatibility == nil && role != .external {
+            // A system route change must not tear down/recreate the AVPlayer
+            // layer and its PiP controller underneath the route banner.
+            NativeVideoView(player: playback.player, playback: playback, displayMode: displayMode,
+                            primary: !playback.hasRemoteVideoOutput)
+                .opacity(playback.hasRemoteVideoOutput ? 0 : 1)
+                .allowsHitTesting(!playback.hasRemoteVideoOutput)
+                .accessibilityHidden(playback.hasRemoteVideoOutput)
+        } else if (playback.hasRemoteVideoOutput && role != .external) || (playback.usesSystemCarPlayVideo && role == .external) {
             VStack(spacing: 4) {
                 HStack(spacing: 6) {
                     Image(systemName: playback.displayConnection.symbol).accessibilityHidden(true)
@@ -2043,9 +2052,7 @@ struct MediaPlayerScreen: View {
                     // Keep this surface mounted in both sizes. A cover used to
                     // remove it and mount another decoder surface during the fade.
                     ZStack {
-                        if playback.hasRemoteVideoOutput {
-                            RemotePlaybackPanel(model: model)
-                        } else if model.selectedMediaChannel?.isAudio == true {
+                        if model.selectedMediaChannel?.isAudio == true {
                             ZStack {
                                 MirrorStyle.surface
                                 Image(systemName: "waveform").font(.system(size: 54, weight: .light))
@@ -2054,7 +2061,10 @@ struct MediaPlayerScreen: View {
                         } else {
                             MediaVideoView(playback: playback, role: .inline,
                                            displayMode: videoDisplayMode.effective(fullscreen: fullscreen,
-                                               landscape: geometry.size.width > geometry.size.height))
+                                               landscape: geometry.size.width > geometry.size.height), keepsNativeSurface: true)
+                        }
+                        if playback.hasRemoteVideoOutput {
+                            RemotePlaybackPanel(model: model)
                         }
                         if !playback.hasRemoteVideoOutput {
                             PlayerChrome(model: model, fullscreen: $fullscreen, largeControls: $largeControls,
@@ -2185,14 +2195,43 @@ struct MediaPlayerScreen: View {
             }
             if !model.requiresMembership, !playback.hasActivePlayback, model.selectedMediaChannel != nil {
                 Button(L10n.tr("Yeniden dene")) { model.retryMedia() }.buttonStyle(MirivoButtonStyle(prominent: true))
+                if playback.carPlayConnected && !playback.playsOnPhone {
+                    Button(L10n.tr("Telefonda oynat")) { model.playOnPhone(); model.retryMedia() }
+                        .buttonStyle(MirivoButtonStyle())
+                }
             }
             if playback.hasActivePlayback {
                 VStack(spacing: 20) {
                     PlaybackTimelineView(playback: playback).id(model.selectedMediaChannel?.id)
-                    if playback.playsOnPhone && playback.externalDisplayConnected {
+                    if playback.playsOnPhone && (playback.externalDisplayConnected || playback.carPlayConnected) {
                         Button { model.returnToDisplay() } label: {
-                            Label(L10n.tr("Bu ekranda oynat"), systemImage: playback.displayConnection.symbol)
-                        }.buttonStyle(.borderedProminent).accessibilityIdentifier("player-return-to-display")
+                            HStack(spacing: 14) {
+                                Image(systemName: playback.displayConnection.symbol)
+                                    .font(.system(size: 22, weight: .medium))
+                                    .foregroundStyle(MirrorStyle.accent)
+                                    .frame(width: 48, height: 48)
+                                    .background(MirrorStyle.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
+                                    .accessibilityHidden(true)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(playback.displayConnection.destinationName)
+                                        .font(.caption.weight(.medium)).foregroundStyle(MirrorStyle.secondary)
+                                    Text(L10n.tr("Bu ekranda oynat"))
+                                        .font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }.frame(maxWidth: .infinity, alignment: .leading)
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(MirrorStyle.background)
+                                    .frame(width: 38, height: 38)
+                                    .background(MirrorStyle.accent, in: Circle())
+                                    .accessibilityHidden(true)
+                            }
+                            .padding(14)
+                            .background(MirrorStyle.raised, in: RoundedRectangle(cornerRadius: 20))
+                            .overlay { RoundedRectangle(cornerRadius: 20).strokeBorder(MirrorStyle.accent.opacity(0.2)) }
+                            .contentShape(RoundedRectangle(cornerRadius: 20))
+                        }.buttonStyle(MirivoPressButtonStyle())
+                            .accessibilityIdentifier("player-return-to-display")
                     }
                     TVConnectionButton(model: model)
                     if playback.tvName != nil && model.selectedMediaChannel?.url.isFileURL == true {

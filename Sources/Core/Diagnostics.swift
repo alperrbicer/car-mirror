@@ -8,6 +8,7 @@ import Glibc
 public enum DiagnosticProcess: String, Codable, Sendable { case app, broadcast }
 public enum DiagnosticKind: String, Codable, Sendable {
     case carSceneRequested, carTemplateReady
+    case carVideoRouteRequested, carVideoRoutePrepared
     case appOpened, appForegrounded, carConnected, carDisconnected, externalScreenConnected, externalScreenDisconnected
     case captureStarted, capturePaused, captureResumed, captureStopped, captureStale, firstFrame, streamReady, streamStatistics
     case playbackRequested, playbackState, externalPlaybackChanged, audioRouteChanged, audioInterrupted
@@ -23,8 +24,13 @@ public struct DiagnosticFailure: Codable, Equatable, Sendable {
     public enum Family: String, Codable, Sendable { case url, cocoa, avFoundation, broadcast, encoder, other }
     public let family: Family
     public let code: Int
+    public let underlying: [DiagnosticFailure]?
 
     public init(_ error: Error) {
+        self.init(error as NSError, remainingDepth: 4, visited: [])
+    }
+
+    private init(_ error: NSError, remainingDepth: Int, visited: Set<ObjectIdentifier>) {
         let error = error as NSError
         switch error.domain {
         case NSURLErrorDomain: family = .url
@@ -35,6 +41,16 @@ public struct DiagnosticFailure: Codable, Equatable, Sendable {
         default: family = .other
         }
         code = error.code
+        var visited = visited
+        visited.insert(ObjectIdentifier(error))
+        if remainingDepth > 0, let cause = error.userInfo[NSUnderlyingErrorKey] as? NSError,
+           !visited.contains(ObjectIdentifier(cause)) {
+            underlying = [DiagnosticFailure(cause, remainingDepth: remainingDepth - 1, visited: visited)]
+        } else { underlying = nil }
+    }
+
+    public func contains(family: Family, code: Int) -> Bool {
+        (self.family == family && self.code == code) || underlying?.contains(where: { $0.contains(family: family, code: code) }) == true
     }
 }
 
@@ -43,6 +59,12 @@ public struct DiagnosticValues: Codable, Equatable, Sendable {
     public enum Screen: String, Codable, Sendable { case carPlay, externalInteractive, externalNonInteractive, other }
     public enum Playback: String, Codable, Sendable { case stopped, waiting, playing }
     public enum AudioRoute: String, Codable, Sendable { case car, airPlay, bluetooth, speaker, headphones, other }
+    public enum Engine: String, Codable, Sendable { case native, compatibility, cast }
+    public enum Transport: String, Codable, Sendable { case direct, localFile, relay, converted }
+    public enum MediaFormat: String, Codable, Sendable { case hls, mp4, mkv, webm, avi, ts, audio, other }
+    public enum RouteSelection: String, Codable, Sendable { case none, local, external }
+    public var routeSelection: RouteSelection?
+    public var shouldStartPlayback: Bool?
     public var reason: DiagnosticReason?
     public var capturePhase: CapturePhase?
     public var screen: Screen?
@@ -50,6 +72,9 @@ public struct DiagnosticValues: Codable, Equatable, Sendable {
     public var externalPlayback: Bool?
     public var playback: Playback?
     public var audioRoutes: [AudioRoute]?
+    public var engine: Engine?
+    public var transport: Transport?
+    public var mediaFormat: MediaFormat?
     public var receivedFrames: Int?
     public var encodedFrames: Int?
     public var receivedAudioFrames: Int?

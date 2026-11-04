@@ -358,11 +358,10 @@ final class MirrorModel: ObservableObject {
         do {
             try playback.play(url: channel.url, preserveSourceAudio: false, requiresExternalPlayback: false,
                               title: channel.title, live: channel.isLive, presentation: resolvedPresentation,
-                              // System-managed CarPlay video uses the native HLS route.
-                              // App-owned windows can host the sample-buffer renderer.
-                              useCompatibility: channel.requiresCompatibilityPlayback || (channel.isLive && resolvedPresentation == .video &&
-                                  (!carPlayConnected || hasCarPlayDisplay)),
-                              startAt: startAt)
+                              // Remember the phone decoder preference. PlaybackController
+                              // resolves a native source for system-managed CarPlay video.
+                              useCompatibility: channel.requiresCompatibilityPlayback || (channel.isLive && resolvedPresentation == .video),
+                              startAt: startAt, artworkURL: channel.metadata.artworkURL)
             guard playback.hasActivePlayback else { return false }
             mediaTitle = channel.title
             hidesSavedPlaybackBar = false
@@ -456,7 +455,8 @@ final class MirrorModel: ObservableObject {
 
     func retryMedia() {
         guard let channel = selectedMediaChannel else { return }
-        playMedia(channel, presentation: mediaPresentation, startAt: membershipResumePosition ?? 0)
+        playMedia(channel, presentation: mediaPresentation,
+                  startAt: membershipResumePosition ?? (channel.isLive ? 0 : playback.currentTime))
     }
 
     private func saveLastPlayback(force: Bool = false) {

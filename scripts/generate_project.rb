@@ -102,7 +102,8 @@ references = {}
   Dir.glob(File.join(root, "Sources/#{folder}/*.swift")).sort.each do |path|
     reference = group.new_file(File.basename(path))
     references[path] = reference
-    app.source_build_phase.add_file_reference(reference) if %w[Core Shared App].include?(folder)
+    shared_media = folder == 'Media' && %w[CarPlayMediaResolver.swift MediaRelayServer.swift].include?(File.basename(path))
+    app.source_build_phase.add_file_reference(reference) if %w[Core Shared App].include?(folder) || shared_media
     broadcast.source_build_phase.add_file_reference(reference) if %w[Core Shared Media Broadcast].include?(folder)
   end
 end

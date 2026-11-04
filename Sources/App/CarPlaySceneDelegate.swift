@@ -12,19 +12,31 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     private var loading: Task<Void, Never>?
     private weak var favoritesList: CPListTemplate?
     private var favoritesOffset = 0
+    private let libraryTemplates = NSHashTable<CPListTemplate>.weakObjects()
 
     func templateApplicationScene(_ scene: CPTemplateApplicationScene, didConnect interfaceController: CPInterfaceController) {
         CarConnectionReminderStore.shared.connected(sessionID: scene.session.persistentIdentifier)
         controller = interfaceController
         configuration = CPSessionConfiguration(delegate: self)
-        let root = CPListTemplate(title: BrandIdentity.name, sections: [])
-        list = root
+        let home = CPListTemplate(title: BrandIdentity.name, sections: [])
+        list = home
+        let sources = SourceLibrary.shared.sources
+        let root = sources.isEmpty ? home : CPListTemplate(title: nil, sections: [])
+        if root !== home { configureLibraryNavigation(root) }
         MirrorModel.shared.connected(supportsVideo: supportsVideo)
         render()
-        interfaceController.setRootTemplate(root, animated: false) { success, error in
+        interfaceController.setRootTemplate(root, animated: false) { [weak self] success, error in
             Task { @MainActor in
+                guard let self, self.controller === interfaceController else { return }
                 let model = MirrorModel.shared
-                if success { model.record(.carTemplateReady) }
+                if success {
+                    model.record(.carTemplateReady)
+                    if sources.count == 1, let source = sources.first {
+                        self.openSource(source, replacing: root, completion: {})
+                    } else if !sources.isEmpty {
+                        self.showSources(replacing: root)
+                    }
+                }
                 else if let error {
                     var values = DiagnosticValues()
                     values.screen = .carPlay
@@ -46,6 +58,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         list = nil
         favoritesList = nil
         favoritesOffset = 0
+        libraryTemplates.removeAllObjects()
         MirrorModel.shared.disconnected()
         loading?.cancel()
         loading = nil
@@ -72,7 +85,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                                     image: UIImage(systemName: "iphone.radiowaves.left.and.right"))
             mirror.isEnabled = model.readyToPlay && model.supportsVideo == true
             if #available(iOS 26.4, *) {
-                mirror.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
+                mirror.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
             }
             mirror.handler = { _, completion in
@@ -83,19 +96,22 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
         let sources = CPListItem(text: L10n.tr("Kaynaklar"), detailText: nil, image: UIImage(systemName: "play.rectangle.on.rectangle"))
         sources.isEnabled = !SourceLibrary.shared.sources.isEmpty
-        sources.handler = { [weak self] _, completion in self?.showSources(); completion() }
+        sources.handler = { [weak self] _, completion in
+            guard let self else { completion(); return }
+            let sources = SourceLibrary.shared.sources
+            if sources.count == 1, let source = sources.first {
+                self.openSource(source, completion: completion)
+            } else {
+                self.showSources()
+                completion()
+            }
+        }
         items.append(sources)
         let favorites = CPListItem(text: L10n.tr("Favoriler"),
                                    detailText: String(format: L10n.tr("%d içerik"), MediaFavorites.shared.entries.count),
                                    image: UIImage(systemName: "heart.fill"))
         favorites.handler = { [weak self] _, completion in self?.showFavorites(); completion() }
         items.append(favorites)
-        if model.mediaTitle != nil {
-            let playing = CPListItem(text: L10n.tr("Şu An Çalıyor"), detailText: model.mediaTitle,
-                                     image: UIImage(systemName: "waveform"))
-            playing.handler = { [weak self] _, completion in self?.showNowPlaying(); completion() }
-            items.append(playing)
-        }
         let stop = CPListItem(text: L10n.tr(model.mediaTitle == nil ? "Paylaşımı durdur" : "Oynatmayı durdur"), detailText: nil, image: UIImage(systemName: "stop.circle"))
         stop.isEnabled = model.broadcasting || model.probeStartedAt != nil || model.mediaTitle != nil
         stop.handler = { _, completion in model.stopBroadcast(hideSavedPlaybackBar: true); model.stopProbe(); model.stopPlayback(); completion() }
@@ -105,7 +121,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             let probe = CPListItem(text: L10n.tr("Ekran bağlantı testi"), detailText: nil, image: UIImage(systemName: "display"))
             probe.isEnabled = model.supportsVideo == true && !model.broadcasting
             if #available(iOS 26.4, *) {
-                probe.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .video,
+                probe.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
             }
             probe.handler = { _, completion in model.startVideoProbe(); completion() }
@@ -114,6 +130,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         #endif
         list?.updateSections([CPListSection(items: items)])
         if let favoritesList { showFavorites(offset: favoritesOffset, replacing: favoritesList) }
+        controller?.templates.compactMap { $0 as? CPListTemplate }.forEach(updateNavigationButtons)
     }
 
     private var supportsVideo: Bool {
@@ -139,8 +156,53 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func push(_ template: CPTemplate) {
+        if let template = template as? CPListTemplate { updateNavigationButtons(template) }
         controller?.pushTemplate(template, animated: true) { [weak self] _, error in
             if let error { self?.recordTemplateError(error) }
+        }
+    }
+
+    private func updateNavigationButtons(_ template: CPListTemplate) {
+        if libraryTemplates.contains(template), let image = UIImage(systemName: "house") {
+            let home = CPBarButton(image: image) { [weak self] _ in
+                self?.showHome()
+            }
+            var buttons: [CPBarButton] = []
+            if MirrorModel.shared.mediaTitle != nil, let stopImage = UIImage(systemName: "stop.fill") {
+                let stop = CPBarButton(image: stopImage) { _ in
+                    MirrorModel.shared.stopPlayback(hideSavedPlaybackBar: true)
+                }
+                buttons.append(stop)
+            }
+            // CarPlay lays out trailing buttons from the trailing edge inward.
+            // Keep Home first visually, with Stop next to the system MiniPlayer.
+            buttons.append(home)
+            template.trailingNavigationBarButtons = buttons
+            return
+        }
+        template.trailingNavigationBarButtons = []
+    }
+
+    private func configureLibraryNavigation(_ template: CPListTemplate) {
+        libraryTemplates.add(template)
+        template.leadingNavigationBarButtons = [
+            CPBarButton(title: L10n.tr("Favoriler")) { [weak self] _ in self?.showFavorites() }
+        ]
+        updateNavigationButtons(template)
+    }
+
+    private func showHome() {
+        guard let controller, let list, controller.topTemplate !== list else { return }
+        if controller.templates.contains(where: { $0 === list }) {
+            controller.pop(to: list, animated: true) { [weak self] _, error in
+                if let error { self?.recordTemplateError(error) }
+            }
+        } else {
+            // Home starts a fresh navigation path, keeping room for source,
+            // category, channel and Now Playing templates in CarPlay's stack.
+            controller.setRootTemplate(list, animated: true) { [weak self] _, error in
+                if let error { self?.recordTemplateError(error) }
+            }
         }
     }
 
@@ -151,22 +213,24 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         MirrorModel.shared.record(.failure, values: values)
     }
 
+    private func showLibraryRoot(_ template: CPListTemplate) {
+        // Sources/categories are destinations, rather than another step above
+        // Home. Making them the root removes CarPlay's automatic Back button.
+        controller?.setRootTemplate(template, animated: true) { [weak self] _, error in
+            if let error { self?.recordTemplateError(error) }
+        }
+    }
+
     private func showSources(offset: Int = 0, replacing: CPListTemplate? = nil) {
         let sources = SourceLibrary.shared.sources
         let template = replacing ?? CPListTemplate(title: L10n.tr("Kaynaklar"), sections: [])
+        configureLibraryNavigation(template)
         let pageSize = max(1, min(90, CPListTemplate.maximumItemCount - 2))
         var items = sources.dropFirst(offset).prefix(pageSize).map { source in
             let item = CPListItem(text: source.name, detailText: nil)
             item.handler = { [weak self] _, completion in
                 guard let self else { completion(); return }
-                self.loading?.cancel()
-                self.catalogRequest.start(load: { cached in
-                    try await SourceLibrary.shared.channels(for: source, onCached: cached)
-                }, show: { [weak self] channels in
-                    self?.showChannels(channels, title: source.name, sourceID: source.id)
-                }, failure: { [weak self] in
-                    self?.showError("Kaynak yüklenemedi. Adresi ve bağlantını kontrol et.")
-                }, completion: completion)
+                self.openSource(source, completion: completion)
             }
             return item
         }
@@ -187,7 +251,64 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             items.append(more)
         }
         template.updateSections([CPListSection(items: items)])
-        if replacing == nil { push(template) }
+        if replacing == nil { showLibraryRoot(template) }
+    }
+
+    private func openSource(_ source: MediaSource, replacing: CPListTemplate? = nil, completion: @escaping () -> Void) {
+        loading?.cancel()
+        catalogRequest.start(load: { cached in
+            try await SourceLibrary.shared.channels(for: source, onCached: cached)
+        }, show: { [weak self] channels in
+            self?.showCategories(MediaChannelCategory.group(channels), sourceID: source.id, replacing: replacing)
+        }, failure: { [weak self] in
+            if let replacing {
+                let retry = CPListItem(text: L10n.tr("Yeniden dene"), detailText: nil)
+                retry.handler = { [weak self, weak replacing] _, completion in
+                    guard let self, let replacing else { completion(); return }
+                    self.openSource(source, replacing: replacing, completion: completion)
+                }
+                replacing.updateSections([CPListSection(items: [retry])])
+            }
+            self?.showError("Kaynak yüklenemedi. Adresi ve bağlantını kontrol et.")
+        }, completion: completion)
+    }
+
+    private func showCategories(_ categories: [MediaChannelCategory], sourceID: UUID,
+                                offset: Int = 0, replacing: CPListTemplate? = nil) {
+        let template = replacing ?? CPListTemplate(title: nil, sections: [])
+        configureLibraryNavigation(template)
+        let pageSize = max(1, min(90, CPListTemplate.maximumItemCount - 2))
+        var items = categories.dropFirst(offset).prefix(pageSize).map { category in
+            let name = category.name.isEmpty ? L10n.tr("Diğer kanallar") : category.name
+            let item = CPListItem(text: name,
+                                  detailText: String(format: L10n.tr("%d içerik"), category.channels.count),
+                                  image: UIImage(systemName: "folder"))
+            item.handler = { [weak self] _, completion in
+                self?.showChannels(category.channels, title: name, sourceID: sourceID)
+                completion()
+            }
+            return item
+        }
+        if offset > 0 {
+            let previous = CPListItem(text: L10n.tr("Önceki sayfa"), detailText: nil)
+            previous.handler = { [weak self, weak template] _, completion in
+                self?.showCategories(categories, sourceID: sourceID,
+                                     offset: max(0, offset - pageSize), replacing: template)
+                completion()
+            }
+            items.insert(previous, at: 0)
+        }
+        if categories.count > offset + pageSize {
+            let more = CPListItem(text: L10n.tr("Sonraki"), detailText: nil)
+            more.handler = { [weak self, weak template] _, completion in
+                self?.showCategories(categories, sourceID: sourceID,
+                                     offset: offset + pageSize, replacing: template)
+                completion()
+            }
+            items.append(more)
+        }
+        template.updateSections([CPListSection(items: items)])
+        if replacing == nil { showLibraryRoot(template) }
     }
 
     private func showFavorites(offset: Int = 0, replacing: CPListTemplate? = nil) {
@@ -215,10 +336,8 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             let model = MirrorModel.shared
             do {
                 let channels: [MediaChannel]
-                if let sourceID = favorite.sourceID {
-                    guard let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) else {
-                        self.showError("İçerik bulunamadı"); return
-                    }
+                if let sourceID = favorite.sourceID,
+                   let source = SourceLibrary.shared.sources.first(where: { $0.id == sourceID }) {
                     if favorite.series != nil {
                         channels = try await SourceLibrary.shared.channels(for: source)
                     } else {
@@ -226,6 +345,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
                             ?? favorite.fallbackCatalog(currentChannels: model.playbackQueue, sourceID: model.playbackSourceID)
                     }
                 } else {
+                    // Individual favorites retain their playable URL, just as
+                    // on iPhone. A whole series still needs its current source.
+                    guard favorite.series == nil || favorite.sourceID == nil else {
+                        self.showError("İçerik bulunamadı"); return
+                    }
                     channels = favorite.fallbackCatalog(currentChannels: model.playbackQueue, sourceID: model.playbackSourceID)
                 }
                 guard !Task.isCancelled else { return }
@@ -249,7 +373,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         model.returnToDisplay()
         let started = model.playMedia(channel, presentation: presentation,
             queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels), sourceID: sourceID)
-        if started, #unavailable(iOS 26.4) { showNowPlaying() }
+        if started { showNowPlaying() }
         if !started {
             showError(model.requiresMembership ? "Oynatmak ve paylaşmak için Mirivo Pro’yu etkinleştir." : "Yayın başlatılamadı. Kaynağı kontrol edip yeniden dene.")
         }
@@ -262,7 +386,9 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         var items = channels.dropFirst(offset).prefix(pageSize).map { channel in
             let item = CPListItem(text: channel.title, detailText: channel.group.isEmpty ? nil : channel.group)
             if #available(iOS 26.4, *) {
-                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: supportsVideo && !channel.isAudio ? .video : .audio,
+                // Open Now Playing first. Requesting video here can prevent
+                // CarPlay from delivering the selection to our handler.
+                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
             }
             item.handler = { [weak self] _, completion in
@@ -377,7 +503,7 @@ enum CarPlayFavoritesMenu {
             let item = CPListItem(text: favorite.title, detailText: details,
                                  image: UIImage(systemName: favorite.series != nil ? "rectangle.stack" : "heart.fill"))
             if #available(iOS 26.4, *), favorite.series == nil {
-                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: supportsVideo && !favorite.channel.isAudio ? .video : .audio,
+                item.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
             }
             item.handler = { _, completion in open(favorite, completion) }

@@ -578,3 +578,5 @@
 "CarPlay bağlantı yardımı" = "CarPlay connection help";
 "Başka ekrana bağlan" = "Connect to another display";
 "Duraklatıldı" = "Paused";
+"Bu içerik CarPlay için uyumlu bir video biçimi sunmuyor. Telefonda oynatabilirsin." = "This content does not offer a video format compatible with CarPlay. You can play it on your phone.";
+"Anasayfa" = "Home";

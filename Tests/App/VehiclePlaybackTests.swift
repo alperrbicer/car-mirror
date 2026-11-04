@@ -281,6 +281,28 @@ final class VehiclePlaybackTests: XCTestCase {
         XCTAssertFalse(template.emptyViewSubtitleVariants.isEmpty)
     }
 
+    func testCarPlayFavoritesOpenNowPlayingFirstForLiveMoviesAndEpisodes() throws {
+        let channels = [
+            MediaChannel(title: "Live", url: URL(string: "https://example.com/live/1.m3u8")!),
+            MediaChannel(title: "Movie", url: URL(string: "https://example.com/movie/2.mp4")!),
+            MediaChannel(title: "Coast S01-E01", url: URL(string: "https://example.com/series/3.mp4")!),
+            MediaChannel(title: "Radio", url: URL(string: "https://example.com/radio/4.mp3")!)
+        ]
+        let entries = channels.map { FavoriteMedia(channel: $0, sourceID: nil) }
+        let template = CPListTemplate(title: "Favorites", sections: [])
+        for supportsVideo in [true, false] {
+            CarPlayFavoritesMenu.update(template, entries: entries, supportsVideo: supportsVideo,
+                open: { _, _ in }, page: { _ in })
+            let items = try XCTUnwrap(template.sections.first).items.compactMap { $0 as? CPListItem }
+            XCTAssertEqual(items.count, 4)
+            if #available(iOS 26.4, *) {
+                let presentations = try items.map { try XCTUnwrap($0.playbackConfiguration).preferredPresentation }
+                XCTAssertEqual(presentations, [.audio, .audio, .audio, .audio],
+                    "Video-capable sessions must still start through Now Playing so the selection handler can start the stream")
+            }
+        }
+    }
+
     func testOfflineFavoriteResolvesOriginalChannelWithinItsSource() throws {
         let source = UUID()
         let original = MediaChannel(title: "Coast S01-E02", url: URL(string: "https://example.com/series/u/p/2.mp4")!)
