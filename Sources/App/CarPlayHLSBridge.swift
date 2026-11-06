@@ -26,13 +26,14 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
     private var vodPlaylist: CarPlayVODPlaylist?
     private var vodAddress: URL?
     private var pendingSegments: [Int] = []
-    private var prefetchThroughIndex = -1
+    private var nextSegmentToPrefetch: Int?
     private var encodingSegment: Int?
     private var segmentOutput: URL?
     private var vodTranscodesAudio = false
     private var segmentDelegate: SegmentDelegate?
     private(set) var duration: Double = 0
     private(set) var transcodesVideo = false
+    private(set) var isVideoOnlyVOD = false
     var canRetryTranscoding: Bool { outputStarted && !transcodesVideo }
     var supportsNativeSeeking: Bool { vodPlaylist != nil }
     var onReady: ((URL) -> Void)?
@@ -79,6 +80,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
         transcodesVideo = forceTranscode || metadata.videoCodec != Self.fourCC("h264")
         let transcodesAudio = forceTranscode || metadata.audioCodecs.contains { $0 != Self.fourCC("mp4a") }
         if !live && duration > 0 {
+            isVideoOnlyVOD = metadata.audioCodecs.isEmpty
             vodTranscodesAudio = transcodesAudio
             prepareVOD()
             return
@@ -123,22 +125,28 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     private func requestSegment(_ index: Int) {
         guard !stopped, let playlist = vodPlaylist, let server, playlist.interval(for: index) != nil else { return }
-        prefetchThroughIndex = min(playlist.segmentCount - 1, index + 1)
-        if FileManager.default.fileExists(atPath: server.directory.appendingPathComponent(playlist.name(for: index)).path) {
-            server.segmentReady(index)
-            return
+        nextSegmentToPrefetch = index + 1 < playlist.segmentCount ? index + 1 : nil
+        if encodingSegment != index,
+           !FileManager.default.fileExists(atPath: server.directory.appendingPathComponent(playlist.name(for: index)).path) {
+            pendingSegments.removeAll { $0 == index }
+            pendingSegments.insert(index, at: 0)
+            if pendingSegments.count > 12 { pendingSegments.removeLast() }
         }
-        guard encodingSegment != index else { return }
-        pendingSegments.removeAll { $0 == index }
-        pendingSegments.insert(index, at: 0)
-        if pendingSegments.count > 12 { pendingSegments.removeLast() }
         encodeNextSegment()
     }
 
     private func encodeNextSegment() {
-        guard !stopped, encodingSegment == nil, !pendingSegments.isEmpty,
-              let playlist = vodPlaylist, let server else { return }
-        let index = pendingSegments.removeFirst()
+        guard !stopped, encodingSegment == nil, let playlist = vodPlaylist, let server else { return }
+        let index: Int
+        if !pendingSegments.isEmpty {
+            index = pendingSegments.removeFirst()
+        } else {
+            guard let next = nextSegmentToPrefetch else { return }
+            nextSegmentToPrefetch = nil
+            let file = server.directory.appendingPathComponent(playlist.name(for: next))
+            guard !FileManager.default.fileExists(atPath: file.path) else { return }
+            index = next
+        }
         guard let interval = playlist.interval(for: index), let media = VLCMedia(url: source) else {
             fail(URLError(.cannotDecodeContentData)); return
         }
@@ -146,7 +154,7 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
         // Use an independent player and clock for every segment. Reusing VLC's
         // output resources can carry timing from a previously encoded range.
         encoder.delegate = nil
-        let player = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show", "--codec=avcodec", "--no-hw-dec"])
+        let player = VLCMediaPlayer(options: ["--quiet", "--no-video-title-show"])
         encoder = player
         let delegate = SegmentDelegate { [weak self, weak player] state in
             guard let self, let player, self.encoder === player else { return }
@@ -188,36 +196,44 @@ final class CarPlayHLSBridge: NSObject, @preconcurrency VLCMediaPlayerDelegate {
 
     private func finishSegment() {
         guard let index = encodingSegment, let output = segmentOutput,
-              let playlist = vodPlaylist, let server else { return }
-        monitor?.cancel(); monitor = nil
-        do {
-            let values = try output.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey, .isSymbolicLinkKey])
-            guard values.isRegularFile == true, values.isSymbolicLink != true,
-                  let size = values.fileSize, size > 0, size <= 32 * 1_024 * 1_024 else {
-                throw URLError(.cannotDecodeContentData)
+              let playlist = vodPlaylist, let interval = playlist.interval(for: index), let server else { return }
+        segmentOutput = nil
+        monitor?.cancel()
+        let target = server.directory.appendingPathComponent(playlist.name(for: index))
+        monitor = Task { [weak self] in
+            do {
+                try await Self.publishSegment(output, to: target, interval: interval)
+                guard let self, !self.stopped, !Task.isCancelled else { return }
+                self.monitor = nil
+                self.encodingSegment = nil
+                CarPlayPlaybackTrace.record("segment-ready \(index)")
+                server.segmentReady(index)
+                if !self.ready, let address = self.vodAddress {
+                    self.ready = true
+                    self.onReady?(address)
+                }
+                self.encodeNextSegment()
+            } catch {
+                if !Task.isCancelled { self?.fail(error) }
             }
-            if let interval = playlist.interval(for: index), interval.lowerBound > 0 {
-                let data = try Data(contentsOf: output)
-                let trimmed = try CarPlayVODPlaylist.removingSeekPreroll(from: data, before: interval.lowerBound)
-                try trimmed.write(to: output, options: .atomic)
-            }
-            let target = server.directory.appendingPathComponent(playlist.name(for: index))
-            try FileManager.default.moveItem(at: output, to: target)
-            encodingSegment = nil; segmentOutput = nil
-            CarPlayPlaybackTrace.record("segment-ready \(index)")
-            server.segmentReady(index)
-            if !ready, let address = vodAddress {
-                ready = true
-                onReady?(address)
-            }
-            // Generate the next range while the consumer loads this one.
-            // Waiting for its HTTP request would add a fresh provider open
-            // exactly when the short startup segment runs out.
-            if index + 1 <= prefetchThroughIndex, pendingSegments.isEmpty {
-                pendingSegments.append(index + 1)
-            }
-            encodeNextSegment()
-        } catch { fail(error) }
+        }
+    }
+
+    // Rewriting the segment clocks can touch several megabytes. Keep that
+    // work off the main actor and only expose the file when it is complete.
+    nonisolated private static func publishSegment(_ file: URL, to target: URL, interval: Range<Double>) async throws {
+        try Task.checkCancellation()
+        let values = try file.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey, .isSymbolicLinkKey])
+        guard values.isRegularFile == true, values.isSymbolicLink != true,
+              let size = values.fileSize, size > 0, size <= 32 * 1_024 * 1_024 else {
+            throw URLError(.cannotDecodeContentData)
+        }
+        let data = try Data(contentsOf: file)
+        let trimmed = try CarPlayVODPlaylist.removingSeekPreroll(from: data, before: interval.lowerBound,
+            duration: interval.upperBound - interval.lowerBound)
+        try Task.checkCancellation()
+        if trimmed != data { try trimmed.write(to: file, options: .atomic) }
+        try FileManager.default.moveItem(at: file, to: target)
     }
 
     private func beginOutput(media: VLCMedia, videoID: String, transcodesAudio: Bool,

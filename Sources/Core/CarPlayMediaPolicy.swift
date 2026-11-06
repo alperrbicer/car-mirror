@@ -72,9 +72,10 @@ public enum HLSRelayPlaylist {
 public struct CarPlayVODPlaylist: Sendable {
     public let duration: Double
     public let startPosition: Double
-    public let segmentDuration: Double = 16
-    public let firstSegmentDuration: Double = 4
-    public var segmentCount: Int { 1 + Int(ceil(max(0, duration - firstSegmentDuration) / segmentDuration)) }
+    // The next range must be producible while the current one plays. A short
+    // startup range followed by a much longer encode exhausts the first buffer.
+    public let segmentDuration: Double = 6
+    public var segmentCount: Int { Int(ceil(duration / segmentDuration)) }
 
     public init(duration: Double, startPosition: Double = 0) throws {
         guard duration.isFinite, duration > 0, duration <= 86_400,
@@ -85,14 +86,13 @@ public struct CarPlayVODPlaylist: Sendable {
 
     public func interval(for index: Int) -> Range<Double>? {
         guard (0..<segmentCount).contains(index) else { return nil }
-        if index == 0 { return 0..<min(firstSegmentDuration, duration) }
-        let start = firstSegmentDuration + Double(index - 1) * segmentDuration
+        let start = Double(index) * segmentDuration
         return start..<min(start + segmentDuration, duration)
     }
 
     public func index(at time: Double) -> Int {
-        guard time.isFinite, time >= firstSegmentDuration else { return 0 }
-        return min(segmentCount - 1, 1 + Int(min(time, duration) - firstSegmentDuration) / Int(segmentDuration))
+        guard time.isFinite else { return 0 }
+        return min(segmentCount - 1, Int(max(0, min(time, duration)) / segmentDuration))
     }
 
     public func name(for index: Int) -> String { "vod-\(index).ts" }
@@ -104,88 +104,111 @@ public struct CarPlayVODPlaylist: Sendable {
         return index
     }
 
-    /// VLC may write a few frames from time zero before applying start-time.
-    /// Keep complete PES units from the requested range and repair TS counters.
-    public static func removingSeekPreroll(from data: Data, before seconds: Double) throws -> Data {
-        guard seconds.isFinite, seconds >= 0, !data.isEmpty, data.count % 188 == 0 else {
+    /// A VLC seek can keep the source clock (with a few samples from before the
+    /// seek), or start the entire output on a new clock. Both are valid HLS inputs.
+    public static func removingSeekPreroll(from data: Data, before seconds: Double,
+                                           duration: Double? = nil) throws -> Data {
+        guard seconds.isFinite, seconds >= 0, duration.map({ $0.isFinite && $0 > 0 }) ?? true,
+              !data.isEmpty, data.count % 188 == 0 else { throw URLError(.cannotDecodeContentData) }
+        guard seconds > 0 || duration != nil else { return data }
+        var bytes = [UInt8](data)
+        var samples: [(packet: Int, ptsOffset: Int, ticks: UInt64)] = []
+        let seekTicks = seconds * 90_000
+        var previousVideoTime: Double?
+        var usesSourceClock = false
+        for start in stride(from: 0, to: bytes.count, by: 188) {
+            let control = (bytes[start + 3] >> 4) & 3
+            let adaptation = control & 2 == 0 ? 0 : 1 + Int(bytes[start + 4])
+            let payload = start + 4 + adaptation
+            guard bytes[start] == 0x47, control != 0, payload <= start + 188 else {
+                throw URLError(.cannotDecodeContentData)
+            }
+            guard control & 1 != 0, bytes[start + 1] & 0x40 != 0, payload + 14 <= start + 188,
+                  bytes[payload] == 0, bytes[payload + 1] == 0, bytes[payload + 2] == 1,
+                  bytes[payload + 7] & 0x80 != 0 else { continue }
+            let ticks = timestamp(in: bytes, at: payload + 9)
+            samples.append((start, payload + 9, ticks))
+            if (0xe0...0xef).contains(bytes[payload + 3]) {
+                let time = Double(ticks)
+                // On a source clock the first video sample is at the seek, or
+                // the mux jumps there after its initial preroll. A continuous
+                // segment-local clock can cross the same number during playback.
+                if let previous = previousVideoTime {
+                    if previous < seekTicks, time >= seekTicks, time - previous > 90_000 {
+                        usesSourceClock = true
+                    }
+                } else if time >= seekTicks { usesSourceClock = true }
+                previousVideoTime = time
+            }
+        }
+        let lower = usesSourceClock ? seekTicks : 0
+        guard previousVideoTime != nil,
+              let origin = samples.lazy.map(\.ticks).filter({ Double($0) >= lower }).min() else {
             throw URLError(.cannotDecodeContentData)
         }
-        guard seconds > 0 else { return data }
-        let bytes = [UInt8](data)
+        let upper = duration.map { Double(origin) + $0 * 90_000 } ?? .infinity
+        let shift = origin > 36_000 ? origin - 36_000 : 0
+        if shift == 0, samples.allSatisfy({ (lower..<upper).contains(Double($0.ticks)) }) { return data }
+
         var accepted: [Int: Bool] = [:]
         var counters: [Int: UInt8] = [:]
-        var firstTimestamp: UInt64?
-        var result = Data(capacity: data.count)
+        var sampleIndex = 0
+        var result = Data(capacity: bytes.count)
         for start in stride(from: 0, to: bytes.count, by: 188) {
-            var packet = Array(bytes[start..<(start + 188)])
-            guard packet[0] == 0x47 else { throw URLError(.cannotDecodeContentData) }
-            let pid = Int(packet[1] & 0x1f) << 8 | Int(packet[2])
-            let control = (packet[3] >> 4) & 3
-            guard control != 0 else { throw URLError(.cannotDecodeContentData) }
-            let payload = 4 + (control & 2 == 0 ? 0 : 1 + Int(packet[4]))
-            guard payload <= 188 else { throw URLError(.cannotDecodeContentData) }
-            if control & 1 != 0, packet[1] & 0x40 != 0, payload + 14 <= 188,
-               packet[payload] == 0, packet[payload + 1] == 0, packet[payload + 2] == 1,
-               packet[payload + 7] & 0x80 != 0 {
-                let p = payload + 9
-                let ticks = UInt64((packet[p] >> 1) & 7) << 30 | UInt64(packet[p + 1]) << 22 |
-                    UInt64(packet[p + 2] >> 1) << 15 | UInt64(packet[p + 3]) << 7 | UInt64(packet[p + 4] >> 1)
-                accepted[pid] = Double(ticks) / 90_000 >= seconds
-                if accepted[pid] == true, firstTimestamp == nil { firstTimestamp = ticks }
+            let pid = Int(bytes[start + 1] & 0x1f) << 8 | Int(bytes[start + 2])
+            let control = (bytes[start + 3] >> 4) & 3
+            if sampleIndex < samples.count, samples[sampleIndex].packet == start {
+                let sample = samples[sampleIndex]
+                sampleIndex += 1
+                accepted[pid] = (lower..<upper).contains(Double(sample.ticks))
+                if shift != 0, accepted[pid] == true {
+                    shiftTimestamp(in: &bytes, at: sample.ptsOffset, by: shift)
+                    if bytes[sample.ptsOffset - 2] & 0xc0 == 0xc0, sample.ptsOffset + 10 <= start + 188 {
+                        shiftTimestamp(in: &bytes, at: sample.ptsOffset + 5, by: shift)
+                    }
+                }
             }
             guard accepted[pid] != false else { continue }
-            let counter = counters[pid].map { control & 1 != 0 ? ($0 + 1) & 0x0f : $0 } ?? (packet[3] & 0x0f)
-            packet[3] = packet[3] & 0xf0 | counter
+            if shift != 0, control & 2 != 0, bytes[start + 4] >= 7, bytes[start + 5] & 0x10 != 0 {
+                let p = start + 6
+                let base = UInt64(bytes[p]) << 25 | UInt64(bytes[p + 1]) << 17 |
+                    UInt64(bytes[p + 2]) << 9 | UInt64(bytes[p + 3]) << 1 | UInt64(bytes[p + 4] >> 7)
+                let next = shifted(base, by: shift)
+                bytes[p] = UInt8((next >> 25) & 0xff); bytes[p + 1] = UInt8((next >> 17) & 0xff)
+                bytes[p + 2] = UInt8((next >> 9) & 0xff); bytes[p + 3] = UInt8((next >> 1) & 0xff)
+                bytes[p + 4] = bytes[p + 4] & 0x7f | UInt8((next & 1) << 7)
+            }
+            let counter = counters[pid].map { control & 1 != 0 ? ($0 + 1) & 0x0f : $0 } ?? (bytes[start + 3] & 0x0f)
+            bytes[start + 3] = bytes[start + 3] & 0xf0 | counter
             counters[pid] = counter
-            result.append(contentsOf: packet)
-        }
-        guard !result.isEmpty else { throw URLError(.cannotDecodeContentData) }
-        // Each discontinuity starts an independent transport clock. Keep the
-        // same 400-ms mux lead-in as the first segment, including PCR and DTS.
-        if let firstTimestamp, firstTimestamp > 36_000 {
-            let shift = firstTimestamp - 36_000, mask: UInt64 = (1 << 33) - 1
-            var normalized = [UInt8](result)
-            func adjusted(_ value: UInt64) -> UInt64 { (value + (1 << 33) - shift) & mask }
-            func adjustPTS(at index: Int) {
-                let value = UInt64((normalized[index] >> 1) & 7) << 30 | UInt64(normalized[index + 1]) << 22 |
-                    UInt64(normalized[index + 2] >> 1) << 15 | UInt64(normalized[index + 3]) << 7 | UInt64(normalized[index + 4] >> 1)
-                let next = adjusted(value)
-                normalized[index] = normalized[index] & 0xf1 | UInt8((next >> 29) & 0x0e)
-                normalized[index + 1] = UInt8((next >> 22) & 0xff)
-                normalized[index + 2] = UInt8((next >> 14) & 0xfe) | 1
-                normalized[index + 3] = UInt8((next >> 7) & 0xff)
-                normalized[index + 4] = UInt8((next << 1) & 0xfe) | 1
-            }
-            for start in stride(from: 0, to: normalized.count, by: 188) {
-                let control = (normalized[start + 3] >> 4) & 3
-                let adaptation = control & 2 == 0 ? 0 : 1 + Int(normalized[start + 4])
-                if adaptation >= 8, normalized[start + 5] & 0x10 != 0 {
-                    let p = start + 6
-                    let base = UInt64(normalized[p]) << 25 | UInt64(normalized[p + 1]) << 17 |
-                        UInt64(normalized[p + 2]) << 9 | UInt64(normalized[p + 3]) << 1 | UInt64(normalized[p + 4] >> 7)
-                    let next = adjusted(base)
-                    normalized[p] = UInt8((next >> 25) & 0xff); normalized[p + 1] = UInt8((next >> 17) & 0xff)
-                    normalized[p + 2] = UInt8((next >> 9) & 0xff); normalized[p + 3] = UInt8((next >> 1) & 0xff)
-                    normalized[p + 4] = normalized[p + 4] & 0x7f | UInt8((next & 1) << 7)
-                }
-                let payload = start + 4 + adaptation
-                if control & 1 != 0, normalized[start + 1] & 0x40 != 0, payload + 14 <= start + 188,
-                   normalized[payload] == 0, normalized[payload + 1] == 0, normalized[payload + 2] == 1,
-                   normalized[payload + 7] & 0x80 != 0 {
-                    adjustPTS(at: payload + 9)
-                    if normalized[payload + 7] & 0xc0 == 0xc0, payload + 19 <= start + 188 { adjustPTS(at: payload + 14) }
-                }
-            }
-            result = Data(normalized)
+            result.append(contentsOf: bytes[start..<(start + 188)])
         }
         return result
+    }
+
+    private static func timestamp(in bytes: [UInt8], at p: Int) -> UInt64 {
+        UInt64((bytes[p] >> 1) & 7) << 30 | UInt64(bytes[p + 1]) << 22 |
+            UInt64(bytes[p + 2] >> 1) << 15 | UInt64(bytes[p + 3]) << 7 | UInt64(bytes[p + 4] >> 1)
+    }
+
+    private static func shifted(_ ticks: UInt64, by shift: UInt64) -> UInt64 {
+        (ticks &- shift) & ((1 << 33) - 1)
+    }
+
+    private static func shiftTimestamp(in bytes: inout [UInt8], at p: Int, by shift: UInt64) {
+        let next = shifted(timestamp(in: bytes, at: p), by: shift)
+        bytes[p] = bytes[p] & 0xf1 | UInt8((next >> 29) & 0x0e)
+        bytes[p + 1] = UInt8((next >> 22) & 0xff)
+        bytes[p + 2] = UInt8((next >> 14) & 0xfe) | 1
+        bytes[p + 3] = UInt8((next >> 7) & 0xff)
+        bytes[p + 4] = UInt8((next << 1) & 0xfe) | 1
     }
 
     public var manifest: Data {
         func decimal(_ number: Double) -> String {
             String(format: "%.6f", locale: Locale(identifier: "en_US_POSIX"), number)
         }
-        var lines = ["#EXTM3U", "#EXT-X-VERSION:3", "#EXT-X-TARGETDURATION:16",
+        var lines = ["#EXTM3U", "#EXT-X-VERSION:3", "#EXT-X-TARGETDURATION:\(Int(ceil(min(duration, segmentDuration))))",
                      "#EXT-X-MEDIA-SEQUENCE:0", "#EXT-X-PLAYLIST-TYPE:VOD", "#EXT-X-INDEPENDENT-SEGMENTS",
                      "#EXT-X-START:TIME-OFFSET=\(decimal(startPosition)),PRECISE=YES"]
         for index in 0..<segmentCount {

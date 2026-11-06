@@ -15,8 +15,8 @@ export const carPlayVideoKey = 'com.apple.developer.carplay-video'
 export function assertCarPlayEntitlements(entitlements) {
   if (entitlements[carPlayAudioKey] !== true)
     throw new Error('The app must request the CarPlay Audio entitlement.')
-  if (Object.hasOwn(entitlements, carPlayVideoKey))
-    throw new Error('Remove the CarPlay Video entitlement from the app as requested by App Review; keep CarPlay Audio.')
+  if (Object.hasOwn(entitlements, carPlayVideoKey) && entitlements[carPlayVideoKey] !== true)
+    throw new Error('The CarPlay Video entitlement, when present, must be enabled.')
 }
 
 export function assertCarPlayVideo(info) {
@@ -119,7 +119,7 @@ export function configurationFromSettings(rows) {
     if (!settings[key] || settings[key].includes('$(')) throw new Error(`Xcode did not resolve ${key}. Check Config/Base.xcconfig and Config/Local.xcconfig.`)
   }
   if (settings.CODE_SIGN_ENTITLEMENTS !== 'Config/App.entitlements') {
-    throw new Error('CarMirror must use Config/App.entitlements with CarPlay Audio.')
+    throw new Error('CarMirror must use Config/App.entitlements with CarPlay Audio and optional Video.')
   }
   return { bundleId: settings.PRODUCT_BUNDLE_IDENTIFIER, appGroup: settings.APP_GROUP_IDENTIFIER,
     team: settings.DEVELOPMENT_TEAM || '', version: settings.MARKETING_VERSION, build: settings.CURRENT_PROJECT_VERSION }

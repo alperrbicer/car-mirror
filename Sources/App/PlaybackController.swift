@@ -1097,7 +1097,11 @@ final class PlaybackController: ObservableObject {
         applySubtitlePosition(to: item)
         // Pausing at startup must not seek a live stream to time zero.
         nativeResumePosition = position > 0 || (carPlayBridge != nil && carPlayBridge?.supportsNativeSeeking != true && !requestedLive) ? position : nil
-        item.preferredForwardBufferDuration = requestedLive ? 1 : 2
+        // A two-second buffer can leave video-only HLS waiting on its first
+        // segment. Let AVPlayer choose its startup buffer for those items.
+        if carPlayBridge?.isVideoOnlyVOD != true {
+            item.preferredForwardBufferDuration = requestedLive ? 1 : 2
+        }
         player.automaticallyWaitsToMinimizeStalling = !(requestedLive && usesSystemCarPlayVideo)
         itemObservation = item.observe(\.status, options: [.new]) { [weak self, weak item] _, _ in
             Task { @MainActor [weak self, weak item] in
@@ -1632,8 +1636,7 @@ final class PlaybackController: ObservableObject {
                 Task { @MainActor in
                     guard let self, self.hasActivePlayback || self.pendingCarPlayResume != nil else { return }
                     if action == 0 { self.resume() }
-                    else if action == 1 { if self.hasActivePlayback { self.pause() } }
-                    else if action == 2 { self.togglePlayPause() }
+                    else if action == 1 || action == 2 { self.togglePlayPause() }
                     else if let onRemoteStop = self.onRemoteStop { onRemoteStop() }
                     else { self.stop() }
                 }

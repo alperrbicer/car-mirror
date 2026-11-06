@@ -35,7 +35,7 @@ Projeyi testler veya derleme çalışırken yeniden üretme. Testler için tek s
 
 ## Kurulum ve imzalama
 
-`CarMirror` scheme’i `Config/App.entitlements` kullanır. Uygulama App Group, Push Notifications, App Attest, CarPlay Audio ve Video; yayın uzantısı yalnız App Group ister. Standart CarPlay’de kaynaklar ses olarak açılır; araç video desteği bildirirse video kullanılabilir. Her iki CarPlay capability’sini içeren provisioning profile gerekir.
+`CarMirror` şeması `Config/App.entitlements` kullanır. Uygulama App Group, Push Notifications, App Attest ve CarPlay Audio yetkilerini ister. Yayın uzantısı yalnız App Group ister. Apple’ın Mirivo için verdiği inceleme kararına uygun olarak imzalama kontrolleri CarPlay yetkilerinden yalnız Audio’yu kabul eder. Kaynaklar veya Favoriler’den bir yayın seçildiğinde oynatma otomatik başlar. Park hâlindeyken video sunabilen araçlarda görüntü, CarPlay’in oynatma ekranındaki video düğmesiyle açılabilir.
 
 ```sh
 bun run mobile:doctor

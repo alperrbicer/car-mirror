@@ -143,6 +143,34 @@ final class PerformanceRegressionTests: XCTestCase {
         XCTAssertEqual(completions, 1)
     }
 
+    func testCarPlayNavigationReplacementOwnsItsCompletionAndIgnoresOldResults() async throws {
+        let request = CarPlayCatalogRequest()
+        var oldRefresh: CheckedContinuation<[MediaChannel], Error>?
+        var newLoad: CheckedContinuation<[MediaChannel], Error>?
+        var shown: [Int] = []
+        var completions: [Int] = []
+        request.start(load: { cached in
+            cached([self.channel(1)])
+            return try await withCheckedThrowingContinuation { oldRefresh = $0 }
+        }, show: { _ in
+            shown.append(1)
+            request.start(load: { _ in
+                try await withCheckedThrowingContinuation { newLoad = $0 }
+            }, show: { _ in shown.append(2) }, failure: { XCTFail("New navigation must succeed") },
+                          completion: { completions.append(2) })
+        }, failure: { XCTFail("Superseded refresh must stay silent") }, completion: { completions.append(1) })
+        for _ in 0..<100 where oldRefresh == nil || newLoad == nil { await Task.yield() }
+        XCTAssertEqual(completions, [1], "The old result must not finish the new selection's spinner")
+        try XCTUnwrap(oldRefresh).resume(throwing: URLError(.timedOut))
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(shown, [1])
+        XCTAssertEqual(completions, [1])
+        try XCTUnwrap(newLoad).resume(returning: [channel(2)])
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertEqual(shown, [1, 2])
+        XCTAssertEqual(completions, [1, 2])
+    }
+
     func testCancellingHLSPreparationRejectsAnUncooperativeLateResult() async throws {
         let preparation = OfflineDownloadPreparation()
         let id = UUID(), url = channel(1).url
@@ -266,8 +294,8 @@ final class VehiclePlaybackTests: XCTestCase {
                 if playback.state == .failed { break }
                 try await Task.sleep(for: .milliseconds(50))
             }
-            XCTAssertTrue(playback.isPlaying, "Prepared media must start automatically on resume")
-            XCTAssertNotNil(frame, "Playing must produce an actual decoded video frame")
+            XCTAssertTrue(playback.isPlaying, "\(source.lastPathComponent): prepared media must start automatically on resume")
+            XCTAssertNotNil(frame, "\(source.lastPathComponent): playing must produce an actual decoded video frame")
             playback.stop()
             XCTAssertNil(playback.player.currentItem)
             XCTAssertFalse(playback.isPlaying)
@@ -291,9 +319,13 @@ final class VehiclePlaybackTests: XCTestCase {
         let server = try CarPlayHLSServer(vod: true, playlist: playlist)
         defer { server.stop(); server.removeOutput() }
         let segment = Data(repeating: 0x47, count: 1_880)
+        let cachedRequest = expectation(description: "Reading a cached segment advances lookahead once")
+        cachedRequest.assertForOverFulfill = true
         server.onSegmentRequested = { index in
+            let file = server.directory.appendingPathComponent(playlist.name(for: index))
+            if FileManager.default.fileExists(atPath: file.path) { cachedRequest.fulfill(); return }
             do {
-                try segment.write(to: server.directory.appendingPathComponent(playlist.name(for: index)), options: .atomic)
+                try segment.write(to: file, options: .atomic)
                 server.segmentReady(index)
             } catch { XCTFail("Segment generation failed: \(error)") }
         }
@@ -303,17 +335,69 @@ final class VehiclePlaybackTests: XCTestCase {
         }
         let (manifest, _) = try await URLSession.shared.data(from: address)
         XCTAssertEqual(manifest, playlist.manifest)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: server.directory.appendingPathComponent("vod-215.ts").path))
-        let (bytes, response) = try await URLSession.shared.data(from: address.deletingLastPathComponent().appendingPathComponent("vod-215.ts"))
+        let lastSegment = playlist.name(for: playlist.segmentCount - 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: server.directory.appendingPathComponent(lastSegment).path))
+        let (bytes, response) = try await URLSession.shared.data(from: address.deletingLastPathComponent().appendingPathComponent(lastSegment))
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
         XCTAssertEqual(bytes, segment)
-        var seekRequest = URLRequest(url: address.deletingLastPathComponent().appendingPathComponent("vod-215.ts"))
+        var seekRequest = URLRequest(url: address.deletingLastPathComponent().appendingPathComponent(lastSegment))
         seekRequest.setValue("bytes=188-", forHTTPHeaderField: "Range")
         let (wholeSegment, seekResponse) = try await URLSession.shared.data(for: seekRequest)
+        await fulfillment(of: [cachedRequest], timeout: 2)
         XCTAssertEqual((seekResponse as? HTTPURLResponse)?.statusCode, 200)
         XCTAssertEqual(wholeSegment, segment, "A VOD seek must retain the segment's reference frames")
-        let (_, invalid) = try await URLSession.shared.data(from: address.deletingLastPathComponent().appendingPathComponent("vod-216.ts"))
+        let (_, invalid) = try await URLSession.shared.data(from:
+            address.deletingLastPathComponent().appendingPathComponent(playlist.name(for: playlist.segmentCount)))
         XCTAssertEqual((invalid as? HTTPURLResponse)?.statusCode, 404)
+    }
+
+    func testCarPlayVODPreparesTheNextSegmentBeforeTheStartupBufferRunsOut() async throws {
+        let usesDeviceFixture = ProcessInfo.processInfo.environment["MIRIVO_TEST_VOD_FILE"] == "1"
+        let source = usesDeviceFixture
+            ? URL.cachesDirectory.appendingPathComponent("mirivo-carplay-prefetch-test.mkv")
+            : URL(string: "http://127.0.0.1:8769/tracks/options.mkv")!
+        defer { if usesDeviceFixture { try? FileManager.default.removeItem(at: source) } }
+        try await assertCarPlayPrefetch(source: source)
+    }
+
+    func testCarPlayPrefetchesTheUsersLastSelectedVOD() async throws {
+        guard ProcessInfo.processInfo.environment["MIRIVO_TEST_SAVED_VOD"] == "1" else {
+            throw XCTSkip("Requires explicit opt-in to test the last selected provider video")
+        }
+        guard let record = LastPlaybackStore.shared.record, !record.isLive, !record.channel.isAudio else {
+            throw XCTSkip("No saved on-demand video")
+        }
+        try await assertCarPlayPrefetch(source: record.channel.url)
+    }
+
+    private func assertCarPlayPrefetch(source: URL) async throws {
+        let bridge = CarPlayHLSBridge(source: source, live: false, startPosition: 0)
+        defer { bridge.stop() }
+        let address: URL = try await withCheckedThrowingContinuation { continuation in
+            bridge.onReady = { address in
+                bridge.onFailure = { error in
+                    let failure = DiagnosticFailure(error)
+                    XCTFail("Prefetch failed: \(failure.family.rawValue):\(failure.code)")
+                }
+                continuation.resume(returning: address)
+            }
+            bridge.onFailure = { continuation.resume(throwing: $0) }
+            bridge.start()
+        }
+        let playlist = try CarPlayVODPlaylist(duration: bridge.duration)
+        for index in 1..<min(playlist.segmentCount, 4) {
+            let previous = try XCTUnwrap(playlist.interval(for: index - 1))
+            let began = ContinuousClock.now
+            let (bytes, response) = try await URLSession.shared.data(from:
+                address.deletingLastPathComponent().appendingPathComponent(playlist.name(for: index)))
+            let elapsed = began.duration(to: .now)
+            print("CarPlay VOD prefetch \(index): \(elapsed)")
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            XCTAssertFalse(bytes.isEmpty)
+            XCTAssertEqual(bytes.count % 188, 0, "Only complete transport segments may reach the receiver")
+            XCTAssertLessThan(elapsed, .seconds(previous.upperBound - previous.lowerBound),
+                              "The next segment must be ready before the current buffer has played")
+        }
     }
 
     func testConvertedCarPlayEpisodeHasAFiniteNativeTimelineAndCanSeek() async throws {
@@ -352,6 +436,28 @@ final class VehiclePlaybackTests: XCTestCase {
             try await Task.sleep(for: .milliseconds(30))
         }
         XCTAssertNotNil(frame, "Seeking must decode the target video frame")
+    }
+
+    func testConvertedCarPlayVideoDecodesAcrossSegmentBoundariesWithoutASecondPlay() async throws {
+        let source = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "InlineVideo", withExtension: "mkv"))
+        let playback = PlaybackController()
+        defer { playback.stop() }
+        playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+        try playback.play(url: source, requiresExternalPlayback: false, live: false)
+        let output = AVPlayerItemVideoOutput(pixelBufferAttributes: nil)
+        var observedItem: AVPlayerItem?
+        var decodedSeconds = 0.0
+        let deadline = ContinuousClock.now + .seconds(24)
+        while ContinuousClock.now < deadline, decodedSeconds < 12.5, playback.state != .failed {
+            if let item = playback.player.currentItem {
+                if item !== observedItem { item.add(output); observedItem = item }
+                var frameTime = CMTime.invalid
+                if output.copyPixelBuffer(forItemTime: playback.player.currentTime(), itemTimeForDisplay: &frameTime) != nil,
+                   frameTime.isNumeric { decodedSeconds = max(decodedSeconds, frameTime.seconds) }
+            }
+            try await Task.sleep(for: .milliseconds(100))
+        }
+        XCTAssertGreaterThanOrEqual(decodedSeconds, 12.5, "The third segment must display without a seek or another Play command")
     }
 
     func testCarPlayStartsPlaybackOnlyAfterWaitingScreenAndSelectionHandlerFinish() async throws {
@@ -403,7 +509,7 @@ final class VehiclePlaybackTests: XCTestCase {
         var completed = 0
         CarPlayFavoritesMenu.update(template, entries: entries, sourceNames: [sourceA: "A", sourceB: "B"],
                                     supportsVideo: true, open: { favorite, completion in
-            selected.append(favorite); completion()
+            selected.append(favorite); completion(favorite.series == nil)
         }, page: { _ in XCTFail("Selecting content must not change pages") })
         let items = try XCTUnwrap(template.sections.first).items.compactMap { $0 as? CPListItem }
         XCTAssertEqual(items.map(\.text), ["Coast", episode.title, movie.title])
@@ -448,7 +554,7 @@ final class VehiclePlaybackTests: XCTestCase {
         XCTAssertFalse(template.emptyViewSubtitleVariants.isEmpty)
     }
 
-    func testCarPlayRequestsAutomaticVideoForLiveMoviesAndEpisodesAndAudioForRadio() throws {
+    func testCarPlayPreparesSelectionsBeforePublishingVideoAndCanSelectAgain() throws {
         let channels = [
             MediaChannel(title: "Live", url: URL(string: "https://example.com/live/1.m3u8")!),
             MediaChannel(title: "Movie", url: URL(string: "https://example.com/movie/2.mp4")!),
@@ -459,14 +565,25 @@ final class VehiclePlaybackTests: XCTestCase {
         let template = CPListTemplate(title: "Favorites", sections: [])
         for supportsVideo in [true, false] {
             CarPlayFavoritesMenu.update(template, entries: entries, supportsVideo: supportsVideo,
-                open: { _, _ in }, page: { _ in })
+                open: { _, completed in completed(true) }, page: { _ in })
             let items = try XCTUnwrap(template.sections.first).items.compactMap { $0 as? CPListItem }
             XCTAssertEqual(items.count, 4)
             if #available(iOS 26.4, *) {
-                let presentations = try items.map { try XCTUnwrap($0.playbackConfiguration).preferredPresentation }
+                XCTAssertTrue(items.allSatisfy { $0.playbackConfiguration?.preferredPresentation == .audio },
+                              "Selection must reach the app before requesting a video route")
                 let expected: [CPPlaybackConfiguration.Presentation] = supportsVideo
                     ? [.video, .video, .video, .audio] : [.audio, .audio, .audio, .audio]
-                XCTAssertEqual(presentations, expected)
+                for (item, expectedPresentation) in zip(items, expected) {
+                    var completed = false
+                    try XCTUnwrap(item.handler)(item) {
+                        completed = true
+                        XCTAssertEqual(item.playbackConfiguration?.preferredPresentation, expectedPresentation)
+                    }
+                    XCTAssertTrue(completed)
+                }
+                CarPlayPlaybackTransition.resetSelections(in: template)
+                XCTAssertTrue(items.allSatisfy { $0.playbackConfiguration?.preferredPresentation == .audio },
+                              "Returning to a list must allow another selection even after playback stopped")
                 for (channel, expectedPresentation) in zip(channels, expected) {
                     let configuration = CarPlayPlaybackTransition.configuration(for: channel, supportsVideo: supportsVideo)
                     XCTAssertEqual(configuration.preferredPresentation, expectedPresentation)
@@ -474,6 +591,21 @@ final class VehiclePlaybackTests: XCTestCase {
                 }
             }
         }
+    }
+
+    func testFailedCarPlayPreparationKeepsSelectionRetryable() throws {
+        let favorite = FavoriteMedia(channel: MediaChannel(title: "Movie", url: URL(string: "https://example.com/movie/1.mp4")!), sourceID: nil)
+        let template = CPListTemplate(title: "Favorites", sections: [])
+        var attempts = 0, completed = 0
+        CarPlayFavoritesMenu.update(template, entries: [favorite], supportsVideo: true,
+            open: { _, done in attempts += 1; done(false) }, page: { _ in })
+        let item = try XCTUnwrap(template.sections.first?.items.first as? CPListItem)
+        for _ in 0..<2 {
+            try XCTUnwrap(item.handler)(item) { completed += 1 }
+            if #available(iOS 26.4, *) { XCTAssertEqual(item.playbackConfiguration?.preferredPresentation, .audio) }
+        }
+        XCTAssertEqual(attempts, 2)
+        XCTAssertEqual(completed, 2)
     }
 
     func testOfflineFavoriteResolvesOriginalChannelWithinItsSource() throws {
@@ -689,7 +821,7 @@ final class VehiclePlaybackTests: XCTestCase {
             window.isHidden = true; window.rootViewController = nil; previousWindow?.makeKeyAndVisible()
             SharedPreferences.defaults.set(previousLanguage, forKey: "language")
         }
-        let url = URL(string: "http://127.0.0.1:18779/Kiyi-Hikayeleri-S01-E01.mp4")!
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4"))
         let first = MediaChannel(title: "Kıyı Hikâyeleri S01-E01", url: url)
         let second = MediaChannel(title: "Kıyı Hikâyeleri S01-E02", url: url.appending(queryItems: [URLQueryItem(name: "episode", value: "2")]))
         model.externalScreenConnected(displayID, role: .carPlay, size: CGSize(width: 1000, height: 420))

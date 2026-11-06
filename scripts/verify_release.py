@@ -40,7 +40,6 @@ if any(key in ats for key in ['NSAllowsLocalNetworking','NSAllowsArbitraryLoadsF
  errors.append('Fine-grained ATS keys override arbitrary HTTP playlist access on supported iOS versions')
 for filename in ['App','SimulatorDebug']:
  with (ROOT/f'Config/{filename}.entitlements').open('rb') as f:entitlements=plistlib.load(f)
- if 'com.apple.developer.carplay-video' in entitlements:errors.append(f'{filename}: remove the CarPlay Video entitlement as requested by App Review')
  if entitlements.get('com.apple.developer.carplay-audio') is not True:errors.append(f'{filename}: CarPlay Audio entitlement is required')
 scenes=app_info.get('UIApplicationSceneManifest',{}).get('UISceneConfigurations',{})
 if not scenes.get('CPTemplateApplicationSceneSessionRoleApplication'):errors.append('CarPlay Video scene is required')

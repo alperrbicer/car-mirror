@@ -78,7 +78,7 @@ final class PersonalMediaIntegrationTests: XCTestCase {
                                                    (false, true, .video), (false, false, .audio)] {
             let playback = PlaybackController()
             defer { playback.stop() }
-            playback.updateConnectedDisplays(carPlay: true, externalTV: false, supportsCarPlayVideo: true)
+            playback.updateConnectedDisplays(carPlay: true, externalTV: ownedDisplay, supportsCarPlayVideo: true)
             playback.setPlaysOnPhone(phone)
             playback.externalDisplayConnected = ownedDisplay
             try playback.play(url: file, preserveSourceAudio: false, requiresExternalPlayback: false,

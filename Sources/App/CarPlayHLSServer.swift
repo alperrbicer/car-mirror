@@ -187,7 +187,7 @@ final class CarPlayHLSServer: @unchecked Sendable {
             for (id, resource) in waiting {
                 pendingResources.removeValue(forKey: id)
                 clients[id]?.activity = Date()
-                respond(id, request: resource.request)
+                respond(id, request: resource.request, initialRequest: false)
             }
         }
     }
@@ -195,7 +195,7 @@ final class CarPlayHLSServer: @unchecked Sendable {
     private func retainSegment(_ index: Int) {
         cachedSegments.removeAll { $0 == index }
         cachedSegments.append(index)
-        // Eight 16-second, 4-Mbit segments stay well below the live server's
+        // Eight 6-second, 4-Mbit segments stay well below the live server's
         // storage ceiling. An evicted segment is generated again on a seek.
         while cachedSegments.count > 8 {
             let oldest = cachedSegments.removeFirst()
@@ -240,7 +240,7 @@ final class CarPlayHLSServer: @unchecked Sendable {
         }
     }
 
-    private func respond(_ id: UUID, request: Data) {
+    private func respond(_ id: UUID, request: Data, initialRequest: Bool = true) {
         guard let text = String(data: request, encoding: .utf8) else { reject(id, status: 400); return }
         let lines = text.components(separatedBy: "\r\n")
         let first = (lines.first ?? "").split(separator: " ")
@@ -270,6 +270,9 @@ final class CarPlayHLSServer: @unchecked Sendable {
                     return
                 }
                 retainSegment(index)
+                // Consuming a prefetched segment advances the producer's
+                // lookahead just as a cache miss does.
+                if initialRequest { onSegmentRequested?(index) }
             }
         }
         let manifest = name.hasSuffix(".m3u8") ? manifest(named: name) : nil
