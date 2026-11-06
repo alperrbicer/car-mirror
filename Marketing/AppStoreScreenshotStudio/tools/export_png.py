@@ -32,17 +32,28 @@ def parse_args():
     parser.add_argument('--lang', '--locale', dest='lang', default='all', help='Locale code or all (default: all)')
     parser.add_argument('--device', choices=['iphone', 'ipad', 'all'], default='all')
     parser.add_argument('--slide', type=int, choices=range(1, 7), default=1, help='Master number (default: 1)')
+    parser.add_argument('--slides', help='Comma-separated master numbers, for example 1,3,5')
+    parser.add_argument('--all-slides', action='store_true', help='Export all six masters for the selected locales and devices')
     parser.add_argument('--all', action='store_true', help='Export all supplied masters, locales, and devices')
     parser.add_argument('--output', default=str(OUTPUT))
     parser.add_argument('--chrome', default=None, help='Optional local Chromium executable path')
     args = parser.parse_args()
     if args.all:
-        args.lang, args.device, args.slide = 'all', 'all', None
+        args.lang, args.device, args.slides = 'all', 'all', '1,2,3,4,5,6'
+    if args.slides:
+        try:
+            slides = sorted({int(value) for value in args.slides.split(',')})
+        except ValueError:
+            parser.error('--slides must be a comma-separated list of numbers from 1 to 6')
+        if not slides or any(slide < 1 or slide > 6 for slide in slides):
+            parser.error('--slides must contain one or more numbers from 1 to 6')
+    else:
+        slides = list(range(1, 7)) if args.all_slides or args.slide is None else [args.slide]
     translation_text = (ROOT / 'translations.js').read_text(encoding='utf-8')
-    available = re.findall(r"^\s*'([a-z]{2}-[A-Z]{2})':\[", translation_text, flags=re.MULTILINE)
+    available = re.findall(r"^\s*['\"]([A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)['\"]\s*:\s*\[", translation_text, flags=re.MULTILINE)
     if args.lang != 'all' and args.lang not in available:
         parser.error('Unknown locale. Defined locales: ' + ', '.join(available))
-    return args, available
+    return args, available, slides
 
 
 def compile_html(slide: int, lang: str, device: str) -> tuple[str, dict[str, str]]:
@@ -106,10 +117,9 @@ def save_contact_sheets(rendered, output: Path):
 
 
 def main():
-    args, available = parse_args()
+    args, available, slides = parse_args()
     langs = available if args.lang == 'all' else [args.lang]
     devices = list(SIZES) if args.device == 'all' else [args.device]
-    slides = list(range(1, 7)) if args.slide is None else [args.slide]
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     srgb = ImageCms.ImageCmsProfile(ImageCms.createProfile('sRGB')).tobytes()

@@ -1,6 +1,6 @@
 # Mirivo Screenshot Studio V2
 
-Studio tasarımı yüklediğin `mirivo-screenshot-studio-v2.zip` paketinden alınmıştır. Altı sabit HTML/CSS master, ZIP’teki CSS cihaz sahneleri, Türkçe/İngilizce/Almanca metinler ve iPhone/iPad önizlemesi korunmuştur. Önceki prototipin tasarım ve Sharp fallback render’ı etkin modülden çıkarıldı; eski dosyalar yalnızca `work/legacy-first-prototype/` altında arşivlendi.
+Studio tasarımı yüklediğin `mirivo-screenshot-studio-v2.zip` paketinden alınmıştır. Altı sabit HTML/CSS master, ZIP’teki CSS cihaz sahneleri, 22 uygulama dilindeki mağaza görseli metinleri ve iPhone/iPad önizlemesi korunmuştur. Önceki prototipin tasarım ve Sharp fallback render’ı etkin modülden çıkarıldı; eski dosyalar yalnızca `work/legacy-first-prototype/` altında arşivlendi.
 
 ## Yerel önizleme
 
@@ -29,13 +29,13 @@ Varsayılan komut Screenshot 01’i üç örnek dilde ve iki cihaz boyutunda ür
 
 PNG’ler `outputs/app-store-screenshots/{locale}/{device}/{01..06}.png` altında oluşur. Üretici boyutları denetler, sRGB ICC profilini ekler, her sayfayı iki kez yakalayıp byte hash’lerini karşılaştırır; font ve yatay metin taşmasını kontrol eder. Eksik screenshot slot’ları sessizce gizlenmez: placeholder görünür ve `render-report.json` içinde listelenir. Contact sheet’ler ve kalite raporu aynı çıktı klasörüne yazılır.
 
+Stüdyo panelindeki **Tüm ekranlar · tüm diller ve cihazlar (ZIP)** düğmesi, desteklenen tüm dillerin altı masterını iPhone ve iPad boyutlarında üretip PNG’leri, contact sheet’leri ve render raporunu tek ZIP olarak indirir.
+
 ## Gerçek asset’ler
 
 - Resmî `MirivoMark.svg`, `assets/MirivoMark.svg` içine eklendi.
-- `assets/screens/01-phone.png`, repo’daki gerçek `01-buyuk-ekran.png` görüntüsüdür ve telefon çerçevesinde kullanılır.
-- Tablet çerçevesi Screenshot 01’de bilerek boş bırakılır. Önceki gerçek iPad ekran dosyası kaynak olarak klasörde korunur ancak renderer bu slot’u dışarıda bırakır.
-- ZIP’te TV ve CarPlay ekran görüntüleri yoktu. Bu iki slot placeholder kalır. Master 02–06 için gerekli screenshot’lar da mevcut değil; uydurma uygulama ekranı eklenmedi.
-- [asset-provenance.json](asset-provenance.json) kaynakları ve eksikleri kaydeder.
+- `assets/screens/` içinde altı masterın kullandığı telefon, tablet, TV ve araç ekran görselleri bulunur.
+- Görsel kaynakları ve işleme notları [asset-provenance.json](asset-provenance.json) içinde kayıtlıdır. Son render raporu `outputs/app-store-screenshots/render-report.json` dosyasındadır.
 
 ZIP README’sindeki gibi bazı pazarlama metinleri özellik iddiası içeriyor. Bu prototip metinleri Mirivo uygulama build’ine ve App Store uygunluğuna göre ayrıca onaylanmalı.
 

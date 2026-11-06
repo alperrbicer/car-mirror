@@ -15,19 +15,21 @@
           <p class="studio-sub">ZIP’teki altı katmanlı HTML/CSS master · Üst atmosfer ışıkları · Mirivo marka alanı</p>
         </div>
         <div class="controls">
-          <label for="lang">Dil</label><select id="lang"></select>
+          <label for="lang">Dil</label><select id="lang" aria-label="Mağaza görseli dili"></select>
           <label for="device">Cihaz</label>
-          <select id="device"><option value="iphone">iPhone · Portrait</option><option value="ipad">iPad · Landscape</option></select>
+          <select id="device" aria-label="Cihaz boyutu"><option value="iphone">iPhone · Portrait</option><option value="ipad">iPad · Landscape</option></select>
           <div class="export-controls">
-            <button id="export-one">01 PNG dışa aktar</button>
-            <button id="export-locale">01 · bu dilin tüm cihazları</button>
-            <button id="export-all">01 · tüm diller</button>
+            <button id="export-one" type="button" class="primary">Seçili ekranları indir</button>
+            <button id="export-locale" type="button">Seçilenler · bu dilde iPhone ve iPad</button>
+            <button id="export-all" type="button">Seçilenler · tüm diller ve cihazlar</button>
+            <button id="export-all-screens" type="button">Tüm ekranlar · tüm diller ve cihazlar (ZIP)</button>
+            <div id="selected-count" aria-live="polite"></div>
             <div id="export-result" role="status" aria-live="polite"></div>
           </div>
         </div>
       </div>
       <div class="studio-grid" id="grid"></div>
-      <p class="studio-note"><strong>Not:</strong> Gerçek ekran görüntüsü bulunan alanlarda yalnızca bu görseller gösterilir. ZIP’te bulunmayan TV/CarPlay ve diğer screenshot asset’leri placeholder kalır. Görselleri <code>assets/screens/</code> içine eklediğinde otomatik yüklenir. Orijinal logo <code>assets/MirivoMark.svg</code> konumundadır. Bu aşamadaki PNG export yalnızca Screenshot 01 içindir.</p>
+      <p class="studio-note"><strong>Seçim:</strong> Birden fazla ekran kartını seçebilir veya seçimi kaldırabilirsin. İlk üç dışa aktarma düğmesi seçili ekranları kullanır; tüm ekranlar düğmesi altı ekranı bütün diller ve cihazlarla ZIP’e koyar. Çıktılar <code>outputs/app-store-screenshots/</code> altında tutulur.</p>
     </div>
     <script src="translations.js"></script>
     <script>
@@ -35,26 +37,63 @@
       const grid = document.getElementById('grid');
       const lang = document.getElementById('lang');
       const device = document.getElementById('device');
-      const languageNames = { 'tr-TR': 'Türkçe', 'en-US': 'English', 'de-DE': 'Deutsch' };
+      const selectedCount = document.getElementById('selected-count');
+      const selectedSlides = new Set([1]);
+      const languageNames = {
+        'tr-TR': 'Türkçe', 'en-US': 'English', 'de-DE': 'Deutsch', 'zh-Hans': '简体中文', 'zh-Hant': '繁體中文',
+        'ja-JP': '日本語', 'ko-KR': '한국어', 'fr-FR': 'Français', 'es-ES': 'Español', 'it-IT': 'Italiano',
+        'pt-BR': 'Português (Brasil)', 'ru-RU': 'Русский', 'nl-NL': 'Nederlands', 'pl-PL': 'Polski',
+        'sv-SE': 'Svenska', 'uk-UA': 'Українська', 'ar-SA': 'العربية', 'he-IL': 'עברית',
+        'th-TH': 'ไทย', 'vi-VN': 'Tiếng Việt', 'id-ID': 'Bahasa Indonesia', 'hi-IN': 'हिन्दी'
+      };
       for (const code of Object.keys(window.MIRIVO_LOCALES)) {
         const option = document.createElement('option'); option.value = code; option.textContent = languageNames[code] || code; lang.appendChild(option);
+      }
+      function updateSelection() {
+        selectedCount.textContent = `${selectedSlides.size} ekran seçili`;
+        for (const id of ['export-one', 'export-locale', 'export-all']) {
+          document.getElementById(id).disabled = selectedSlides.size === 0;
+        }
+        for (const card of grid.querySelectorAll('.studio-card')) {
+          const selected = selectedSlides.has(Number(card.dataset.slide));
+          card.classList.toggle('selected', selected);
+          const button = card.querySelector('.select-master');
+          button.setAttribute('aria-pressed', String(selected));
+          button.textContent = selected ? 'Seçili · kaldır' : 'Seç';
+        }
       }
       function draw() {
         grid.innerHTML = '';
         for (let n = 1; n <= 6; n++) {
           const path = `screenshot-${String(n).padStart(2, '0')}.html?lang=${encodeURIComponent(lang.value)}&device=${device.value}`;
-          const card = document.createElement('div'); card.className = 'studio-card';
-          card.innerHTML = `<div class="preview-wrap"><iframe title="Screenshot ${n}" loading="eager" src="${path}"></iframe></div><div class="card-bottom"><div><div class="card-title">${String(n).padStart(2, '0')} · ${names[n - 1]}</div><div class="card-desc">V2 HTML/CSS Master</div></div><a href="${path}" target="_blank" rel="noopener">Büyük Aç</a></div>`;
+          const selected = selectedSlides.has(n);
+          const card = document.createElement('div'); card.className = `studio-card${selected ? ' selected' : ''}`; card.dataset.slide = String(n);
+          card.innerHTML = `<div class="preview-wrap"><iframe title="Screenshot ${n}" loading="eager" src="${path}"></iframe></div><div class="card-bottom"><div><div class="card-title">${String(n).padStart(2, '0')} · ${names[n - 1]}</div><div class="card-desc">V2 HTML/CSS Master</div></div><div class="card-actions"><button class="select-master" type="button" aria-pressed="${selected}">${selected ? 'Seçili · kaldır' : 'Seç'}</button><a href="${path}" target="_blank" rel="noopener">Büyük Aç</a></div></div>`;
+          const toggle = () => {
+            if (selectedSlides.has(n)) selectedSlides.delete(n); else selectedSlides.add(n);
+            updateSelection();
+          };
+          card.querySelector('.select-master').addEventListener('click', toggle);
+          card.addEventListener('click', (event) => { if (!event.target.closest('a,button')) toggle(); });
           grid.appendChild(card);
         }
         document.querySelectorAll('.preview-wrap').forEach((el) => { el.style.height = device.value === 'ipad' ? '280px' : '580px'; });
+        updateSelection();
       }
       async function exportPng(scope) {
         const result = document.getElementById('export-result');
         const buttons = [...document.querySelectorAll('.export-controls button')];
-        result.textContent = 'PNG hazırlanıyor…'; buttons.forEach((button) => { button.disabled = true; });
+        if (scope !== 'all-screens' && selectedSlides.size === 0) {
+          result.textContent = 'Önce en az bir ekran seç.';
+          return;
+        }
+        const slides = [...selectedSlides].sort((a, b) => a - b);
+        result.textContent = scope === 'all-screens'
+          ? `Tüm ekranlar hazırlanıyor (${Object.keys(window.MIRIVO_LOCALES).length * 12} PNG)…`
+          : `${slides.length} seçili ekran hazırlanıyor…`;
+        buttons.forEach((button) => { button.disabled = true; });
         try {
-          const query = new URLSearchParams({ scope, locale: lang.value, device: device.value });
+          const query = new URLSearchParams({ scope, locale: lang.value, device: device.value, slides: slides.join(',') });
           const response = await fetch(`/api/export?${query}`);
           if (!response.ok) throw new Error(await response.text());
           const data = await response.json();
@@ -71,6 +110,7 @@
       document.getElementById('export-one').addEventListener('click', () => exportPng('single'));
       document.getElementById('export-locale').addEventListener('click', () => exportPng('locale'));
       document.getElementById('export-all').addEventListener('click', () => exportPng('all'));
+      document.getElementById('export-all-screens').addEventListener('click', () => exportPng('all-screens'));
     </script>
   </body>
 </html>

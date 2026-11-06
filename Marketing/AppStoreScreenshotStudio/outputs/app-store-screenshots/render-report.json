@@ -7,13 +7,22 @@
     1
   ],
   "devices": [
-    "iphone"
+    "iphone",
+    "ipad"
   ],
   "assets": {
     "logo": "assets/MirivoMark.svg",
     "presentScreenshots": [
       "assets/screens/01-phone.png",
-      "assets/screens/01-tablet.png"
+      "assets/screens/01-tablet.png",
+      "assets/screens/01-tv.png",
+      "assets/screens/01-car.png",
+      "assets/screens/02-phone.png",
+      "assets/screens/03-tv.png",
+      "assets/screens/04-car.png",
+      "assets/screens/05-library.png",
+      "assets/screens/05-detail.png",
+      "assets/screens/06-player.png"
     ],
     "intentionallyBlankScreens": [],
     "missingScreenSlots": []
@@ -29,14 +38,26 @@
   "files": [
     {
       "file": "outputs/app-store-screenshots/tr-TR/iphone/01.png",
-      "bytes": 2770167,
-      "sha256": "df6957dc066b1358ac4ac5e4d8a1831314dd2372a335afe7c63e6552702d21cf",
+      "bytes": 2984699,
+      "sha256": "b4547c127baed1351d075d990cdecbf2c4098add973f7daab695c54151bf5893",
       "width": 1320,
       "height": 2868,
       "opaque": true,
       "embeddedSrgbProfile": true,
       "locale": "tr-TR",
       "device": "iphone",
+      "slide": 1
+    },
+    {
+      "file": "outputs/app-store-screenshots/tr-TR/ipad/01.png",
+      "bytes": 4683751,
+      "sha256": "56c30f75eee421029b1bc89640ae82a9470a55bf1ad6c340b47535a30c46c70a",
+      "width": 2752,
+      "height": 2064,
+      "opaque": true,
+      "embeddedSrgbProfile": true,
+      "locale": "tr-TR",
+      "device": "ipad",
       "slide": 1
     }
   ]
