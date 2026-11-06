@@ -72,13 +72,13 @@ struct CarPlayConnectionView: View {
     }
 
     private var videoSupported: Bool {
-        model.carPlayConnected && (model.hasCarPlayDisplay || model.supportsVideo == true)
+        model.carPlayConnected || model.hasCarPlayDisplay
     }
 
     private var videoSupportStatus: String {
         if videoSupported { return L10n.tr("Araç ekranında video destekleniyor.") }
         if model.carPlayConnected && model.supportsVideo == false {
-            return L10n.tr("Bu araç CarPlay video oynatmayı desteklemiyor.")
+            return L10n.tr("Video desteği henüz doğrulanmadı.")
         }
         return L10n.tr("Video desteği henüz doğrulanmadı.")
     }
@@ -571,7 +571,7 @@ struct CarPlayGuideContent: View {
                 .background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 24))
 
                 if model.supportsVideo == false && model.carPlayConnected && !model.hasCarPlayDisplay {
-                    Label(L10n.tr("Bu araç CarPlay video oynatmayı desteklemiyor."), systemImage: "info.circle")
+                    Label(L10n.tr("Video desteği henüz doğrulanmadı."), systemImage: "info.circle")
                         .font(.subheadline).foregroundStyle(MirrorStyle.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }

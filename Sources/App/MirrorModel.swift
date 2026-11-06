@@ -234,7 +234,7 @@ final class MirrorModel: ObservableObject {
             carPlayResumeRecord = nil
             return false
         }
-        let presentation: MediaPlaybackPresentation = supportsVideo == true && !saved.channel.isAudio ? .video : .audio
+        let presentation: MediaPlaybackPresentation = saved.channel.isAudio ? .audio : .video
         do {
             try playback.prepareCarPlayResume(saved, presentation: presentation) { [weak self] in
                 self?.resumePlayback(saved, presentation: presentation)
@@ -254,7 +254,7 @@ final class MirrorModel: ObservableObject {
     func playOnDisplay() {
         guard AppUpdateStore.shared.requiredURL == nil else { return }
         guard allowViewing() else { return }
-        guard supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil else {
+        guard carPlayConnected || externalScreenCount > 0 || playback.tvDevice != nil else {
             errorMessage = displayRequiredMessage
             return
         }
@@ -666,12 +666,12 @@ final class MirrorModel: ObservableObject {
 
     private func updateConnectedDisplays() {
         playback.updateConnectedDisplays(carPlay: carPlayConnected, externalTV: hasTVDisplay,
-                                         supportsCarPlayVideo: supportsVideo == true)
+                                         supportsCarPlayVideo: carPlayConnected)
         refreshPlaybackAccess()
     }
 
     func startVideoProbe() {
-        guard !broadcasting, carPlayConnected, supportsVideo == true,
+        guard !broadcasting, carPlayConnected,
               let url = Bundle.main.url(forResource: "ConnectionProbe", withExtension: "mp4") else { return }
         do {
             probeStartedAt = Date()
@@ -705,7 +705,7 @@ final class MirrorModel: ObservableObject {
     }
 
     private func updateSessionState() {
-        let next: MirrorSessionState = .resolve(capture: capture, displayConnected: supportsVideo == true || externalScreenCount > 0 || playback.tvDevice != nil,
+        let next: MirrorSessionState = .resolve(capture: capture, displayConnected: carPlayConnected || externalScreenCount > 0 || playback.tvDevice != nil,
             playbackSessionID: playbackSessionID, externalPlayback: playback.externalPlaybackActive || ((externalScreenCount > 0 || playback.tvDevice != nil) && playbackSessionID == capture?.sessionID),
             playing: playback.isPlaying, stopRequested: stopRequestedID == capture?.sessionID && stopRequestedID != nil,
             playbackFailed: playbackAttemptFailed || playback.errorMessage != nil)

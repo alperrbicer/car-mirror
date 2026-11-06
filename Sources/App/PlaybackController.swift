@@ -1630,20 +1630,42 @@ final class PlaybackController: ObservableObject {
             }
             remoteTargets.append((command, target))
         }
-        for (command, action) in [(center.playCommand, 0), (center.pauseCommand, 1), (center.togglePlayPauseCommand, 2), (center.stopCommand, 3)] {
-            command.isEnabled = action != 1 || pendingCarPlayResume == nil
-            let target = command.addTarget { [weak self] _ in
-                Task { @MainActor in
-                    guard let self, self.hasActivePlayback || self.pendingCarPlayResume != nil else { return }
-                    if action == 0 { self.resume() }
-                    else if action == 1 || action == 2 { self.togglePlayPause() }
-                    else if let onRemoteStop = self.onRemoteStop { onRemoteStop() }
-                    else { self.stop() }
-                }
-                return .success
+        center.playCommand.isEnabled = true
+        let playTarget = center.playCommand.addTarget { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.hasActivePlayback || self.pendingCarPlayResume != nil else { return }
+                self.resume()
             }
-            remoteTargets.append((command, target))
+            return .success
         }
+        remoteTargets.append((center.playCommand, playTarget))
+
+        center.pauseCommand.isEnabled = pendingCarPlayResume == nil
+        let pauseTarget = center.pauseCommand.addTarget { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.hasActivePlayback else { return }
+                self.pause()
+            }
+            return .success
+        }
+        remoteTargets.append((center.pauseCommand, pauseTarget))
+
+        center.togglePlayPauseCommand.isEnabled = false
+
+        // The app's CarPlay list header already provides the session Stop
+        // button. Exposing MPRemoteCommandCenter's Stop as well creates a
+        // second square control in the live MiniPlayer, where it can be
+        // mistaken for Pause. Keep the system transport on Play/Pause only.
+        center.stopCommand.isEnabled = false
+        let stopTarget = center.stopCommand.addTarget { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.hasActivePlayback || self.pendingCarPlayResume != nil else { return }
+                if let onRemoteStop = self.onRemoteStop { onRemoteStop() }
+                else { self.stop() }
+            }
+            return .success
+        }
+        remoteTargets.append((center.stopCommand, stopTarget))
         for (command, offset) in [(center.previousTrackCommand, -1), (center.nextTrackCommand, 1)] {
             let target = command.addTarget { [weak self] _ in
                 Task { @MainActor in self?.changeTrack(offset) }

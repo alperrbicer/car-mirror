@@ -54,8 +54,9 @@ struct LastPlaybackRecord: Codable, Equatable, Identifiable {
 /// Credential-bearing resume URLs stay in device-only Keychain storage.
 @MainActor
 final class LastPlaybackStore: ObservableObject {
-    static let shared = LastPlaybackStore()
+    static let shared = LastPlaybackStore(clearOnFirstLaunch: true)
     static let maximumEntries = 30
+    private static let firstLaunchKey = "mirivo.installation.initialized"
     @Published private(set) var record: LastPlaybackRecord?
     @Published private(set) var entries: [LastPlaybackRecord] = []
     private struct Snapshot: Codable {
@@ -68,23 +69,46 @@ final class LastPlaybackStore: ObservableObject {
          kSecAttrService as String: "com.alperbicer.carmirror.last-playback",
          kSecAttrAccount as String: account]
     }
-    init(account: String = "last-watched") {
+    init(account: String = "last-watched", clearOnFirstLaunch: Bool = false) {
         self.account = account
-        var read = query
-        read[kSecReturnData as String] = true; read[kSecMatchLimit as String] = kSecMatchLimitOne
-        var result: CFTypeRef?
-        if SecItemCopyMatching(read as CFDictionary, &result) == errSecSuccess, let data = result as? Data {
-            if let saved = try? JSONDecoder().decode(Snapshot.self, from: data) {
-                record = saved.record
-                var seen: Set<String> = []
-                entries = Array((saved.entries + [saved.record].compactMap { $0 }).filter { $0.isInProgress }
-                    .sorted { $0.updatedAt > $1.updatedAt }
-                    .filter { seen.insert($0.id).inserted }.prefix(Self.maximumEntries))
-            } else if let legacy = try? JSONDecoder().decode(LastPlaybackRecord.self, from: data) {
-                record = legacy
-                if legacy.isInProgress { entries = [legacy] }
+        let shouldLoadSavedRecord = !clearOnFirstLaunch || Self.clearKeychainRecordOnFirstLaunch(account: account)
+        if shouldLoadSavedRecord {
+            var read = query
+            read[kSecReturnData as String] = true; read[kSecMatchLimit as String] = kSecMatchLimitOne
+            var result: CFTypeRef?
+            if SecItemCopyMatching(read as CFDictionary, &result) == errSecSuccess, let data = result as? Data {
+                if let saved = try? JSONDecoder().decode(Snapshot.self, from: data) {
+                    record = saved.record
+                    var seen: Set<String> = []
+                    entries = Array((saved.entries + [saved.record].compactMap { $0 }).filter { $0.isInProgress }
+                        .sorted { $0.updatedAt > $1.updatedAt }
+                        .filter { seen.insert($0.id).inserted }.prefix(Self.maximumEntries))
+                } else if let legacy = try? JSONDecoder().decode(LastPlaybackRecord.self, from: data) {
+                    record = legacy
+                    if legacy.isInProgress { entries = [legacy] }
+                }
             }
         }
+    }
+    private static func clearKeychainRecordOnFirstLaunch(account: String) -> Bool {
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: firstLaunchKey) != nil { return true }
+        // This preference existed before the install marker. Preserve history
+        // for users upgrading an existing installation; a reinstall starts
+        // with a fresh defaults container but can still have the old Keychain item.
+        if defaults.bool(forKey: "mirivo.onboarding.completed") {
+            defaults.set(true, forKey: firstLaunchKey)
+            return true
+        }
+        let item: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "com.alperbicer.carmirror.last-playback",
+            kSecAttrAccount as String: account
+        ]
+        let status = SecItemDelete(item as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { return false }
+        defaults.set(true, forKey: firstLaunchKey)
+        return true
     }
     func save(_ record: LastPlaybackRecord) throws {
         guard ["http", "https"].contains(record.url.scheme?.lowercased() ?? "") else { throw LibraryError.unsupportedURL }

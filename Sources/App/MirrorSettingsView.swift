@@ -254,7 +254,7 @@ private struct ConnectionTestView: View {
             }
             Section {
                 Button(L10n.tr("CarPlay video testini başlat")) { model.startVideoProbe() }
-                    .disabled(model.broadcasting || !model.carPlayConnected || model.supportsVideo != true)
+                    .disabled(model.broadcasting || !model.carPlayConnected)
                 Button(L10n.tr("Harici ekran desenini başlat")) { model.startExternalProbe() }
                     .disabled(model.broadcasting || model.externalScreenCount == 0)
                 Button(L10n.tr("Testi durdur"), role: .destructive) { model.stopProbe() }

@@ -62,15 +62,15 @@ enum PlayerFullscreenRotationPolicy {
 
 struct LibraryView: View {
     let openPlayer: () -> Void
+    let presentSourceEditor: (SourceEditorRoute) -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject private var library = SourceLibrary.shared
     @ObservedObject private var model = MirrorModel.shared
-    @State private var sourceEditorRoute: SourceEditorRoute?
     @State private var refreshingSources: Set<UUID> = []
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: library.sources.isEmpty ? 18 : 24) {
             libraryHeader
             NavigationLink { FavoritesBrowser(model: model) } label: {
                 Label(L10n.tr("Favoriler"), systemImage: "heart.fill")
@@ -139,7 +139,7 @@ struct LibraryView: View {
                                     }.disabled(refreshingSources.contains(source.id))
                                 }
                                 Button(L10n.tr("Düzenle"), systemImage: "pencil") {
-                                    sourceEditorRoute = .edit(SourceEditDraft(source: source))
+                                    presentSourceEditor(.edit(SourceEditDraft(source: source)))
                                 }
                                 Button(role: .destructive) {
                                     do { try library.delete(source) }
@@ -183,12 +183,6 @@ struct LibraryView: View {
                 .overlay { RoundedRectangle(cornerRadius: 20).strokeBorder(MirrorStyle.hairline) }
                 .shadow(color: .black.opacity(0.3), radius: 16)
                 .allowsHitTesting(false).accessibilityElement(children: .contain).accessibilityIdentifier("source-refresh-progress")
-            }
-        }
-        .sheet(item: $sourceEditorRoute) { route in
-            switch route {
-            case .add(let kind): SourceEditorView(initialKind: kind)
-            case .edit(let draft): SourceEditorView(source: draft.source)
             }
         }
         .alert(BrandIdentity.name, isPresented: Binding(get: { library.message != nil }, set: { if !$0 { library.message = nil } })) {
@@ -240,7 +234,7 @@ struct LibraryView: View {
                     .frame(width: 158, height: 98).rotationEffect(.degrees(7)).offset(x: 24, y: 10)
                 Image(systemName: "play.fill").font(.system(size: 25, weight: .medium))
                     .foregroundStyle(MirrorStyle.accent).offset(x: 26, y: 10)
-            }.frame(maxWidth: .infinity).frame(height: 140).accessibilityHidden(true)
+            }.frame(maxWidth: .infinity).frame(height: 110).accessibilityHidden(true)
             VStack(spacing: 0) {
                 sourceType("Oynatma listesi", detail: "M3U", icon: "list.bullet.rectangle", kind: .playlist)
                 Rectangle().fill(MirrorStyle.hairline).frame(height: 1)
@@ -249,7 +243,7 @@ struct LibraryView: View {
                 sourceType("IPTV sunucusu", detail: "Xtream Codes", icon: "server.rack", kind: .xtream)
                 Divider().overlay(MirrorStyle.hairline)
                 sourceType("Dosyadan oynatma listesi", detail: "M3U / M3U8", icon: "doc", kind: .playlistFile)
-            }.padding(.horizontal, 22).padding(.bottom, 8)
+            }.padding(.horizontal, 18).padding(.bottom, 4)
         }
         .background(MirrorStyle.surface.opacity(0.65), in: RoundedRectangle(cornerRadius: 28))
         .overlay { RoundedRectangle(cornerRadius: 28).strokeBorder(MirrorStyle.hairline) }
@@ -262,7 +256,7 @@ struct LibraryView: View {
         return Button { add(kind: kind) } label: {
             layout {
                 HStack(spacing: 12) {
-                    Image(systemName: icon).font(.system(size: 18)).frame(width: 22)
+                    Image(systemName: icon).font(.system(size: 17)).frame(width: 22)
                         .foregroundStyle(MirrorStyle.accent).accessibilityHidden(true)
                     Text(L10n.tr(title)).font(.subheadline).foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
@@ -274,8 +268,8 @@ struct LibraryView: View {
                     Image(systemName: "plus.circle").foregroundStyle(MirrorStyle.accent).accessibilityHidden(true)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 12 : 4)
+            .frame(maxWidth: .infinity, minHeight: dynamicTypeSize.isAccessibilitySize ? 64 : 50, alignment: .leading)
+            .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 12 : 2)
             .contentShape(Rectangle()).accessibilityElement(children: .combine)
         }.buttonStyle(.plain).accessibilityIdentifier("add-source-\(kind.rawValue)")
     }
@@ -287,11 +281,11 @@ struct LibraryView: View {
     }
 
     private func add(kind: MediaSourceKind = .playlist) {
-        sourceEditorRoute = .add(kind)
+        presentSourceEditor(.add(kind))
     }
 }
 
-private enum SourceEditorRoute: Identifiable {
+enum SourceEditorRoute: Identifiable {
     case add(MediaSourceKind)
     case edit(SourceEditDraft)
 
@@ -730,12 +724,12 @@ private struct SourceExpiryView: View {
     }
 }
 
-private struct SourceEditDraft: Identifiable {
+struct SourceEditDraft: Identifiable {
     let source: MediaSource
     var id: UUID { source.id }
 }
 
-private struct SourceEditorView: View {
+struct SourceEditorView: View {
     private let source: MediaSource?
     @State private var originalSecret: SourceSecret?
     @Environment(\.dismiss) private var dismiss
@@ -1599,6 +1593,7 @@ struct NowPlayingBar: View {
     @ObservedObject private var model: MirrorModel
     @ObservedObject private var playback: PlaybackController
     @ObservedObject private var history = LastPlaybackStore.shared
+    @ObservedObject private var library = SourceLibrary.shared
     let open: () -> Void
     init(model: MirrorModel? = nil, open: @escaping () -> Void) {
         let model = model ?? .shared
@@ -1607,8 +1602,10 @@ struct NowPlayingBar: View {
     }
     private var active: Bool { model.mediaTitle != nil && playback.hasActivePlayback }
     private var saved: LastPlaybackRecord? {
-        guard !model.hidesSavedPlaybackBar, !model.broadcasting, let last = history.record,
-              !last.isFinished else { return nil }
+        guard !library.sources.isEmpty,
+              !model.hidesSavedPlaybackBar, !model.broadcasting, let last = history.record,
+              !last.isFinished,
+              last.sourceID == nil || library.sources.contains(where: { $0.id == last.sourceID }) else { return nil }
         return last
     }
     var body: some View {

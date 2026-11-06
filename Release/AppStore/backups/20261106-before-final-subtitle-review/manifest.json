@@ -1,0 +1,94 @@
+{
+  "created_at": "2026-11-06",
+  "purpose": "Exact pre-edit copy of all 22 App Store locale metadata files",
+  "files": {
+    "ar/metadata.json": {
+      "sha256": "92113a794dd5fc4847f90e3cbe2baf176b9eed63896fa49363a66e820ffd759b",
+      "bytes": 5510
+    },
+    "de/metadata.json": {
+      "sha256": "a2bb45cc3b2e05edb992b0202cfa01e481f2a1f79af51153140273c41d32b431",
+      "bytes": 4244
+    },
+    "en/metadata.json": {
+      "sha256": "75b6e4f509cd1d16eb05cffe28fb2077c5f9cc8a325e0bb775fdf6bec0b3b629",
+      "bytes": 3941
+    },
+    "es/metadata.json": {
+      "sha256": "27279a03efed0d27284d0a3c0f9e6fc764c5f8074c808b81310c1d07d55f0636",
+      "bytes": 4360
+    },
+    "fr/metadata.json": {
+      "sha256": "d1344d8c431943a78302e2e87244b476601074dac2e71b66f803d20c646e49da",
+      "bytes": 4578
+    },
+    "he/metadata.json": {
+      "sha256": "25fa9e5460b4e8510edef8df4821d1613601378a0754548d62e3243f9b59e8f1",
+      "bytes": 5179
+    },
+    "hi/metadata.json": {
+      "sha256": "5aaad3e64a3fc5bcba27db3136cd265f32a3441ef5733d1e95a9dcf1f9d3b8a1",
+      "bytes": 8155
+    },
+    "id/metadata.json": {
+      "sha256": "8222078630c3a5a8fe0e9121475bd53ae89c5e50759e28f471686daa28d2014f",
+      "bytes": 4016
+    },
+    "it/metadata.json": {
+      "sha256": "9c5864b24e37a0565fef1cb3eea7e5f7d74f159aec39fae5bc8a1195e3ec9b92",
+      "bytes": 4178
+    },
+    "ja/metadata.json": {
+      "sha256": "e2790465d000d7d9159c1475a092bf1fea0f48f833af2284d5ef44f1e505ad98",
+      "bytes": 5019
+    },
+    "ko/metadata.json": {
+      "sha256": "a547f2402b66375b1a4ae16b7cff7552431dbad57c127366256945f8b4025373",
+      "bytes": 4777
+    },
+    "nl/metadata.json": {
+      "sha256": "cecb5137dbef7d77da9faffd2163f7cb8ce49594944cc415cfa39764db428082",
+      "bytes": 4113
+    },
+    "pl/metadata.json": {
+      "sha256": "4dde93eeb9b67e124ab804efdf37a1a1ea3c55c85766a221dcad5d03e19fe2cd",
+      "bytes": 4252
+    },
+    "pt-BR/metadata.json": {
+      "sha256": "239ed08cc77c723d9afe56fe938953d99dcd5cf643fcaf72ed86183b239832d9",
+      "bytes": 4231
+    },
+    "ru/metadata.json": {
+      "sha256": "88e94348f562c067de69811dcc42bd948fe5a568f80f372c49945b019eee8de6",
+      "bytes": 6826
+    },
+    "sv/metadata.json": {
+      "sha256": "9d3b1efd42ae4a8b5de1f6d79c6380119f18ab8bd7482cc66dd5c73a43b46700",
+      "bytes": 4133
+    },
+    "th/metadata.json": {
+      "sha256": "afc870c9013fceba79abc37ddc6ebcca2bee7d8a22853914b0b360c66f42f58e",
+      "bytes": 8136
+    },
+    "tr/metadata.json": {
+      "sha256": "f774b81cf65231847113e78b96cee23c11b27364a90b567c43ad0a7c578f18eb",
+      "bytes": 4283
+    },
+    "uk/metadata.json": {
+      "sha256": "421d16f555ace4e5865c620db2ed7132d80a60b2a9527c1c9a7d3024f3f3a4b3",
+      "bytes": 6680
+    },
+    "vi/metadata.json": {
+      "sha256": "b53cd3407aba6abdf376f204f64a0300b9902ea29d9f7c25cd0d9c91a1d89b23",
+      "bytes": 4897
+    },
+    "zh-Hans/metadata.json": {
+      "sha256": "6595b0b7ecb857f9a25b1c45cffdb73a81936c5f02c085570312e98e58e05261",
+      "bytes": 3676
+    },
+    "zh-Hant/metadata.json": {
+      "sha256": "d5b45f589240ec07fed1aed01532a8c36864a3ca1ab9aba4a2c74184c16394af",
+      "bytes": 3680
+    }
+  }
+}

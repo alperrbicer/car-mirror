@@ -12,6 +12,8 @@ struct MirivoRootView: View {
     @State private var appliedInitialPage: Bool
     @State private var showingSettings = false
     @State private var showingPlayer = false
+    @State private var sourceEditorRoute: SourceEditorRoute?
+    @State private var isSwitchingPage = false
     @ObservedObject private var library = SourceLibrary.shared
     @ObservedObject private var notifications = NotificationStore.shared
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -35,34 +37,37 @@ struct MirivoRootView: View {
 
     var body: some View {
         NavigationStack(path: $sourcePath) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    header
-                    pageNavigation
-                    if selectedPage == 0 {
-                        MirrorHomeView(model: model)
-                    } else {
-                        LibraryView { showingPlayer = true }
+            ScrollViewReader { scrollProxy in
+                VStack(spacing: 22) {
+                    header.padding(.horizontal, 24)
+                    pageNavigation(scrollProxy: scrollProxy).padding(.horizontal, 24)
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 22) {
+                            if selectedPage == 0 {
+                                MirrorHomeView(model: model)
+                            } else {
+                                LibraryView(openPlayer: { showingPlayer = true },
+                                            presentSourceEditor: { sourceEditorRoute = $0 })
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 2)
+                        .padding(.bottom, 28)
+                        .frame(maxWidth: horizontalSizeClass == .regular ? 1100 : 620)
+                        .frame(maxWidth: .infinity)
+                        .id("page-content-top")
                     }
+                    .scrollIndicators(.hidden)
+                    .background(MirrorStyle.background)
+                    .id(language)
                 }
-                .padding(.horizontal, 24)
                 .padding(.top, 12)
-                .padding(.bottom, 28)
                 .frame(maxWidth: horizontalSizeClass == .regular ? 1100 : 620)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .background(MirrorStyle.background.ignoresSafeArea())
+                .toolbar(.hidden, for: .navigationBar)
+                .safeAreaInset(edge: .bottom) { NowPlayingBar(model: model) { showingPlayer = true } }
             }
-            .scrollIndicators(.hidden)
-            .background(MirrorStyle.background)
-            .overlay(alignment: .top) {
-                GeometryReader { geometry in
-                    MirrorStyle.background
-                        .frame(height: geometry.safeAreaInsets.top)
-                        .offset(y: -geometry.safeAreaInsets.top)
-                }.allowsHitTesting(false).accessibilityHidden(true)
-            }
-            .toolbar(.hidden, for: .navigationBar)
-            .id(language)
-            .safeAreaInset(edge: .bottom) { NowPlayingBar(model: model) { showingPlayer = true } }
             .navigationDestination(for: UUID.self) { sourceID in
                 if let source = library.sources.first(where: { $0.id == sourceID }) {
                     ChannelListView(source: source, onInitialContentReady: onInitialContentReady,
@@ -76,6 +81,12 @@ struct MirivoRootView: View {
                 }
             }
             .navigationDestination(isPresented: $showingPlayer) { MediaPlayerScreen(model: model) }
+        }
+        .sheet(item: $sourceEditorRoute) { route in
+            switch route {
+            case .add(let kind): SourceEditorView(initialKind: kind)
+            case .edit(let draft): SourceEditorView(source: draft.source)
+            }
         }
         .modifier(MembershipOfferPresenter(model: model))
         .modifier(ReviewPromptPresenter(model: model, playback: model.playback,
@@ -149,18 +160,33 @@ struct MirivoRootView: View {
         }
     }
 
-    private var pageNavigation: some View {
+    private func pageNavigation(scrollProxy: ScrollViewProxy) -> some View {
         let layout = dynamicTypeSize.isAccessibilitySize
             ? AnyLayout(VStackLayout(spacing: 4)) : AnyLayout(HStackLayout(spacing: 4))
         return layout {
-            pageButton(0, title: L10n.tr("Ekranlar"), symbol: "tv")
-            pageButton(1, title: L10n.tr("Kaynaklar"), symbol: "play.rectangle.on.rectangle")
+            pageButton(0, title: L10n.tr("Ekranlar"), symbol: "tv", scrollProxy: scrollProxy)
+            pageButton(1, title: L10n.tr("Kaynaklar"), symbol: "play.rectangle.on.rectangle", scrollProxy: scrollProxy)
         }
         .padding(4).background(MirrorStyle.surface, in: RoundedRectangle(cornerRadius: 18))
     }
 
-    private func pageButton(_ page: Int, title: String, symbol: String) -> some View {
-        Button { selectedPage = page } label: {
+    private func pageButton(_ page: Int, title: String, symbol: String,
+                            scrollProxy: ScrollViewProxy) -> some View {
+        Button {
+            guard selectedPage != page, !isSwitchingPage else { return }
+            isSwitchingPage = true
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) { selectedPage = page }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    scrollProxy.scrollTo("page-content-top", anchor: .top)
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    isSwitchingPage = false
+                }
+            }
+        } label: {
             Label(title, systemImage: symbol)
                 .font(.subheadline.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
@@ -170,6 +196,7 @@ struct MirivoRootView: View {
                 .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
+        .disabled(isSwitchingPage)
         .accessibilityIdentifier(page == 0 ? "page-mirror" : "page-library")
         .accessibilityAddTraits(selectedPage == page ? [.isSelected] : [])
     }

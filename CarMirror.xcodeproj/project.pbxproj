@@ -1144,7 +1144,6 @@
 				INFOPLIST_FILE = "Config/App-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MIRIVO_CRASHLYTICS_DIR = "$(BUILD_ROOT)/../../SourcePackages/checkouts/firebase-ios-sdk/Crashlytics";
 				MIRIVO_CRASHLYTICS_UPLOADER_INPUT = "$(SRCROOT)/scripts/upload-crashlytics-symbols.sh";
 				"MIRIVO_CRASHLYTICS_UPLOADER_INPUT[sdk=iphoneos*]" = "$(MIRIVO_CRASHLYTICS_DIR)/upload-symbols";
 				OTHER_LDFLAGS = (
@@ -1198,7 +1197,6 @@
 				INFOPLIST_FILE = "Config/App-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MIRIVO_CRASHLYTICS_DIR = "$(BUILD_ROOT)/../../SourcePackages/checkouts/firebase-ios-sdk/Crashlytics";
 				MIRIVO_CRASHLYTICS_UPLOADER_INPUT = "$(SRCROOT)/scripts/upload-crashlytics-symbols.sh";
 				OTHER_LDFLAGS = (
 					"$(inherited)",

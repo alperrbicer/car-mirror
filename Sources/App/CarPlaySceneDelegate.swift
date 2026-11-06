@@ -110,10 +110,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             }
             items.append(pro)
         }
-        if supportsVideo {
+        if controller != nil {
             let mirror = CPListItem(text: L10n.tr("iPhone ekranı"), detailText: model.captureTitle,
                                     image: UIImage(systemName: "iphone.radiowaves.left.and.right"))
-            mirror.isEnabled = model.readyToPlay && model.supportsVideo == true
+            mirror.isEnabled = model.readyToPlay
             if #available(iOS 26.4, *) {
                 mirror.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
@@ -145,11 +145,11 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         let stop = CPListItem(text: L10n.tr(model.mediaTitle == nil ? "Paylaşımı durdur" : "Oynatmayı durdur"), detailText: nil, image: UIImage(systemName: "stop.circle"))
         stop.isEnabled = model.broadcasting || model.probeStartedAt != nil || model.mediaTitle != nil
         stop.handler = { _, completion in model.stopBroadcast(hideSavedPlaybackBar: true); model.stopProbe(); model.stopPlayback(); completion() }
-        if stop.isEnabled || supportsVideo { items.append(stop) }
+        if stop.isEnabled || controller != nil { items.append(stop) }
         #if DEBUG
-        if supportsVideo {
+        if controller != nil {
             let probe = CPListItem(text: L10n.tr("Ekran bağlantı testi"), detailText: nil, image: UIImage(systemName: "display"))
-            probe.isEnabled = model.supportsVideo == true && !model.broadcasting
+            probe.isEnabled = !model.broadcasting
             if #available(iOS 26.4, *) {
                 probe.playbackConfiguration = CPPlaybackConfiguration(preferredPresentation: .audio,
                     playbackAction: .play, elapsedTime: .zero, duration: .zero)
@@ -441,7 +441,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         }
         favoritesOffset = CarPlayFavoritesMenu.update(template, entries: MediaFavorites.shared.entries,
             sourceNames: Dictionary(uniqueKeysWithValues: SourceLibrary.shared.sources.map { ($0.id, $0.name) }),
-            offset: offset, supportsVideo: supportsVideo,
+            offset: offset, supportsVideo: true,
             open: { [weak self] item, completion in
                 guard let self else { completion(false); return }
                 self.openFavorite(item, completion: completion)
@@ -557,7 +557,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
     }
 
     private func play(_ channel: MediaChannel, channels: [MediaChannel], sourceID: UUID?) -> Bool {
-        CarPlayPlaybackTrace.record("list-selection video=\(supportsVideo && !channel.isAudio)")
+        CarPlayPlaybackTrace.record("list-selection video=\(!channel.isAudio)")
         guard let controller else { return false }
         catalogRequest.cancel()
         // Publish the selected item's metadata before opening Now Playing.
@@ -565,7 +565,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
         return playbackTransition.start(preparePlayback: { [weak self, weak controller] in
             guard let self, let controller, self.controller === controller else { return false }
             let model = MirrorModel.shared
-            let presentation: MediaPlaybackPresentation = self.supportsVideo && !channel.isAudio ? .video : .audio
+            let presentation: MediaPlaybackPresentation = channel.isAudio ? .audio : .video
             model.returnToDisplay()
             let prepared = model.playMedia(channel, presentation: presentation,
                 queue: MediaSeriesCatalog.playbackQueue(for: channel, in: channels), sourceID: sourceID, startPaused: true)
@@ -830,11 +830,23 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
     private func channelItem(_ channel: MediaChannel, channels: [MediaChannel], sourceID: UUID?) -> CPListItem {
         let episode = channel.episode
-        let title = episode.map { SeriesText.episode($0.number) } ?? channel.title
-        let detail = episode?.resolvedTitle(providerTitle: channel.metadata.episodeTitle)
-            ?? (episode == nil && !channel.group.isEmpty ? channel.group : nil)
-        let item = CPListItem(text: title, detailText: detail,
-                              image: UIImage(systemName: channel.isAudio ? "speaker.wave.2" : "play.circle"))
+        let episodeTitle = episode?.resolvedTitle(providerTitle: channel.metadata.episodeTitle)
+        let title = episodeTitle ?? episode.map { SeriesText.episode($0.number) } ?? channel.title
+        let detail: String?
+        if let duration = channel.metadata.duration {
+            let minutes = max(1, Int((duration / 60).rounded()))
+            detail = minutes >= 60
+                ? String(format: L10n.tr("%d sa %d dk"), minutes / 60, minutes % 60)
+                : String(format: L10n.tr("%d dk"), minutes)
+        } else if episode == nil, !channel.group.isEmpty {
+            detail = channel.group
+        } else {
+            detail = nil
+        }
+        let isPlaying = MirrorModel.shared.selectedMediaChannel?.id == channel.id
+            && MirrorModel.shared.playback.hasActivePlayback
+        let symbol = channel.isAudio ? "speaker.wave.2" : (isPlaying ? "pause.fill" : "play.circle")
+        let item = CPListItem(text: title, detailText: detail, image: UIImage(systemName: symbol))
         if #available(iOS 26.4, *) {
             item.playbackConfiguration = CarPlayPlaybackTransition.selectionConfiguration()
         }
@@ -842,7 +854,7 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
             guard let self else { completion(); return }
             let prepared = self.play(channel, channels: channels, sourceID: sourceID)
             if #available(iOS 26.4, *), prepared {
-                item?.playbackConfiguration = CarPlayPlaybackTransition.configuration(for: channel, supportsVideo: self.supportsVideo)
+                item?.playbackConfiguration = CarPlayPlaybackTransition.configuration(for: channel, supportsVideo: true)
             }
             completion()
         }
@@ -996,7 +1008,7 @@ final class CarPlayPlaybackTransition {
 
     @available(iOS 26.4, *)
     static func configuration(for channel: MediaChannel, supportsVideo: Bool) -> CPPlaybackConfiguration {
-        CPPlaybackConfiguration(preferredPresentation: supportsVideo && !channel.isAudio ? .video : .audio,
+        CPPlaybackConfiguration(preferredPresentation: channel.isAudio ? .audio : .video,
             playbackAction: .play, elapsedTime: .zero, duration: .zero)
     }
 
@@ -1091,7 +1103,7 @@ enum CarPlayFavoritesMenu {
             item.handler = { [weak item] _, completion in
                 open(favorite) { prepared in
                     if #available(iOS 26.4, *), favorite.series == nil, prepared {
-                        item?.playbackConfiguration = CarPlayPlaybackTransition.configuration(for: favorite.channel, supportsVideo: supportsVideo)
+                        item?.playbackConfiguration = CarPlayPlaybackTransition.configuration(for: favorite.channel, supportsVideo: true)
                     }
                     completion()
                 }

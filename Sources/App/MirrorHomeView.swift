@@ -164,7 +164,7 @@ struct MirrorHomeView: View {
     private var actions: some View {
         if model.broadcasting {
             VStack(spacing: 12) {
-                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (model.supportsVideo == true || playback.tvDevice != nil || model.externalScreenCount > 0) {
+                if model.sessionState != .presenting && model.sessionState != .stopping && model.readyToPlay && (model.carPlayConnected || playback.tvDevice != nil || model.externalScreenCount > 0) {
                     Button { model.playOnDisplay() } label: {
                         Label(L10n.tr("Görüntüyü yeniden bağla"), systemImage: "arrow.clockwise")
                     }.buttonStyle(MirivoButtonStyle(prominent: true))
@@ -269,7 +269,7 @@ struct MirrorHomeView: View {
     }
 
     private var detail: String {
-        if model.supportsVideo == true || playback.tvDevice != nil || model.externalScreenCount > 0 {
+        if model.carPlayConnected || playback.tvDevice != nil || model.externalScreenCount > 0 {
             switch model.sessionState {
             case .captureReady, .connecting: return L10n.tr("Görüntü bağlanıyor")
             default: break
