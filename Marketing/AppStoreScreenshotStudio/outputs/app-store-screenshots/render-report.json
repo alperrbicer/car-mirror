@@ -1,0 +1,43 @@
+{
+  "renderer": "Playwright over supplied V2 HTML/CSS masters",
+  "locales": [
+    "tr-TR"
+  ],
+  "slides": [
+    1
+  ],
+  "devices": [
+    "iphone"
+  ],
+  "assets": {
+    "logo": "assets/MirivoMark.svg",
+    "presentScreenshots": [
+      "assets/screens/01-phone.png",
+      "assets/screens/01-tablet.png"
+    ],
+    "intentionallyBlankScreens": [],
+    "missingScreenSlots": []
+  },
+  "qualityChecks": {
+    "font": "available",
+    "textOverflow": "passed",
+    "dimensions": "passed",
+    "opaquePng": "passed",
+    "embeddedSrgbProfile": "passed",
+    "repeatRenderHash": "passed"
+  },
+  "files": [
+    {
+      "file": "outputs/app-store-screenshots/tr-TR/iphone/01.png",
+      "bytes": 2770167,
+      "sha256": "df6957dc066b1358ac4ac5e4d8a1831314dd2372a335afe7c63e6552702d21cf",
+      "width": 1320,
+      "height": 2868,
+      "opaque": true,
+      "embeddedSrgbProfile": true,
+      "locale": "tr-TR",
+      "device": "iphone",
+      "slide": 1
+    }
+  ]
+}

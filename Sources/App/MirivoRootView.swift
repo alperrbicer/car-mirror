@@ -53,7 +53,7 @@ struct MirivoRootView: View {
                         .padding(.horizontal, 24)
                         .padding(.top, 2)
                         .padding(.bottom, 28)
-                        .frame(maxWidth: horizontalSizeClass == .regular ? 1100 : 620)
+                        .frame(maxWidth: horizontalSizeClass == .regular ? .infinity : 620)
                         .frame(maxWidth: .infinity)
                         .id("page-content-top")
                     }
@@ -62,7 +62,7 @@ struct MirivoRootView: View {
                     .id(language)
                 }
                 .padding(.top, 12)
-                .frame(maxWidth: horizontalSizeClass == .regular ? 1100 : 620)
+                .frame(maxWidth: horizontalSizeClass == .regular ? .infinity : 620)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(MirrorStyle.background.ignoresSafeArea())
                 .toolbar(.hidden, for: .navigationBar)

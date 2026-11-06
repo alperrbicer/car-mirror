@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mirivo Screenshot Studio V2</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="studio">
+    <div class="studio-shell">
+      <div class="studio-top">
+        <div>
+          <div class="studio-eyebrow">MASTER DESIGN SYSTEM / V2</div>
+          <h1>Mirivo Screenshot Studio</h1>
+          <p class="studio-sub">ZIP’teki altı katmanlı HTML/CSS master · Üst atmosfer ışıkları · Mirivo marka alanı</p>
+        </div>
+        <div class="controls">
+          <label for="lang">Dil</label><select id="lang"></select>
+          <label for="device">Cihaz</label>
+          <select id="device"><option value="iphone">iPhone · Portrait</option><option value="ipad">iPad · Landscape</option></select>
+          <div class="export-controls">
+            <button id="export-one">01 PNG dışa aktar</button>
+            <button id="export-locale">01 · bu dilin tüm cihazları</button>
+            <button id="export-all">01 · tüm diller</button>
+            <div id="export-result" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+      <div class="studio-grid" id="grid"></div>
+      <p class="studio-note"><strong>Not:</strong> Gerçek ekran görüntüsü bulunan alanlarda yalnızca bu görseller gösterilir. ZIP’te bulunmayan TV/CarPlay ve diğer screenshot asset’leri placeholder kalır. Görselleri <code>assets/screens/</code> içine eklediğinde otomatik yüklenir. Orijinal logo <code>assets/MirivoMark.svg</code> konumundadır. Bu aşamadaki PNG export yalnızca Screenshot 01 içindir.</p>
+    </div>
+    <script src="translations.js"></script>
+    <script>
+      const names = ['Tüm ekranlar', 'Medya kaynakları', 'TV deneyimi', 'Araç ekranı', 'Medya kütüphanesi', 'Oynatma deneyimi'];
+      const grid = document.getElementById('grid');
+      const lang = document.getElementById('lang');
+      const device = document.getElementById('device');
+      const languageNames = { 'tr-TR': 'Türkçe', 'en-US': 'English', 'de-DE': 'Deutsch' };
+      for (const code of Object.keys(window.MIRIVO_LOCALES)) {
+        const option = document.createElement('option'); option.value = code; option.textContent = languageNames[code] || code; lang.appendChild(option);
+      }
+      function draw() {
+        grid.innerHTML = '';
+        for (let n = 1; n <= 6; n++) {
+          const path = `screenshot-${String(n).padStart(2, '0')}.html?lang=${encodeURIComponent(lang.value)}&device=${device.value}`;
+          const card = document.createElement('div'); card.className = 'studio-card';
+          card.innerHTML = `<div class="preview-wrap"><iframe title="Screenshot ${n}" loading="eager" src="${path}"></iframe></div><div class="card-bottom"><div><div class="card-title">${String(n).padStart(2, '0')} · ${names[n - 1]}</div><div class="card-desc">V2 HTML/CSS Master</div></div><a href="${path}" target="_blank" rel="noopener">Büyük Aç</a></div>`;
+          grid.appendChild(card);
+        }
+        document.querySelectorAll('.preview-wrap').forEach((el) => { el.style.height = device.value === 'ipad' ? '280px' : '580px'; });
+      }
+      async function exportPng(scope) {
+        const result = document.getElementById('export-result');
+        const buttons = [...document.querySelectorAll('.export-controls button')];
+        result.textContent = 'PNG hazırlanıyor…'; buttons.forEach((button) => { button.disabled = true; });
+        try {
+          const query = new URLSearchParams({ scope, locale: lang.value, device: device.value });
+          const response = await fetch(`/api/export?${query}`);
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          if (data.files.length === 1) {
+            const link = document.createElement('a'); link.href = data.files[0].url; link.download = data.files[0].name; link.click();
+            result.textContent = `İndiriliyor: ${data.files[0].name}`;
+          } else {
+            result.innerHTML = `<strong>Hazır — dosyaları seç:</strong><br>${data.files.map((file) => `<a href="${file.url}" download>${file.name}</a>`).join('<br>')}`;
+          }
+        } catch (error) { result.textContent = `Export başarısız: ${error.message}`; }
+        finally { buttons.forEach((button) => { button.disabled = false; }); }
+      }
+      lang.addEventListener('change', draw); device.addEventListener('change', draw); draw();
+      document.getElementById('export-one').addEventListener('click', () => exportPng('single'));
+      document.getElementById('export-locale').addEventListener('click', () => exportPng('locale'));
+      document.getElementById('export-all').addEventListener('click', () => exportPng('all'));
+    </script>
+  </body>
+</html>

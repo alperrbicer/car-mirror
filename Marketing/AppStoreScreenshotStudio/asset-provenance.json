@@ -1,0 +1,68 @@
+{
+  "sourceArchive": "/Users/alperbicer/Downloads/mirivo-screenshot-studio-v2.zip",
+  "referencePreview": {
+    "file": "outputs/preview-all-six-v2.png",
+    "source": "preview-all-six.png in the user-supplied archive",
+    "usedAsOutputBackground": false
+  },
+  "logo": {
+    "file": "assets/MirivoMark.svg",
+    "source": "/Users/alperbicer/Documents/projects/private/car-mirror/Resources/Assets.xcassets/MirivoMark.imageset/MirivoMark.svg",
+    "isOfficialAsset": true
+  },
+  "screenshots": [
+    {
+      "file": "assets/screens/01-phone.png",
+      "source": "Release/AppStore/screenshots/tr-review-20261017-r2/iphone-6.9-tr/01-buyuk-ekran.png — original Turkish App Store capture showing the Ekranlar page",
+      "sha256": "5638d89b918ac5e41565a092ea7caa37c23f8f48f3a21a4c73ed1350901897c3"
+    },
+    {
+      "file": "assets/screens/01-tablet.png",
+      "source": "Previously supplied authentic Mirivo iPad Pro simulator screenshot",
+      "rendered": true,
+      "reason": "Shown full bleed inside the Screenshot 01 tablet screen; object-fit: cover removes side letterboxing"
+    },
+    {
+      "file": "assets/screens/01-tv.png",
+      "source": "Supplied archive master.png, resized to 3840×2160 because the supplied 01-tv.png has a truncated PNG image stream",
+      "sha256": "f621e2b4e66036f8f99de7a428d12b582fad070f9fd0847bdecdb9e9149cbdc2"
+    },
+    {
+      "file": "assets/screens/01-car.png",
+      "source": "Supplied archive assets/screens/01-car.png (2880×1425)",
+      "sha256": "2e5e21af7287ae2a5531a02c126a809b388bf47eb8a556b14cef83771b6a05ff"
+    },
+    {
+      "file": "assets/screens/02-phone.png",
+      "source": "User-provided current Sources screen capture (1206×2622); preserved as supplied",
+      "sha256": "847db581c858b9e12ecc174dea3ceaa50c0b083fa00fba7a62996fe73abe0dd4"
+    },
+    {
+      "file": "assets/screens/03-tv.png",
+      "source": "User-provided mountain-lake image for Screenshot 03 (1672×941); reused on the phone with centered contain-fit and black letterboxing",
+      "sha256": "d3c2b83ddf65aefcf928f575c2cad9fa496c992d3bd7d442c5e5e3a04ea0530a"
+    },
+    {
+      "file": "assets/screens/04-car.png",
+      "source": "User-supplied mirivo-screenshot-03-yaris.zip — mirivo-screenshot-03-yaris.png (1672×941)",
+      "sha256": "eb0d0d20bb8bc7246256c2b69cb8ce5c7e701a4f305f3c8e4449c63ed41d0d29",
+      "reusedOn": "Screenshot 04 phone, centered with black letterboxing above and below"
+    },
+    {
+      "file": "assets/screens/06-player.png",
+      "source": "User-provided Karanlık Temalı İzleme Listesi (2).png (850×1850); placed in Screenshot 06 phone",
+      "sha256": "429c74806661c869d7d3478b9d4d8de1ac3097eacbcf8a98b0f1fd90e5b3a1f7"
+    },
+    {
+      "file": "assets/screens/05-library.png",
+      "source": "User-supplied mirivo-screen05-phone-designs.zip — library phone screen (1080×2600); status-bar time, Wi-Fi, and battery icons shifted down 14px, with the original screen content preserved",
+      "sha256": "a6578de2ecab4036567c24717ae1e367b14b3b42158b59ec1d7c0c3467083183"
+    },
+    {
+      "file": "assets/screens/05-detail.png",
+      "source": "User-supplied mirivo-screen05-phone-designs.zip — original content detail screen; top dark gradient extended by 24px to move intact status icons farther from the rounded phone edge (1080×2624)",
+      "sha256": "1c21c3674226db15b509c4092df9cda98cb23ed8dacdd025a102031698723d8f"
+    }
+  ],
+  "missingScreenshots": []
+}
