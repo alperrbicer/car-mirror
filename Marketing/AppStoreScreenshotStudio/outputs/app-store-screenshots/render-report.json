@@ -1,9 +1,11 @@
 {
   "renderer": "Playwright over supplied V2 HTML/CSS masters",
   "locales": [
-    "ar-SA"
+    "vi-VN"
   ],
   "slides": [
+    2,
+    3,
     4,
     5,
     6
@@ -38,38 +40,62 @@
   },
   "files": [
     {
-      "file": "outputs/app-store-screenshots/ar-SA/ipad/04.png",
-      "bytes": 4806164,
-      "sha256": "8894bfa956acece9a2bf972534e7c12021be9a6ef2291ac9db3195bb923a6b2d",
+      "file": "outputs/app-store-screenshots/vi-VN/ipad/02.png",
+      "bytes": 4018885,
+      "sha256": "8d4987e97b97ea218b3fc7ab7069c9ccee99e56c746568f0aeee72769181f47d",
       "width": 2752,
       "height": 2064,
       "opaque": true,
       "embeddedSrgbProfile": true,
-      "locale": "ar-SA",
+      "locale": "vi-VN",
+      "device": "ipad",
+      "slide": 2
+    },
+    {
+      "file": "outputs/app-store-screenshots/vi-VN/ipad/03.png",
+      "bytes": 5005181,
+      "sha256": "14d1b2e9b7dbddc224ecc05a7188b972315f58d545a4ec51c8205f4512139407",
+      "width": 2752,
+      "height": 2064,
+      "opaque": true,
+      "embeddedSrgbProfile": true,
+      "locale": "vi-VN",
+      "device": "ipad",
+      "slide": 3
+    },
+    {
+      "file": "outputs/app-store-screenshots/vi-VN/ipad/04.png",
+      "bytes": 4802797,
+      "sha256": "3741f4058cd86da8f6aadd30837373cd064139b8db104be02aa1f7a201e0cbfe",
+      "width": 2752,
+      "height": 2064,
+      "opaque": true,
+      "embeddedSrgbProfile": true,
+      "locale": "vi-VN",
       "device": "ipad",
       "slide": 4
     },
     {
-      "file": "outputs/app-store-screenshots/ar-SA/ipad/05.png",
-      "bytes": 4595815,
-      "sha256": "1f9db3dfc04b3af082e3464bf910f57d2b4b7ad8b72e084c728068528cf3f510",
+      "file": "outputs/app-store-screenshots/vi-VN/ipad/05.png",
+      "bytes": 4610686,
+      "sha256": "70b37fabd4c58e41aff93094d86accbb28e534f8a24f6d401fe9ae4b5ebb84b4",
       "width": 2752,
       "height": 2064,
       "opaque": true,
       "embeddedSrgbProfile": true,
-      "locale": "ar-SA",
+      "locale": "vi-VN",
       "device": "ipad",
       "slide": 5
     },
     {
-      "file": "outputs/app-store-screenshots/ar-SA/ipad/06.png",
-      "bytes": 4320895,
-      "sha256": "667b9319f0d9a0a559faec15d09d17a7267065bbc6652bf5b28850cd6c81737d",
+      "file": "outputs/app-store-screenshots/vi-VN/ipad/06.png",
+      "bytes": 4335292,
+      "sha256": "69d2b18eeef94b0b19a5d7f1b0009b2e2ee0878f374a7df982a16dbc4005e3c4",
       "width": 2752,
       "height": 2064,
       "opaque": true,
       "embeddedSrgbProfile": true,
-      "locale": "ar-SA",
+      "locale": "vi-VN",
       "device": "ipad",
       "slide": 6
     }
