@@ -129,6 +129,7 @@ body.studio{margin:0;min-height:100vh;background:linear-gradient(160deg,#071417,
 .export-controls button.primary:hover{background:linear-gradient(120deg,#8af3dd,#55d8c4)}
 .export-controls button:disabled{opacity:.55;cursor:wait;transform:none}
 #export-result{flex-basis:100%;font-size:13px;line-height:1.5;color:#9fe8d8}
+#selected-count{flex-basis:100%;font-size:13px;line-height:1.5;color:#9fe8d8}
 .studio-grid{margin-top:34px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .studio-card{border:1px solid rgba(129,232,212,.19);background:linear-gradient(140deg,rgba(21,51,56,.63),rgba(9,26,30,.84));border-radius:23px;padding:16px;min-width:0;box-shadow:0 14px 45px rgba(0,0,0,.15);cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease}
 .studio-card:hover{border-color:rgba(129,232,212,.52)}
@@ -544,6 +545,15 @@ body.studio{margin:0;min-height:100vh;background:linear-gradient(160deg,#071417,
 
 /* On the iPad master, the CarPlay unit already carries the hazard button. */
 .artboard.ipad .scene-1 .car-cockpit .cockpit-hazard{display:none;}
+
+/* Lift the Screenshot 01 device and screenshot composition slightly. */
+.scene-1 > .device,
+.scene-1 > .car-cockpit{translate:0 -250px;}
+.scene-2 > .device,.scene-2 > .glass-card{translate:0 -210px;}
+.scene-3 > .device,.scene-3 > .cast-beam,.scene-3 > .cast-bubble{translate:0 -300px;}
+.scene-4 > .device,.scene-4 > .vehicle-dashboard,.scene-4 > .park-note{translate:0 -320px;}
+.scene-5 > .device,.scene-5 > .lib-card{translate:0 -220px;}
+.scene-6 > .device,.scene-6 > .pause-circle,.scene-6 > .track-card{translate:0 -200px;}
 
 /* Avoid tracking that separates joined or abugida scripts. */
 .artboard[data-locale^="ar"] .kicker,.artboard[data-locale^="ar"] .bottom-meta .left,.artboard[data-locale^="he"] .kicker,.artboard[data-locale^="he"] .bottom-meta .left,.artboard[data-locale^="th"] .kicker,.artboard[data-locale^="th"] .bottom-meta .left,.artboard[data-locale^="hi"] .kicker,.artboard[data-locale^="hi"] .bottom-meta .left,.artboard[data-locale^="ar"] .headline span,.artboard[data-locale^="ar"] .subtitle,.artboard[data-locale^="he"] .headline span,.artboard[data-locale^="he"] .subtitle,.artboard[data-locale^="th"] .headline span,.artboard[data-locale^="th"] .subtitle,.artboard[data-locale^="hi"] .headline span,.artboard[data-locale^="hi"] .subtitle{letter-spacing:0}

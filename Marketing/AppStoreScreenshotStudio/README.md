@@ -29,6 +29,8 @@ Varsayılan komut Screenshot 01’i üç örnek dilde ve iki cihaz boyutunda ür
 
 PNG’ler `outputs/app-store-screenshots/{locale}/{device}/{01..06}.png` altında oluşur. Üretici boyutları denetler, sRGB ICC profilini ekler, her sayfayı iki kez yakalayıp byte hash’lerini karşılaştırır; font ve yatay metin taşmasını kontrol eder. Eksik screenshot slot’ları sessizce gizlenmez: placeholder görünür ve `render-report.json` içinde listelenir. Contact sheet’ler ve kalite raporu aynı çıktı klasörüne yazılır.
 
+Ekran 01 ve 02’nin iPhone iç ekranları, `assets/screens/locales/{locale}/01-phone.png` ve `02-phone.png` dosyalarından alınır. Belirli bir dil kümesini sadece iPhone için üretmek üzere `python3 tools/export_png.py --slides 1,2 --locales en-US,de-DE,fr-FR --device iphone` kullan; locale kodlarını virgülle ayır.
+
 Stüdyo panelindeki **Tüm ekranlar · tüm diller ve cihazlar (ZIP)** düğmesi, desteklenen tüm dillerin altı masterını iPhone ve iPad boyutlarında üretip PNG’leri, contact sheet’leri ve render raporunu tek ZIP olarak indirir.
 
 ## Gerçek asset’ler

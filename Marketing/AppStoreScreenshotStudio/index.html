@@ -104,7 +104,7 @@
             result.innerHTML = `<strong>Hazır — dosyaları seç:</strong><br>${data.files.map((file) => `<a href="${file.url}" download>${file.name}</a>`).join('<br>')}`;
           }
         } catch (error) { result.textContent = `Export başarısız: ${error.message}`; }
-        finally { buttons.forEach((button) => { button.disabled = false; }); }
+        finally { buttons.forEach((button) => { button.disabled = false; }); updateSelection(); }
       }
       lang.addEventListener('change', draw); device.addEventListener('change', draw); draw();
       document.getElementById('export-one').addEventListener('click', () => exportPng('single'));

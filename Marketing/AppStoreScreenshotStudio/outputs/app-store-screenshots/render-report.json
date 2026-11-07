@@ -1,13 +1,14 @@
 {
   "renderer": "Playwright over supplied V2 HTML/CSS masters",
   "locales": [
-    "tr-TR"
+    "ar-SA"
   ],
   "slides": [
-    1
+    4,
+    5,
+    6
   ],
   "devices": [
-    "iphone",
     "ipad"
   ],
   "assets": {
@@ -37,28 +38,40 @@
   },
   "files": [
     {
-      "file": "outputs/app-store-screenshots/tr-TR/iphone/01.png",
-      "bytes": 2984699,
-      "sha256": "b4547c127baed1351d075d990cdecbf2c4098add973f7daab695c54151bf5893",
-      "width": 1320,
-      "height": 2868,
-      "opaque": true,
-      "embeddedSrgbProfile": true,
-      "locale": "tr-TR",
-      "device": "iphone",
-      "slide": 1
-    },
-    {
-      "file": "outputs/app-store-screenshots/tr-TR/ipad/01.png",
-      "bytes": 4683751,
-      "sha256": "56c30f75eee421029b1bc89640ae82a9470a55bf1ad6c340b47535a30c46c70a",
+      "file": "outputs/app-store-screenshots/ar-SA/ipad/04.png",
+      "bytes": 4806164,
+      "sha256": "8894bfa956acece9a2bf972534e7c12021be9a6ef2291ac9db3195bb923a6b2d",
       "width": 2752,
       "height": 2064,
       "opaque": true,
       "embeddedSrgbProfile": true,
-      "locale": "tr-TR",
+      "locale": "ar-SA",
       "device": "ipad",
-      "slide": 1
+      "slide": 4
+    },
+    {
+      "file": "outputs/app-store-screenshots/ar-SA/ipad/05.png",
+      "bytes": 4595815,
+      "sha256": "1f9db3dfc04b3af082e3464bf910f57d2b4b7ad8b72e084c728068528cf3f510",
+      "width": 2752,
+      "height": 2064,
+      "opaque": true,
+      "embeddedSrgbProfile": true,
+      "locale": "ar-SA",
+      "device": "ipad",
+      "slide": 5
+    },
+    {
+      "file": "outputs/app-store-screenshots/ar-SA/ipad/06.png",
+      "bytes": 4320895,
+      "sha256": "667b9319f0d9a0a559faec15d09d17a7267065bbc6652bf5b28850cd6c81737d",
+      "width": 2752,
+      "height": 2064,
+      "opaque": true,
+      "embeddedSrgbProfile": true,
+      "locale": "ar-SA",
+      "device": "ipad",
+      "slide": 6
     }
   ]
 }

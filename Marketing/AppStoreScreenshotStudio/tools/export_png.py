@@ -30,6 +30,7 @@ MISSING_BY_SLIDE = {
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--lang', '--locale', dest='lang', default='all', help='Locale code or all (default: all)')
+    parser.add_argument('--locales', help='Comma-separated locale codes for a targeted batch export')
     parser.add_argument('--device', choices=['iphone', 'ipad', 'all'], default='all')
     parser.add_argument('--slide', type=int, choices=range(1, 7), default=1, help='Master number (default: 1)')
     parser.add_argument('--slides', help='Comma-separated master numbers, for example 1,3,5')
@@ -51,9 +52,16 @@ def parse_args():
         slides = list(range(1, 7)) if args.all_slides or args.slide is None else [args.slide]
     translation_text = (ROOT / 'translations.js').read_text(encoding='utf-8')
     available = re.findall(r"^\s*['\"]([A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)['\"]\s*:\s*\[", translation_text, flags=re.MULTILINE)
-    if args.lang != 'all' and args.lang not in available:
-        parser.error('Unknown locale. Defined locales: ' + ', '.join(available))
-    return args, available, slides
+    if args.locales:
+        langs = list(dict.fromkeys(item.strip() for item in args.locales.split(',') if item.strip()))
+        unknown = [lang for lang in langs if lang not in available]
+        if not langs or unknown:
+            parser.error('Unknown or empty locale list. Defined locales: ' + ', '.join(available))
+    else:
+        if args.lang != 'all' and args.lang not in available:
+            parser.error('Unknown locale. Defined locales: ' + ', '.join(available))
+        langs = available if args.lang == 'all' else [args.lang]
+    return args, available, slides, langs
 
 
 def compile_html(slide: int, lang: str, device: str) -> tuple[str, dict[str, str]]:
@@ -66,12 +74,30 @@ def compile_html(slide: int, lang: str, device: str) -> tuple[str, dict[str, str
     html = html.replace('<script src="render.js"></script>', '<script>' + render + '</script>')
     import_script = '<script>window.MIRIVO_RENDER_OPTIONS=' + json.dumps({'lang': lang, 'device': device}) + '</script>'
     assets: dict[str, str] = {}
-    for asset in [ROOT / 'assets' / 'MirivoMark.svg', *(ROOT / 'assets' / 'screens').glob('*.png')]:
+    screens_by_slide = {
+        1: ['01-tv', '01-phone', '01-tablet', '01-car'],
+        2: ['02-phone'],
+        3: ['03-tv'],
+        4: ['04-car'],
+        5: ['05-library', '05-detail'],
+        6: ['06-player'],
+    }
+    screen_assets = [ROOT / 'assets' / 'screens' / f'{name}.png' for name in screens_by_slide[slide]]
+    if slide in (1, 2):
+        locale_screens = ROOT / 'assets' / 'screens' / 'locales' / lang
+        screen_assets.extend(path for path in (locale_screens / '01-phone.png', locale_screens / '02-phone.png') if path.is_file())
+    for asset in [ROOT / 'assets' / 'MirivoMark.svg', *screen_assets]:
         if not asset.is_file():
             continue
         mime = mimetypes.guess_type(asset.name)[0] or 'application/octet-stream'
         encoded = base64.b64encode(asset.read_bytes()).decode('ascii')
-        assets['logo' if asset.name == 'MirivoMark.svg' else asset.stem] = f'data:{mime};base64,{encoded}'
+        if asset.name == 'MirivoMark.svg':
+            key = 'logo'
+        elif asset.parent.parent.name == 'locales':
+            key = f'{lang}:{asset.stem}'
+        else:
+            key = asset.stem
+        assets[key] = f'data:{mime};base64,{encoded}'
     asset_script = '<script>window.MIRIVO_ASSETS=' + json.dumps(assets) + ';</script>'
     html = html.replace('<script>' + render + '</script>', asset_script + import_script + '<script>' + render + '</script>')
     return html, assets
@@ -112,13 +138,12 @@ def save_contact_sheets(rendered, output: Path):
                 sheet.paste(source, (x + (thumb_w-source.width)//2, y + (thumb_h-source.height)//2))
             draw.text((x, y + thumb_h + 8), f"{item['locale']} · {item['slide']:02d}", fill='#d6e9e5')
         target = output / f'contact-sheet_{device}.png'
-        sheet.save(target, format='PNG', icc_profile=profile, optimize=False, compress_level=9)
+        sheet.save(target, format='PNG', icc_profile=profile, optimize=False, compress_level=4)
         print(target)
 
 
 def main():
-    args, available, slides = parse_args()
-    langs = available if args.lang == 'all' else [args.lang]
+    args, available, slides, langs = parse_args()
     devices = list(SIZES) if args.device == 'all' else [args.device]
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -166,13 +191,17 @@ def main():
                             raise RuntimeError(f'{lang}/{device}/{slide:02d}: screenshot returned {image.size}')
                         target = output / lang / device / f'{slide:02d}.png'
                         target.parent.mkdir(parents=True, exist_ok=True)
-                        image.save(target, format='PNG', icc_profile=srgb, optimize=False, compress_level=9)
+                        image.save(target, format='PNG', icc_profile=srgb, optimize=False, compress_level=4)
                         normalized = target.read_bytes()
                         final_hash = hashlib.sha256(normalized).hexdigest()
                         all_missing.update(checks['missing'])
                         report['qualityChecks']['font'] = 'available'
                         report['qualityChecks']['textOverflow'] = 'passed'
-                        report['files'].append({'file': str(target.relative_to(ROOT)), 'bytes': len(normalized), 'sha256': final_hash, 'width': width, 'height': height, 'opaque': True, 'embeddedSrgbProfile': True, 'locale': lang, 'device': device, 'slide': slide})
+                        try:
+                            report_path = str(target.relative_to(ROOT))
+                        except ValueError:
+                            report_path = str(target)
+                        report['files'].append({'file': report_path, 'bytes': len(normalized), 'sha256': final_hash, 'width': width, 'height': height, 'opaque': True, 'embeddedSrgbProfile': True, 'locale': lang, 'device': device, 'slide': slide})
                         rendered.append({'locale': lang, 'device': device, 'slide': slide, 'path': target})
                         print(f'✓ {target} — {width}×{height}, sRGB, opaque, repeat hash passed')
                 page.close()
